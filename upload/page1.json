@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Voici le texte extrait de l'image, avec la structure et la mise en forme préservées :\n\n---\n\n**THE RESEARCH STAGES IN CONDUCTING A LITERATURE REVIEW**\n\n**Askpstudyinaustralia**\nSCHOLARSHIPS | RESOURCES | SUCCESS\n\n| Stage Characteristics | **Research stage** |  |  |  |  |\n|:---:|:---:|:---:|:---:|:---:|:---:|\n|  | **Problem formation** | **Data collection** | **Data evaluation** | **Analysis and interpretation** | **Public presentation** |\n| **Research questions asked** | What evidence should be included in the review? | What procedures should be used to find relevant evidence? | What retrieved evidence should be included in the review? | What procedures should be used to make inferences about the literature as a whole? | What information should be included in the review report? |\n| **Primary function in review** | Constructing definitions that distinguish relevant from irrelevant studies. | Determining which sources of potentially relevant sources to examine. | Applying criteria to separate \"valid\" from \"invalid\" studies. | Synthesizing valid retrieved studies. | Applying editorial criteria to separate important from unimportant information. |\n| **Procedural differences that create variation in review conclusion** | 1. Differences in included operational definitions.<br>2. Differences in operational detail. | Differences in the research contained in sources of information. | 1. Differences in quality criteria.<br>2. Differences in the influence of non-quality criteria. | Differences in the rules of inference. | Differences in guidelines for editorial judgment. |\n| **Sources of potential invalidity in review conclusions** | 1. Narrow concepts might make review conclusions less definitive and robust.<br>2. Superficial operational detail might obscure interacting variables. | 1. Accessed studies might be qualitatively different from the target population of studies.<br>2. People sampled in accessible studies might be different from target population of people. | 1. Nonequality factors might cause improper weighting of study formation.<br>2. Omissions in study reports might make conclusions unreliable. | 1. Rules for distinguishing patterns from noise might be inappropriate.<br>2. Review-based evidence might be used to infer causality. | 1. Omission of review procedures might make conclusions irreproducible.<br>2. Omission of review findings and study procedures might make conclusions obsolete. |\n| **5. Rhetoric** | L. Was written with a coherent, clear structure that supported the review | Poorly conceptualized, haphazard | Some coherent structure | Some coherent structure | Well developed, coherent |\n\n---\n\nFrom \"Scientific Guidelines for Conducting Integrative Research Reviews,\" *Review of Education Research*, 1984, 52, pg. 293.\nCopyright 1984 by Sage Publications. Reprinted with permission of Sage Publications.\n\n**Follow @Askpstudyinaustralia** for PhD tips, resources, scholarships and more!\n\naskpstudyinaustralia.com **#1GradSchoolResourceHub**\n\n*Source: Randolph, Justus (2009). A Guide to Writing the Dissertation Literature Review. Practical Assessment, Research & Evaluation*\n\n---",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784709932,
+  "id": "202607221645199ba7e745744c47c1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607221645199ba7e745744c47c1",
+  "usage": {
+    "completion_tokens": 668,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2134,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2802
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**TIPS FOR WRITING**\n# THE INTRODUCTION\n\n1) State the problem or phenomenon to be investigated.\n2) Identify the party affected by the problem.\n3) Explain how you plan to solve the problem.\n4) Convince the reader that you are qualified and equipped with the right methods of solving that problem.\n5) Highlight the benefits of solving the problem.\n6) Tell the reader what results you anticipate.\n\na) As evident from the above, in your introduction, you should communicate the rationale of your research. Explain the importance of your research. Even though your research introduction chapter has no word limit, being concise helps your readers to comprehend quickly the major issues in your research. When you eventually start writing the introduction, start with some relevant general statements before gradually narrowing it down to focus on the crucial issues such as your research problem, questions, objectives and hypothesis. Here, you explain briefly your research problem and how you plan to solve it. Your introduction must be motivating and captivating enough so that the reader will want to read on to find out more.\n\nb) It is assumed that your introduction is prepared for readers who have adequate knowledge of your discipline. Your introduction includes many crucial aspects of your thesis. Readers may want to know whether it is your own discovery, or you are continuing a previous study. If it is your own scientific discovery, then you must make it clear how the findings will add to the existing knowledge (Kafes, 2018). Your reader would also want to know more about the concepts used in your research, the objectives of the research, and the methodology employed. You could also discuss the obstacles encountered, if any, and the limitation of your research.\n\n---\n\nFollow @Askpstudyinaustralia  \nfor PhD tips, resources, scholarships and more!\n\naskpstudyinaustralia.com\n\n\\#1GradSchoolResourceHub\n\n**Source:** Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach—How to Write Your Introduction. *Creative Education*, 9, 2534-2545. https://doi.org/10.4236/ce.2018.915192",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784709971,
+  "id": "202607221646016bd81e71d4a14023",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607221646016bd81e71d4a14023",
+  "usage": {
+    "completion_tokens": 441,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2116,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2557
+  }
+}

@@ -1,0 +1,107 @@
+
+Prompt #4 Methodological Positioning & Research Design Justification
+
+Purpose:
+
+To justify why a particular method, design, and analysis is appropriate based on literature.
+
+Prompt:
+
+Act as a methodological expert and help me analyze how prior studies on [insert topic] have designed their research. For each study, extract details on research design, data type, sample characteristics, measurement instruments, and analytical techniques. Critically evaluate methodological patterns, dominant approaches, and recurring weaknesses (e.g., small samples, cross-sectional designs, single-source bias). Compare quantitative, qualitative, and mixed-method approaches used in the field and assess their suitability for different research questions. Based on this
+
+aime
+
+Keep checking this doc file because I will keep creating new prompts and will keep adding.
+
+Q
+
+Created and shared by ezephd (Priyo Das, Asst. Prof., Dept. of Business Management)
+
+review, help me justify my chosen methodology by explicitly linking gaps in prior methods to my research design choices. Present the output as a methodological comparison table and a written justification that I can directly use in my methodology chapter or research design section.
+
+Best used when:
+
+Writing methodology chapters, research design sections, or reviewer responses
+----
+Two prompts for lit review
+
+Prompt #3 Theory Building & Conceptual Integration from Literature
+
+Purpose:
+
+To move from "reviewing literature" building a defensible conceptual framework.
+
+Prompt:
+
+J'aime
+
+Act as a senior research mentor and help me build a theory-driven synthesis of the literature on [insert topic]. From each study, extract the core constructs, theoretical assumptions, and proposed or tested relationships between variables. Identify how constructs are defined differently across studies and where conceptual overlap or ambiguity exists. Next, integrate the literature to: (1) map construct-construct relationships, (2) identify dominant and missing theoretical linkages, (3) distinguish antecedents, mediators, moderators, and outcomes, and (4) evaluate which theories are overused, underused, or misapplied. Based on this synthesis, propose a coherent conceptual framework that logically integrates constructs and relationships grounded in prior literature while clearly showing how my study extends existing theory. Present the output as a conceptual mapping table followed by a theory-driven narrative that I can directly convert into a conceptual framework section of my thesis or paper.
+
+Best used when:
+
+Writing conceptual framework, theoretical background, or hypothesis development sections.
+----
+Outline for Comprehensive Science Literature Reviews
+
+Define and Refine Your Topic
+
+Choose a Research Topic of Interest; Think Critically About It; Formulate a Title.
+
+Start a General Review (browse textbooks, encyclopedias, wikipedia, web pages)
+
+Identify the Major Ideas & Issues & Researchers
+
+Define the Time Period (i.e. how far back do you need to search the literature)
+
+Formulate Keywords = Main Concepts & Related Terms (use thesauri, subject headings, etc.)
+
+Craft Search Statements for Indexes/Databases/Catalogs (utilize Boolean operators, truncation, parentheses, proximity operators, phrase searching); Record your methods.
+
+Narrow or Broaden your Topic as appropriate based on literature search results
+
+Search All Relevant Sources Systematically & Efficiently
+
+Identify & Browse Current Issues of the Most Relevant Journals for your topic
+
+Current Awareness Sources
+
+Setup Alerts (Email; RSS) - Journal Table of Contents; Indexes; Web Pages Grant Databases (e.g. NSF; NIH; CRIS; Science Accelerator) Conference Presentations (e.g. Geological Society of America, etc.)
+
+Internet Discussion Groups, Listservs, Blogs, Twitter, Social Networking Sites, etc.
+
+Newspaper Indexes (e.g. Lexis Nexis Academic; Google News; individual newspapers)
+
+Journal Indexes/Databases & Ejournal Packages - find citations of articles and full articles
+
+Bibliographies - from relevant journal articles, books, etc. (cycle backwards in time)
+
+Citation Indexes -e.g. Web of Science/Scopus; Google Scholar (cycle forwards in time by identifying citing articles; find the most cited articles on your topic)
+
+Specialized Data (e.g. chemical/molecular name & structure; genetic sequence, patents; etc.)
+
+Book Catalogs (find books, government docs, media materials, theses/dissertations, etc.)
+
+Your Local Library Catalog: Other Libraries - i.e. WorldCat; Google Books Library Web Scale Discovery Search (e.g. NCSU Libraries, Dartmouth College Library, etc.)
+
+Web Search Engines (e.g. Google, Yahoo, Bing, Scirus, Science.gov, etc.) and General Web Directories (e.g. BUBL, Google Directory, InfoMine, Yahoo Directory)
+
+Find & Evaluate & Manage the Information
+
+Analyze Your Database Search Results (citations) & Revise/ Improve Your Search Statement
+
+(find the best balance/tradeoff between comprehensiveness and precision) Understand the Scholarly/Scientific Research & Peer Review Publication Process
+
+Evaluate the Type of Information Found and its Relevance to your Topic (Determine the Source; Credentials of the Author; Objectivity, Accuracy, Currency, etc.)
+
+Retrieve the Information Source from the Database or Library or ILL/Document Delivery Critically Read and Analyze Articles; Review Methods, Data, Statistics, etc.
+
+Gather, Store, and Annotate relevant Citations (e.g. Refworks, Endnote Web, Zotero, Mende'ev
+
+Synthesize the Literature and Integrate it Into Your Writing
+
+Choose the Appropriate Type and Style of Publication/Presentation
+
+
+
+
+

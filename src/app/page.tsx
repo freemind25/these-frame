@@ -35,6 +35,14 @@ import {
   Library,
   Copy,
   Eye,
+  Sparkles,
+  Loader2,
+  RotateCcw,
+  PenTool,
+  BookOpenText,
+  ScanSearch,
+  Languages,
+  ScrollText,
   type LucideIcon,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -107,6 +115,15 @@ const iconMap: Record<string, LucideIcon> = {
   Send,
   FileText,
   GraduationCap,
+  PenTool,
+  BookOpenText,
+  ScanSearch,
+  Languages,
+  ScrollText,
+  Lightbulb,
+  Sparkles,
+  Loader2,
+  RotateCcw,
 }
 
 function getIcon(name: string): LucideIcon {
@@ -1662,6 +1679,283 @@ function ArticlesGuideTab() {
   )
 }
 
+// ─── AI Writing Modes ────────────────────────────────────────────
+const WRITING_MODES = [
+  { id: 'scientific-writing', label: 'Rédaction scientifique', description: 'Rédiger ou améliorer une section de thèse selon les normes IMRaD', icon: 'PenTool', color: 'emerald' },
+  { id: 'literature-review', label: 'Revue de littérature', description: 'Synthétiser des travaux, identifier les lacunes et structurer une revue', icon: 'BookOpenText', color: 'sky' },
+  { id: 'peer-review', label: 'Relecture critique', description: 'Évaluer la rigueur, la clarté et la cohérence de votre texte', icon: 'ScanSearch', color: 'amber' },
+  { id: 'paraphrase', label: 'Paraphrase & Amélioration', description: 'Reformuler, enrichir le vocabulaire et corriger le style', icon: 'Languages', color: 'violet' },
+  { id: 'abstract', label: 'Résumé & Abstract', description: 'Générer un résumé structuré ou un abstract en français/anglais', icon: 'ScrollText', color: 'rose' },
+  { id: 'hypothesis', label: "Génération d'hypothèses", description: 'Formuler des hypothèses de recherche testables et pertinentes', icon: 'Lightbulb', color: 'orange' },
+] as const
+
+const MODE_COLORS: Record<string, string> = {
+  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  sky: 'border-sky-200 bg-sky-50 text-sky-700',
+  amber: 'border-amber-200 bg-amber-50 text-amber-700',
+  violet: 'border-violet-200 bg-violet-50 text-violet-700',
+  rose: 'border-rose-200 bg-rose-50 text-rose-700',
+  orange: 'border-orange-200 bg-orange-50 text-orange-700',
+}
+
+const MODE_ACCENT: Record<string, string> = {
+  emerald: 'bg-emerald-500',
+  sky: 'bg-sky-500',
+  amber: 'bg-amber-500',
+  violet: 'bg-violet-500',
+  rose: 'bg-rose-500',
+  orange: 'bg-orange-500',
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+// ─── AIWritingTab ───────────────────────────────────────────────
+function AIWritingTab() {
+  const [selectedMode, setSelectedMode] = useState<string>('scientific-writing')
+  const [input, setInput] = useState('')
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [sessionId, setSessionId] = useState('')
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [error, setError] = useState('')
+  const chatEndRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) node.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  const activeMode = WRITING_MODES.find(m => m.id === selectedMode)
+
+  async function handleSend() {
+    if (!input.trim() || isLoading) return
+    setError('')
+    const userMsg = input.trim()
+    setInput('')
+
+    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: userMsg }]
+    setMessages(newMessages)
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/ai-writing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: selectedMode,
+          message: userMsg,
+          sessionId: sessionId || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur serveur')
+      if (data.sessionId && !sessionId) setSessionId(data.sessionId)
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleClear() {
+    if (sessionId) {
+      await fetch(`/api/ai-writing?sessionId=${sessionId}`, { method: 'DELETE' })
+    }
+    setMessages([])
+    setSessionId('')
+    setError('')
+  }
+
+  function handleCopy(text: string, idx: number) {
+    navigator.clipboard.writeText(text)
+    setCopiedIdx(idx)
+    setTimeout(() => setCopiedIdx(null), 2000)
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div>
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-emerald-600" />
+          Assistant IA de rédaction
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Inspire des compétences scientifiques (K-Dense Scientific Agent Skills) — Rédigez, améliorez et structurez votre texte académique avec l&apos;aide de l&apos;IA.
+        </p>
+      </div>
+
+      {/* Mode selector */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {WRITING_MODES.map(mode => {
+          const isActive = selectedMode === mode.id
+          return (
+            <button
+              key={mode.id}
+              onClick={() => { setSelectedMode(mode.id); setError('') }}
+              className={`rounded-lg border p-3 text-left transition-all hover:shadow-sm ${
+                isActive
+                  ? `${MODE_COLORS[mode.color]} ring-2 ring-offset-1 ring-current`
+                  : 'border-border bg-background hover:bg-muted/50'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`h-6 w-6 rounded-md flex items-center justify-center ${isActive ? MODE_ACCENT[mode.color] : 'bg-muted'}`}>
+                  {createElement(iconMap[mode.icon] || PenTool, { className: 'h-3.5 w-3.5 text-white' })}
+                </div>
+                <span className={`text-xs font-semibold ${isActive ? '' : 'text-foreground'}`}>{mode.label}</span>
+              </div>
+              <p className={`text-xs leading-tight ${isActive ? 'text-current/80' : 'text-muted-foreground'}`}>{mode.description}</p>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Active mode description */}
+      {activeMode && (
+        <Card className="border-dashed">
+          <CardContent className="py-3 px-4 flex items-center gap-3">
+            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${MODE_ACCENT[activeMode.color]}`}>
+              {createElement(iconMap[activeMode.icon] || PenTool, { className: 'h-4 w-4 text-white' })}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{activeMode.label}</p>
+              <p className="text-xs text-muted-foreground truncate">{activeMode.description}</p>
+            </div>
+            <Badge variant="secondary" className="text-xs shrink-0">Mode actif</Badge>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Chat area */}
+      <Card className="flex flex-col" style={{ minHeight: '400px', maxHeight: '65vh' }}>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ minHeight: '300px' }}>
+          {messages.length === 0 && !isLoading && (
+            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+              <div className="h-16 w-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-4">
+                {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: 'h-8 w-8 text-emerald-600' })}
+              </div>
+              <h3 className="text-lg font-semibold">{activeMode?.label}</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                {activeMode?.description}. Collez votre texte ou décrivez ce que vous souhaitez rédiger.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-4 justify-center">
+                <Badge variant="outline" className="text-xs">Entrée + Envoyer</Badge>
+                <Badge variant="outline" className="text-xs">Shift+Entrée = nouvelle ligne</Badge>
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {msg.role === 'assistant' && (
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+                  {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: 'h-4 w-4 text-white' })}
+                </div>
+              )}
+              <div className={`relative max-w-[85%] rounded-xl px-4 py-3 ${
+                msg.role === 'user'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted'
+              }`}>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                {msg.role === 'assistant' && (
+                  <button
+                    onClick={() => handleCopy(msg.content, idx)}
+                    className="absolute top-2 right-2 p-1 rounded-md hover:bg-background/80 transition-colors"
+                    title="Copier"
+                  >
+                    {copiedIdx === idx ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex gap-3 justify-start">
+              <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+                <Loader2 className="h-4 w-4 text-white animate-spin" />
+              </div>
+              <div className="bg-muted rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Génération en cours...</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="px-4 pb-2">
+            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+              <p className="text-xs text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Input area */}
+        <div className="border-t p-3">
+          <div className="flex gap-2 items-end">
+            <Textarea
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Décrivez votre demande en ${activeMode?.label.toLowerCase() || 'rédaction'}...`}
+              className="min-h-[60px] max-h-[160px] resize-none text-sm"
+              disabled={isLoading}
+              rows={2}
+            />
+            <div className="flex flex-col gap-1 shrink-0">
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                className="h-9 w-9"
+                title="Envoyer"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+              {messages.length > 0 && (
+                <Button
+                  onClick={handleClear}
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  title="Nouvelle conversation"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1.5">
+            L&apos;IA peut générer du contenu inexact. Vérifiez toujours les informations et adaptez le texte à votre contexte.
+          </p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 // ─── MethodologyTab ──────────────────────────────────────────────
 function MethodologyTab() {
   return (
@@ -2195,7 +2489,12 @@ export default function Home() {
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
           <Tabs defaultValue="articles" className="w-full">
-            <TabsList className="w-full grid grid-cols-4 mb-6">
+            <TabsList className="w-full grid grid-cols-5 mb-6">
+              <TabsTrigger value="ai-writing" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">Assistant IA</span>
+                <span className="sm:hidden">IA</span>
+              </TabsTrigger>
               <TabsTrigger value="methodology" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
                 <FlaskConical className="h-4 w-4" />
                 <span className="hidden sm:inline">Méthodologie</span>
@@ -2217,6 +2516,10 @@ export default function Home() {
                 <span className="sm:hidden">Thèse</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="ai-writing">
+              <AIWritingTab />
+            </TabsContent>
 
             <TabsContent value="methodology">
               <MethodologyTab />
