@@ -59,24 +59,70 @@ function getIcon(name: string): LucideIcon {
 }
 
 // ─── ThesisPlanTab ────────────────────────────────────────────────
-function ThesisPlanTab() {
-  const thesisChapters = [
-    { id: 'cover', title: 'Page de couverture', status: 'pending', words: 0, target: 200 },
-    { id: 'ack', title: 'Remerciements', status: 'pending', words: 0, target: 500 },
-    { id: 'abstract', title: 'Résumé (Français / Anglais)', status: 'pending', words: 0, target: 600 },
-    { id: 'intro', title: 'Introduction générale', status: 'in-progress', words: 1200, target: 5000 },
-    { id: 'lit', title: 'Revue de la littérature (Chapitre I)', status: 'pending', words: 0, target: 15000 },
-    { id: 'context', title: 'Contexte et cadre méthodologique (Chapitre II)', status: 'pending', words: 0, target: 12000 },
-    { id: 'results', title: 'Résultats et analyse (Chapitre III)', status: 'pending', words: 0, target: 15000 },
-    { id: 'discussion', title: 'Discussion (Chapitre IV)', status: 'pending', words: 0, target: 10000 },
-    { id: 'conclusion', title: 'Conclusion générale', status: 'pending', words: 0, target: 3000 },
-    { id: 'biblio', title: 'Références bibliographiques', status: 'pending', words: 0, target: 3000 },
-    { id: 'annexes', title: 'Annexes', status: 'pending', words: 0, target: 2000 },
-  ]
+interface Chapter {
+  id: string
+  title: string
+  words: number
+  pages: number
+  notes: string
+  expanded: boolean
+}
 
-  const totalWords = thesisChapters.reduce((a, c) => a + c.words, 0)
-  const totalTarget = thesisChapters.reduce((a, c) => a + c.target, 0)
-  const overallProgress = Math.round((totalWords / totalTarget) * 100)
+const DEFAULT_CHAPTERS: Chapter[] = [
+  { id: 'cover', title: 'Page de couverture', words: 0, pages: 1, notes: '', expanded: false },
+  { id: 'ack', title: 'Remerciements', words: 0, pages: 1, notes: '', expanded: false },
+  { id: 'abstract', title: 'Résumé (Français / Anglais)', words: 0, pages: 2, notes: '', expanded: false },
+  { id: 'intro', title: 'Introduction générale', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'lit', title: 'Revue de la littérature (Chapitre I)', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'context', title: 'Contexte et cadre méthodologique (Chapitre II)', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'results', title: 'Résultats et analyse (Chapitre III)', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'discussion', title: 'Discussion (Chapitre IV)', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'conclusion', title: 'Conclusion générale', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'biblio', title: 'Références bibliographiques', words: 0, pages: 0, notes: '', expanded: false },
+  { id: 'annexes', title: 'Annexes', words: 0, pages: 0, notes: '', expanded: false },
+]
+
+function ThesisPlanTab() {
+  const [chapters, setChapters] = useState<Chapter[]>(DEFAULT_CHAPTERS)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingField, setEditingField] = useState<'words' | 'pages' | 'title' | 'notes' | null>(null)
+  const [editValue, setEditValue] = useState('')
+
+  const totalWords = chapters.reduce((a, c) => a + c.words, 0)
+  const totalPages = chapters.reduce((a, c) => a + c.pages, 0)
+  const startedCount = chapters.filter(c => c.words > 0 || c.pages > 0).length
+
+  function startEdit(id: string, field: 'words' | 'pages' | 'title' | 'notes', currentValue: string | number) {
+    setEditingId(id)
+    setEditingField(field)
+    setEditValue(String(currentValue))
+  }
+
+  function commitEdit() {
+    if (!editingId || !editingField) return
+    setChapters(prev =>
+      prev.map(ch => {
+        if (ch.id !== editingId) return ch
+        const val = editingField === 'title' || editingField === 'notes'
+          ? editValue
+          : Math.max(0, parseInt(editValue) || 0)
+        return { ...ch, [editingField]: val }
+      })
+    )
+    setEditingId(null)
+    setEditingField(null)
+    setEditValue('')
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditingField(null)
+    setEditValue('')
+  }
+
+  function toggleExpand(id: string) {
+    setChapters(prev => prev.map(ch => ch.id === id ? { ...ch, expanded: !ch.expanded } : ch))
+  }
 
   return (
     <div className="space-y-6">
@@ -84,28 +130,28 @@ function ThesisPlanTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Progression globale</CardDescription>
-            <CardTitle className="text-3xl font-bold">{overallProgress}%</CardTitle>
+            <CardDescription>Mots rédigés</CardDescription>
+            <CardTitle className="text-3xl font-bold tabular-nums">
+              {totalWords.toLocaleString()}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={overallProgress} className="h-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {totalWords.toLocaleString()} / {totalTarget.toLocaleString()} mots
+              {startedCount} / {chapters.length} chapitres commencés
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Chapitres rédigés</CardDescription>
-            <CardTitle className="text-3xl font-bold">
-              {thesisChapters.filter(c => c.words > 0).length} / {thesisChapters.length}
+            <CardDescription>Pages estimées</CardDescription>
+            <CardTitle className="text-3xl font-bold tabular-nums">
+              {totalPages}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress
-              value={(thesisChapters.filter(c => c.words > 0).length / thesisChapters.length) * 100}
-              className="h-2"
-            />
+            <p className="text-xs text-muted-foreground mt-1">
+              ≈ {totalWords > 0 ? Math.round(totalWords / 250) : '—'} pages (base 250 mots/page)
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -113,12 +159,12 @@ function ThesisPlanTab() {
             <CardDescription>Structure IMRaD</CardDescription>
             <CardTitle className="text-3xl font-bold flex items-center gap-2">
               <GraduationCap className="h-8 w-8 text-emerald-600" />
-              Actif
+              11 chapitres
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              Squelette IMRaD adapté à l'architecture et l'urbanisme
+              Squelette IMRaD — Université Constantine 3
             </p>
           </CardContent>
         </Card>
@@ -127,29 +173,201 @@ function ThesisPlanTab() {
       {/* Chapter list */}
       <Card>
         <CardHeader>
-          <CardTitle>Chapitres de la thèse</CardTitle>
-          <CardDescription>Structure IMRaD — Université Constantine 3</CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>Chapitres de la thèse</CardTitle>
+              <CardDescription className="mt-1">
+                Cliquez sur les valeurs pour les modifier — la longueur est libre
+              </CardDescription>
+            </div>
+            <p className="text-xs text-muted-foreground shrink-0 text-right leading-relaxed">
+              Cliquez sur <strong>titre</strong>, <strong>mots</strong> ou <strong>pages</strong> pour éditer.&#10;
+              Entrée pour valider, Échap pour annuler.
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {thesisChapters.map((ch) => {
-              const pct = ch.target > 0 ? Math.min(100, Math.round((ch.words / ch.target) * 100)) : 0
+          <div className="space-y-2">
+            {chapters.map((ch) => {
+              const isEditingThis = editingId === ch.id
+              const isStarted = ch.words > 0 || ch.pages > 0
               return (
-                <div key={ch.id} className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm truncate">{ch.title}</span>
-                      {ch.words > 0 && (
-                        <Badge variant="secondary" className="text-xs shrink-0">
-                          {pct}%
-                        </Badge>
+                <div key={ch.id} className={`rounded-lg border transition-colors ${isStarted ? 'border-emerald-200 bg-emerald-50/30' : 'hover:bg-muted/50'}`}>
+                  {/* Main row */}
+                  <div
+                    className="flex items-center gap-3 p-3 cursor-pointer select-none"
+                    onClick={() => toggleExpand(ch.id)}
+                    onKeyDown={(e) => e.key === 'Enter' && toggleExpand(ch.id)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${ch.expanded ? 'rotate-90' : ''}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {isEditingThis && editingField === 'title' ? (
+                          <input
+                            className="font-medium text-sm bg-white border rounded px-2 py-0.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={commitEdit}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') commitEdit()
+                              if (e.key === 'Escape') cancelEdit()
+                              e.stopPropagation()
+                            }}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <span className="font-medium text-sm truncate">{ch.title}</span>
+                        )}
+                        {isStarted && (
+                          <Badge variant="secondary" className="text-xs shrink-0 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                            En cours
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    {/* Words */}
+                    <div
+                      className="shrink-0 text-right min-w-[90px]"
+                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'words', ch.words) }}
+                    >
+                      {isEditingThis && editingField === 'words' ? (
+                        <input
+                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onBlur={commitEdit}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitEdit()
+                            if (e.key === 'Escape') cancelEdit()
+                            e.stopPropagation()
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className={`text-xs tabular-nums ${ch.words > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          {ch.words > 0 ? `${ch.words.toLocaleString()} mots` : '— mots'}
+                        </span>
                       )}
                     </div>
-                    <Progress value={pct} className="h-1.5 mt-2" />
+                    {/* Pages */}
+                    <div
+                      className="shrink-0 text-right min-w-[70px]"
+                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'pages', ch.pages) }}
+                    >
+                      {isEditingThis && editingField === 'pages' ? (
+                        <input
+                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onBlur={commitEdit}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitEdit()
+                            if (e.key === 'Escape') cancelEdit()
+                            e.stopPropagation()
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className={`text-xs tabular-nums ${ch.pages > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          {ch.pages > 0 ? `${ch.pages} p.` : '— p.'}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0 tabular-nums">
-                    {ch.words > 0 ? `${ch.words.toLocaleString()}` : '—'} / {ch.target.toLocaleString()} mots
-                  </span>
+
+                  {/* Expanded section */}
+                  {ch.expanded && (
+                    <div className="px-3 pb-3 pl-10 space-y-3">
+                      <div className="h-px bg-border" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Edit words */}
+                        <div
+                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+                          onClick={() => startEdit(ch.id, 'words', ch.words)}
+                        >
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground">Mots :</span>
+                          {isEditingThis && editingField === 'words' ? (
+                            <input
+                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onBlur={commitEdit}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') commitEdit()
+                                if (e.key === 'Escape') cancelEdit()
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <span className="text-sm font-medium tabular-nums">
+                              {ch.words > 0 ? ch.words.toLocaleString() : 'Non défini'}
+                            </span>
+                          )}
+                        </div>
+                        {/* Edit pages */}
+                        <div
+                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+                          onClick={() => startEdit(ch.id, 'pages', ch.pages)}
+                        >
+                          <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground">Pages :</span>
+                          {isEditingThis && editingField === 'pages' ? (
+                            <input
+                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onBlur={commitEdit}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') commitEdit()
+                                if (e.key === 'Escape') cancelEdit()
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <span className="text-sm font-medium tabular-nums">
+                              {ch.pages > 0 ? ch.pages : 'Non défini'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {/* Notes */}
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                        <span className="text-xs text-muted-foreground shrink-0 mt-0.5">Notes :</span>
+                        {isEditingThis && editingField === 'notes' ? (
+                          <textarea
+                            className="text-xs bg-white border rounded px-2 py-1 flex-1 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[60px]"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={commitEdit}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') cancelEdit()
+                              if (e.key === 'Enter' && e.metaKey) commitEdit()
+                            }}
+                            autoFocus
+                            rows={2}
+                          />
+                        ) : (
+                          <div
+                            className="flex-1 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 min-h-[32px] border border-dashed border-border"
+                            onClick={() => startEdit(ch.id, 'notes', ch.notes)}
+                          >
+                            {ch.notes ? (
+                              <span className="text-sm text-foreground">{ch.notes}</span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground italic">
+                                Cliquer pour ajouter des remarques…
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })}
