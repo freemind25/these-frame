@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**TYPE OF INTRODUCTIONS**\n\nThe problem statement states a specific condition (issue) that needs urgent attention and a possible solution. As a researcher, show your readers how your investigation will fill or narrow the gap in existing literature. An excellent problem statement is just a line or two. The rest of the paragraph(s) is its elaboration, discussing a possible solution and most importantly, why it is a problem that needs urgent attention (cite scholarly references). The problem must generate questions for the researcher to answer (Faryadi, 2012).\n\nA PhD thesis problem statement must seek to answer the following questions:\n\n1) **What** is the problem?\n2) **Where** is the problem?\n3) **How** can the problem be solved?\n4) **Why** do you want to solve the problem?\n5) **Is** the problem a current issue?\n6) **Will** the problem persist if it is not solved?\n7) **Who** are affected adversely by the problem?\n8) **Will** this problem prove or disprove existing knowledge?\n\nIn short, the problem statement describes an existing issue which is so grave that it must be addressed. Generate questions about your problem statement and try to answer those questions to prove or disprove your research problem. Hence, the research problem is the main part of any scientific enquiry (Jacobs, 2013).\n\n---\n\nFollow @Askpstudyinaustralia for PhD tips, resources, scholarships and more! | askpstudyinaustralia.com | #1GradSchoolResourceHub\n\nSource: Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach—How to Write Your Introduction. Creative Education , 9, 2534-2545. https://doi.org/10.4236/ce.2018.915192",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784709952,
+  "id": "20260722164540cad5de4016994091",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260722164540cad5de4016994091",
+  "usage": {
+    "completion_tokens": 375,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1956,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2331
+  }
+}

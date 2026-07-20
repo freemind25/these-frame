@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**CRAFTING A STRONG ABSTRACT**\n*(An Annotated Example from Nature)*\n\n---\n\n**general background**\n→ Horizontal gene transfer (HGT), the acquisition of genetic material from non-parental lineages, is known to be important in bacterial evolution¹'².\n\n**specific background**\n→ In particular, HGT provides rapid access to genetic innovations, allowing traits such as virulence³, antibiotic resistance⁴ and xenobiotic metabolism⁵ to spread through the human microbiome. Recent anecdotal studies providing snapshots of active gene flow on the human body have highlighted (the need to determine)\n\n**knowledge gap**\n→ the frequency of such recent transfers and the forces that govern these events¹'⁵.\n\n**here we show...**\n→ Here we report the discovery and characterization of a vast, human-associated network of gene exchange, large enough to directly compare the principal forces shaping HGT.\n\n**results with key, concrete values**\n→ We show that this network of **10,770** unique, recently transferred (more than 99% nucleotide identity) genes found in **2,235** full bacterial genomes, is shaped principally by ecology rather than geography or phylogeny, with most gene exchange occurring between isolates from ecologically similar, but geographically separated, environments. For example, we observe **25-fold** more HGT between human-associated bacteria than among ecologically diverse non-human isolates (*P* = 3.0 × 10⁻²⁷⁰).\n\n**meaning of results**\n→ We show that within the human microbiome this ecological architecture continues across multiple spatial scales, functional classes and ecological niches with transfer further enriched among bacteria that inhabit the same body site, have the same oxygen tolerance or have the same ability to cause disease. This structure offers a window into the molecular traits that define ecological niches, insight that we use to uncover sources of antibiotic resistance and identify genes associated with the pathology of meningitis and other diseases.\n\nThe human body is a complex biological network comprising ten\n\n---\n\nAll rights reserved by Nature.\nReproduced here for educational purposes only.\n\nFollow @Askpstudyinaustralia for PhD tips, resources, scholarships and more! | askpstudyinaustralia.com | #1GradSchoolResourceHub\n\nSource: Annotated abstract of a microbiology paper published in Nature.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784710102,
+  "id": "2026072216480926d793c145fb42bb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026072216480926d793c145fb42bb",
+  "usage": {
+    "completion_tokens": 475,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1956,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2431
+  }
+}

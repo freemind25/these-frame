@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**15 FREE WEBSITES**\n**FOR DOWNLOADING PHD THESES**\n\n01 Open Access Theses and Dissertations | https://oatd.org/\n02 Open Thesis | http://www.openthesis.org/\n03 DART-Europe E-theses Portal | https://www.ucl.ac.uk/library/\n04 ProQuest Dissertations & Theses | https://www.proquest.com/\n05 MIT Theses | https://dspace.mit.edu/handle/1721.1/7582\n06 Digital Library of Theses & Dissertations | http://www.ndltd.org/\n07 Caltech Thesis | https://thesis.library.caltech.edu/\n08 British Library EThOS | https://www.bl.uk/\n09 Electronic Theses & Dissertation Centre | https://etd.qiolink.edu/\n10 Harvard DASH | https://dash.harvard.edu/\n11 Theses Canada Portal | https://canadagtd.ca/\n12 RePEc (Research Papers in Economics) | https://repec.org/\n13 SSRN eLibrary | https://www.ssrn.com/\n14 Europe PMC | https://europepmc.org/\n15 WorldCat Dissertations & Theses | https://www.worldcat.org/\n\n**BOOST YOUR RESEARCH. SAVE TIME. ACCESS QUALITY KNOWLEDGE.**\nExplore these trusted platforms and advance your academic journey.\n\naskpstudyinaustralia.com",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784710107,
+  "id": "20260722164822755006279dd94201",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260722164822755006279dd94201",
+  "usage": {
+    "completion_tokens": 286,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1956,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 2242
+  }
+}

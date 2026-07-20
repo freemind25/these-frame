@@ -1,0 +1,1119 @@
+```html
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50 font-sans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThesisFrame — Aide à la structuration (Université Constantine 3)</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            },
+            dark: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#0b0f19',
+            }
+          },
+          boxShadow: {
+            'glow': '0 0 20px -3px rgba(16, 185, 129, 0.3)',
+            'glow-lg': '0 0 30px -5px rgba(16, 185, 129, 0.4)',
+            'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Uiverse Tech Glow Button Style */
+    .uiverse-sidebar-btn {
+      position: relative;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.85rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    .uiverse-sidebar-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(52, 211, 153, 0.15),
+        transparent
+      );
+      transition: all 0.6s ease;
+    }
+    .uiverse-sidebar-btn:hover::before {
+      left: 100%;
+    }
+    .uiverse-sidebar-btn:hover {
+      border-color: rgba(52, 211, 153, 0.8);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+      transform: translateY(-2px);
+      color: #ffffff;
+    }
+    .uiverse-sidebar-btn.active {
+      background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+      border-color: #34d399;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.35);
+      color: #ffffff;
+    }
+    .uiverse-sidebar-btn.active .btn-icon {
+      color: #34d399;
+    }
+
+    /* Glassmorphic card borders */
+    .glass-card-emerald {
+      background: linear-gradient(135deg, rgba(240, 253, 244, 0.8) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .glass-banner {
+      background: linear-gradient(120deg, rgba(236, 253, 245, 0.9) 0%, rgba(240, 253, 250, 0.95) 50%, rgba(255, 255, 255, 1) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    /* Sub-nav indicator transition */
+    .subnav-btn {
+      transition: all 0.25s ease;
+    }
+    .subnav-btn.active {
+      background-color: #ffffff;
+      color: #047857;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body class="h-full bg-slate-100/70 text-slate-800 flex overflow-hidden font-sans antialiased">
+
+  <!-- ========================================== -->
+  <!-- SIDEBAR FIXE VERTICALE (BOUTONS UIVERSE)   -->
+  <!-- ========================================== -->
+  <aside class="w-20 md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-3 md:p-4 z-30 shrink-0 transition-all duration-300 shadow-2xl">
+    <div>
+      <!-- App Brand Header -->
+      <div class="flex items-center gap-3 px-2 py-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white shadow-glow shrink-0">
+          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        </div>
+        <div class="hidden md:block overflow-hidden">
+          <h1 class="font-bold text-base text-white tracking-tight leading-tight">ThesisFrame</h1>
+          <p class="text-[10px] text-emerald-400 font-medium tracking-wide uppercase">Université Constantine 3</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Glowing Tech Buttons Group (Uiverse Style) -->
+      <div class="space-y-3">
+        <div class="px-2 pb-1 hidden md:block">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Actions Rapides</span>
+        </div>
+
+        <button onclick="openModal('aiModal')" class="uiverse-sidebar-btn w-full p-3 md:px-4 md:py-3 flex items-center gap-3 group text-left">
+          <div class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center btn-icon text-brand-400 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-xs font-semibold leading-tight">Prompt IA Thèse</div>
+            <div class="text-[10px] text-slate-400">Générateur intelligent</div>
+          </div>
+        </button>
+
+        <button onclick="openModal('exportModal')" class="uiverse-sidebar-btn w-full p-3 md:px-4 md:py-3 flex items-center gap-3 group text-left">
+          <div class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center btn-icon text-brand-400 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-file-export text-sm"></i>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-xs font-semibold leading-tight">Exporter le Plan</div>
+            <div class="text-[10px] text-slate-400">PDF / LaTeX / Word</div>
+          </div>
+        </button>
+
+        <button onclick="switchMainTab('biblio')" class="uiverse-sidebar-btn w-full p-3 md:px-4 md:py-3 flex items-center gap-3 group text-left">
+          <div class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center btn-icon text-brand-400 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-quote-right text-sm"></i>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-xs font-semibold leading-tight">Formateur BibTeX</div>
+            <div class="text-[10px] text-slate-400">Génération APA & IEEE</div>
+          </div>
+        </button>
+
+        <button onclick="toggleChecklistDrawer()" class="uiverse-sidebar-btn w-full p-3 md:px-4 md:py-3 flex items-center gap-3 group text-left">
+          <div class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center btn-icon text-brand-400 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-list-check text-sm"></i>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-xs font-semibold leading-tight">Checklist Rigueur</div>
+            <div class="text-[10px] text-slate-400"><span id="sidebarProgressText">3/8 complété</span></div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- User Profile & Settings Footer -->
+    <div class="pt-4 border-t border-slate-800 space-y-2">
+      <div class="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5 overflow-hidden">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-emerald-700 flex items-center justify-center text-white font-bold text-xs ring-2 ring-emerald-500/30 shrink-0">
+            DR
+          </div>
+          <div class="hidden md:block overflow-hidden">
+            <div class="text-xs font-medium text-slate-200 truncate">Doctorant Arch.</div>
+            <div class="text-[10px] text-slate-400 truncate">Constantine 3</div>
+          </div>
+        </div>
+        <button onclick="alert('Paramètres du profil')" class="hidden md:block text-slate-400 hover:text-white text-xs p-1">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- MAIN WORKSPACE CONTAINER                   -->
+  <!-- ========================================== -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    
+    <!-- Top Modern Navigation & Header Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      
+      <!-- Title & Context -->
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-brand-50 rounded-xl border border-brand-200 text-brand-600 hidden sm:block">
+          <i class="fa-solid fa-book-bookmark text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">ThesisFrame</h2>
+            <span class="px-2.5 py-0.5 text-[11px] font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
+              Architecture & Urbanisme
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">
+            Aide à la structuration — <span class="text-slate-700 font-semibold">Université Constantine 3</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Search & Status Toolbar -->
+      <div class="flex items-center gap-3">
+        <div class="relative w-48 lg:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" placeholder="Rechercher une section, norme..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-100/80 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white transition-all">
+        </div>
+        
+        <button onclick="showToast('Ressources synchronisées avec le serveur de l\'Université Constantine 3')" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors relative" title="Notifications">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full ring-2 ring-white"></span>
+        </button>
+
+        <a href="#" onclick="alert('Guide utilisateur interactif')" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg border border-slate-200 transition-all">
+          <i class="fa-regular fa-circle-question text-brand-600"></i>
+          <span>Aide</span>
+        </a>
+      </div>
+
+    </header>
+
+    <!-- Main Content Body -->
+    <div class="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+      <!-- ========================================== -->
+      <!-- TOP NAVIGATION BAR (MAIN NAVIGATION TABS)  -->
+      <!-- ========================================== -->
+      <nav class="bg-slate-200/60 p-1.5 rounded-2xl border border-slate-300/60 shadow-inner overflow-x-auto scrollbar-none">
+        <div class="flex items-center min-w-max gap-1">
+          
+          <button onclick="switchMainTab('assistant')" id="mainTab-assistant" class="main-tab-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-slate-400"></i>
+            <span>Assistant IA</span>
+          </button>
+
+          <button onclick="switchMainTab('methodology')" id="mainTab-methodology" class="main-tab-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-flask text-slate-400"></i>
+            <span>Méthodologie</span>
+          </button>
+
+          <button onclick="switchMainTab('articles')" id="mainTab-articles" class="main-tab-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-brand-800 shadow-sm transition-all flex items-center gap-2 active">
+            <i class="fa-regular fa-file-lines text-brand-600"></i>
+            <span>Articles scientifiques</span>
+          </button>
+
+          <button onclick="switchMainTab('biblio')" id="mainTab-biblio" class="main-tab-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-bars-staggered text-slate-400"></i>
+            <span>Références biblio.</span>
+          </button>
+
+          <button onclick="switchMainTab('plan')" id="mainTab-plan" class="main-tab-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
+            <i class="fa-regular fa-bookmark text-slate-400"></i>
+            <span>Plan de thèse</span>
+          </button>
+
+        </div>
+      </nav>
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: ARTICLES SCIENTIFIQUES (DEFAULT)   -->
+      <!-- ========================================== -->
+      <div id="view-articles" class="space-y-6">
+
+        <!-- Modern Premium Banner / Info Card -->
+        <section class="glass-banner rounded-3xl p-6 sm:p-7 shadow-sm transition-all hover:shadow-md relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-48 h-48 bg-brand-400/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="flex flex-col md:flex-row items-start md:items-center gap-5">
+            <div class="w-14 h-14 rounded-2xl bg-brand-100 border border-brand-300/60 flex items-center justify-center text-brand-700 shrink-0 shadow-sm">
+              <i class="fa-regular fa-book-open text-2xl"></i>
+            </div>
+            
+            <div class="space-y-1.5 flex-1">
+              <div class="flex items-center gap-3 flex-wrap">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Guide de rédaction d'articles scientifiques
+                </h3>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-brand-200/60 text-brand-800 rounded-md border border-brand-300">
+                  Référence 2024
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
+                Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas d'Ecarnot et al. (2015). Il est conçu pour les doctorants en architecture et urbanisme de l'Université Constantine 3.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-brand-200/40">
+              <button onclick="showToast('Téléchargement du guide Ecarnot et al. (PDF)')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center gap-2">
+                <i class="fa-solid fa-download text-brand-400"></i>
+                <span>PDF Ecarnot</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sub Navigation Bar (Sub-tabs) -->
+        <div class="bg-slate-200/50 p-1.5 rounded-2xl border border-slate-300/50 overflow-x-auto scrollbar-none">
+          <div class="flex items-center min-w-max gap-1">
+            <button onclick="switchSubTab('etapes')" id="subTab-etapes" class="subnav-btn active px-4 py-2 rounded-xl text-xs font-semibold">
+              Étapes
+            </button>
+            <button onclick="switchSubTab('imrad')" id="subTab-imrad" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              IMRaD
+            </button>
+            <button onclick="switchSubTab('erreurs')" id="subTab-erreurs" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              Erreurs
+            </button>
+            <button onclick="switchSubTab('checklist')" id="subTab-checklist" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              Checklist
+            </button>
+            <button onclick="switchSubTab('bibliometrie')" id="subTab-bibliometrie" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              Bibliométrie
+            </button>
+            <button onclick="switchSubTab('revue')" id="subTab-revue" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              Revue de litt.
+            </button>
+            <button onclick="switchSubTab('abstract')" id="subTab-abstract" class="subnav-btn px-4 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-900">
+              Abstract
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Sub-Tab Content Panels -->
+        
+        <!-- SUB TAB 1: ÉTAPES -->
+        <div id="subContent-etapes" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Step 1 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-card-hover transition-all space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-xl bg-brand-50 text-brand-700 font-bold text-xs flex items-center justify-center border border-brand-200">01</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Préparation</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-sm">Choix de la revue & Cible</h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Identifier l'impact factor, le périmètre éditorial (architecture, urbanisme, durabilité) et les consignes aux auteurs.
+              </p>
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-brand-600 font-semibold">
+                <span>Directives Auteurs</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-card-hover transition-all space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 font-bold text-xs flex items-center justify-center border border-emerald-200">02</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Structure</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-sm">Squelette IMRaD</h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Organiser le matériel graphique (cartes, schémas, graphiques) et structurer la logique argumentative.
+              </p>
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-brand-600 font-semibold">
+                <span>Grille IMRaD</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-card-hover transition-all space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 font-bold text-xs flex items-center justify-center border border-teal-200">03</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Rédaction</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-sm">Rédaction & Style Scientifique</h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Rédiger les résultats en premier, puis méthodologie, discussion, introduction, et enfin le résumé.
+              </p>
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-brand-600 font-semibold">
+                <span>Normes de style</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-card-hover transition-all space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-xl bg-cyan-50 text-cyan-700 font-bold text-xs flex items-center justify-center border border-cyan-200">04</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Soumission</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-sm">Peer-Review & Révisions</h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Préparer la lettre d'accompagnement (Cover Letter) et répondre point par point aux réviseurs.
+              </p>
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-brand-600 font-semibold">
+                <span>Modèle Réponse</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Workflow Interactive Card -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-route text-brand-600"></i>
+                <span>Chronologie conseillée (Ecarnot et al. 2015)</span>
+              </h4>
+              <span class="text-xs text-slate-500">Estimé : 8 à 12 semaines</span>
+            </div>
+            
+            <div class="space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/70 gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+                  <span class="text-xs font-semibold text-slate-800">Semaines 1-2 :</span>
+                  <span class="text-xs text-slate-600">Recherche bibliographique approfondie & définition de l'axe urbain.</span>
+                </div>
+                <span class="text-[11px] text-brand-700 font-medium bg-brand-50 px-2 py-0.5 rounded">En cours</span>
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/70 gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                  <span class="text-xs font-semibold text-slate-800">Semaines 3-5 :</span>
+                  <span class="text-xs text-slate-600">Traitement des données géographiques / architecturales & figures IMRaD.</span>
+                </div>
+                <span class="text-[11px] text-slate-500 font-medium">A venir</span>
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/70 gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                  <span class="text-xs font-semibold text-slate-800">Semaines 6-8 :</span>
+                  <span class="text-xs text-slate-600">Rédaction de la section Discussion & relecture critique à Constantine 3.</span>
+                </div>
+                <span class="text-[11px] text-slate-500 font-medium">A venir</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 2: IMRaD -->
+        <div id="subContent-imrad" class="hidden space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-lg">I</div>
+              <h4 class="font-bold text-slate-900 text-base">Introduction</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Pourquoi l'étude a-t-elle été menée ? Contextualisation du problème d'aménagement urbain ou patrimonial, revue synthétique et problématique de recherche.
+              </p>
+              <ul class="text-xs space-y-1.5 text-slate-500 list-disc list-inside pt-2">
+                <li>Cadre théorique et conceptuel</li>
+                <li>Lacune dans la littérature scientifique</li>
+                <li>Objectif explicite de l'article</li>
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-lg">M</div>
+              <h4 class="font-bold text-slate-900 text-base">Méthodes (Methods)</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Comment l'étude a-t-elle été réalisée ? Description de la méthodologie (relevés de terrain, modélisation microclimatique, enquêtes socio-spatiales).
+              </p>
+              <ul class="text-xs space-y-1.5 text-slate-500 list-disc list-inside pt-2">
+                <li>Zone d'étude (Constantine / région EST)</li>
+                <li>Outils d'analyse spatiale (SIG, ENVI-met)</li>
+                <li>Échantillonnage et reproductibilité</li>
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-800 font-bold flex items-center justify-center text-lg">R</div>
+              <h4 class="font-bold text-slate-900 text-base">Résultats (Results)</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Qu'a-t-on observé ? Présentation objective des données chiffrées, cartographiques et qualitatives sans interprétation spéculative.
+              </p>
+              <ul class="text-xs space-y-1.5 text-slate-500 list-disc list-inside pt-2">
+                <li>Cartes de synthèse et graphes</li>
+                <li>Signification statistique</li>
+                <li>Clarté des illustrations</li>
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-800 font-bold flex items-center justify-center text-lg">D</div>
+              <h4 class="font-bold text-slate-900 text-base">Discussion & Conclusion</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Que signifient les résultats ? Comparaison avec d'autres travaux en architecture/urbanisme, limites de l'étude et perspectives.
+              </p>
+              <ul class="text-xs space-y-1.5 text-slate-500 list-disc list-inside pt-2">
+                <li>Interprétation des découvertes</li>
+                <li>Implications politiques et architecturales</li>
+                <li>Perspectives pour la thèse</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SUB TAB 3: ERREURS -->
+        <div id="subContent-erreurs" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+              <span>Erreurs courantes à éviter (Ecarnot 2015)</span>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 bg-red-50/60 rounded-2xl border border-red-200/80 space-y-2">
+                <div class="text-xs font-bold text-red-900 flex items-center gap-2">
+                  <i class="fa-solid fa-xmark text-red-600"></i>
+                  <span>Mélanger Résultats et Discussion</span>
+                </div>
+                <p class="text-xs text-slate-600">
+                  Ne commentez pas l'importance théorique dans la section Résultats. Gardez les faits bruts et réservez l'analyse critique à la Discussion.
+                </p>
+              </div>
+
+              <div class="p-4 bg-red-50/60 rounded-2xl border border-red-200/80 space-y-2">
+                <div class="text-xs font-bold text-red-900 flex items-center gap-2">
+                  <i class="fa-solid fa-xmark text-red-600"></i>
+                  <span>Abstract imprécis ou trompeur</span>
+                </div>
+                <p class="text-xs text-slate-600">
+                  L'abstract ne doit pas contenir d'informations absentes du corps du texte. Il doit être autosuffisant et indiquer des données chiffrées clés.
+                </p>
+              </div>
+
+              <div class="p-4 bg-red-50/60 rounded-2xl border border-red-200/80 space-y-2">
+                <div class="text-xs font-bold text-red-900 flex items-center gap-2">
+                  <i class="fa-solid fa-xmark text-red-600"></i>
+                  <span>Biblio incomplète ou obsolète</span>
+                </div>
+                <p class="text-xs text-slate-600">
+                  Omettre les références récentes (moins de 5 ans) du domaine urbain ou utiliser des citations de seconde main.
+                </p>
+              </div>
+
+              <div class="p-4 bg-red-50/60 rounded-2xl border border-red-200/80 space-y-2">
+                <div class="text-xs font-bold text-red-900 flex items-center gap-2">
+                  <i class="fa-solid fa-xmark text-red-600"></i>
+                  <span>Qualité médiocre des figures</span>
+                </div>
+                <p class="text-xs text-slate-600">
+                  Fournir des plans d'urbanisme illisibles, sans échelle ni orientation nord, ou des graphiques basse résolution.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 4: CHECKLIST -->
+        <div id="subContent-checklist" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h4 class="font-bold text-slate-900 text-base">Checklist de Vérification de l'Article</h4>
+                <p class="text-xs text-slate-500">Validez les critères avant la soumission au comité éditorial.</p>
+              </div>
+              <div class="flex items-center gap-3 bg-brand-50 border border-brand-200 px-4 py-2 rounded-2xl">
+                <span class="text-xs font-bold text-brand-900" id="checklistProgressVal">38% Validé</span>
+                <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                  <div id="checklistProgressBar" class="bg-brand-500 h-full transition-all duration-300" style="width: 38%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3" id="checklistItemsContainer">
+              <!-- Item 1 -->
+              <label class="flex items-start gap-3 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-pointer transition-colors">
+                <input type="checkbox" checked onchange="updateChecklistProgress()" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                <div>
+                  <div class="text-xs font-semibold text-slate-800">Titre percutant et informatif (moins de 15 mots)</div>
+                  <div class="text-[11px] text-slate-500">Contient les mots-clés du domaine architectural ou urbain cible.</div>
+                </div>
+              </label>
+
+              <!-- Item 2 -->
+              <label class="flex items-start gap-3 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-pointer transition-colors">
+                <input type="checkbox" checked onchange="updateChecklistProgress()" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                <div>
+                  <div class="text-xs font-semibold text-slate-800">Résumé structuré (200-250 mots)</div>
+                  <div class="text-[11px] text-slate-500">Comprend : Contexte, Objectif, Méthode, Résultats clés et Conclusion.</div>
+                </div>
+              </label>
+
+              <!-- Item 3 -->
+              <label class="flex items-start gap-3 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-pointer transition-colors">
+                <input type="checkbox" checked onchange="updateChecklistProgress()" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                <div>
+                  <div class="text-xs font-semibold text-slate-800">Figures et Cartes à haute résolution (minimum 300 dpi)</div>
+                  <div class="text-[11px] text-slate-500">Légendes autonomes, échelles cartographiques et orientation explicite.</div>
+                </div>
+              </label>
+
+              <!-- Item 4 -->
+              <label class="flex items-start gap-3 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-pointer transition-colors">
+                <input type="checkbox" onchange="updateChecklistProgress()" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                <div>
+                  <div class="text-xs font-semibold text-slate-800">Conformité aux règles d'éthique et d'affiliation</div>
+                  <div class="text-[11px] text-slate-500">Mention explicite de l'Université Constantine 3 et accord des co-auteurs.</div>
+                </div>
+              </label>
+
+              <!-- Item 5 -->
+              <label class="flex items-start gap-3 p-3 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 cursor-pointer transition-colors">
+                <input type="checkbox" onchange="updateChecklistProgress()" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                <div>
+                  <div class="text-xs font-semibold text-slate-800">Vérification du formatage des références bibliographiques</div>
+                  <div class="text-[11px] text-slate-500">Harmonisation selon le style de la revue (APA, IEEE, Vancouver).</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 5: BIBLIOMÉTRIE -->
+        <div id="subContent-bibliometrie" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-bold text-slate-900 text-base">Indicateurs Bibliométriques & Choix de Revue</h4>
+            <p class="text-xs text-slate-500">Sélectionnez la revue la plus adaptée pour valoriser vos recherches à l'Université Constantine 3.</p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-slate-700 font-semibold">
+                    <th class="p-3 rounded-l-xl">Revue / Journal</th>
+                    <th class="p-3">Indexation</th>
+                    <th class="p-3">Impact Factor</th>
+                    <th class="p-3">Délai moyen</th>
+                    <th class="p-3 rounded-r-xl text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="p-3 font-bold text-slate-800">Cities & Health (Routledge)</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">Scopus Q1</span></td>
+                    <td class="p-3 text-slate-600">3.4</td>
+                    <td class="p-3 text-slate-600">10 semaines</td>
+                    <td class="p-3 text-right"><button onclick="showToast('Analyse de correspondance lancée pour Cities & Health')" class="text-brand-600 hover:underline font-semibold">Consulter</button></td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="p-3 font-bold text-slate-800">Journal of Urban Planning & Dev.</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">Web of Science</span></td>
+                    <td class="p-3 text-slate-600">2.8</td>
+                    <td class="p-3 text-slate-600">14 semaines</td>
+                    <td class="p-3 text-right"><button onclick="showToast('Analyse de correspondance lancée pour JU P&D')" class="text-brand-600 hover:underline font-semibold">Consulter</button></td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="p-3 font-bold text-slate-800">Courrier du Savoir (Univ. Biskra/Cons)</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold text-[10px]">Catégorie B (ASJP)</span></td>
+                    <td class="p-3 text-slate-600">N/A</td>
+                    <td class="p-3 text-slate-600">6 semaines</td>
+                    <td class="p-3 text-right"><button onclick="showToast('Analyse de correspondance lancée pour Courrier du Savoir')" class="text-brand-600 hover:underline font-semibold">Consulter</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 6: REVUE DE LITT. -->
+        <div id="subContent-revue" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-bold text-slate-900 text-base">Matrice de Synthèse de la Littérature</h4>
+            <p class="text-xs text-slate-500">Organisez vos articles clés de référence (urbanisme bioclimatique & patrimoine Constantine).</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-[10px] uppercase font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">Thème A</span>
+                <h5 class="font-bold text-slate-800 text-xs">Microclimat Urbain & Forme de la Ville</h5>
+                <p class="text-[11px] text-slate-500">Articles analysant l'impact du tissu traditionnel (Médina) sur les îlots de chaleur.</p>
+                <div class="text-[10px] text-slate-400 font-medium">12 articles répertoriés</div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-[10px] uppercase font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">Thème B</span>
+                <h5 class="font-bold text-slate-800 text-xs">Mobilité & Extension Périphérique</h5>
+                <p class="text-[11px] text-slate-500">Études sur les nouvelles villes (Ali Mendjeli) et la dynamique des transports.</p>
+                <div class="text-[10px] text-slate-400 font-medium">8 articles répertoriés</div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-[10px] uppercase font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">Thème C</span>
+                <h5 class="font-bold text-slate-800 text-xs">Reconversion du Patrimoine Bâti</h5>
+                <p class="text-[11px] text-slate-500">Analyse critique des projets de réhabilitation du centre historique.</p>
+                <div class="text-[10px] text-slate-400 font-medium">15 articles répertoriés</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 7: ABSTRACT -->
+        <div id="subContent-abstract" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-bold text-slate-900 text-base">Générateur & Vérificateur d'Abstract</h4>
+            <p class="text-xs text-slate-500">Structurez votre résumé scientifique selon la règle des 5 éléments essentiels.</p>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Collez votre Abstract en français ou anglais :</label>
+                <textarea rows="4" placeholder="Introduction, Objectif, Méthode, Résultats clés et Conclusion..." class="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white transition-all"></textarea>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">0 / 250 mots conseillés</span>
+                <button onclick="showToast('Analyse de l\'abstract en cours par l\'IA...')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Analyser la structure</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: ASSISTANT IA                       -->
+      <!-- ========================================== -->
+      <div id="view-assistant" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-robot text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Assistant IA Doctoral</h3>
+              <p class="text-xs text-slate-500">Entraîné sur la méthodologie de recherche en Architecture & Urbanisme.</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 min-h-[220px] space-y-3">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">IA</div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed max-w-2xl shadow-2xs">
+                Bonjour ! Je suis votre assistant de thèse ThesisFrame. Comment puis-je vous aider aujourd'hui ?
+                <br><br>
+                <em>Suggestions :</em>
+                <ul class="list-disc list-inside mt-1 space-y-1 text-brand-700">
+                  <li><a href="#" onclick="setAiQuery('Aide-moi à reformuler ma problématique sur la densité urbaine à Constantine')" class="hover:underline">Reformuler une problématique urbaine</a></li>
+                  <li><a href="#" onclick="setAiQuery('Quelles sont les normes de citation APA 7ème édition ?')" class="hover:underline">Vérifier une norme de citation bibliographique</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div id="aiChatOutput" class="space-y-3"></div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="text" id="aiInput" placeholder="Posez votre question sur la structuration de la thèse ou de l'article..." class="flex-1 p-3 text-xs bg-slate-100/80 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white transition-all">
+            <button onclick="sendAiMessage()" class="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center gap-2">
+              <span>Envoyer</span>
+              <i class="fa-solid fa-paper-plane text-brand-400"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: MÉTHODOLOGIE                      -->
+      <!-- ========================================== -->
+      <div id="view-methodology" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-lg">Méthodologie de la Recherche à Constantine 3</h3>
+          <p class="text-xs text-slate-600">Principes méthodologiques pour la rédaction de thèse de doctorat en sciences et techniques de l'architecture.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-2xl bg-brand-50/50 border border-brand-200/60 space-y-2">
+              <i class="fa-solid fa-compass text-brand-600 text-lg"></i>
+              <h4 class="font-bold text-slate-900 text-xs">Approche Morpho-spatiale</h4>
+              <p class="text-[11px] text-slate-500">Analyse de la forme urbaine, syntaxe spatiale et cartographie historique.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-brand-50/50 border border-brand-200/60 space-y-2">
+              <i class="fa-solid fa-chart-pie text-brand-600 text-lg"></i>
+              <h4 class="font-bold text-slate-900 text-xs">Méthodes Quantitatives</h4>
+              <p class="text-[11px] text-slate-500">Simulations microclimatiques (ENVI-met, RayMan) et analyses statistiques.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-brand-50/50 border border-brand-200/60 space-y-2">
+              <i class="fa-solid fa-users text-brand-600 text-lg"></i>
+              <h4 class="font-bold text-slate-900 text-xs">Enquêtes Qualitatives</h4>
+              <p class="text-[11px] text-slate-500">Entretiens semi-directifs, questionnaires et observation participante.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: RÉFÉRENCES BIBLIO.                 -->
+      <!-- ========================================== -->
+      <div id="view-biblio" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-lg">Gestionnaire de Références BibTeX</h3>
+              <p class="text-xs text-slate-500">Convertisseur et formateur rapide de bibliographie.</p>
+            </div>
+            <button onclick="showToast('Import Zotero synchro effectué')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-all">
+              <i class="fa-solid fa-arrows-rotate mr-1"></i> Sync Zotero
+            </button>
+          </div>
+
+          <div class="p-4 bg-slate-900 text-emerald-400 font-mono text-xs rounded-2xl overflow-x-auto space-y-1">
+            <p class="text-slate-500">@article{ecarnot2015writing,</p>
+            <p class="pl-4">title={Writing a scientific article: A step-by-step guide},</p>
+            <p class="pl-4">author={Ecarnot, Fiona and Seronde, Marie-France and Chopard, Romain and Schiele, François and Meneveau, Nicolas},</p>
+            <p class="pl-4">journal={European Geriatric Medicine},</p>
+            <p class="pl-4">volume={6}, number={6}, pages={573--579}, year={2015}</p>
+            <p class="text-slate-500">}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: PLAN DE THÈSE                      -->
+      <!-- ========================================== -->
+      <div id="view-plan" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-lg">Structure Générale de la Thèse</h3>
+          <p class="text-xs text-slate-500">Arborescence type pour le Doctorat LMD à l'Université Constantine 3.</p>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 font-semibold text-slate-800">
+              <i class="fa-solid fa-folder-open text-brand-600 mr-2"></i> Introduction Générale & Contexte Métropolitain
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 font-semibold text-slate-800 ml-4">
+              <i class="fa-solid fa-book text-brand-500 mr-2"></i> Chapitre 1 : État de l'Art & Cadre Conceptuel
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 font-semibold text-slate-800 ml-4">
+              <i class="fa-solid fa-microscope text-brand-500 mr-2"></i> Chapitre 2 : Protocole Méthodologique & Terrain de Constantine
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 font-semibold text-slate-800 ml-4">
+              <i class="fa-solid fa-chart-column text-brand-500 mr-2"></i> Chapitre 3 : Analyse des Résultats Expérimentaux
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 font-semibold text-slate-800">
+              <i class="fa-solid fa-flag-checkered text-brand-600 mr-2"></i> Conclusion Générale & Recommandations d'Aménagement
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL WINDOWS & TOAST NOTIFICATIONS        -->
+  <!-- ========================================== -->
+
+  <!-- Modal IA -->
+  <div id="aiModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-brand-600"></i>
+          <span>Générateur de Prompts IA</span>
+        </h3>
+        <button onclick="closeModal('aiModal')" class="text-slate-400 hover:text-slate-700 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-600">
+        Copiez ces prompts optimisés pour vos sessions ChatGPT / Claude relatives à la thèse :
+      </p>
+
+      <div class="p-3 bg-slate-900 text-slate-200 rounded-xl font-mono text-xs leading-relaxed select-all">
+        "Agis comme un reviewer senior dans la revue 'Cities'. Analyse le texte suivant sous l'angle de la rigueur méthodologique et signale les biais potentiels..."
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('aiModal')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-200">Fermer</button>
+        <button onclick="showToast('Prompt copié dans le presse-papier !'); closeModal('aiModal');" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-semibold hover:bg-brand-700 shadow-md">Copier Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Export -->
+  <div id="exportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-file-export text-brand-600"></i>
+          <span>Exporter la Structure</span>
+        </h3>
+        <button onclick="closeModal('exportModal')" class="text-slate-400 hover:text-slate-700 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="showToast('Génération du PDF en cours...'); closeModal('exportModal');" class="w-full p-3 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-xl flex items-center justify-between text-xs font-semibold text-slate-800 transition-colors">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-500 text-sm"></i> Rapport Complet PDF</span>
+          <i class="fa-solid fa-chevron-right text-slate-400"></i>
+        </button>
+
+        <button onclick="showToast('Export LaTeX généré (.tex)'); closeModal('exportModal');" class="w-full p-3 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-xl flex items-center justify-between text-xs font-semibold text-slate-800 transition-colors">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-code text-indigo-500 text-sm"></i> Modèle LaTeX (.tex)</span>
+          <i class="fa-solid fa-chevron-right text-slate-400"></i>
+        </button>
+
+        <button onclick="showToast('Export Word (DOCX) téléchargé'); closeModal('exportModal');" class="w-full p-3 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-xl flex items-center justify-between text-xs font-semibold text-slate-800 transition-colors">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-file-word text-blue-500 text-sm"></i> Document Word (.docx)</span>
+          <i class="fa-solid fa-chevron-right text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-brand-500/40 flex items-center gap-3 text-xs">
+      <i class="fa-solid fa-circle-check text-brand-400 text-base"></i>
+      <span id="toastMessage">Action réalisée avec succès !</span>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- ========================================== -->
+  <script>
+    // Main Tabs Switcher
+    function switchMainTab(tabId) {
+      // Hide all main views
+      const views = ['articles', 'assistant', 'methodology', 'biblio', 'plan'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+      });
+
+      // Remove active class from buttons
+      document.querySelectorAll('.main-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-brand-800', 'shadow-sm', 'font-semibold');
+        btn.classList.add('text-slate-600', 'font-medium');
+      });
+
+      // Show target view
+      const targetView = document.getElementById('view-' + tabId);
+      if (targetView) targetView.classList.remove('hidden');
+
+      // Highlight active button
+      const activeBtn = document.getElementById('mainTab-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-white', 'text-brand-800', 'shadow-sm', 'font-semibold');
+        activeBtn.classList.remove('text-slate-600');
+      }
+    }
+
+    // Sub Navigation Tabs Switcher (Inside "Articles scientifiques")
+    function switchSubTab(subId) {
+      const subTabs = ['etapes', 'imrad', 'erreurs', 'checklist', 'bibliometrie', 'revue', 'abstract'];
+      
+      subTabs.forEach(s => {
+        const content = document.getElementById('subContent-' + s);
+        const btn = document.getElementById('subTab-' + s);
+        
+        if (content) content.classList.add('hidden');
+        if (btn) btn.classList.remove('active');
+      });
+
+      const activeContent = document.getElementById('subContent-' + subId);
+      const activeBtn = document.getElementById('subTab-' + subId);
+
+      if (activeContent) activeContent.classList.remove('hidden');
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // Checklist dynamic update
+    function updateChecklistProgress() {
+      const container = document.getElementById('checklistItemsContainer');
+      if (!container) return;
+      
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+      let checkedCount = 0;
+      
+      checkboxes.forEach(cb => {
+        if (cb.checked) checkedCount++;
+      });
+
+      const total = checkboxes.length;
+      const percentage = Math.round((checkedCount / total) * 100);
+
+      const valLabel = document.getElementById('checklistProgressVal');
+      const progressBar = document.getElementById('checklistProgressBar');
+      const sidebarProgress = document.getElementById('sidebarProgressText');
+
+      if (valLabel) valLabel.textContent = percentage + '% Validé';
+      if (progressBar) progressBar.style.width = percentage + '%';
+      if (sidebarProgress) sidebarProgress.textContent = checkedCount + '/' + total + ' complété';
+    }
+
+    // Modal Control
+    function openModal(modalId) {
+      const m = document.getElementById(modalId);
+      if (m) m.classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      const m = document.getElementById(modalId);
+      if (m) m.classList.add('hidden');
+    }
+
+    // Quick Drawer Toggle
+    function toggleChecklistDrawer() {
+      switchMainTab('articles');
+      switchSubTab('checklist');
+      showToast('Redirection vers la Checklist de Rigueur');
+    }
+
+    // AI Message Simulator
+    function sendAiMessage() {
+      const input = document.getElementById('aiInput');
+      const output = document.getElementById('aiChatOutput');
+      if (!input || !input.value.trim()) return;
+
+      const userText = input.value;
+      input.value = '';
+
+      // Append user msg
+      const userBubble = document.createElement('div');
+      userBubble.className = 'flex items-start justify-end gap-3';
+      userBubble.innerHTML = `
+        <div class="bg-brand-600 text-white p-3 rounded-xl text-xs leading-relaxed max-w-xl shadow-xs">
+          ${userText}
+        </div>
+      `;
+      output.appendChild(userBubble);
+
+      // Append AI typing simulation
+      setTimeout(() => {
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'flex items-start gap-3';
+        aiBubble.innerHTML = `
+          <div class="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">IA</div>
+          <div class="bg-white p-3 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed max-w-2xl shadow-2xs">
+            Excellente question. Pour la structuration dans le contexte de l'Université Constantine 3, il est vivement recommandé d'ancrer votre cadre empirique sur des données cartographiques précises et de vérifier les critères d'Ecarnot et al. (2015).
+          </div>
+        `;
+        output.appendChild(aiBubble);
+        output.scrollTop = output.scrollHeight;
+      }, 600);
+    }
+
+    function setAiQuery(text) {
+      switchMainTab('assistant');
+      const input = document.getElementById('aiInput');
+      if (input) {
+        input.value = text;
+        input.focus();
+      }
+    }
+
+    // Toast Notification Utility
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      
+      if (!toast || !toastMsg) return;
+
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+  </script>
+
+</body>
+</html>
+```

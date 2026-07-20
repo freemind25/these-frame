@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**10 Research Gap Types**\n\n**Research Gaps**\n\n1. **Methodological Gap**\n   - Inadequacy or absence of suitable research methods\n   - **Potential solutions:**\n     - Develop new methodologies\n     - Adapt methods from related fields\n     - Combine existing methods innovatively\n\n2. **Data Gap**\n   - Insufficient data to address the research question\n   - **Strategies to address:**\n     - Conduct primary data collection\n     - Seek access to existing databases\n     - Collaborate with other researchers or institutions\n\n3. **Empirical Gap**\n   - Lack of data or research studies on a particular subject\n   - **Approaches to fill:**\n     - Conduct exploratory studies\n     - Perform systematic literature reviews\n     - Identify understudied aspects of the subject\n\n4. **Contextual Gap**\n   - Inability to generalize findings due to differences in contexts\n   - **Ways to bridge:**\n     - Conduct comparative studies\n     - Explore cross-cultural implications\n     - Identify contextual factors influencing results\n\n5. **Implementation Gap**\n   - Disconnect between research findings and practical application\n   - **Methods to narrow:**\n     - Engage with practitioners\n     - Develop action research projects\n     - Create practical guidelines or frameworks\n\n6. **Population Gap**\n   - Underrepresentation or exclusion of certain groups in research\n   - **Strategies to address:**\n     - Diversify study samples\n     - Conduct targeted research on underrepresented groups\n     - Analyze existing data with focus on excluded populations\n\n7. **Practical Knowledge Gap**\n   - Inability to apply theoretical knowledge to real-world problems\n   - **Approaches to resolve:**\n     - Conduct case studies\n     - Develop applied research projects\n     - Collaborate with industry partners\n\n8. **Evidence Gap**\n   - Insufficient or conflicting evidence to support a conclusion\n   - **Ways to strengthen:**\n     - Conduct meta-analyses\n     - Perform replication studies\n     - Design studies with increased statistical power\n\n9. **Knowledge Gap**\n   - Lack of understanding or information on a specific topic\n   - **Methods to fill:**\n     - Conduct comprehensive literature reviews\n     - Identify key research questions\n     - Develop conceptual frameworks\n\n10. **Theoretical Gap**\n    - Insufficient theoretical frameworks to explain a phenomenon\n    - **Strategies to address:**\n      - Develop new theories\n      - Integrate existing theories\n      - Apply theories from other disciplines\n\n---\n\n*Expanded by Lennart Nacke from Miles, D. A. (2017, August). A taxonomy of research gaps: Identifying and defining the seven research gaps. In Doctoral student workshop: finding research gaps-research methods and strategies, Dallas, Texas (pp. 1-15). Mindmap by Lennart Nacke, @acagamic.*",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1784709995,
+  "id": "202607221646203d001c955ad24ba3",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607221646203d001c955ad24ba3",
+  "usage": {
+    "completion_tokens": 591,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1972,
+    "prompt_tokens_details": {
+      "cached_tokens": 1
+    },
+    "total_tokens": 2563
+  }
+}
