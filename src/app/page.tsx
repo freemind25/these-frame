@@ -20,6 +20,8 @@ import {
   ArrowRight,
   XCircle,
   ShieldCheck,
+  Download,
+  FileCode2,
   type LucideIcon,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -30,6 +32,20 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { DEFAULT_THESIS_DATA, type ThesisData } from '@/data/latex-template'
 import {
   writingSteps,
   sectionGuides,
@@ -374,7 +390,158 @@ function ThesisPlanTab() {
           </div>
         </CardContent>
       </Card>
+
+      <LatexExportSection chapters={chapters} />
     </div>
+  )
+}
+
+// ─── LatexExportSection ───────────────────────────────────────────
+function LatexExportSection({ chapters }: { chapters: { id: string; title: string; words: number; pages: number; notes: string }[] }) {
+  const [open, setOpen] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [meta, setMeta] = useState<ThesisData>(DEFAULT_THESIS_DATA)
+  const [exportDone, setExportDone] = useState(false)
+
+  function handleExport() {
+    setGenerating(true)
+    const payload: ThesisData = {
+      ...meta,
+      chapters: chapters.map(ch => ({
+        title: ch.title,
+        content: `\\TODO{Rédiger ${ch.title}}`,
+      })),
+    }
+
+    fetch('/api/generate-latex', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'these.tex'
+        a.click()
+        URL.revokeObjectURL(url)
+        setExportDone(true)
+        setTimeout(() => setExportDone(false), 3000)
+      })
+      .catch(() => alert('Erreur lors de la génération du fichier LaTeX.'))
+      .finally(() => setGenerating(false))
+  }
+
+  return (
+    <Card className="border-emerald-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+              <FileCode2 className="h-5 w-5 text-emerald-700" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Exporter en LaTeX</CardTitle>
+              <CardDescription className="text-sm">
+                Générez un fichier .tex prêt à compiler (Overleaf, Texmaker…)
+              </CardDescription>
+            </div>
+          </div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="shrink-0 gap-2">
+                {exportDone ? <CheckCircle2 className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+                {exportDone ? 'Téléchargé !' : 'Générer .tex'}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FileCode2 className="h-5 w-5 text-emerald-600" />
+                  Métadonnées de la thèse
+                </DialogTitle>
+                <DialogDescription>
+                  Ces informations apparaîtront sur la page de garde et dans les métadonnées PDF.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Titre de la thèse</Label>
+                  <Input id="title" value={meta.title} onChange={e => setMeta(p => ({ ...p, title: e.target.value }))} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="author">Nom du doctorant</Label>
+                    <Input id="author" value={meta.author} onChange={e => setMeta(p => ({ ...p, author: e.target.value }))} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="date">Année de soutenance</Label>
+                    <Input id="date" value={meta.date} onChange={e => setMeta(p => ({ ...p, date: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="supervisor">Directeur de thèse</Label>
+                    <Input id="supervisor" value={meta.supervisor} onChange={e => setMeta(p => ({ ...p, supervisor: e.target.value }))} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="coSupervisor">Co-directeur (optionnel)</Label>
+                    <Input id="coSupervisor" value={meta.coSupervisor || ''} onChange={e => setMeta(p => ({ ...p, coSupervisor: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="speciality">Spécialité</Label>
+                  <Input id="speciality" value={meta.speciality} onChange={e => setMeta(p => ({ ...p, speciality: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="laboratory">Laboratoire de recherche</Label>
+                  <Input id="laboratory" value={meta.laboratory} onChange={e => setMeta(p => ({ ...p, laboratory: e.target.value }))} />
+                </div>
+                <Separator />
+                <div className="grid gap-2">
+                  <Label htmlFor="abstractFr">Résumé (français)</Label>
+                  <Textarea id="abstractFr" rows={4} value={meta.abstractFr} onChange={e => setMeta(p => ({ ...p, abstractFr: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="keywordsFr">Mots-clés (français, séparés par des virgules)</Label>
+                  <Input id="keywordsFr" value={meta.keywordsFr} onChange={e => setMeta(p => ({ ...p, keywordsFr: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="abstractEn">Abstract (anglais)</Label>
+                  <Textarea id="abstractEn" rows={4} value={meta.abstractEn} onChange={e => setMeta(p => ({ ...p, abstractEn: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="keywordsEn">Keywords (anglais, séparés par des virgules)</Label>
+                  <Input id="keywordsEn" value={meta.keywordsEn} onChange={e => setMeta(p => ({ ...p, keywordsEn: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="dedication">Dédicace (optionnel)</Label>
+                  <Textarea id="dedication" rows={2} value={meta.dedication || ''} onChange={e => setMeta(p => ({ ...p, dedication: e.target.value }))} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="ack">Remerciements</Label>
+                  <Textarea id="ack" rows={3} value={meta.acknowledgements || ''} onChange={e => setMeta(p => ({ ...p, acknowledgements: e.target.value }))} />
+                </div>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+                <Button onClick={handleExport} disabled={generating} className="gap-2">
+                  {generating ? 'Génération…' : <><Download className="h-4 w-4" /> Télécharger these.tex</>}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <p className="text-xs text-muted-foreground">
+          Le fichier généré inclut : page de garde, table des matières, chapitres structurés (IMRaD),
+          zones TODO rouges à compléter, bibliographie BibLaTeX, et annexes.
+          Compilez avec <strong>xelatex → biber → xelatex × 2</strong>.
+        </p>
+      </CardContent>
+    </Card>
   )
 }
 
