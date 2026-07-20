@@ -1,0 +1,925 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { createElement, useState } from 'react'
+     4→     4→import {
+     5→     5→  BookOpen,
+     6→     6→  FileText,
+     7→     7→  GraduationCap,
+     8→     8→  CheckCircle2,
+     9→     9→  ChevronRight,
+    10→    10→  AlertTriangle,
+    11→    11→  Lightbulb,
+    12→    12→  BookMarked,
+    13→    13→  ClipboardList,
+    14→    14→  Send,
+    15→    15→  FlaskConical,
+    16→    16→  BarChart3,
+    17→    17→  MessageSquare,
+    18→    18→  Layout,
+    19→    19→  Type,
+    20→    20→  ArrowRight,
+    21→    21→  XCircle,
+    22→    22→  ShieldCheck,
+    23→    23→  Download,
+    24→    24→  FileCode2,
+    25→    25→  type LucideIcon,
+    26→    26→} from 'lucide-react'
+    27→    27→import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+    28→    28→import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+    29→    29→import { Badge } from '@/components/ui/badge'
+    30→    30→import { Progress } from '@/components/ui/progress'
+    31→    31→import { Checkbox } from '@/components/ui/checkbox'
+    32→    32→import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+    33→    33→import { ScrollArea } from '@/components/ui/scroll-area'
+    34→    34→import { Separator } from '@/components/ui/separator'
+    35→    35→import { Button } from '@/components/ui/button'
+    36→    36→import { Input } from '@/components/ui/input'
+    37→    37→import { Label } from '@/components/ui/label'
+    38→    38→import { Textarea } from '@/components/ui/textarea'
+    39→    39→import {
+    40→    40→  Dialog,
+    41→    41→  DialogContent,
+    42→    42→  DialogDescription,
+    43→    43→  DialogFooter,
+    44→    44→  DialogHeader,
+    45→    45→  DialogTitle,
+    46→    46→  DialogTrigger,
+    47→    47→} from '@/components/ui/dialog'
+    48→    48→import { DEFAULT_THESIS_DATA, type ThesisData } from '@/data/latex-template'
+    49→    49→import {
+    50→    50→  writingSteps,
+    51→    51→  sectionGuides,
+    52→    52→  referenceArticles,
+    53→    53→  submissionChecklist,
+    54→    54→  commonMistakes,
+    55→    55→} from '@/data/articles-guide'
+    56→    56→
+    57→    57→// ─── Icon map ─────────────────────────────────────────────────────
+    58→    58→const iconMap: Record<string, LucideIcon> = {
+    59→    59→  ClipboardList,
+    60→    60→  Layout,
+    61→    61→  Type,
+    62→    62→  BookOpen,
+    63→    63→  FlaskConical,
+    64→    64→  BarChart3,
+    65→    65→  MessageSquare,
+    66→    66→  CheckCircle2,
+    67→    67→  BookMarked,
+    68→    68→  Send,
+    69→    69→  FileText,
+    70→    70→  GraduationCap,
+    71→    71→}
+    72→    72→
+    73→    73→function getIcon(name: string): LucideIcon {
+    74→    74→  return iconMap[name] || FileText
+    75→    75→}
+    76→    76→
+    77→    77→// ─── ThesisPlanTab ────────────────────────────────────────────────
+    78→    78→interface Chapter {
+    79→    79→  id: string
+    80→    80→  title: string
+    81→    81→  words: number
+    82→    82→  pages: number
+    83→    83→  notes: string
+    84→    84→  expanded: boolean
+    85→    85→}
+    86→    86→
+    87→    87→const DEFAULT_CHAPTERS: Chapter[] = [
+    88→    88→  { id: 'cover', title: 'Page de couverture', words: 0, pages: 1, notes: '', expanded: false },
+    89→    89→  { id: 'ack', title: 'Remerciements', words: 0, pages: 1, notes: '', expanded: false },
+    90→    90→  { id: 'abstract', title: 'Résumé (Français / Anglais)', words: 0, pages: 2, notes: '', expanded: false },
+    91→    91→  { id: 'intro', title: 'Introduction générale', words: 0, pages: 0, notes: '', expanded: false },
+    92→    92→  { id: 'lit', title: 'Revue de la littérature (Chapitre I)', words: 0, pages: 0, notes: '', expanded: false },
+    93→    93→  { id: 'context', title: 'Contexte et cadre méthodologique (Chapitre II)', words: 0, pages: 0, notes: '', expanded: false },
+    94→    94→  { id: 'results', title: 'Résultats et analyse (Chapitre III)', words: 0, pages: 0, notes: '', expanded: false },
+    95→    95→  { id: 'discussion', title: 'Discussion (Chapitre IV)', words: 0, pages: 0, notes: '', expanded: false },
+    96→    96→  { id: 'conclusion', title: 'Conclusion générale', words: 0, pages: 0, notes: '', expanded: false },
+    97→    97→  { id: 'biblio', title: 'Références bibliographiques', words: 0, pages: 0, notes: '', expanded: false },
+    98→    98→  { id: 'annexes', title: 'Annexes', words: 0, pages: 0, notes: '', expanded: false },
+    99→    99→]
+   100→   100→
+   101→   101→function ThesisPlanTab() {
+   102→   102→  const [chapters, setChapters] = useState<Chapter[]>(DEFAULT_CHAPTERS)
+   103→   103→  const [editingId, setEditingId] = useState<string | null>(null)
+   104→   104→  const [editingField, setEditingField] = useState<'words' | 'pages' | 'title' | 'notes' | null>(null)
+   105→   105→  const [editValue, setEditValue] = useState('')
+   106→   106→
+   107→   107→  const totalWords = chapters.reduce((a, c) => a + c.words, 0)
+   108→   108→  const totalPages = chapters.reduce((a, c) => a + c.pages, 0)
+   109→   109→  const startedCount = chapters.filter(c => c.words > 0 || c.pages > 0).length
+   110→   110→
+   111→   111→  function startEdit(id: string, field: 'words' | 'pages' | 'title' | 'notes', currentValue: string | number) {
+   112→   112→    setEditingId(id)
+   113→   113→    setEditingField(field)
+   114→   114→    setEditValue(String(currentValue))
+   115→   115→  }
+   116→   116→
+   117→   117→  function commitEdit() {
+   118→   118→    if (!editingId || !editingField) return
+   119→   119→    setChapters(prev =>
+   120→   120→      prev.map(ch => {
+   121→   121→        if (ch.id !== editingId) return ch
+   122→   122→        const val = editingField === 'title' || editingField === 'notes'
+   123→   123→          ? editValue
+   124→   124→          : Math.max(0, parseInt(editValue) || 0)
+   125→   125→        return { ...ch, [editingField]: val }
+   126→   126→      })
+   127→   127→    )
+   128→   128→    setEditingId(null)
+   129→   129→    setEditingField(null)
+   130→   130→    setEditValue('')
+   131→   131→  }
+   132→   132→
+   133→   133→  function cancelEdit() {
+   134→   134→    setEditingId(null)
+   135→   135→    setEditingField(null)
+   136→   136→    setEditValue('')
+   137→   137→  }
+   138→   138→
+   139→   139→  function toggleExpand(id: string) {
+   140→   140→    setChapters(prev => prev.map(ch => ch.id === id ? { ...ch, expanded: !ch.expanded } : ch))
+   141→   141→  }
+   142→   142→
+   143→   143→  return (
+   144→   144→    <div className="space-y-6">
+   145→   145→      {/* Header stats */}
+   146→   146→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+   147→   147→        <Card>
+   148→   148→          <CardHeader className="pb-2">
+   149→   149→            <CardDescription>Mots rédigés</CardDescription>
+   150→   150→            <CardTitle className="text-3xl font-bold tabular-nums">
+   151→   151→              {totalWords.toLocaleString()}
+   152→   152→            </CardTitle>
+   153→   153→          </CardHeader>
+   154→   154→          <CardContent>
+   155→   155→            <p className="text-xs text-muted-foreground mt-1">
+   156→   156→              {startedCount} / {chapters.length} chapitres commencés
+   157→   157→            </p>
+   158→   158→          </CardContent>
+   159→   159→        </Card>
+   160→   160→        <Card>
+   161→   161→          <CardHeader className="pb-2">
+   162→   162→            <CardDescription>Pages estimées</CardDescription>
+   163→   163→            <CardTitle className="text-3xl font-bold tabular-nums">
+   164→   164→              {totalPages}
+   165→   165→            </CardTitle>
+   166→   166→          </CardHeader>
+   167→   167→          <CardContent>
+   168→   168→            <p className="text-xs text-muted-foreground mt-1">
+   169→   169→              ≈ {totalWords > 0 ? Math.round(totalWords / 250) : '—'} pages (base 250 mots/page)
+   170→   170→            </p>
+   171→   171→          </CardContent>
+   172→   172→        </Card>
+   173→   173→        <Card>
+   174→   174→          <CardHeader className="pb-2">
+   175→   175→            <CardDescription>Structure IMRaD</CardDescription>
+   176→   176→            <CardTitle className="text-3xl font-bold flex items-center gap-2">
+   177→   177→              <GraduationCap className="h-8 w-8 text-emerald-600" />
+   178→   178→              11 chapitres
+   179→   179→            </CardTitle>
+   180→   180→          </CardHeader>
+   181→   181→          <CardContent>
+   182→   182→            <p className="text-xs text-muted-foreground">
+   183→   183→              Squelette IMRaD — Université Constantine 3
+   184→   184→            </p>
+   185→   185→          </CardContent>
+   186→   186→        </Card>
+   187→   187→      </div>
+   188→   188→
+   189→   189→      {/* Chapter list */}
+   190→   190→      <Card>
+   191→   191→        <CardHeader>
+   192→   192→          <div className="flex items-start justify-between gap-4">
+   193→   193→            <div>
+   194→   194→              <CardTitle>Chapitres de la thèse</CardTitle>
+   195→   195→              <CardDescription className="mt-1">
+   196→   196→                Cliquez sur les valeurs pour les modifier — la longueur est libre
+   197→   197→              </CardDescription>
+   198→   198→            </div>
+   199→   199→            <p className="text-xs text-muted-foreground shrink-0 text-right leading-relaxed">
+   200→   200→              Cliquez sur <strong>titre</strong>, <strong>mots</strong> ou <strong>pages</strong> pour éditer.&#10;
+   201→   201→              Entrée pour valider, Échap pour annuler.
+   202→   202→            </p>
+   203→   203→          </div>
+   204→   204→        </CardHeader>
+   205→   205→        <CardContent>
+   206→   206→          <div className="space-y-2">
+   207→   207→            {chapters.map((ch) => {
+   208→   208→              const isEditingThis = editingId === ch.id
+   209→   209→              const isStarted = ch.words > 0 || ch.pages > 0
+   210→   210→              return (
+   211→   211→                <div key={ch.id} className={`rounded-lg border transition-colors ${isStarted ? 'border-emerald-200 bg-emerald-50/30' : 'hover:bg-muted/50'}`}>
+   212→   212→                  {/* Main row */}
+   213→   213→                  <div
+   214→   214→                    className="flex items-center gap-3 p-3 cursor-pointer select-none"
+   215→   215→                    onClick={() => toggleExpand(ch.id)}
+   216→   216→                    onKeyDown={(e) => e.key === 'Enter' && toggleExpand(ch.id)}
+   217→   217→                    role="button"
+   218→   218→                    tabIndex={0}
+   219→   219→                  >
+   220→   220→                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${ch.expanded ? 'rotate-90' : ''}`} />
+   221→   221→                    <div className="flex-1 min-w-0">
+   222→   222→                      <div className="flex items-center gap-2">
+   223→   223→                        {isEditingThis && editingField === 'title' ? (
+   224→   224→                          <input
+   225→   225→                            className="font-medium text-sm bg-white border rounded px-2 py-0.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   226→   226→                            value={editValue}
+   227→   227→                            onChange={(e) => setEditValue(e.target.value)}
+   228→   228→                            onBlur={commitEdit}
+   229→   229→                            onKeyDown={(e) => {
+   230→   230→                              if (e.key === 'Enter') commitEdit()
+   231→   231→                              if (e.key === 'Escape') cancelEdit()
+   232→   232→                              e.stopPropagation()
+   233→   233→                            }}
+   234→   234→                            autoFocus
+   235→   235→                            onClick={(e) => e.stopPropagation()}
+   236→   236→                          />
+   237→   237→                        ) : (
+   238→   238→                          <span className="font-medium text-sm truncate">{ch.title}</span>
+   239→   239→                        )}
+   240→   240→                        {isStarted && (
+   241→   241→                          <Badge variant="secondary" className="text-xs shrink-0 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+   242→   242→                            En cours
+   243→   243→                          </Badge>
+   244→   244→                        )}
+   245→   245→                      </div>
+   246→   246→                    </div>
+   247→   247→                    {/* Words */}
+   248→   248→                    <div
+   249→   249→                      className="shrink-0 text-right min-w-[90px]"
+   250→   250→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'words', ch.words) }}
+   251→   251→                    >
+   252→   252→                      {isEditingThis && editingField === 'words' ? (
+   253→   253→                        <input
+   254→   254→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+   255→   255→                          value={editValue}
+   256→   256→                          onChange={(e) => setEditValue(e.target.value)}
+   257→   257→                          onBlur={commitEdit}
+   258→   258→                          onKeyDown={(e) => {
+   259→   259→                            if (e.key === 'Enter') commitEdit()
+   260→   260→                            if (e.key === 'Escape') cancelEdit()
+   261→   261→                            e.stopPropagation()
+   262→   262→                          }}
+   263→   263→                          autoFocus
+   264→   264→                        />
+   265→   265→                      ) : (
+   266→   266→                        <span className={`text-xs tabular-nums ${ch.words > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+   267→   267→                          {ch.words > 0 ? `${ch.words.toLocaleString()} mots` : '— mots'}
+   268→   268→                        </span>
+   269→   269→                      )}
+   270→   270→                    </div>
+   271→   271→                    {/* Pages */}
+   272→   272→                    <div
+   273→   273→                      className="shrink-0 text-right min-w-[70px]"
+   274→   274→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'pages', ch.pages) }}
+   275→   275→                    >
+   276→   276→                      {isEditingThis && editingField === 'pages' ? (
+   277→   277→                        <input
+   278→   278→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+   279→   279→                          value={editValue}
+   280→   280→                          onChange={(e) => setEditValue(e.target.value)}
+   281→   281→                          onBlur={commitEdit}
+   282→   282→                          onKeyDown={(e) => {
+   283→   283→                            if (e.key === 'Enter') commitEdit()
+   284→   284→                            if (e.key === 'Escape') cancelEdit()
+   285→   285→                            e.stopPropagation()
+   286→   286→                          }}
+   287→   287→                          autoFocus
+   288→   288→                        />
+   289→   289→                      ) : (
+   290→   290→                        <span className={`text-xs tabular-nums ${ch.pages > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+   291→   291→                          {ch.pages > 0 ? `${ch.pages} p.` : '— p.'}
+   292→   292→                        </span>
+   293→   293→                      )}
+   294→   294→                    </div>
+   295→   295→                  </div>
+   296→   296→
+   297→   297→                  {/* Expanded section */}
+   298→   298→                  {ch.expanded && (
+   299→   299→                    <div className="px-3 pb-3 pl-10 space-y-3">
+   300→   300→                      <div className="h-px bg-border" />
+   301→   301→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   302→   302→                        {/* Edit words */}
+   303→   303→                        <div
+   304→   304→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+   305→   305→                          onClick={() => startEdit(ch.id, 'words', ch.words)}
+   306→   306→                        >
+   307→   307→                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+   308→   308→                          <span className="text-xs text-muted-foreground">Mots :</span>
+   309→   309→                          {isEditingThis && editingField === 'words' ? (
+   310→   310→                            <input
+   311→   311→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+   312→   312→                              value={editValue}
+   313→   313→                              onChange={(e) => setEditValue(e.target.value)}
+   314→   314→                              onBlur={commitEdit}
+   315→   315→                              onKeyDown={(e) => {
+   316→   316→                                if (e.key === 'Enter') commitEdit()
+   317→   317→                                if (e.key === 'Escape') cancelEdit()
+   318→   318→                              }}
+   319→   319→                              autoFocus
+   320→   320→                            />
+   321→   321→                          ) : (
+   322→   322→                            <span className="text-sm font-medium tabular-nums">
+   323→   323→                              {ch.words > 0 ? ch.words.toLocaleString() : 'Non défini'}
+   324→   324→                            </span>
+   325→   325→                          )}
+   326→   326→                        </div>
+   327→   327→                        {/* Edit pages */}
+   328→   328→                        <div
+   329→   329→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+   330→   330→                          onClick={() => startEdit(ch.id, 'pages', ch.pages)}
+   331→   331→                        >
+   332→   332→                          <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+   333→   333→                          <span className="text-xs text-muted-foreground">Pages :</span>
+   334→   334→                          {isEditingThis && editingField === 'pages' ? (
+   335→   335→                            <input
+   336→   336→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+   337→   337→                              value={editValue}
+   338→   338→                              onChange={(e) => setEditValue(e.target.value)}
+   339→   339→                              onBlur={commitEdit}
+   340→   340→                              onKeyDown={(e) => {
+   341→   341→                                if (e.key === 'Enter') commitEdit()
+   342→   342→                                if (e.key === 'Escape') cancelEdit()
+   343→   343→                              }}
+   344→   344→                              autoFocus
+   345→   345→                            />
+   346→   346→                          ) : (
+   347→   347→                            <span className="text-sm font-medium tabular-nums">
+   348→   348→                              {ch.pages > 0 ? ch.pages : 'Non défini'}
+   349→   349→                            </span>
+   350→   350→                          )}
+   351→   351→                        </div>
+   352→   352→                      </div>
+   353→   353→                      {/* Notes */}
+   354→   354→                      <div className="flex items-start gap-2">
+   355→   355→                        <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+   356→   356→                        <span className="text-xs text-muted-foreground shrink-0 mt-0.5">Notes :</span>
+   357→   357→                        {isEditingThis && editingField === 'notes' ? (
+   358→   358→                          <textarea
+   359→   359→                            className="text-xs bg-white border rounded px-2 py-1 flex-1 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[60px]"
+   360→   360→                            value={editValue}
+   361→   361→                            onChange={(e) => setEditValue(e.target.value)}
+   362→   362→                            onBlur={commitEdit}
+   363→   363→                            onKeyDown={(e) => {
+   364→   364→                              if (e.key === 'Escape') cancelEdit()
+   365→   365→                              if (e.key === 'Enter' && e.metaKey) commitEdit()
+   366→   366→                            }}
+   367→   367→                            autoFocus
+   368→   368→                            rows={2}
+   369→   369→                          />
+   370→   370→                        ) : (
+   371→   371→                          <div
+   372→   372→                            className="flex-1 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 min-h-[32px] border border-dashed border-border"
+   373→   373→                            onClick={() => startEdit(ch.id, 'notes', ch.notes)}
+   374→   374→                          >
+   375→   375→                            {ch.notes ? (
+   376→   376→                              <span className="text-sm text-foreground">{ch.notes}</span>
+   377→   377→                            ) : (
+   378→   378→                              <span className="text-xs text-muted-foreground italic">
+   379→   379→                                Cliquer pour ajouter des remarques…
+   380→   380→                              </span>
+   381→   381→                            )}
+   382→   382→                          </div>
+   383→   383→                        )}
+   384→   384→                      </div>
+   385→   385→                    </div>
+   386→   386→                  )}
+   387→   387→                </div>
+   388→   388→              )
+   389→   389→            })}
+   390→   390→          </div>
+   391→   391→        </CardContent>
+   392→   392→      </Card>
+   393→   393→
+   394→   394→      <LatexExportSection chapters={chapters} />
+   395→   395→    </div>
+   396→   396→  )
+   397→   397→}
+   398→   398→
+   399→   399→// ─── LatexExportSection ───────────────────────────────────────────
+   400→   400→function LatexExportSection({ chapters }: { chapters: { id: string; title: string; words: number; pages: number; notes: string }[] }) {
+   401→   401→  const [open, setOpen] = useState(false)
+   402→   402→  const [generating, setGenerating] = useState(false)
+   403→   403→  const [meta, setMeta] = useState<ThesisData>(DEFAULT_THESIS_DATA)
+   404→   404→  const [exportDone, setExportDone] = useState(false)
+   405→   405→
+   406→   406→  function handleExport() {
+   407→   407→    setGenerating(true)
+   408→   408→    const payload: ThesisData = {
+   409→   409→      ...meta,
+   410→   410→      chapters: chapters.map(ch => ({
+   411→   411→        title: ch.title,
+   412→   412→        content: `\\TODO{Rédiger ${ch.title}}`,
+   413→   413→      })),
+   414→   414→    }
+   415→   415→
+   416→   416→    fetch('/api/generate-latex', {
+   417→   417→      method: 'POST',
+   418→   418→      headers: { 'Content-Type': 'application/json' },
+   419→   419→      body: JSON.stringify(payload),
+   420→   420→    })
+   421→   421→      .then(res => res.blob())
+   422→   422→      .then(blob => {
+   423→   423→        const url = URL.createObjectURL(blob)
+   424→   424→        const a = document.createElement('a')
+   425→   425→        a.href = url
+   426→   426→        a.download = 'these.tex'
+   427→   427→        a.click()
+   428→   428→        URL.revokeObjectURL(url)
+   429→   429→        setExportDone(true)
+   430→   430→        setTimeout(() => setExportDone(false), 3000)
+   431→   431→      })
+   432→   432→      .catch(() => alert('Erreur lors de la génération du fichier LaTeX.'))
+   433→   433→      .finally(() => setGenerating(false))
+   434→   434→  }
+   435→   435→
+   436→   436→  return (
+   437→   437→    <Card className="border-emerald-200">
+   438→   438→      <CardHeader className="pb-3">
+   439→   439→        <div className="flex items-center justify-between">
+   440→   440→          <div className="flex items-center gap-3">
+   441→   441→            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+   442→   442→              <FileCode2 className="h-5 w-5 text-emerald-700" />
+   443→   443→            </div>
+   444→   444→            <div>
+   445→   445→              <CardTitle className="text-base">Exporter en LaTeX</CardTitle>
+   446→   446→              <CardDescription className="text-sm">
+   447→   447→                Générez un fichier .tex prêt à compiler (Overleaf, Texmaker…)
+   448→   448→              </CardDescription>
+   449→   449→            </div>
+   450→   450→          </div>
+   451→   451→          <Dialog open={open} onOpenChange={setOpen}>
+   452→   452→            <DialogTrigger asChild>
+   453→   453→              <Button className="shrink-0 gap-2">
+   454→   454→                {exportDone ? <CheckCircle2 className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+   455→   455→                {exportDone ? 'Téléchargé !' : 'Générer .tex'}
+   456→   456→              </Button>
+   457→   457→            </DialogTrigger>
+   458→   458→            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+   459→   459→              <DialogHeader>
+   460→   460→                <DialogTitle className="flex items-center gap-2">
+   461→   461→                  <FileCode2 className="h-5 w-5 text-emerald-600" />
+   462→   462→                  Métadonnées de la thèse
+   463→   463→                </DialogTitle>
+   464→   464→                <DialogDescription>
+   465→   465→                  Ces informations apparaîtront sur la page de garde et dans les métadonnées PDF.
+   466→   466→                </DialogDescription>
+   467→   467→              </DialogHeader>
+   468→   468→              <div className="grid gap-4 py-4">
+   469→   469→                <div className="grid gap-2">
+   470→   470→                  <Label htmlFor="title">Titre de la thèse</Label>
+   471→   471→                  <Input id="title" value={meta.title} onChange={e => setMeta(p => ({ ...p, title: e.target.value }))} />
+   472→   472→                </div>
+   473→   473→                <div className="grid grid-cols-2 gap-4">
+   474→   474→                  <div className="grid gap-2">
+   475→   475→                    <Label htmlFor="author">Nom du doctorant</Label>
+   476→   476→                    <Input id="author" value={meta.author} onChange={e => setMeta(p => ({ ...p, author: e.target.value }))} />
+   477→   477→                  </div>
+   478→   478→                  <div className="grid gap-2">
+   479→   479→                    <Label htmlFor="date">Année de soutenance</Label>
+   480→   480→                    <Input id="date" value={meta.date} onChange={e => setMeta(p => ({ ...p, date: e.target.value }))} />
+   481→   481→                  </div>
+   482→   482→                </div>
+   483→   483→                <div className="grid grid-cols-2 gap-4">
+   484→   484→                  <div className="grid gap-2">
+   485→   485→                    <Label htmlFor="supervisor">Directeur de thèse</Label>
+   486→   486→                    <Input id="supervisor" value={meta.supervisor} onChange={e => setMeta(p => ({ ...p, supervisor: e.target.value }))} />
+   487→   487→                  </div>
+   488→   488→                  <div className="grid gap-2">
+   489→   489→                    <Label htmlFor="coSupervisor">Co-directeur (optionnel)</Label>
+   490→   490→                    <Input id="coSupervisor" value={meta.coSupervisor || ''} onChange={e => setMeta(p => ({ ...p, coSupervisor: e.target.value }))} />
+   491→   491→                  </div>
+   492→   492→                </div>
+   493→   493→                <div className="grid gap-2">
+   494→   494→                  <Label htmlFor="speciality">Spécialité</Label>
+   495→   495→                  <Input id="speciality" value={meta.speciality} onChange={e => setMeta(p => ({ ...p, speciality: e.target.value }))} />
+   496→   496→                </div>
+   497→   497→                <div className="grid gap-2">
+   498→   498→                  <Label htmlFor="laboratory">Laboratoire de recherche</Label>
+   499→   499→                  <Input id="laboratory" value={meta.laboratory} onChange={e => setMeta(p => ({ ...p, laboratory: e.target.value }))} />
+   500→   500→                </div>
+   501→   501→                <Separator />
+   502→   502→                <div className="grid gap-2">
+   503→   503→                  <Label htmlFor="abstractFr">Résumé (français)</Label>
+   504→   504→                  <Textarea id="abstractFr" rows={4} value={meta.abstractFr} onChange={e => setMeta(p => ({ ...p, abstractFr: e.target.value }))} />
+   505→   505→                </div>
+   506→   506→                <div className="grid gap-2">
+   507→   507→                  <Label htmlFor="keywordsFr">Mots-clés (français, séparés par des virgules)</Label>
+   508→   508→                  <Input id="keywordsFr" value={meta.keywordsFr} onChange={e => setMeta(p => ({ ...p, keywordsFr: e.target.value }))} />
+   509→   509→                </div>
+   510→   510→                <div className="grid gap-2">
+   511→   511→                  <Label htmlFor="abstractEn">Abstract (anglais)</Label>
+   512→   512→                  <Textarea id="abstractEn" rows={4} value={meta.abstractEn} onChange={e => setMeta(p => ({ ...p, abstractEn: e.target.value }))} />
+   513→   513→                </div>
+   514→   514→                <div className="grid gap-2">
+   515→   515→                  <Label htmlFor="keywordsEn">Keywords (anglais, séparés par des virgules)</Label>
+   516→   516→                  <Input id="keywordsEn" value={meta.keywordsEn} onChange={e => setMeta(p => ({ ...p, keywordsEn: e.target.value }))} />
+   517→   517→                </div>
+   518→   518→                <div className="grid gap-2">
+   519→   519→                  <Label htmlFor="dedication">Dédicace (optionnel)</Label>
+   520→   520→                  <Textarea id="dedication" rows={2} value={meta.dedication || ''} onChange={e => setMeta(p => ({ ...p, dedication: e.target.value }))} />
+   521→   521→                </div>
+   522→   522→                <div className="grid gap-2">
+   523→   523→                  <Label htmlFor="ack">Remerciements</Label>
+   524→   524→                  <Textarea id="ack" rows={3} value={meta.acknowledgements || ''} onChange={e => setMeta(p => ({ ...p, acknowledgements: e.target.value }))} />
+   525→   525→                </div>
+   526→   526→              </div>
+   527→   527→              <DialogFooter className="gap-2 sm:gap-0">
+   528→   528→                <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+   529→   529→                <Button onClick={handleExport} disabled={generating} className="gap-2">
+   530→   530→                  {generating ? 'Génération…' : <><Download className="h-4 w-4" /> Télécharger these.tex</>}
+   531→   531→                </Button>
+   532→   532→              </DialogFooter>
+   533→   533→            </DialogContent>
+   534→   534→          </Dialog>
+   535→   535→        </div>
+   536→   536→      </CardHeader>
+   537→   537→      <CardContent className="pt-0">
+   538→   538→        <p className="text-xs text-muted-foreground">
+   539→   539→          Le fichier généré inclut : page de garde, table des matières, chapitres structurés (IMRaD),
+   540→   540→          zones TODO rouges à compléter, bibliographie BibLaTeX, et annexes.
+   541→   541→          Compilez avec <strong>xelatex → biber → xelatex × 2</strong>.
+   542→   542→        </p>
+   543→   543→      </CardContent>
+   544→   544→    </Card>
+   545→   545→  )
+   546→   546→}
+   547→   547→
+   548→   548→// ─── Sub-components for ArticlesTab ───────────────────────────────
+   549→   549→
+   550→   550→function StepIcon({ name, className }: { name: string; className?: string }) {
+   551→   551→  return createElement(getIcon(name), { className })
+   552→   552→}
+   553→   553→
+   554→   554→function StepCard({ step, index }: { step: typeof writingSteps[0]; index: number }) {
+   555→   555→  return (
+   556→   556→    <Card className="overflow-hidden">
+   557→   557→      <CardHeader className="pb-3">
+   558→   558→        <div className="flex items-start gap-3">
+   559→   559→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
+   560→   560→            <StepIcon name={step.icon} className="h-5 w-5" />
+   561→   561→          </div>
+   562→   562→          <div className="flex-1 min-w-0">
+   563→   563→            <div className="flex items-center gap-2">
+   564→   564→              <Badge variant="outline" className="text-xs shrink-0">Étape {index + 1}</Badge>
+   565→   565→            </div>
+   566→   566→            <CardTitle className="text-base mt-1">{step.title}</CardTitle>
+   567→   567→            <CardDescription className="text-sm mt-1">{step.shortDesc}</CardDescription>
+   568→   568→          </div>
+   569→   569→        </div>
+   570→   570→      </CardHeader>
+   571→   571→      <CardContent className="pt-0 space-y-4">
+   572→   572→        {/* Tips */}
+   573→   573→        <div>
+   574→   574→          <div className="flex items-center gap-2 mb-2">
+   575→   575→            <Lightbulb className="h-4 w-4 text-amber-500" />
+   576→   576→            <span className="text-sm font-semibold text-amber-700">Conseils</span>
+   577→   577→          </div>
+   578→   578→          <ul className="space-y-1.5">
+   579→   579→            {step.tips.map((tip, i) => (
+   580→   580→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   581→   581→                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+   582→   582→                <span>{tip}</span>
+   583→   583→              </li>
+   584→   584→            ))}
+   585→   585→          </ul>
+   586→   586→        </div>
+   587→   587→        {/* Pitfalls */}
+   588→   588→        <div>
+   589→   589→          <div className="flex items-center gap-2 mb-2">
+   590→   590→            <AlertTriangle className="h-4 w-4 text-red-500" />
+   591→   591→            <span className="text-sm font-semibold text-red-600">Pièges à éviter</span>
+   592→   592→          </div>
+   593→   593→          <ul className="space-y-1.5">
+   594→   594→            {step.pitfalls.map((p, i) => (
+   595→   595→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   596→   596→                <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+   597→   597→                <span>{p}</span>
+   598→   598→              </li>
+   599→   599→            ))}
+   600→   600→          </ul>
+   601→   601→        </div>
+   602→   602→      </CardContent>
+   603→   603→    </Card>
+   604→   604→  )
+   605→   605→}
+   606→   606→
+   607→   607→function SectionGuideCard({ guide }: { guide: typeof sectionGuides[0] }) {
+   608→   608→  return (
+   609→   609→    <Card>
+   610→   610→      <CardHeader className="pb-3">
+   611→   611→        <div className="flex items-center gap-3">
+   612→   612→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-sky-100 text-sky-700 shrink-0">
+   613→   613→            <StepIcon name={guide.icon} className="h-5 w-5" />
+   614→   614→          </div>
+   615→   615→          <div className="flex-1">
+   616→   616→            <CardTitle className="text-base">{guide.label}</CardTitle>
+   617→   617→            {guide.wordCount && (
+   618→   618→              <Badge variant="secondary" className="mt-1 text-xs">{guide.wordCount}</Badge>
+   619→   619→            )}
+   620→   620→          </div>
+   621→   621→        </div>
+   622→   622→        <CardDescription className="mt-2 text-sm">{guide.description}</CardDescription>
+   623→   623→      </CardHeader>
+   624→   624→      <CardContent className="pt-0 space-y-3">
+   625→   625→        <div>
+   626→   626→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Structure attendue</span>
+   627→   627→          <ol className="mt-2 space-y-1">
+   628→   628→            {guide.structure.map((s, i) => (
+   629→   629→              <li key={i} className="flex items-start gap-2 text-sm">
+   630→   630→                <span className="flex items-center justify-center h-5 w-5 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0 mt-0.5">
+   631→   631→                  {i + 1}
+   632→   632→                </span>
+   633→   633→                <span className="text-muted-foreground">{s}</span>
+   634→   634→              </li>
+   635→   635→            ))}
+   636→   636→          </ol>
+   637→   637→        </div>
+   638→   638→        <Separator />
+   639→   639→        <div>
+   640→   640→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Conseils</span>
+   641→   641→          <ul className="mt-2 space-y-1">
+   642→   642→            {guide.tips.map((t, i) => (
+   643→   643→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   644→   644→                <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sky-500" />
+   645→   645→                <span>{t}</span>
+   646→   646→              </li>
+   647→   647→            ))}
+   648→   648→          </ul>
+   649→   649→        </div>
+   650→   650→        {guide.example && (
+   651→   651→          <>
+   652→   652→            <Separator />
+   653→   653→            <div>
+   654→   654→              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Exemple</span>
+   655→   655→              <p className="mt-2 text-sm italic text-muted-foreground bg-muted/50 rounded-md p-3">
+   656→   656→                {guide.example}
+   657→   657→              </p>
+   658→   658→            </div>
+   659→   659→          </>
+   660→   660→        )}
+   661→   661→      </CardContent>
+   662→   662→    </Card>
+   663→   663→  )
+   664→   664→}
+   665→   665→
+   666→   666→function ChecklistSection() {
+   667→   667→  const [checked, setChecked] = useState<Record<string, boolean>>({})
+   668→   668→
+   669→   669→  const toggle = (key: string) => {
+   670→   670→    setChecked(prev => ({ ...prev, [key]: !prev[key] }))
+   671→   671→  }
+   672→   672→
+   673→   673→  const totalItems = submissionChecklist.reduce((a, c) => a + c.items.length, 0)
+   674→   674→  const checkedCount = Object.values(checked).filter(Boolean).length
+   675→   675→
+   676→   676→  return (
+   677→   677→    <Card>
+   678→   678→      <CardHeader>
+   679→   679→        <div className="flex items-center justify-between">
+   680→   680→          <div>
+   681→   681→            <CardTitle className="text-base">Checklist de soumission</CardTitle>
+   682→   682→            <CardDescription className="text-sm mt-1">
+   683→   683→              {checkedCount} / {totalItems} étapes complétées
+   684→   684→            </CardDescription>
+   685→   685→          </div>
+   686→   686→          <Badge variant={checkedCount === totalItems ? 'default' : 'secondary'} className="shrink-0">
+   687→   687→            {Math.round((checkedCount / totalItems) * 100)}%
+   688→   688→          </Badge>
+   689→   689→        </div>
+   690→   690→        <Progress value={(checkedCount / totalItems) * 100} className="h-1.5" />
+   691→   691→      </CardHeader>
+   692→   692→      <CardContent>
+   693→   693→        <Accordion type="multiple" className="w-full">
+   694→   694→          {submissionChecklist.map((section) => (
+   695→   695→            <AccordionItem key={section.category} value={section.category}>
+   696→   696→              <AccordionTrigger className="text-sm font-semibold">
+   697→   697→                {section.category}
+   698→   698→              </AccordionTrigger>
+   699→   699→              <AccordionContent>
+   700→   700→                <div className="space-y-2 pt-1">
+   701→   701→                  {section.items.map((item) => {
+   702→   702→                    const key = `${section.category}-${item}`
+   703→   703→                    return (
+   704→   704→                      <label
+   705→   705→                        key={key}
+   706→   706→                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+   707→   707→                      >
+   708→   708→                        <Checkbox
+   709→   709→                          checked={checked[key] || false}
+   710→   710→                          onCheckedChange={() => toggle(key)}
+   711→   711→                        />
+   712→   712→                        <span className={`text-sm ${checked[key] ? 'line-through text-muted-foreground' : ''}`}>
+   713→   713→                          {item}
+   714→   714→                        </span>
+   715→   715→                      </label>
+   716→   716→                    )
+   717→   717→                  })}
+   718→   718→                </div>
+   719→   719→              </AccordionContent>
+   720→   720→            </AccordionItem>
+   721→   721→          ))}
+   722→   722→        </Accordion>
+   723→   723→      </CardContent>
+   724→   724→    </Card>
+   725→   725→  )
+   726→   726→}
+   727→   727→
+   728→   728→function MistakesSection() {
+   729→   729→  return (
+   730→   730→    <Card>
+   731→   731→      <CardHeader>
+   732→   732→        <CardTitle className="text-base flex items-center gap-2">
+   733→   733→          <AlertTriangle className="h-5 w-5 text-red-500" />
+   734→   734→          Erreurs fréquentes
+   735→   735→        </CardTitle>
+   736→   736→        <CardDescription className="text-sm">Les pièges les plus courants et comment les éviter</CardDescription>
+   737→   737→      </CardHeader>
+   738→   738→      <CardContent>
+   739→   739→        <div className="space-y-4">
+   740→   740→          {commonMistakes.map((m, i) => (
+   741→   741→            <div key={i} className="border rounded-lg p-4 space-y-2">
+   742→   742→              <div className="flex items-start gap-2">
+   743→   743→                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+   744→   744→                <span className="text-sm font-medium">{m.mistake}</span>
+   745→   745→              </div>
+   746→   746→              <p className="text-xs text-red-600 bg-red-50 rounded px-3 py-1.5 ml-6">
+   747→   747→                ⚠️ {m.consequence}
+   748→   748→              </p>
+   749→   749→              <div className="flex items-start gap-2 ml-6">
+   750→   750→                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+   751→   751→                <p className="text-sm text-emerald-700">{m.fix}</p>
+   752→   752→              </div>
+   753→   753→            </div>
+   754→   754→          ))}
+   755→   755→        </div>
+   756→   756→      </CardContent>
+   757→   757→    </Card>
+   758→   758→  )
+   759→   759→}
+   760→   760→
+   761→   761→// ─── ArticlesGuideTab ─────────────────────────────────────────────
+   762→   762→function ArticlesGuideTab() {
+   763→   763→  return (
+   764→   764→    <div className="space-y-6">
+   765→   765→      {/* Intro banner */}
+   766→   766→      <Card className="border-emerald-200 bg-emerald-50/50">
+   767→   767→        <CardContent className="py-4">
+   768→   768→          <div className="flex items-start gap-3">
+   769→   769→            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 shrink-0">
+   770→   770→              <BookOpen className="h-5 w-5 text-emerald-700" />
+   771→   771→            </div>
+   772→   772→            <div>
+   773→   773→              <h3 className="font-semibold text-emerald-900">Guide de rédaction d'articles scientifiques</h3>
+   774→   774→              <p className="text-sm text-emerald-700 mt-1">
+   775→   775→                Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas
+   776→   776→                d'Ecarnot et al. (2015). Il est conçu pour les doctorants en architecture et urbanisme
+   777→   777→                de l'Université Constantine 3.
+   778→   778→              </p>
+   779→   779→            </div>
+   780→   780→          </div>
+   781→   781→        </CardContent>
+   782→   782→      </Card>
+   783→   783→
+   784→   784→      {/* Sub-tabs for the articles guide */}
+   785→   785→      <Tabs defaultValue="steps" className="w-full">
+   786→   786→        <TabsList className="w-full grid grid-cols-4">
+   787→   787→          <TabsTrigger value="steps" className="text-xs sm:text-sm">Étapes de rédaction</TabsTrigger>
+   788→   788→          <TabsTrigger value="sections" className="text-xs sm:text-sm">Sections IMRaD</TabsTrigger>
+   789→   789→          <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Erreurs fréquentes</TabsTrigger>
+   790→   790→          <TabsTrigger value="checklist" className="text-xs sm:text-sm">Checklist</TabsTrigger>
+   791→   791→        </TabsList>
+   792→   792→
+   793→   793→        <TabsContent value="steps" className="mt-4">
+   794→   794→          <ScrollArea className="max-h-[70vh]">
+   795→   795→            <div className="space-y-4 pr-4">
+   796→   796→              {writingSteps.map((step, i) => (
+   797→   797→                <StepCard key={step.id} step={step} index={i} />
+   798→   798→              ))}
+   799→   799→            </div>
+   800→   800→          </ScrollArea>
+   801→   801→        </TabsContent>
+   802→   802→
+   803→   803→        <TabsContent value="sections" className="mt-4">
+   804→   804→          <ScrollArea className="max-h-[70vh]">
+   805→   805→            <div className="space-y-4 pr-4">
+   806→   806→              {sectionGuides.map((guide) => (
+   807→   807→                <SectionGuideCard key={guide.id} guide={guide} />
+   808→   808→              ))}
+   809→   809→            </div>
+   810→   810→          </ScrollArea>
+   811→   811→        </TabsContent>
+   812→   812→
+   813→   813→        <TabsContent value="mistakes" className="mt-4">
+   814→   814→          <ScrollArea className="max-h-[70vh]">
+   815→   815→            <div className="pr-4">
+   816→   816→              <MistakesSection />
+   817→   817→            </div>
+   818→   818→          </ScrollArea>
+   819→   819→        </TabsContent>
+   820→   820→
+   821→   821→        <TabsContent value="checklist" className="mt-4">
+   822→   822→          <ScrollArea className="max-h-[70vh]">
+   823→   823→            <div className="space-y-4 pr-4">
+   824→   824→              <ChecklistSection />
+   825→   825→              {/* Reference article */}
+   826→   826→              <Card>
+   827→   827→                <CardHeader>
+   828→   828→                  <CardTitle className="text-base flex items-center gap-2">
+   829→   829→                    <BookMarked className="h-5 w-5 text-amber-600" />
+   830→   830→                    Source de référence
+   831→   831→                  </CardTitle>
+   832→   832→                </CardHeader>
+   833→   833→                <CardContent className="space-y-3">
+   834→   834→                  {referenceArticles.map((art) => (
+   835→   835→                    <div key={art.id} className="border rounded-lg p-4 space-y-2">
+   836→   836→                      <p className="text-sm font-medium">{art.title}</p>
+   837→   837→                      <p className="text-xs text-muted-foreground">{art.authors}</p>
+   838→   838→                      <div className="flex flex-wrap gap-2">
+   839→   839→                        <Badge variant="secondary" className="text-xs">{art.source}</Badge>
+   840→   840→                        <Badge variant="outline" className="text-xs">{art.year}</Badge>
+   841→   841→                        {art.doi && (
+   842→   842→                          <Badge variant="outline" className="text-xs">DOI: {art.doi}</Badge>
+   843→   843→                        )}
+   844→   844→                      </div>
+   845→   845→                      <Separator className="my-2" />
+   846→   846→                      <div>
+   847→   847→                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Points clés</span>
+   848→   848→                        <ul className="mt-1 space-y-1">
+   849→   849→                          {art.keyPoints.map((kp, i) => (
+   850→   850→                            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   851→   851→                              <ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+   852→   852→                              <span>{kp}</span>
+   853→   853→                            </li>
+   854→   854→                          ))}
+   855→   855→                        </ul>
+   856→   856→                      </div>
+   857→   857→                    </div>
+   858→   858→                  ))}
+   859→   859→                </CardContent>
+   860→   860→              </Card>
+   861→   861→            </div>
+   862→   862→          </ScrollArea>
+   863→   863→        </TabsContent>
+   864→   864→      </Tabs>
+   865→   865→    </div>
+   866→   866→  )
+   867→   867→}
+   868→   868→
+   869→   869→// ─── Main Page ────────────────────────────────────────────────────
+   870→   870→export default function Home() {
+   871→   871→  return (
+   872→   872→    <div className="min-h-screen flex flex-col bg-background">
+   873→   873→      {/* Header */}
+   874→   874→      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+   875→   875→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+   876→   876→          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-600 text-white">
+   877→   877→            <GraduationCap className="h-6 w-6" />
+   878→   878→          </div>
+   879→   879→          <div>
+   880→   880→            <h1 className="text-lg font-bold tracking-tight">ThesisFrame</h1>
+   881→   881→            <p className="text-xs text-muted-foreground">Aide à la structuration — Université Constantine 3</p>
+   882→   882→          </div>
+   883→   883→        </div>
+   884→   884→      </header>
+   885→   885→
+   886→   886→      {/* Main content */}
+   887→   887→      <main className="flex-1">
+   888→   888→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+   889→   889→          <Tabs defaultValue="articles" className="w-full">
+   890→   890→            <TabsList className="w-full grid grid-cols-2 mb-6">
+   891→   891→              <TabsTrigger value="articles" className="text-sm sm:text-base flex items-center gap-2 py-3">
+   892→   892→                <FileText className="h-4 w-4" />
+   893→   893→                Articles scientifiques
+   894→   894→              </TabsTrigger>
+   895→   895→              <TabsTrigger value="thesis" className="text-sm sm:text-base flex items-center gap-2 py-3">
+   896→   896→                <BookOpen className="h-4 w-4" />
+   897→   897→                Plan de thèse
+   898→   898→              </TabsTrigger>
+   899→   899→            </TabsList>
+   900→   900→
+   901→   901→            <TabsContent value="articles">
+   902→   902→              <ArticlesGuideTab />
+   903→   903→            </TabsContent>
+   904→   904→
+   905→   905→            <TabsContent value="thesis">
+   906→   906→              <ThesisPlanTab />
+   907→   907→            </TabsContent>
+   908→   908→          </Tabs>
+   909→   909→        </div>
+   910→   910→      </main>
+   911→   911→
+   912→   912→      {/* Footer */}
+   913→   913→      <footer className="border-t bg-white/80 backdrop-blur-sm mt-auto">
+   914→   914→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+   915→   915→          <p className="text-xs text-muted-foreground">
+   916→   916→            ThesisFrame © 2025 — Université Constantine 3, Faculté d'Architecture et d'Urbanisme
+   917→   917→          </p>
+   918→   918→          <p className="text-xs text-muted-foreground">
+   919→   919→            Basé sur le squelette IMRaD • Guide Ecarnot et al. (2015)
+   920→   920→          </p>
+   921→   921→        </div>
+   922→   922→      </footer>
+   923→   923→    </div>
+   924→   924→  )
+   925→   925→}
