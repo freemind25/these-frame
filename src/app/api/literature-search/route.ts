@@ -66,7 +66,9 @@ async function searchCrossref(query: string, limit: number): Promise<SearchResul
   const res = await fetch(url, { headers: { 'User-Agent': 'ThesisFrame/1.0 (mailto:thesis@example.com)' } })
   if (!res.ok) return []
   const data = await res.json()
-  return ((data.message as Record<string, unknown>)?.items as Record<string, unknown>[]) || []).map(item => {
+  const msg = data?.message as Record<string, unknown> | undefined
+  const items = (msg?.items as Record<string, unknown>[]) || []
+  return items.map(item => {
     const authors = ((item.author as Record<string, unknown>[]) || []).map(
       a => `${a.given || ''} ${a.family || ''}`.trim()
     ).join(', ')

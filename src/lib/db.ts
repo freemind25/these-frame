@@ -7,11 +7,11 @@ const globalForPrisma = globalThis as unknown as {
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV !== 'production' ? ['query'] : [],
+    log: process.env.NODE_ENV !== 'production' ? ['error'] : [],
   })
 
-// Cache Prisma client to avoid multiple instances
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+// Always cache to avoid multiple instances (important for Supabase pooler)
+globalForPrisma.prisma = db
 
 // Re-export for backward compat
 export async function ensureDb() {

@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
