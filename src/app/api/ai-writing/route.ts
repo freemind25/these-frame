@@ -244,10 +244,61 @@ const VALID_MODES = Object.keys(SYSTEM_PROMPTS)
 // In-memory conversation store (per session)
 const conversations = new Map<string, Array<{ role: string; content: string }>>()
 
+// ── OpenAI-compatible fetch for external providers ──
+async function callOpenAICompatible({
+  baseUrl,
+  apiKey,
+  model,
+  messages,
+  temperature,
+  maxTokens,
+}: {
+  baseUrl: string
+  apiKey: string
+  model: string
+  messages: { role: string; content: string }[]
+  temperature?: number
+  maxTokens?: number
+}) {
+  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
+  const body: Record<string, unknown> = {
+    model,
+    messages,
+    ...(temperature !== undefined && { temperature }),
+    ...(maxTokens && { max_tokens: maxTokens }),
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '')
+    let msg = `Erreur ${res.status} du fournisseur IA.`
+    try {
+      const parsed = JSON.parse(errBody)
+      msg = parsed?.error?.message || parsed?.error || msg
+    } catch { /* use default */ }
+    throw new Error(msg)
+  }
+
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content || 'Aucune réponse générée.'
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { mode, message, sessionId, clearHistory, temperature, maxTokens, thinking } = body
+    const provider = body.provider as string | undefined
+    const apiKey = body.apiKey as string | undefined
+    const model = body.model as string | undefined
+    const baseUrl = body.baseUrl as string | undefined
 
     if (!mode || !VALID_MODES.includes(mode)) {
       return NextResponse.json(
@@ -263,6 +314,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate external provider config
+    if (provider && provider !== 'z-ai') {
+      if (!apiKey) return NextResponse.json({ error: 'Clé API requise pour ce fournisseur.' }, { status: 400 })
+      if (!model) return NextResponse.json({ error: 'Modèle requis.' }, { status: 400 })
+      if (!baseUrl) return NextResponse.json({ error: 'URL de base requise.' }, { status: 400 })
+    }
+
     // Generate or use session ID
     const sid = sessionId || `session_${Date.now()}`
 
@@ -274,12 +332,12 @@ export async function POST(request: NextRequest) {
     // Get or create conversation history
     const systemPrompt = SYSTEM_PROMPTS[mode]
     let history = conversations.get(sid) || [
-      { role: 'assistant', content: systemPrompt }
+      { role: 'system', content: systemPrompt }
     ]
 
     // If switching modes, reset with new system prompt
-    if (history.length > 0 && history[0].content !== systemPrompt) {
-      history = [{ role: 'assistant', content: systemPrompt }]
+    if (history[0].content !== systemPrompt) {
+      history = [{ role: 'system', content: systemPrompt }]
     }
 
     // Add user message
@@ -287,22 +345,40 @@ export async function POST(request: NextRequest) {
 
     // Trim history to keep last 20 messages (plus system)
     if (history.length > 21) {
-      history = [
-        history[0],
-        ...history.slice(-(20))
-      ]
+      history = [history[0], ...history.slice(-(20))]
     }
 
-    // Call LLM via shared utility
-    const zai = await getZAI()
-    const completion = await zai.chat.completions.create({
-      messages: history.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-      thinking: { type: (thinking === 'enabled') ? 'enabled' : 'disabled' },
-      ...(temperature !== undefined && { temperature }),
-      ...(maxTokens && { max_tokens: maxTokens }),
-    })
+    let aiResponse: string
 
-    const aiResponse = completion.choices[0]?.message?.content || 'Désolé, une erreur est survenue lors de la génération.'
+    if (provider && provider !== 'z-ai') {
+      // External provider (Mistral, OpenAI, custom)
+      const apiMessages = history.map(m => ({ role: m.role, content: m.content }))
+      aiResponse = await callOpenAICompatible({
+        baseUrl,
+        apiKey,
+        model,
+        messages: apiMessages,
+        temperature,
+        maxTokens,
+      })
+    } else {
+      // Z-AI SDK (default)
+      const zai = await getZAI()
+      const apiMessages = history
+        .filter(m => m.role !== 'system')
+        .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))
+
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'assistant', content: systemPrompt },
+          ...apiMessages,
+        ],
+        thinking: { type: (thinking === 'enabled') ? 'enabled' : 'disabled' },
+        ...(temperature !== undefined && { temperature }),
+        ...(maxTokens && { max_tokens: maxTokens }),
+      })
+      aiResponse = completion.choices[0]?.message?.content || 'Désolé, une erreur est survenue lors de la génération.'
+    }
 
     // Add AI response to history
     history.push({ role: 'assistant', content: aiResponse })
