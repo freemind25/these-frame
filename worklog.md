@@ -120,3 +120,21 @@ Stage Summary:
 - Push réussi sur origin/main
 - Dev server fonctionnel sur localhost:3000
 - Toutes les modifications (suppression refs UC3/IGTU, multi-provider IA) déployées
+---
+Task ID: 2
+Agent: main
+Task: Integrate scientific literature search (inspired by apipick.com article)
+
+Work Log:
+- Read and analyzed the apipick.com article about scientific literature agents
+- Identified 4 free academic APIs: Semantic Scholar, OpenAlex, Crossref, arXiv
+- Tested all 4 APIs successfully
+- Created /api/literature-search API route with parallel multi-source search
+- Created LiteratureSearch component with source selector, search, results display
+- Added BibTeX copy, DOI links, abstract expansion, citation counts
+- Integrated as "Recherche litt." button in sidebar with dialog
+
+Stage Summary:
+- 4 academic APIs working without API keys or rate limits
+- New sidebar button + dialog for literature search
+- Pushed to GitHub: commit feat: add scientific literature search
