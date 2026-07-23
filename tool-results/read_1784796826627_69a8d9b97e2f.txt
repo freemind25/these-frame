@@ -1,0 +1,657 @@
+    70→
+    71→// ─── AI Providers ─────────────────────────────────────────────────
+    72→const AI_PROVIDERS = [
+    73→  { id: 'z-ai', label: 'Z-AI (plateforme)', description: 'SDK interne — configuré automatiquement', icon: 'Sparkles', color: 'emerald' },
+    74→  { id: 'mistral', label: 'Mistral AI', description: 'mistral-large, mistral-medium, mistral-small...', icon: 'Server', color: 'orange' },
+    75→  { id: 'openai', label: 'OpenAI', description: 'GPT-4o, GPT-4o-mini, GPT-4-turbo...', icon: 'Network', color: 'sky' },
+    76→  { id: 'custom', label: 'Personnalisé (OpenAI-compatible)', description: 'N''importe quel endpoint compatible OpenAI', icon: 'Settings2', color: 'violet' },
+    77→] as const
+    78→
+    79→type ProviderId = 'z-ai' | 'mistral' | 'openai' | 'custom'
+    80→
+    81→const PROVIDER_MODELS: Record<ProviderId, { value: string; label: string }[]> = {
+    82→  'z-ai': [{ value: 'default', label: 'Modèle par défaut du SDK' }],
+    83→  'mistral': [
+    84→    { value: 'mistral-large-latest', label: 'Mistral Large (recommandé)' },
+    85→    { value: 'mistral-medium-latest', label: 'Mistral Medium' },
+    86→    { value: 'mistral-small-latest', label: 'Mistral Small' },
+    87→    { value: 'open-mistral-nemo', label: 'Mistral Nemo (gratuit)' },
+    88→    { value: 'codestral-latest', label: 'Codestral' },
+    89→  ],
+    90→  'openai': [
+    91→    { value: 'gpt-4o', label: 'GPT-4o' },
+    92→    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+    93→    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+    94→    { value: 'o3-mini', label: 'o3-mini' },
+    95→    { value: 'o4-mini', label: 'o4-mini' },
+    96→  ],
+    97→  'custom': [{ value: '__custom__', label: 'Modèle personnalisé' }],
+    98→}
+    99→
+   100→const PROVIDER_BASE_URLS: Record<ProviderId, string> = {
+   101→  'z-ai': '',
+   102→  'mistral': 'https://api.mistral.ai/v1',
+   103→  'openai': 'https://api.openai.com/v1',
+   104→  'custom': '',
+   105→}
+   106→
+   107→interface ProviderConfig {
+   108→  provider: ProviderId
+   109→  apiKey: string
+   110→  model: string
+   111→  customBaseUrl: string
+   112→  customModel: string
+   113→}
+   114→
+   115→const STORAGE_KEY = 'thesisframe-ai-provider'
+   116→
+   117→function loadProviderConfig(): ProviderConfig {
+   118→  if (typeof window === 'undefined') return { provider: 'z-ai', apiKey: '', model: 'default', customBaseUrl: '', customModel: '' }
+   119→  try {
+   120→    const saved = localStorage.getItem(STORAGE_KEY)
+   121→    if (saved) return JSON.parse(saved)
+   122→  } catch { /* ignore */ }
+   123→  return { provider: 'z-ai', apiKey: '', model: 'default', customBaseUrl: '', customModel: '' }
+   124→}
+   125→
+   126→function saveProviderConfig(cfg: ProviderConfig) {
+   127→  if (typeof window !== 'undefined') {
+   128→    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg))
+   129→  }
+   130→}
+   131→
+   132→// ─── AI Writing Modes ────────────────────────────────────────────
+   133→const WRITING_MODES = [
+   134→  { id: 'scientific-writing', label: 'Rédaction scientifique', description: 'Rédiger ou améliorer une section de thèse selon les normes IMRaD', icon: 'PenTool', color: 'emerald' },
+   135→  { id: 'literature-review', label: 'Revue de littérature', description: 'Synthétiser des travaux, identifier les lacunes et structurer une revue', icon: 'BookOpenText', color: 'sky' },
+   136→  { id: 'peer-review', label: 'Relecture critique', description: 'Évaluer la rigueur, la clarté et la cohérence de votre texte', icon: 'ScanSearch', color: 'amber' },
+   137→  { id: 'paraphrase', label: 'Paraphrase & Amélioration', description: 'Reformuler, enrichir le vocabulaire et corriger le style', icon: 'Languages', color: 'violet' },
+   138→  { id: 'abstract', label: 'Résumé & Abstract', description: 'Générer un résumé structuré ou un abstract en français/anglais', icon: 'ScrollText', color: 'rose' },
+   139→  { id: 'hypothesis', label: "Génération d'hypothèses", description: 'Formuler des hypothèses de recherche testables et pertinentes', icon: 'Lightbulb', color: 'orange' },
+   140→  { id: 'methodo-positioning', label: 'Positionnement méthodo.', description: 'Analyser les designs de recherche antérieurs et justifier vos choix', icon: 'Target', color: 'teal' },
+   141→  { id: 'theory-building', label: 'Construction théorique', description: 'Construire un cadre conceptuel et intégrer les théories', icon: 'Network', color: 'fuchsia' },
+   142→  { id: 'supervision-document', label: 'Plan de supervision', description: 'Générer un document de supervision personnalisé pour votre thèse', icon: 'ClipboardList', color: 'indigo' },
+   143→  { id: 'conference-presentation', label: 'Présentation & Soutenance', description: 'Préparer slides, script et gestion du jury', icon: 'Presentation', color: 'cyan' },
+   144→] as const
+   145→
+   146→const MODE_COLORS: Record<string, string> = {
+   147→  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+   148→  sky: 'border-sky-200 bg-sky-50 text-sky-700',
+   149→  amber: 'border-amber-200 bg-amber-50 text-amber-700',
+   150→  violet: 'border-violet-200 bg-violet-50 text-violet-700',
+   151→  rose: 'border-rose-200 bg-rose-50 text-rose-700',
+   152→  orange: 'border-orange-200 bg-orange-50 text-orange-700',
+   153→  teal: 'border-teal-200 bg-teal-50 text-teal-700',
+   154→  fuchsia: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
+   155→  indigo: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+   156→  cyan: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+   157→}
+   158→
+   159→const MODE_ACCENT: Record<string, string> = {
+   160→  emerald: 'bg-emerald-500', sky: 'bg-sky-500', amber: 'bg-amber-500',
+   161→  violet: 'bg-violet-500', rose: 'bg-rose-500', orange: 'bg-orange-500',
+   162→  teal: 'bg-teal-500', fuchsia: 'bg-fuchsia-500', indigo: 'bg-indigo-500',
+   163→  cyan: 'bg-cyan-500',
+   164→}
+   165→
+   166→const MODE_TEXT_ACCENT: Record<string, string> = {
+   167→  emerald: 'text-emerald-600', sky: 'text-sky-600', amber: 'text-amber-600',
+   168→  violet: 'text-violet-600', rose: 'text-rose-600', orange: 'text-orange-600',
+   169→  teal: 'text-teal-600', fuchsia: 'text-fuchsia-600', indigo: 'text-indigo-600',
+   170→  cyan: 'text-cyan-600',
+   171→}
+   172→
+   173→const MODE_BG_LIGHT: Record<string, string> = {
+   174→  emerald: 'bg-emerald-100', sky: 'bg-sky-100', amber: 'bg-amber-100',
+   175→  violet: 'bg-violet-100', rose: 'bg-rose-100', orange: 'bg-orange-100',
+   176→  teal: 'bg-teal-100', fuchsia: 'bg-fuchsia-100', indigo: 'bg-indigo-100',
+   177→  cyan: 'bg-cyan-100',
+   178→}
+   179→
+   180→const PROVIDER_ACCENT: Record<string, string> = {
+   181→  'z-ai': 'bg-emerald-500', mistral: 'bg-orange-500', openai: 'bg-sky-500', custom: 'bg-violet-500',
+   182→}
+   183→
+   184→interface ChatMessage {
+   185→  role: 'user' | 'assistant'
+   186→  content: string
+   187→}
+   188→
+   189→// ─── AIWritingTab ───────────────────────────────────────────────
+   190→export default function AIWritingTab() {
+   191→  const [selectedMode, setSelectedMode] = useState<string>('scientific-writing')
+   192→  const [input, setInput] = useState('')
+   193→  const [messages, setMessages] = useState<ChatMessage[]>([])
+   194→  const [isLoading, setIsLoading] = useState(false)
+   195→  const [sessionId, setSessionId] = useState('')
+   196→  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+   197→  const [error, setError] = useState('')
+   198→
+   199→  // AI Config state
+   200→  const [showConfig, setShowConfig] = useState(false)
+   201→  const [temperature, setTemperature] = useState(0.7)
+   202→  const [maxTokens, setMaxTokens] = useState(4096)
+   203→  const [thinkingEnabled, setThinkingEnabled] = useState(false)
+   204→
+   205→  // Provider state
+   206→  const [providerConfig, setProviderConfig] = useState<ProviderConfig>({
+   207→    provider: 'z-ai', apiKey: '', model: 'default', customBaseUrl: '', customModel: '',
+   208→  })
+   209→  const [showApiKey, setShowApiKey] = useState(false)
+   210→
+   211→  // Load provider config from localStorage on mount
+   212→  useEffect(() => {
+   213→    setProviderConfig(loadProviderConfig())
+   214→  }, [])
+   215→
+   216→  const chatEndRef = useCallback((node: HTMLDivElement | null) => {
+   217→    if (node) node.scrollIntoView({ behavior: 'smooth' })
+   218→  }, [])
+   219→
+   220→  const activeMode = WRITING_MODES.find(m => m.id === selectedMode)
+   221→  const activeProvider = AI_PROVIDERS.find(p => p.id === providerConfig.provider)
+   222→  const providerModels = PROVIDER_MODELS[providerConfig.provider]
+   223→  const needsApiKey = providerConfig.provider !== 'z-ai'
+   224→
+   225→  function updateProvider<K extends keyof ProviderConfig>(key: K, value: ProviderConfig[K]) {
+   226→    const updated = { ...providerConfig, [key]: value }
+   227→    if (key === 'provider') {
+   228→      // Reset model to first when provider changes
+   229→      updated.model = PROVIDER_MODELS[value][0].value
+   230→    }
+   231→    setProviderConfig(updated)
+   232→    saveProviderConfig(updated)
+   233→  }
+   234→
+   235→  function getEffectiveModel(): string {
+   236→    if (providerConfig.provider === 'z-ai') return 'default'
+   237→    if (providerConfig.provider === 'custom') return providerConfig.customModel || 'default'
+   238→    return providerConfig.model
+   239→  }
+   240→
+   241→  function getEffectiveBaseUrl(): string {
+   242→    if (providerConfig.provider === 'z-ai') return ''
+   243→    if (providerConfig.provider === 'custom') return providerConfig.customBaseUrl || ''
+   244→    return PROVIDER_BASE_URLS[providerConfig.provider]
+   245→  }
+   246→
+   247→  async function handleSend() {
+   248→    if (!input.trim() || isLoading) return
+   249→    setError('')
+   250→    const userMsg = input.trim()
+   251→    setInput('')
+   252→
+   253→    // Validate provider config
+   254→    if (needsApiKey && !providerConfig.apiKey.trim()) {
+   255→      setError(`Clé API requise pour ${activeProvider?.label}. Ouvrez la Configuration IA.`)
+   256→      setShowConfig(true)
+   257→      return
+   258→    }
+   259→    if (providerConfig.provider === 'custom' && !providerConfig.customBaseUrl.trim()) {
+   260→      setError('URL de base requise pour le fournisseur personnalisé.')
+   261→      setShowConfig(true)
+   262→      return
+   263→    }
+   264→    if (providerConfig.provider === 'custom' && !providerConfig.customModel.trim()) {
+   265→      setError('Nom du modèle requis pour le fournisseur personnalisé.')
+   266→      setShowConfig(true)
+   267→      return
+   268→    }
+   269→
+   270→    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: userMsg }]
+   271→    setMessages(newMessages)
+   272→    setIsLoading(true)
+   273→
+   274→    try {
+   275→      const body: Record<string, unknown> = {
+   276→        mode: selectedMode,
+   277→        message: userMsg,
+   278→        sessionId: sessionId || undefined,
+   279→        temperature,
+   280→        maxTokens,
+   281→        thinking: thinkingEnabled ? 'enabled' : 'disabled',
+   282→      }
+   283→
+   284→      // Include provider info for non-z-ai providers
+   285→      if (providerConfig.provider !== 'z-ai') {
+   286→        body.provider = providerConfig.provider
+   287→        body.apiKey = providerConfig.apiKey
+   288→        body.model = getEffectiveModel()
+   289→        body.baseUrl = getEffectiveBaseUrl()
+   290→      }
+   291→
+   292→      const res = await fetch('/api/ai-writing', {
+   293→        method: 'POST',
+   294→        headers: { 'Content-Type': 'application/json' },
+   295→        body: JSON.stringify(body),
+   296→      })
+   297→      const data = await res.json()
+   298→      if (!res.ok) throw new Error(data.error || 'Erreur serveur')
+   299→      if (data.sessionId && !sessionId) setSessionId(data.sessionId)
+   300→      setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+   301→    } catch (err) {
+   302→      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+   303→    } finally {
+   304→      setIsLoading(false)
+   305→    }
+   306→  }
+   307→
+   308→  async function handleClear() {
+   309→    if (sessionId) {
+   310→      await fetch(`/api/ai-writing?sessionId=${sessionId}`, { method: 'DELETE' })
+   311→    }
+   312→    setMessages([])
+   313→    setSessionId('')
+   314→    setError('')
+   315→  }
+   316→
+   317→  function handleCopy(text: string, idx: number) {
+   318→    navigator.clipboard.writeText(text)
+   319→    setCopiedIdx(idx)
+   320→    setTimeout(() => setCopiedIdx(null), 2000)
+   321→  }
+   322→
+   323→  function handleKeyDown(e: React.KeyboardEvent) {
+   324→    if (e.key === 'Enter' && !e.shiftKey) {
+   325→      e.preventDefault()
+   326→      handleSend()
+   327→    }
+   328→  }
+   329→
+   330→  return (
+   331→    <div className="space-y-4">
+   332→      {/* Header */}
+   333→      <div className="flex items-start justify-between">
+   334→        <div>
+   335→          <h2 className="text-xl font-bold flex items-center gap-2">
+   336→            <Sparkles className="h-5 w-5 text-emerald-600" />
+   337→            Assistant IA de rédaction
+   338→          </h2>
+   339→          <div className="flex items-center gap-2 mt-1">
+   340→            <p className="text-sm text-muted-foreground">
+   341→              {WRITING_MODES.length} modes disponibles
+   342→            </p>
+   343→            <Badge variant="outline" className="text-[10px] gap-1">
+   344→              <div className={`h-1.5 w-1.5 rounded-full ${PROVIDER_ACCENT[providerConfig.provider]}`} />
+   345→              {activeProvider?.label}
+   346→            </Badge>
+   347→          </div>
+   348→        </div>
+   349→        <Button
+   350→          variant="outline"
+   351→          size="sm"
+   352→          onClick={() => setShowConfig(true)}
+   353→          className="gap-1.5"
+   354→        >
+   355→          <Settings2 className="h-3.5 w-3.5" />
+   356→          Configuration IA
+   357→        </Button>
+   358→      </div>
+   359→
+   360→      {/* ── AI Configuration Dialog ── */}
+   361→      <Dialog open={showConfig} onOpenChange={setShowConfig}>
+   362→        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+   363→          <DialogHeader>
+   364→            <DialogTitle className="flex items-center gap-2 text-base">
+   365→              <Settings2 className="h-4 w-4 text-emerald-600" />
+   366→              Configuration de l&apos;IA
+   367→            </DialogTitle>
+   368→            <DialogDescription className="text-xs">
+   369→              Choisissez un fournisseur IA et ajustez les paramètres de génération.
+   370→            </DialogDescription>
+   371→          </DialogHeader>
+   372→          <div className="space-y-4 pt-2">
+   373→            {/* ── Provider selector ── */}
+   374→            <div className="space-y-2">
+   375→              <Label className="text-xs font-medium">Fournisseur IA</Label>
+   376→              <div className="grid grid-cols-2 gap-2">
+   377→                {AI_PROVIDERS.map(p => {
+   378→                  const isActive = providerConfig.provider === p.id
+   379→                  return (
+   380→                    <button
+   381→                      key={p.id}
+   382→                      onClick={() => updateProvider('provider', p.id as ProviderId)}
+   383→                      className={`rounded-lg border p-2.5 text-left transition-all hover:shadow-sm ${
+   384→                        isActive
+   385→                          ? `${MODE_COLORS[p.color]} ring-2 ring-offset-1 ring-current`
+   386→                          : 'border-border bg-background hover:bg-muted/50'
+   387→                      }`}
+   388→                    >
+   389→                      <div className="flex items-center gap-2 mb-0.5">
+   390→                        <div className={`h-4 w-4 rounded flex items-center justify-center ${
+   391→                          isActive ? PROVIDER_ACCENT[p.id] : 'bg-muted'
+   392→                        }`}>
+   393→                          {createElement(iconMap[p.icon] || Sparkles, { className: 'h-2.5 w-2.5 text-white' })}
+   394→                        </div>
+   395→                        <span className={`text-[11px] font-semibold ${isActive ? '' : 'text-foreground'}`}>{p.label}</span>
+   396→                      </div>
+   397→                      <p className={`text-[10px] leading-tight ml-6 ${isActive ? 'text-current/70' : 'text-muted-foreground'}`}>
+   398→                        {p.description}
+   399→                      </p>
+   400→                    </button>
+   401→                  )
+   402→                })}
+   403→              </div>
+   404→            </div>
+   405→
+   406→            <Separator />
+   407→
+   408→            {/* ── Provider-specific fields ── */}
+   409→            {needsApiKey && (
+   410→              <>
+   411→                {/* API Key */}
+   412→                <div className="space-y-1.5">
+   413→                  <Label className="text-xs font-medium flex items-center gap-1.5">
+   414→                    <Key className="h-3 w-3" />
+   415→                    Clé API ({activeProvider?.label})
+   416→                  </Label>
+   417→                  <div className="relative">
+   418→                    <Input
+   419→                      type={showApiKey ? 'text' : 'password'}
+   420→                      value={providerConfig.apiKey}
+   421→                      onChange={e => updateProvider('apiKey', e.target.value)}
+   422→                      placeholder="sk-... ou votre clé API"
+   423→                      className="text-sm pr-10"
+   424→                    />
+   425→                    <button
+   426→                      type="button"
+   427→                      onClick={() => setShowApiKey(!showApiKey)}
+   428→                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+   429→                    >
+   430→                      {showApiKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+   431→                    </button>
+   432→                  </div>
+   433→                  <p className="text-[10px] text-muted-foreground">
+   434→                    Stockée localement dans votre navigateur. Jamais envoyée à nos serveurs sauf pour les requêtes IA.
+   435→                  </p>
+   436→                </div>
+   437→
+   438→                {/* Model selector (for predefined providers) */}
+   439→                {providerConfig.provider !== 'custom' && (
+   440→                  <div className="space-y-1.5">
+   441→                    <Label className="text-xs font-medium">Modèle</Label>
+   442→                    <Select
+   443→                      value={providerConfig.model}
+   444→                      onValueChange={v => updateProvider('model', v)}
+   445→                    >
+   446→                      <SelectTrigger className="text-sm">
+   447→                        <SelectValue />
+   448→                      </SelectTrigger>
+   449→                      <SelectContent>
+   450→                        {providerModels.map(m => (
+   451→                          <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+   452→                        ))}
+   453→                      </SelectContent>
+   454→                    </Select>
+   455→                  </div>
+   456→                )}
+   457→
+   458→                {/* Custom provider fields */}
+   459→                {providerConfig.provider === 'custom' && (
+   460→                  <>
+   461→                    <div className="space-y-1.5">
+   462→                      <Label className="text-xs font-medium flex items-center gap-1.5">
+   463→                        <Server className="h-3 w-3" />
+   464→                        URL de base
+   465→                      </Label>
+   466→                      <Input
+   467→                        type="text"
+   468→                        value={providerConfig.customBaseUrl}
+   469→                        onChange={e => updateProvider('customBaseUrl', e.target.value)}
+   470→                        placeholder="https://api.example.com/v1"
+   471→                        className="text-sm"
+   472→                      />
+   473→                    </div>
+   474→                    <div className="space-y-1.5">
+   475→                      <Label className="text-xs font-medium">Nom du modèle</Label>
+   476→                      <Input
+   477→                        type="text"
+   478→                        value={providerConfig.customModel}
+   479→                        onChange={e => updateProvider('customModel', e.target.value)}
+   480→                        placeholder="gpt-4o, claude-3-5-sonnet, etc."
+   481→                        className="text-sm"
+   482→                      />
+   483→                    </div>
+   484→                  </>
+   485→                )}
+   486→
+   487→                <Separator />
+   488→              </>
+   489→            )}
+   490→
+   491→            {/* Z-AI info (when z-ai is selected) */}
+   492→            {providerConfig.provider === 'z-ai' && (
+   493→              <div className="space-y-1.5">
+   494→                <Label className="text-xs font-medium">Modèle IA</Label>
+   495→                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border bg-muted/30 text-sm">
+   496→                  <Sparkles className="h-4 w-4 text-emerald-600 shrink-0" />
+   497→                  <span className="font-medium">LLM (z-ai-web-dev-sdk)</span>
+   498→                </div>
+   499→                <p className="text-[10px] text-muted-foreground">Modèle par défaut. Le prompt système s&apos;adapte au mode sélectionné.</p>
+   500→              </div>
+   501→            )}
+   502→
+   503→            {/* ── Generation settings (common to all providers) ── */}
+   504→            {/* Temperature */}
+   505→            <div className="space-y-2">
+   506→              <Label className="text-xs font-medium">
+   507→                Température : <span className="font-bold text-emerald-700">{temperature.toFixed(1)}</span>
+   508→              </Label>
+   509→              <Slider
+   510→                value={[temperature]}
+   511→                onValueChange={([v]) => setTemperature(v)}
+   512→                min={0}
+   513→                max={1.5}
+   514→                step={0.1}
+   515→              />
+   516→              <div className="flex justify-between text-[10px] text-muted-foreground">
+   517→                <span>Précis (0)</span>
+   518→                <span>Créatif (1.5)</span>
+   519→              </div>
+   520→            </div>
+   521→            {/* Max tokens */}
+   522→            <div className="space-y-2">
+   523→              <Label className="text-xs font-medium">Max tokens</Label>
+   524→              <Select value={String(maxTokens)} onValueChange={v => setMaxTokens(Number(v))}>
+   525→                <SelectTrigger className="text-sm">
+   526→                  <SelectValue />
+   527→                </SelectTrigger>
+   528→                <SelectContent>
+   529→                  <SelectItem value="1024">1 024 (court)</SelectItem>
+   530→                  <SelectItem value="2048">2 048 (moyen)</SelectItem>
+   531→                  <SelectItem value="4096">4 096 (long)</SelectItem>
+   532→                  <SelectItem value="8192">8 192 (très long)</SelectItem>
+   533→                  <SelectItem value="16384">16 384 (maximum)</SelectItem>
+   534→                </SelectContent>
+   535→              </Select>
+   536→            </div>
+   537→            {/* Thinking mode (only for z-ai) */}
+   538→            {providerConfig.provider === 'z-ai' && (
+   539→              <div className="flex items-center justify-between rounded-lg border p-3">
+   540→                <div>
+   541→                  <Label className="text-xs font-medium">Mode réflexif (Thinking)</Label>
+   542→                  <p className="text-[10px] text-muted-foreground">L&apos;IA réfléchit avant de répondre</p>
+   543→                </div>
+   544→                <Switch checked={thinkingEnabled} onCheckedChange={setThinkingEnabled} />
+   545→              </div>
+   546→            )}
+   547→            {/* Active mode info */}
+   548→            {activeMode && (
+   549→              <>
+   550→                <Separator />
+   551→                <div className="flex items-center gap-3 rounded-lg bg-muted/30 p-3">
+   552→                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${MODE_ACCENT[activeMode.color]}`}>
+   553→                    {createElement(iconMap[activeMode.icon] || PenTool, { className: 'h-4 w-4 text-white' })}
+   554→                  </div>
+   555→                  <div className="flex-1 min-w-0">
+   556→                    <p className="text-xs font-medium">Mode actuel : {activeMode.label}</p>
+   557→                    <p className="text-[10px] text-muted-foreground truncate">{activeMode.description}</p>
+   558→                  </div>
+   559→                </div>
+   560→              </>
+   561→            )}
+   562→          </div>
+   563→        </DialogContent>
+   564→      </Dialog>
+   565→
+   566→      {/* Mode selector - 2 rows of 5 */}
+   567→      <div className="space-y-2">
+   568→        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Modes de rédaction</p>
+   569→        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+   570→          {WRITING_MODES.map(mode => {
+   571→            const isActive = selectedMode === mode.id
+   572→            return (
+   573→              <button
+   574→                key={mode.id}
+   575→                onClick={() => { setSelectedMode(mode.id); setError('') }}
+   576→                className={`rounded-lg border p-2.5 text-left transition-all hover:shadow-sm ${
+   577→                  isActive
+   578→                    ? `${MODE_COLORS[mode.color]} ring-2 ring-offset-1 ring-current`
+   579→                    : 'border-border bg-background hover:bg-muted/50'
+   580→                }`}
+   581→              >
+   582→                <div className="flex items-center gap-2 mb-1">
+   583→                  <div className={`h-5 w-5 rounded-md flex items-center justify-center ${isActive ? MODE_ACCENT[mode.color] : 'bg-muted'}`}>
+   584→                    {createElement(iconMap[mode.icon] || PenTool, { className: 'h-3 w-3 text-white' })}
+   585→                  </div>
+   586→                  <span className={`text-[11px] font-semibold leading-tight ${isActive ? '' : 'text-foreground'}`}>{mode.label}</span>
+   587→                </div>
+   588→                <p className={`text-[10px] leading-tight ${isActive ? 'text-current/80' : 'text-muted-foreground'}`}>{mode.description}</p>
+   589→              </button>
+   590→            )
+   591→          })}
+   592→        </div>
+   593→      </div>
+   594→
+   595→      {/* Active mode description */}
+   596→      {activeMode && (
+   597→        <Card className="border-dashed">
+   598→          <CardContent className="py-3 px-4 flex items-center gap-3">
+   599→            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${MODE_ACCENT[activeMode.color]}`}>
+   600→              {createElement(iconMap[activeMode.icon] || PenTool, { className: 'h-4 w-4 text-white' })}
+   601→            </div>
+   602→            <div className="flex-1 min-w-0">
+   603→              <p className="text-sm font-medium">{activeMode.label}</p>
+   604→              <p className="text-xs text-muted-foreground truncate">{activeMode.description}</p>
+   605→            </div>
+   606→            <Badge variant="secondary" className="text-xs shrink-0">Mode actif</Badge>
+   607→          </CardContent>
+   608→        </Card>
+   609→      )}
+   610→
+   611→      {/* Chat area */}
+   612→      <Card className="flex flex-col" style={{ minHeight: '400px', maxHeight: '65vh' }}>
+   613→        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ minHeight: '300px' }}>
+   614→          {messages.length === 0 && !isLoading && (
+   615→            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+   616→              <div className={`h-16 w-16 rounded-2xl ${MODE_BG_LIGHT[activeMode?.color || 'emerald']} flex items-center justify-center mb-4`}>
+   617→                {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: `h-8 w-8 ${MODE_TEXT_ACCENT[activeMode?.color || 'emerald']}` })}
+   618→              </div>
+   619→              <h3 className="text-lg font-semibold">{activeMode?.label}</h3>
+   620→              <p className="text-sm text-muted-foreground mt-1 max-w-md">
+   621→                {activeMode?.description}. Collez votre texte ou décrivez ce que vous souhaitez rédiger.
+   622→              </p>
+   623→              <Badge variant="outline" className="mt-3 text-xs gap-1">
+   624→                <div className={`h-1.5 w-1.5 rounded-full ${PROVIDER_ACCENT[providerConfig.provider]}`} />
+   625→                {activeProvider?.label}
+   626→              </Badge>
+   627→            </div>
+   628→          )}
+   629→
+   630→          {messages.map((msg, idx) => (
+   631→            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+   632→              {msg.role === 'assistant' && (
+   633→                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+   634→                  {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: 'h-4 w-4 text-white' })}
+   635→                </div>
+   636→              )}
+   637→              <div className={`relative max-w-[85%] rounded-xl px-4 py-3 ${
+   638→                msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+   639→              }`}>
+   640→                <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+   641→                {msg.role === 'assistant' && (
+   642→                  <button
+   643→                    onClick={() => handleCopy(msg.content, idx)}
+   644→                    className="absolute top-2 right-2 p-1 rounded-md hover:bg-background/80 transition-colors"
+   645→                    title="Copier"
+   646→                  >
+   647→                    {copiedIdx === idx ? (
+   648→                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+   649→                    ) : (
+   650→                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+   651→                    )}
+   652→                  </button>
+   653→                )}
+   654→              </div>
+   655→            </div>
+   656→          ))}
+   657→
+   658→          {isLoading && (
+   659→            <div className="flex gap-3 justify-start">
+   660→              <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+   661→                <Loader2 className="h-4 w-4 text-white animate-spin" />
+   662→              </div>
+   663→              <div className="bg-muted rounded-xl px-4 py-3">
+   664→                <div className="flex items-center gap-2">
+   665→                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+   666→                  <span className="text-sm text-muted-foreground">Génération en cours...</span>
+   667→                </div>
+   668→              </div>
+   669→            </div>
+   670→          )}
+   671→
+   672→          <div ref={chatEndRef} />
+   673→        </div>
+   674→
+   675→        {error && (
+   676→          <div className="px-4 pb-2">
+   677→            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2">
+   678→              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+   679→              <p className="text-xs text-red-700">{error}</p>
+   680→            </div>
+   681→          </div>
+   682→        )}
+   683→
+   684→        <div className="border-t p-3">
+   685→          <div className="flex gap-2 items-end">
+   686→            <Textarea
+   687→              value={input}
+   688→              onChange={e => setInput(e.target.value)}
+   689→              onKeyDown={handleKeyDown}
+   690→              placeholder={`Décrivez votre demande en ${activeMode?.label.toLowerCase() || 'rédaction'}...`}
+   691→              className="min-h-[60px] max-h-[160px] resize-none text-sm"
+   692→              disabled={isLoading}
+   693→              rows={2}
+   694→            />
+   695→            <div className="flex flex-col gap-1 shrink-0">
+   696→              <Button
+   697→                onClick={handleSend}
+   698→                disabled={!input.trim() || isLoading}
+   699→                size="icon"
+   700→                className="h-9 w-9"
+   701→                title="Envoyer"
+   702→              >
+   703→                <Send className="h-4 w-4" />
+   704→              </Button>
+   705→              {messages.length > 0 && (
+   706→                <Button
+   707→                  onClick={handleClear}
+   708→                  variant="ghost"
+   709→                  size="icon"
+   710→                  className="h-9 w-9"
+   711→                  title="Nouvelle conversation"
+   712→                >
+   713→                  <RotateCcw className="h-4 w-4" />
+   714→                </Button>
+   715→              )}
+   716→            </div>
+   717→          </div>
+   718→          <p className="text-xs text-muted-foreground mt-1.5">
+   719→            L&apos;IA peut générer du contenu inexact. Vérifiez toujours les informations et adaptez le texte à votre contexte.
+   720→          </p>
+   721→        </div>
+   722→      </Card>
+   723→    </div>
+   724→  )
+   725→}
+   726→
