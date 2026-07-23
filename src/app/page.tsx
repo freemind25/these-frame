@@ -26,6 +26,7 @@ import ReferencesTab from '@/components/thesis/references-tab'
 import ExportPdfContent from '@/components/thesis/export-pdf-tab'
 import ArticlesGuideContent from '@/components/thesis/articles-tab'
 import LiteratureSearch from '@/components/thesis/literature-search'
+import ChapterBalance from '@/components/thesis/chapter-balance'
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ChapterData {
@@ -596,23 +597,28 @@ export default function Home() {
 
                   {/* ── DIRECTOR TAB ── */}
                   <TabsContent value="director" className="flex-1 overflow-y-auto p-3 mt-2 space-y-3">
-                    <div className={cn('rounded-lg border p-3', colors.light, colors.border)}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <ShieldCheck className={cn('h-4 w-4', colors.text)} />
-                        <span className="text-xs font-bold">Soumettre au directeur</span>
+                    {/* Chapter Balance Analysis */}
+                    <ChapterBalance chapters={thesis.chapters} />
+
+                    <div className="border-t border-slate-200 pt-3">
+                      <div className={cn('rounded-lg border p-3', colors.light, colors.border)}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <ShieldCheck className={cn('h-4 w-4', colors.text)} />
+                          <span className="text-xs font-bold">Évaluation du chapitre</span>
+                        </div>
+                        <p className="text-[10px] text-slate-600">
+                          Le directeur évaluera le chapitre que vous avez rédigé et vous donnera un avis structuré.
+                        </p>
+                        <Button
+                          onClick={handleDirectorSubmit}
+                          disabled={directorLoading || !activeChapter?.content}
+                          size="sm"
+                          className="w-full mt-3 text-xs"
+                        >
+                          {directorLoading ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1.5" />}
+                          {directorLoading ? 'Évaluation en cours...' : 'Soumettre ce chapitre'}
+                        </Button>
                       </div>
-                      <p className="text-[10px] text-slate-600">
-                        Le directeur évaluera le chapitre que vous avez rédigé et vous donnera un avis structuré.
-                      </p>
-                      <Button
-                        onClick={handleDirectorSubmit}
-                        disabled={directorLoading || !activeChapter?.content}
-                        size="sm"
-                        className="w-full mt-3 text-xs"
-                      >
-                        {directorLoading ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1.5" />}
-                        {directorLoading ? 'Évaluation en cours...' : 'Soumettre ce chapitre'}
-                      </Button>
                     </div>
 
                     {directorFeedback && (

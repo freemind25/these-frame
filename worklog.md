@@ -158,3 +158,31 @@ Stage Summary:
 - Auto-save no longer crashes (fixed PATCH response handling)
 - Literature search works with OpenAlex, Crossref, arXiv, PubMed (Semantic Scholar rate-limited in sandbox but works on Vercel)
 - All changes are backward compatible
+
+---
+Task ID: 4
+Agent: Main
+Task: Créer PROJECT_STATUS.md + implémenter l'analyse d'équilibre des chapitres (Directeur de thèse)
+
+Work Log:
+- Créé `/home/z/my-project/PROJECT_STATUS.md` — fichier de suivi complet avec architecture, points critiques, historique, procédures de recovery
+- Créé `src/components/thesis/chapter-balance.tsx` — composant d'analyse d'équilibre des chapitres
+- Règles implémentées :
+  - Tolérance ±20% entre chapitres du corps (II-V) : vert
+  - Tolérance 20-35% : ambre (borderline)
+  - >35% : rouge (critique)
+  - Introduction : ~10% du volume total
+  - Conclusion : ~5% du volume total
+  - Barres horizontales colorées avec marqueur de moyenne
+  - Estimation en pages (250 mots/page)
+  - Recommandations automatiques (scinder, fusionner, approfondir)
+  - Verdict global : satisfaisant / à corriger / critique
+- Intégré dans l'onglet « Dir. » du panneau droit de page.tsx (au-dessus de l'évaluation par chapitre)
+- Lint passé sans erreur
+- Page compilée et servie (200 OK, 21.8KB HTML)
+
+Stage Summary:
+- Fichier PROJECT_STATUS.md créé pour suivi entre sessions
+- Analyse d'équilibre des chapitres fonctionnelle dans l'onglet Dir.
+- Calcul local (pas d'appel IA nécessaire), se met à jour en temps réel avec le compteur de mots
+- Recommandations contextuelles selon les règles académiques fournies par l'utilisateur
