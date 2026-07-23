@@ -1,10 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 import ZAI from 'z-ai-web-dev-sdk'
 
 // Singleton SDK instance
-let zaiInstance: Awaited<ReturnType<typeof ZAI.create>> | null = null
+let zaiInstance: InstanceType<typeof ZAI> | null = null
+let initAttempted = false
+let initError: string | null = null
 
 interface ZAIConfig {
   baseUrl: string
@@ -12,27 +14,6 @@ interface ZAIConfig {
   chatId?: string
   userId?: string
   token?: string
-}
-
-/**
- * Try to read .z-ai-config from file system (Z.ai platform).
- * Returns null if not found or invalid.
- */
-function readFileConfig(): ZAIConfig | null {
-  const paths = [
-    '.z-ai-config',
-    join(homedir(), '.z-ai-config'),
-    '/etc/.z-ai-config',
-  ]
-
-  for (const p of paths) {
-    try {
-      if (!existsSync(p)) continue
-      const data = JSON.parse(readFileSync(p, 'utf-8'))
-      if (data.baseUrl && data.apiKey) return data as ZAIConfig
-    } catch { /* skip */ }
-  }
-  return null
 }
 
 /**
@@ -52,77 +33,90 @@ function buildConfigFromEnv(): ZAIConfig | null {
 }
 
 /**
- * Ensure a valid .z-ai-config exists in the project root (cwd).
- * This is needed when the SDK's own loadConfig() will be called (ZAI.create()).
- * Only used as a fallback when we can't use the direct constructor.
+ * Safely read .z-ai-config from file system (Z.ai platform only).
+ * Returns null on any error (including read-only filesystem on Vercel).
  */
-function ensureZaiConfig() {
-  const cwdConfig = '.z-ai-config'
+function readFileConfig(): ZAIConfig | null {
+  try {
+    const paths = [
+      '.z-ai-config',
+      join(homedir(), '.z-ai-config'),
+      '/etc/.z-ai-config',
+    ]
 
-  // If config already exists in cwd, skip
-  if (existsSync(cwdConfig)) {
-    try {
-      const data = JSON.parse(readFileSync(cwdConfig, 'utf-8'))
-      if (data.baseUrl && data.apiKey) return
-    } catch { /* invalid, recreate */ }
-  }
-
-  // Strategy 1: Copy from /etc/.z-ai-config (Z.ai platform)
-  const etcConfig = '/etc/.z-ai-config'
-  if (existsSync(etcConfig)) {
-    try {
-      const content = readFileSync(etcConfig, 'utf-8')
-      const data = JSON.parse(content)
-      if (data.baseUrl && data.apiKey) {
-        writeFileSync(cwdConfig, content, 'utf-8')
-        return
-      }
-    } catch { /* read/parse/write error */ }
-  }
-
-  // Strategy 2: Build from environment variables
-  const envConfig = buildConfigFromEnv()
-  if (envConfig) {
-    const json = JSON.stringify(envConfig)
-    // Try writing to cwd, then homedir, then /tmp
-    const targets = [cwdConfig, join(homedir(), '.z-ai-config'), '/tmp/.z-ai-config']
-    for (const target of targets) {
+    for (const p of paths) {
       try {
-        writeFileSync(target, json, 'utf-8')
-        return
-      } catch { /* not writable, try next */ }
+        if (!existsSync(p)) continue
+        const data = JSON.parse(readFileSync(p, 'utf-8'))
+        if (data.baseUrl && data.apiKey) return data as ZAIConfig
+      } catch { /* skip */ }
     }
+  } catch {
+    // File system not available (e.g., Vercel read-only) — continue to env vars
   }
+  return null
 }
 
 /**
  * Get a ready-to-use ZAI SDK instance.
- * Handles config setup for both Z.ai platform and Vercel deployments.
  *
- * Strategy:
+ * Strategy (Vercel-safe):
  * 1. Try reading existing .z-ai-config file (Z.ai platform)
- * 2. Try building from environment variables and use direct constructor
- * 3. Fallback: ensure file exists and use ZAI.create()
+ * 2. Try building from environment variables
+ * 3. If both fail, store error — never throw silently, never write files
  */
 export async function getZAI() {
   if (zaiInstance) return zaiInstance
 
-  // Strategy 1: Read from file system
+  // Prevent repeated failed initialization attempts
+  if (initAttempted && initError) {
+    throw new Error(initError)
+  }
+
+  initAttempted = true
+
+  // Strategy 1: Read from file system (works on Z.ai platform)
   const fileConfig = readFileConfig()
   if (fileConfig) {
-    zaiInstance = new ZAI(fileConfig)
-    return zaiInstance
+    try {
+      zaiInstance = new ZAI(fileConfig)
+      return zaiInstance
+    } catch (err) {
+      console.error('Failed to initialize ZAI from file config:', err)
+    }
   }
 
-  // Strategy 2: Build from environment variables (works on read-only filesystems like Vercel)
+  // Strategy 2: Build from environment variables (Vercel, Netlify, etc.)
   const envConfig = buildConfigFromEnv()
   if (envConfig) {
-    zaiInstance = new ZAI(envConfig)
-    return zaiInstance
+    try {
+      zaiInstance = new ZAI(envConfig)
+      return zaiInstance
+    } catch (err) {
+      console.error('Failed to initialize ZAI from env config:', err)
+    }
   }
 
-  // Strategy 3: Legacy fallback — ensure file and use SDK's own create()
-  ensureZaiConfig()
-  zaiInstance = await ZAI.create()
-  return zaiInstance
+  // No config available — store a clear error message
+  initError =
+    'Configuration IA non trouvée. ' +
+    'Sur Vercel, ajoutez les variables d\'environnement : ZAI_BASE_URL, ZAI_API_KEY, ZAI_CHAT_ID, ZAI_TOKEN, ZAI_USER_ID. ' +
+    'En local, le fichier .z-ai-config est utilisé automatiquement.'
+
+  throw new Error(initError)
+}
+
+/**
+ * Check if ZAI is configured (for UI status display).
+ */
+export function isZAIConfigured(): boolean {
+  const envConfig = buildConfigFromEnv()
+  if (envConfig) return true
+
+  try {
+    const fileConfig = readFileConfig()
+    if (fileConfig) return true
+  } catch { /* ignore */ }
+
+  return false
 }
