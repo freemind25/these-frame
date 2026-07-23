@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureDb } from '@/lib/db'
 
 // GET /api/thesis — Get or create thesis with all chapters
 export async function GET() {
   try {
+    await ensureDb()
     // Try to find an existing thesis
     let thesis = await db.thesis.findFirst({
       include: {
@@ -38,6 +39,7 @@ export async function GET() {
 // PATCH /api/thesis — Update thesis metadata
 export async function PATCH(request: NextRequest) {
   try {
+    await ensureDb()
     const body = await request.json()
     const { title, subtitle, author, field, university, status } = body
 

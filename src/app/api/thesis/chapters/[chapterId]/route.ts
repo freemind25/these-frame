@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureDb } from '@/lib/db'
 
 // GET /api/thesis/chapters/[chapterId] — Get a single chapter
 export async function GET(
@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ chapterId: string }> },
 ) {
   try {
+    await ensureDb()
     const { chapterId } = await params
 
     const chapter = await db.chapter.findUnique({
@@ -36,6 +37,7 @@ export async function PATCH(
   { params }: { params: Promise<{ chapterId: string }> },
 ) {
   try {
+    await ensureDb()
     const { chapterId } = await params
     const body = await request.json()
     const { title, content, status, directorFeedback } = body
@@ -90,6 +92,7 @@ export async function DELETE(
   { params }: { params: Promise<{ chapterId: string }> },
 ) {
   try {
+    await ensureDb()
     const { chapterId } = await params
 
     // Verify chapter exists
