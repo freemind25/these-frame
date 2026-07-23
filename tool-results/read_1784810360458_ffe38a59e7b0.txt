@@ -1,0 +1,613 @@
+    58→  literatureReviewSource,
+    59→  abstractStructure,
+    60→  abstractSource,
+    61→} from '@/data/methodology-guide'
+    62→
+    63→// ─── Icon map ─────────────────────────────────────────────────────
+    64→const iconMap: Record<string, LucideIcon> = {
+    65→  ClipboardList,
+    66→  Layout,
+    67→  Type,
+    68→  BookOpen,
+    69→  FlaskConical,
+    70→  BarChart3: BarChart3Alias,
+    71→  MessageSquare,
+    72→  CheckCircle2,
+    73→  BookMarked,
+    74→  Send,
+    75→  FileText,
+    76→  GraduationCap,
+    77→  PenTool,
+    78→  BookOpenText,
+    79→  ScanSearch,
+    80→  Languages,
+    81→  ScrollText,
+    82→  Lightbulb,
+    83→  Sparkles,
+    84→  Loader2,
+    85→  RotateCcw,
+    86→}
+    87→
+    88→function getIcon(name: string): LucideIcon {
+    89→  return iconMap[name] || FileText
+    90→}
+    91→
+    92→// ─── Sub-components for ArticlesTab ───────────────────────────────
+    93→
+    94→function StepIcon({ name, className }: { name: string; className?: string }) {
+    95→  return createElement(getIcon(name), { className })
+    96→}
+    97→
+    98→function StepCard({ step, index }: { step: typeof writingSteps[0]; index: number }) {
+    99→  return (
+   100→    <Card className="overflow-hidden">
+   101→      <CardHeader className="pb-3">
+   102→        <div className="flex items-start gap-3">
+   103→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
+   104→            <StepIcon name={step.icon} className="h-5 w-5" />
+   105→          </div>
+   106→          <div className="flex-1 min-w-0">
+   107→            <div className="flex items-center gap-2">
+   108→              <Badge variant="outline" className="text-xs shrink-0">Étape {index + 1}</Badge>
+   109→            </div>
+   110→            <CardTitle className="text-base mt-1">{step.title}</CardTitle>
+   111→            <CardDescription className="text-sm mt-1">{step.shortDesc}</CardDescription>
+   112→          </div>
+   113→        </div>
+   114→      </CardHeader>
+   115→      <CardContent className="pt-0 space-y-4">
+   116→        {/* Tips */}
+   117→        <div>
+   118→          <div className="flex items-center gap-2 mb-2">
+   119→            <Lightbulb className="h-4 w-4 text-amber-500" />
+   120→            <span className="text-sm font-semibold text-amber-700">Conseils</span>
+   121→          </div>
+   122→          <ul className="space-y-1.5">
+   123→            {step.tips.map((tip, i) => (
+   124→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   125→                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+   126→                <span>{tip}</span>
+   127→              </li>
+   128→            ))}
+   129→          </ul>
+   130→        </div>
+   131→        {/* Pitfalls */}
+   132→        <div>
+   133→          <div className="flex items-center gap-2 mb-2">
+   134→            <AlertTriangle className="h-4 w-4 text-red-500" />
+   135→            <span className="text-sm font-semibold text-red-600">Pièges à éviter</span>
+   136→          </div>
+   137→          <ul className="space-y-1.5">
+   138→            {step.pitfalls.map((p, i) => (
+   139→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   140→                <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+   141→                <span>{p}</span>
+   142→              </li>
+   143→            ))}
+   144→          </ul>
+   145→        </div>
+   146→      </CardContent>
+   147→    </Card>
+   148→  )
+   149→}
+   150→
+   151→function SectionGuideCard({ guide }: { guide: typeof sectionGuides[0] }) {
+   152→  return (
+   153→    <Card>
+   154→      <CardHeader className="pb-3">
+   155→        <div className="flex items-center gap-3">
+   156→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-sky-100 text-sky-700 shrink-0">
+   157→            <StepIcon name={guide.icon} className="h-5 w-5" />
+   158→          </div>
+   159→          <div className="flex-1">
+   160→            <CardTitle className="text-base">{guide.label}</CardTitle>
+   161→            {guide.wordCount && (
+   162→              <Badge variant="secondary" className="mt-1 text-xs">{guide.wordCount}</Badge>
+   163→            )}
+   164→          </div>
+   165→        </div>
+   166→        <CardDescription className="mt-2 text-sm">{guide.description}</CardDescription>
+   167→      </CardHeader>
+   168→      <CardContent className="pt-0 space-y-3">
+   169→        <div>
+   170→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Structure attendue</span>
+   171→          <ol className="mt-2 space-y-1">
+   172→            {guide.structure.map((s, i) => (
+   173→              <li key={i} className="flex items-start gap-2 text-sm">
+   174→                <span className="flex items-center justify-center h-5 w-5 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0 mt-0.5">
+   175→                  {i + 1}
+   176→                </span>
+   177→                <span className="text-muted-foreground">{s}</span>
+   178→              </li>
+   179→            ))}
+   180→          </ol>
+   181→        </div>
+   182→        <Separator />
+   183→        <div>
+   184→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Conseils</span>
+   185→          <ul className="mt-2 space-y-1">
+   186→            {guide.tips.map((t, i) => (
+   187→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   188→                <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sky-500" />
+   189→                <span>{t}</span>
+   190→              </li>
+   191→            ))}
+   192→          </ul>
+   193→        </div>
+   194→        {guide.example && (
+   195→          <>
+   196→            <Separator />
+   197→            <div>
+   198→              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Exemple</span>
+   199→              <p className="mt-2 text-sm italic text-muted-foreground bg-muted/50 rounded-md p-3">
+   200→                {guide.example}
+   201→              </p>
+   202→            </div>
+   203→          </>
+   204→        )}
+   205→      </CardContent>
+   206→    </Card>
+   207→  )
+   208→}
+   209→
+   210→function ChecklistSection() {
+   211→  const [checked, setChecked] = useState<Record<string, boolean>>({})
+   212→
+   213→  const toggle = (key: string) => {
+   214→    setChecked(prev => ({ ...prev, [key]: !prev[key] }))
+   215→  }
+   216→
+   217→  const totalItems = submissionChecklist.reduce((a, c) => a + c.items.length, 0)
+   218→  const checkedCount = Object.values(checked).filter(Boolean).length
+   219→
+   220→  return (
+   221→    <Card>
+   222→      <CardHeader>
+   223→        <div className="flex items-center justify-between">
+   224→          <div>
+   225→            <CardTitle className="text-base">Checklist de soumission</CardTitle>
+   226→            <CardDescription className="text-sm mt-1">
+   227→              {checkedCount} / {totalItems} étapes complétées
+   228→            </CardDescription>
+   229→          </div>
+   230→          <Badge variant={checkedCount === totalItems ? 'default' : 'secondary'} className="shrink-0">
+   231→            {Math.round((checkedCount / totalItems) * 100)}%
+   232→          </Badge>
+   233→        </div>
+   234→        <Progress value={(checkedCount / totalItems) * 100} className="h-1.5" />
+   235→      </CardHeader>
+   236→      <CardContent>
+   237→        <Accordion type="multiple" className="w-full">
+   238→          {submissionChecklist.map((section) => (
+   239→            <AccordionItem key={section.category} value={section.category}>
+   240→              <AccordionTrigger className="text-sm font-semibold">
+   241→                {section.category}
+   242→              </AccordionTrigger>
+   243→              <AccordionContent>
+   244→                <div className="space-y-2 pt-1">
+   245→                  {section.items.map((item) => {
+   246→                    const key = `${section.category}-${item}`
+   247→                    return (
+   248→                      <label
+   249→                        key={key}
+   250→                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+   251→                      >
+   252→                        <Checkbox
+   253→                          checked={checked[key] || false}
+   254→                          onCheckedChange={() => toggle(key)}
+   255→                        />
+   256→                        <span className={`text-sm ${checked[key] ? 'line-through text-muted-foreground' : ''}`}>
+   257→                          {item}
+   258→                        </span>
+   259→                      </label>
+   260→                    )
+   261→                  })}
+   262→                </div>
+   263→              </AccordionContent>
+   264→            </AccordionItem>
+   265→          ))}
+   266→        </Accordion>
+   267→      </CardContent>
+   268→    </Card>
+   269→  )
+   270→}
+   271→
+   272→function MistakesSection() {
+   273→  return (
+   274→    <Card>
+   275→      <CardHeader>
+   276→        <CardTitle className="text-base flex items-center gap-2">
+   277→          <AlertTriangle className="h-5 w-5 text-red-500" />
+   278→          Erreurs fréquentes
+   279→        </CardTitle>
+   280→        <CardDescription className="text-sm">Les pièges les plus courants et comment les éviter</CardDescription>
+   281→      </CardHeader>
+   282→      <CardContent>
+   283→        <div className="space-y-4">
+   284→          {commonMistakes.map((m, i) => (
+   285→            <div key={i} className="border rounded-lg p-4 space-y-2">
+   286→              <div className="flex items-start gap-2">
+   287→                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+   288→                <span className="text-sm font-medium">{m.mistake}</span>
+   289→              </div>
+   290→              <p className="text-xs text-red-600 bg-red-50 rounded px-3 py-1.5 ml-6">
+   291→                ⚠️ {m.consequence}
+   292→              </p>
+   293→              <div className="flex items-start gap-2 ml-6">
+   294→                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+   295→                <p className="text-sm text-emerald-700">{m.fix}</p>
+   296→              </div>
+   297→            </div>
+   298→          ))}
+   299→        </div>
+   300→      </CardContent>
+   301→    </Card>
+   302→  )
+   303→}
+   304→
+   305→// ─── ArticlesGuideTab ─────────────────────────────────────────────
+   306→export default function ArticlesGuideTab() {
+   307→  return (
+   308→    <div className="space-y-6">
+   309→      {/* Intro banner */}
+   310→      <Card className="border-emerald-200 bg-emerald-50/50">
+   311→        <CardContent className="py-4">
+   312→          <div className="flex items-start gap-3">
+   313→            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 shrink-0">
+   314→              <BookOpen className="h-5 w-5 text-emerald-700" />
+   315→            </div>
+   316→            <div>
+   317→              <h3 className="font-semibold text-emerald-900">Guide de rédaction d&apos;articles scientifiques</h3>
+   318→              <p className="text-sm text-emerald-700 mt-1">
+   319→                Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas
+   320→                d&apos;Ecarnot et al. (2015). Il est conçu pour les doctorants et chercheurs
+   321→                en rédaction scientifique.
+   322→              </p>
+   323→            </div>
+   324→          </div>
+   325→        </CardContent>
+   326→      </Card>
+   327→
+   328→      {/* Sub-tabs for the articles guide */}
+   329→      <Tabs defaultValue="steps" className="w-full">
+   330→        <TabsList className="w-full grid grid-cols-7">
+   331→          <TabsTrigger value="steps" className="text-xs sm:text-sm">Étapes</TabsTrigger>
+   332→          <TabsTrigger value="sections" className="text-xs sm:text-sm">IMRaD</TabsTrigger>
+   333→          <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Erreurs</TabsTrigger>
+   334→          <TabsTrigger value="checklist" className="text-xs sm:text-sm">Checklist</TabsTrigger>
+   335→          <TabsTrigger value="bibliometrie" className="text-xs sm:text-sm">Bibliométrie</TabsTrigger>
+   336→          <TabsTrigger value="revue" className="text-xs sm:text-sm">Revue de litt.</TabsTrigger>
+   337→          <TabsTrigger value="abstract" className="text-xs sm:text-sm">Abstract</TabsTrigger>
+   338→        </TabsList>
+   339→
+   340→        <TabsContent value="steps" className="mt-4">
+   341→          <ScrollArea className="max-h-[70vh]">
+   342→            <div className="space-y-4 pr-4">
+   343→              {writingSteps.map((step, i) => (
+   344→                <StepCard key={step.id} step={step} index={i} />
+   345→              ))}
+   346→            </div>
+   347→          </ScrollArea>
+   348→        </TabsContent>
+   349→
+   350→        <TabsContent value="sections" className="mt-4">
+   351→          <ScrollArea className="max-h-[70vh]">
+   352→            <div className="space-y-4 pr-4">
+   353→              {sectionGuides.map((guide) => (
+   354→                <SectionGuideCard key={guide.id} guide={guide} />
+   355→              ))}
+   356→            </div>
+   357→          </ScrollArea>
+   358→        </TabsContent>
+   359→
+   360→        <TabsContent value="mistakes" className="mt-4">
+   361→          <ScrollArea className="max-h-[70vh]">
+   362→            <div className="pr-4">
+   363→              <MistakesSection />
+   364→            </div>
+   365→          </ScrollArea>
+   366→        </TabsContent>
+   367→
+   368→        <TabsContent value="checklist" className="mt-4">
+   369→          <ScrollArea className="max-h-[70vh]">
+   370→            <div className="space-y-4 pr-4">
+   371→              <ChecklistSection />
+   372→              {/* Reference article */}
+   373→              <Card>
+   374→                <CardHeader>
+   375→                  <CardTitle className="text-base flex items-center gap-2">
+   376→                    <BookMarked className="h-5 w-5 text-amber-600" />
+   377→                    Source de référence
+   378→                  </CardTitle>
+   379→                </CardHeader>
+   380→                <CardContent className="space-y-3">
+   381→                  {referenceArticles.map((art) => (
+   382→                    <div key={art.id} className="border rounded-lg p-4 space-y-2">
+   383→                      <p className="text-sm font-medium">{art.title}</p>
+   384→                      <p className="text-xs text-muted-foreground">{art.authors}</p>
+   385→                      <div className="flex flex-wrap gap-2">
+   386→                        <Badge variant="secondary" className="text-xs">{art.source}</Badge>
+   387→                        <Badge variant="outline" className="text-xs">{art.year}</Badge>
+   388→                        {art.doi && (
+   389→                          <Badge variant="outline" className="text-xs">DOI: {art.doi}</Badge>
+   390→                        )}
+   391→                      </div>
+   392→                      <Separator className="my-2" />
+   393→                      <div>
+   394→                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Points clés</span>
+   395→                        <ul className="mt-1 space-y-1">
+   396→                          {art.keyPoints.map((kp, i) => (
+   397→                            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   398→                              <ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+   399→                              <span>{kp}</span>
+   400→                            </li>
+   401→                          ))}
+   402→                        </ul>
+   403→                      </div>
+   404→                    </div>
+   405→                  ))}
+   406→                </CardContent>
+   407→              </Card>
+   408→            </div>
+   409→          </ScrollArea>
+   410→        </TabsContent>
+   411→
+   412→        {/* ── Bibliométrie ── */}
+   413→        <TabsContent value="bibliometrie" className="mt-4">
+   414→          <ScrollArea className="max-h-[70vh]">
+   415→            <div className="space-y-4 pr-4">
+   416→              <Card className="border-indigo-200 bg-indigo-50/30">
+   417→                <CardHeader className="pb-2">
+   418→                  <CardTitle className="text-sm flex items-center gap-2">
+   419→                    <BarChart3 className="h-4 w-4 text-indigo-600" />
+   420→                    Analyse Bibliométrique
+   421→                  </CardTitle>
+   422→                </CardHeader>
+   423→                <CardContent>
+   424→                  <p className="text-xs text-muted-foreground">
+   425→                    Mesurer la recherche. Cartographier les connaissances. Façonner l'avenir.
+   426→                    Méthode quantitative d'analyse des publications académiques pour identifier les tendances, auteurs influents et lacunes de recherche.
+   427→                  </p>
+   428→                </CardContent>
+   429→              </Card>
+   430→
+   431→              {/* Caractéristiques clés */}
+   432→              <Card>
+   433→                <CardHeader className="pb-2">
+   434→                  <CardTitle className="text-xs font-semibold text-indigo-700">Caractéristiques clés</CardTitle>
+   435→                </CardHeader>
+   436→                <CardContent>
+   437→                  <ul className="space-y-1.5">
+   438→                    {biblioFeatures.map((f, i) => (
+   439→                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+   440→                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+   441→                        <span>{f}</span>
+   442→                      </li>
+   443→                    ))}
+   444→                  </ul>
+   445→                </CardContent>
+   446→              </Card>
+   447→
+   448→              {/* Pourquoi l'utiliser ? */}
+   449→              <Card>
+   450→                <CardHeader className="pb-2">
+   451→                  <CardTitle className="text-xs font-semibold text-indigo-700">Pourquoi l'utiliser ?</CardTitle>
+   452→                </CardHeader>
+   453→                <CardContent>
+   454→                  <ul className="space-y-1.5">
+   455→                    {biblioPurposes.map((p, i) => (
+   456→                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+   457→                        <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+   458→                        <span>{p}</span>
+   459→                      </li>
+   460→                    ))}
+   461→                  </ul>
+   462→                </CardContent>
+   463→              </Card>
+   464→
+   465→              {/* Méthodes & Outils côte à côte */}
+   466→              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   467→                <Card>
+   468→                  <CardHeader className="pb-2">
+   469→                    <CardTitle className="text-xs font-semibold text-indigo-700">Méthodes courantes</CardTitle>
+   470→                  </CardHeader>
+   471→                  <CardContent className="space-y-2">
+   472→                    {biblioMethods.map((m, i) => (
+   473→                      <div key={i} className="border rounded-lg p-2.5">
+   474→                        <p className="text-xs font-medium">{m.name}</p>
+   475→                        <p className="text-[11px] text-muted-foreground">{m.description}</p>
+   476→                      </div>
+   477→                    ))}
+   478→                  </CardContent>
+   479→                </Card>
+   480→                <Card>
+   481→                  <CardHeader className="pb-2">
+   482→                    <CardTitle className="text-xs font-semibold text-indigo-700">Outils populaires</CardTitle>
+   483→                  </CardHeader>
+   484→                  <CardContent className="space-y-2">
+   485→                    {biblioTools.map((t, i) => (
+   486→                      <div key={i} className={`rounded-lg p-2.5 ${t.color}`}>
+   487→                        <p className="text-xs font-medium">{t.name}</p>
+   488→                        <p className="text-[11px] opacity-80">{t.description}</p>
+   489→                      </div>
+   490→                    ))}
+   491→                  </CardContent>
+   492→                </Card>
+   493→              </div>
+   494→
+   495→              {/* Métriques importantes */}
+   496→              <Card>
+   497→                <CardHeader className="pb-2">
+   498→                  <CardTitle className="text-xs font-semibold text-indigo-700">Métriques bibliométriques importantes</CardTitle>
+   499→                </CardHeader>
+   500→                <CardContent>
+   501→                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+   502→                    {biblioMetrics.map((m, i) => (
+   503→                      <div key={i} className="flex items-start gap-2 border rounded-lg p-2.5">
+   504→                        <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+   505→                        <div>
+   506→                          <p className="text-xs font-medium">{m.name}</p>
+   507→                          <p className="text-[11px] text-muted-foreground">{m.description}</p>
+   508→                        </div>
+   509→                      </div>
+   510→                    ))}
+   511→                  </div>
+   512→                </CardContent>
+   513→              </Card>
+   514→
+   515→              {/* Processus */}
+   516→              <Card>
+   517→                <CardHeader className="pb-2">
+   518→                  <CardTitle className="text-xs font-semibold text-indigo-700">Processus type d'analyse bibliométrique</CardTitle>
+   519→                </CardHeader>
+   520→                <CardContent>
+   521→                  <div className="space-y-3">
+   522→                    {biblioProcess.map((s) => (
+   523→                      <div key={s.step} className="flex items-start gap-3">
+   524→                        <div className="flex items-center justify-center h-7 w-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold shrink-0">
+   525→                          {s.step}
+   526→                        </div>
+   527→                        <div>
+   528→                          <p className="text-xs font-medium">{s.title}</p>
+   529→                          <p className="text-[11px] text-muted-foreground">{s.detail}</p>
+   530→                        </div>
+   531→                      </div>
+   532→                    ))}
+   533→                  </div>
+   534→                </CardContent>
+   535→              </Card>
+   536→
+   537→              <Card className="border-indigo-200 bg-indigo-50/30">
+   538→                <CardContent className="p-3">
+   539→                  <p className="text-[11px] text-indigo-700">
+   540→                    💡 <strong>À retenir :</strong> L'analyse bibliométrique transforme de grands volumes de données académiques en informations exploitables, aidant les chercheurs, institutions et décideurs à faire des choix éclairés et à faire avancer les connaissances.
+   541→                  </p>
+   542→                </CardContent>
+   543→              </Card>
+   544→            </div>
+   545→          </ScrollArea>
+   546→        </TabsContent>
+   547→        {/* ── Revue de littérature ── */}
+   548→        <TabsContent value="revue" className="mt-4">
+   549→          <ScrollArea className="max-h-[70vh]">
+   550→            <div className="space-y-4 pr-4">
+   551→              <Card className="border-sky-200 bg-sky-50/30">
+   552→                <CardHeader className="pb-2">
+   553→                  <CardTitle className="text-sm flex items-center gap-2">
+   554→                    <BookOpenText className="h-4 w-4 text-sky-600" />
+   555→                    Les 5 étapes de la revue de littérature
+   556→                  </CardTitle>
+   557→                  <CardDescription className="text-xs">D'après Randolph (2009) — Comment mener une revue de littérature systématique et intégrative</CardDescription>
+   558→                </CardHeader>
+   559→                <CardContent>
+   560→                  <p className="text-xs text-muted-foreground">
+   561→                    Chaque étape comporte des questions guides, une fonction principale, des différences procédurales et des sources potentielles d'invalidité des conclusions.
+   562→                  </p>
+   563→                </CardContent>
+   564→              </Card>
+   565→
+   566→              {literatureReviewStages.map((s, i) => (
+   567→                <Card key={s.id}>
+   568→                  <CardHeader className="pb-2">
+   569→                    <div className="flex items-center gap-2">
+   570→                      <div className="flex items-center justify-center h-7 w-7 rounded-full bg-sky-100 text-sky-700 text-xs font-bold shrink-0">
+   571→                        {i + 1}
+   572→                      </div>
+   573→                      <CardTitle className="text-sm">{s.stage}</CardTitle>
+   574→                    </div>
+   575→                  </CardHeader>
+   576→                  <CardContent className="space-y-3">
+   577→                    <div className="bg-sky-50 rounded-lg p-3">
+   578→                      <p className="text-xs font-semibold text-sky-700 mb-1">Question guide :</p>
+   579→                      <p className="text-sm text-sky-900">{s.question}</p>
+   580→                    </div>
+   581→                    <div>
+   582→                      <p className="text-xs font-semibold text-muted-foreground mb-1">Fonction principale :</p>
+   583→                      <p className="text-sm text-foreground">{s.func}</p>
+   584→                    </div>
+   585→                    <div>
+   586→                      <p className="text-xs font-semibold text-amber-600 mb-1">Sources d'invalidité potentielles :</p>
+   587→                      <ul className="space-y-1">
+   588→                        {s.sourcesOfInvalidity.map((v, j) => (
+   589→                          <li key={j} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+   590→                            <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+   591→                            <span>{v}</span>
+   592→                          </li>
+   593→                        ))}
+   594→                      </ul>
+   595→                    </div>
+   596→                  </CardContent>
+   597→                </Card>
+   598→              ))}
+   599→
+   600→              <Card className="bg-muted/30">
+   601→                <CardContent className="p-3">
+   602→                  <p className="text-[11px] text-muted-foreground italic">
+   603→                    Source : {literatureReviewSource}
+   604→                  </p>
+   605→                </CardContent>
+   606→              </Card>
+   607→            </div>
+   608→          </ScrollArea>
+   609→        </TabsContent>
+   610→
+   611→        {/* ── Abstract ── */}
+   612→        <TabsContent value="abstract" className="mt-4">
+   613→          <ScrollArea className="max-h-[70vh]">
+   614→            <div className="space-y-4 pr-4">
+   615→              <Card className="border-rose-200 bg-rose-50/30">
+   616→                <CardHeader className="pb-2">
+   617→                  <CardTitle className="text-sm flex items-center gap-2">
+   618→                    <ScrollText className="h-4 w-4 text-rose-600" />
+   619→                    Rédiger un abstract fort
+   620→                  </CardTitle>
+   621→                  <CardDescription className="text-xs">Structure en 6 étapes annotée — Exemple tiré d'un article publié dans Nature</CardDescription>
+   622→                </CardHeader>
+   623→                <CardContent>
+   624→                  <p className="text-xs text-muted-foreground">
+   625→                    Un bon abstract suit un enchaînement logique : du contexte général vers les résultats spécifiques, en passant par la lacune identifiée et la contribution de l'étude.
+   626→                  </p>
+   627→                </CardContent>
+   628→              </Card>
+   629→
+   630→              {abstractStructure.map((step, i) => (
+   631→                <Card key={step.id}>
+   632→                  <CardHeader className="pb-2">
+   633→                    <div className="flex items-center gap-2">
+   634→                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold shrink-0 text-white bg-gray-400">
+   635→                        {i + 1}
+   636→                      </div>
+   637→                      <div className="flex-1">
+   638→                        <CardTitle className="text-sm">{step.label}</CardTitle>
+   639→                        <CardDescription className="text-[11px]">{step.labelEn}</CardDescription>
+   640→                      </div>
+   641→                      <Badge className={`text-[10px] ${step.color}`} variant="secondary">
+   642→                        {step.labelEn}
+   643→                      </Badge>
+   644→                    </div>
+   645→                  </CardHeader>
+   646→                  <CardContent className="space-y-2">
+   647→                    <p className="text-xs text-muted-foreground">{step.description}</p>
+   648→                    <div className="bg-muted/50 rounded-lg p-3">
+   649→                      <p className="text-xs font-semibold text-muted-foreground mb-1">Exemple :</p>
+   650→                      <p className="text-sm italic text-foreground/80">{step.example}</p>
+   651→                    </div>
+   652→                  </CardContent>
+   653→                </Card>
+   654→              ))}
+   655→
+   656→              <Card className="bg-muted/30">
+   657→                <CardContent className="p-3">
+   658→                  <p className="text-[11px] text-muted-foreground italic">
+   659→                    {abstractSource}
+   660→                  </p>
+   661→                </CardContent>
+   662→              </Card>
+   663→            </div>
+   664→          </ScrollArea>
+   665→        </TabsContent>
+   666→      </Tabs>
+   667→    </div>
+   668→  )
+   669→}
+   670→

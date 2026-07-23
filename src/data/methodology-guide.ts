@@ -1050,3 +1050,129 @@ export const guidereGuide = {
   ],
 }
 
+// ─── 10 Types de revue de littérature ───────────────────────────
+export interface LitReviewType {
+  id: string
+  number: number
+  title: string
+  titleEn: string
+  description: string
+  quandUtiliser: string
+  forces: string[]
+  limites: string[]
+  color: string
+}
+
+export const litReviewTypes: LitReviewType[] = [
+  {
+    id: 'narrative',
+    number: 1,
+    title: 'Revue narrative',
+    titleEn: 'Narrative Review',
+    description: 'Fournit une vue d\'ensemble large des études existantes sur un sujet, en mettant en évidence les tendances et les perspectives clés.',
+    quandUtiliser: 'Pour contextualiser un domaine de recherche ou donner une perspective historique. Idéale pour les chapitres d\'introduction et de cadre théorique.',
+    forces: ['Couverture large du sujet', 'Accessible et lisible', 'Favorise la compréhension du domaine', 'Flexible dans la structure'],
+    limites: ['Pas de méthodologie systématique', 'Sujette aux biais de sélection', 'Difficilement reproductible'],
+    color: 'bg-purple-100 text-purple-800 border-purple-300',
+  },
+  {
+    id: 'systematic',
+    number: 2,
+    title: 'Revue systématique',
+    titleEn: 'Systematic Review',
+    description: 'Utilise une méthodologie rigoureuse et préétablie pour identifier, évaluer et synthétiser toutes les études pertinentes répondant à une question de recherche spécifique.',
+    quandUtiliser: 'Pour répondre à une question de recherche précise avec un haut niveau de rigueur. Standard en sciences de la santé, de plus en plus adoptée dans d\'autres disciplines.',
+    forces: ['Reproductible et transparente', 'Minimise les biais de sélection', 'Protocole PRISMA standardisé', 'Haute crédibilité scientifique'],
+    limites: ['Très chronophage', 'Peut exclure des études pertinentes', 'Exige une expertise en méthodologie', 'Résultats parfois trop restrictifs'],
+    color: 'bg-teal-100 text-teal-800 border-teal-300',
+  },
+  {
+    id: 'meta-analysis',
+    number: 3,
+    title: 'Méta-analyse',
+    titleEn: 'Meta-Analysis',
+    description: 'Combine statistiquement les résultats de plusieurs études quantitatives pour dériver des conclusions plus robustes et généralisables.',
+    quandUtiliser: 'Quand plusieurs études quantitatives mesurent le même effet et que l\'on souhaite estimer la taille de l\'effet global avec plus de puissance statistique.',
+    forces: ['Augmente la puissance statistique', 'Quantifie l\'effet global', 'Identifie les sources d\'hétérogénéité', 'Résultats plus généralisables'],
+    limites: ['Nécessite des données quantitatives homogènes', 'Biais de publication possible', 'Sensible aux études de mauvaise qualité', 'Complexité statistique'],
+    color: 'bg-pink-100 text-pink-800 border-pink-300',
+  },
+  {
+    id: 'scoping',
+    number: 4,
+    title: 'Revue exploratoire (Scoping)',
+    titleEn: 'Scoping Review',
+    description: 'Cartographie la littérature existante pour identifier les concepts clés, les types de preuves et les lacunes de connaissances dans un domaine large.',
+    quandUtiliser: 'En début de projet pour cartographier un champ de recherche, quand la question est encore large et que les concepts sont flous.',
+    forces: ['Cartographie complète d\'un domaine', 'Identifie les lacunes de recherche', 'Flexibilité méthodologique', 'Utile en phase exploratoire'],
+    limites: ['Pas d\'évaluation qualité systématique', 'Ne répond pas à une question précise', 'Peut être trop vaste', 'Moins rigoureuse que la revue systématique'],
+    color: 'bg-sky-100 text-sky-800 border-sky-300',
+  },
+  {
+    id: 'integrative',
+    number: 5,
+    title: 'Revue intégrative',
+    titleEn: 'Integrative Review',
+    description: 'Synthétise des études utilisant des méthodologies diverses (qualitatives, quantitatives, théoriques) pour générer de nouveaux cadres et approfondir la compréhension d\'un sujet complexe.',
+    quandUtiliser: 'Pour des sujets complexes nécessitant de croiser des approches méthodologiques différentes et construire de nouveaux cadres conceptuels.',
+    forces: ['Intègre des paradigmes multiples', 'Génère de nouvelles perspectives', 'Adaptée aux sujets complexes', 'Enrichit le cadre théorique'],
+    limites: ['Difficile à conduire rigoureusement', 'Risque de synthèse superficielle', 'Manque de guidelines standardisées', 'Biais potentiels dans la sélection'],
+    color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+  },
+  {
+    id: 'critical',
+    number: 6,
+    title: 'Revue critique',
+    titleEn: 'Critical Review',
+    description: 'Évalue de manière critique la qualité, les forces et les limites de la littérature existante, tout en identifiant les biais et les incohérences.',
+    quandUtiliser: 'Pour évaluer l\'état de l\'art de manière argumentée, identifier les contradictions entre études et les biais méthodologiques récurrents.',
+    forces: ['Évaluation rigoureuse de la qualité', 'Identifie les biais et incohérences', 'Développe l\'esprit critique', 'Renforce la crédibilité de la revue'],
+    limites: ['Subjectivité dans l\'évaluation', 'Pas de cadre méthodologique standard', 'Risque d\'être trop négatif', 'Difficile de rester exhaustif'],
+    color: 'bg-blue-100 text-blue-800 border-blue-300',
+  },
+  {
+    id: 'theoretical',
+    number: 7,
+    title: 'Revue théorique',
+    titleEn: 'Theoretical Review',
+    description: 'Examine et critique les théories et modèles conceptuels pour construire une base théorique solide pour l\'étude.',
+    quandUtiliser: 'Pour fonder un cadre théorique, confronter des théories concurrentes, ou proposer un nouveau modèle conceptuel.',
+    forces: ['Fonde le cadre théorique', 'Confronte les modèles existants', 'Identifie les lacunes théoriques', 'Propose de nouvelles pistes conceptuelles'],
+    limites: ['Peut manquer d\'ancrage empirique', 'Abstrait et difficile à valider', 'Risque de sur-théorisation', 'Nécessite une forte expertise conceptuelle'],
+    color: 'bg-amber-100 text-amber-800 border-amber-300',
+  },
+  {
+    id: 'methodological',
+    number: 8,
+    title: 'Revue méthodologique',
+    titleEn: 'Methodological Review',
+    description: 'Se concentre sur les méthodes de recherche utilisées dans les études précédentes pour identifier les avancées et les limites méthodologiques.',
+    quandUtiliser: 'Pour justifier le choix de méthode, identifier les meilleures pratiques, et positionner son design de recherche par rapport à l\'existant.',
+    forces: ['Justifie les choix méthodologiques', 'Identifie les meilleures pratiques', 'Détecte les biais méthodologiques', 'Améliore la rigueur de l\'étude'],
+    limites: ['Domaine d\'application restreint', 'Peut négliger les résultats', 'Demande une expertise méthodologique avancée', 'Moins accessible aux non-spécialistes'],
+    color: 'bg-lime-100 text-lime-800 border-lime-300',
+  },
+  {
+    id: 'empirical',
+    number: 9,
+    title: 'Revue empirique',
+    titleEn: 'Empirical Review',
+    description: 'Se concentre sur l\'évaluation et la synthèse des preuves empiriques liées à la question de recherche ou au problème étudié.',
+    quandUtiliser: 'Pour établir l\'état des connaissances factuelles sur un sujet, en s\'appuyant exclusivement sur les résultats d\'études empiriques.',
+    forces: ['Basée sur des faits concrets', 'Résultats tangibles et mesurables', 'Facilite la comparaison entre études', 'Forte objectivité'],
+    limites: ['Ignore la dimension théorique', 'Dépendante de la qualité des données', 'Peut manquer de contexte qualitatif', 'Biais liés aux données disponibles'],
+    color: 'bg-violet-100 text-violet-800 border-violet-300',
+  },
+  {
+    id: 'realist',
+    number: 10,
+    title: 'Revue réaliste',
+    titleEn: 'Realist Review',
+    description: 'Explore comment et pourquoi les interventions fonctionnent, pour qui et dans quelles circonstances, en examinant le contexte, les mécanismes et les résultats.',
+    quandUtiliser: 'Pour comprendre les mécanismes sous-jacents d\'interventions complexes dans des contextes réels, typiquement en sciences sociales et politiques publiques.',
+    forces: ['Comprend les mécanismes d\'impact', 'Tient compte du contexte', 'Adaptée aux interventions complexes', 'Résultats applicables en pratique'],
+    limites: ['Cadre théorique complexe', 'Difficile à mettre en œuvre', 'Peu de guidelines standardisées', 'Résultats difficiles à généraliser'],
+    color: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+  },
+]
+

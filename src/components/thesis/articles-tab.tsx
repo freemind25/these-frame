@@ -33,6 +33,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -58,6 +59,7 @@ import {
   literatureReviewSource,
   abstractStructure,
   abstractSource,
+  litReviewTypes,
 } from '@/data/methodology-guide'
 
 // ─── Icon map ─────────────────────────────────────────────────────
@@ -327,14 +329,15 @@ export default function ArticlesGuideTab() {
 
       {/* Sub-tabs for the articles guide */}
       <Tabs defaultValue="steps" className="w-full">
-        <TabsList className="w-full grid grid-cols-7">
-          <TabsTrigger value="steps" className="text-xs sm:text-sm">Étapes</TabsTrigger>
-          <TabsTrigger value="sections" className="text-xs sm:text-sm">IMRaD</TabsTrigger>
-          <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Erreurs</TabsTrigger>
-          <TabsTrigger value="checklist" className="text-xs sm:text-sm">Checklist</TabsTrigger>
-          <TabsTrigger value="bibliometrie" className="text-xs sm:text-sm">Bibliométrie</TabsTrigger>
-          <TabsTrigger value="revue" className="text-xs sm:text-sm">Revue de litt.</TabsTrigger>
-          <TabsTrigger value="abstract" className="text-xs sm:text-sm">Abstract</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-8">
+          <TabsTrigger value="steps" className="text-[10px] sm:text-sm">Étapes</TabsTrigger>
+          <TabsTrigger value="types" className="text-[10px] sm:text-sm">10 Types</TabsTrigger>
+          <TabsTrigger value="sections" className="text-[10px] sm:text-sm">IMRaD</TabsTrigger>
+          <TabsTrigger value="mistakes" className="text-[10px] sm:text-sm">Erreurs</TabsTrigger>
+          <TabsTrigger value="checklist" className="text-[10px] sm:text-sm">Checklist</TabsTrigger>
+          <TabsTrigger value="bibliometrie" className="text-[10px] sm:text-sm">Bibliom.</TabsTrigger>
+          <TabsTrigger value="revue" className="text-[10px] sm:text-sm">Revue litt.</TabsTrigger>
+          <TabsTrigger value="abstract" className="text-[10px] sm:text-sm">Abstract</TabsTrigger>
         </TabsList>
 
         <TabsContent value="steps" className="mt-4">
@@ -343,6 +346,85 @@ export default function ArticlesGuideTab() {
               {writingSteps.map((step, i) => (
                 <StepCard key={step.id} step={step} index={i} />
               ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* ── 10 Types de revue de littérature ── */}
+        <TabsContent value="types" className="mt-4">
+          <ScrollArea className="max-h-[70vh]">
+            <div className="space-y-4 pr-4">
+              <Card className="border-amber-200 bg-amber-50/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <BookOpenText className="h-4 w-4 text-amber-600" />
+                    10 types de revue de littérature
+                  </CardTitle>
+                  <CardDescription className="text-xs">Choisissez le bon type de revue en fonction de vos objectifs de recherche</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground">
+                    Chaque type de revue a ses propres objectifs, méthodes et cas d'usage. Le bon choix dépend de votre question de recherche, de vos données disponibles et de la rigueur requise.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {litReviewTypes.map((t) => (
+                <Card key={t.id} className="overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <div className={cn('flex items-center justify-center h-8 w-8 rounded-lg text-sm font-bold shrink-0 border', t.color)}>
+                        {t.number}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-sm">{t.title}</CardTitle>
+                          <Badge variant="outline" className="text-[9px] shrink-0">{t.titleEn}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-xs text-muted-foreground">{t.description}</p>
+                    <div className="bg-sky-50 rounded-lg p-3">
+                      <p className="text-[11px] font-semibold text-sky-700 mb-1">Quand l'utiliser ?</p>
+                      <p className="text-xs text-sky-900">{t.quandUtiliser}</p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[11px] font-semibold text-emerald-700 mb-1.5">Forces</p>
+                        <ul className="space-y-1">
+                          {t.forces.map((f, j) => (
+                            <li key={j} className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+                              <CheckCircle2 className="h-3 w-3 shrink-0 mt-0.5 text-emerald-500" />
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-semibold text-red-600 mb-1.5">Limites</p>
+                        <ul className="space-y-1">
+                          {t.limites.map((l, j) => (
+                            <li key={j} className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+                              <XCircle className="h-3 w-3 shrink-0 mt-0.5 text-red-400" />
+                              <span>{l}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              <Card className="border-amber-200 bg-amber-50/30">
+                <CardContent className="p-3">
+                  <p className="text-[11px] text-amber-800">
+                    <strong>Pourquoi c'est important :</strong> Le bon type de revue de littérature vous aide à identifier les connaissances clés, à justifier votre étude et à apporter des contributions significatives à votre domaine.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </ScrollArea>
         </TabsContent>
