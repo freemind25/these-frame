@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureDb } from '@/lib/db'
 import { CHAPTERS } from '@/data/chapters-structure'
 
 // POST /api/thesis/seed — Ensure a thesis exists with 6 empty chapters
 export async function POST() {
   try {
+    await ensureDb()
     // Check if a thesis already exists
     const existing = await db.thesis.findFirst({
       include: {

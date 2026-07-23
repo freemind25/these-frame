@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { db, ensureDb } from '@/lib/db'
 import { z } from 'zod'
 
 const refSchema = z.object({
