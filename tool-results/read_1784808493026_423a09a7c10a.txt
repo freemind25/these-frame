@@ -1,0 +1,593 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { createElement, useState, useCallback, useEffect, useRef } from 'react'
+     4→     4→import {
+     5→     5→  GraduationCap, BookOpen, FlaskConical, BarChart3, MessageSquare,
+     6→     6→  FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
+     7→     7→  BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
+     8→     8→  ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
+     9→     9→  Library, ClipboardList, ListChecks, Lightbulb,
+    10→    10→} from 'lucide-react'
+    11→    11→import { cn } from '@/lib/utils'
+    12→    12→import { Button } from '@/components/ui/button'
+    13→    13→import { Badge } from '@/components/ui/badge'
+    14→    14→import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+    15→    15→import { Separator } from '@/components/ui/separator'
+    16→    16→import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+    17→    17→import { Textarea } from '@/components/ui/textarea'
+    18→    18→import { useIsMobile } from '@/hooks/use-mobile'
+    19→    19→import { CHAPTERS, CHAPTER_COLORS, type ChapterStructure } from '@/data/chapters-structure'
+    20→    20→import ReferencesTab from '@/components/thesis/references-tab'
+    21→    21→import ExportPdfContent from '@/components/thesis/export-pdf-tab'
+    22→    22→
+    23→    23→// ─── Types ──────────────────────────────────────────────────────
+    24→    24→interface ChapterData {
+    25→    25→  id: string
+    26→    26→  thesisId: string
+    27→    27→  order: number
+    28→    28→  number: string
+    29→    29→  title: string
+    30→    30→  content: string
+    31→    31→  wordCount: number
+    32→    32→  status: string
+    33→    33→  directorFeedback: string | null
+    34→    34→  directorFeedbackAt: string | null
+    35→    35→}
+    36→    36→
+    37→    37→interface ThesisData {
+    38→    38→  id: string
+    39→    39→  title: string
+    40→    40→  subtitle: string | null
+    41→    41→  author: string
+    42→    42→  field: string
+    43→    43→  university: string
+    44→    44→  status: string
+    45→    45→  chapters: ChapterData[]
+    46→    46→}
+    47→    47→
+    48→    48→interface ChatMsg { role: 'user' | 'assistant'; content: string }
+    49→    49→
+    50→    50→const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+    51→    51→  FileText, BookOpen, FlaskConical, BarChart3, MessageSquare, GraduationCap,
+    52→    52→}
+    53→    53→
+    54→    54→const STATUS_COLORS: Record<string, string> = {
+    55→    55→  draft: 'bg-gray-400',
+    56→    56→  in_progress: 'bg-amber-400',
+    57→    57→  submitted: 'bg-sky-400',
+    58→    58→  revised: 'bg-emerald-400',
+    59→    59→}
+    60→    60→
+    61→    61→// ─── Component ─────────────────────────────────────────────────
+    62→    62→export default function Home() {
+    63→    63→  const [thesis, setThesis] = useState<ThesisData | null>(null)
+    64→    64→  const [loading, setLoading] = useState(true)
+    65→    65→  const [activeChapterId, setActiveChapterId] = useState<string>('')
+    66→    66→  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+    67→    67→
+    68→    68→  // UI state
+    69→    69→  const [sidebarOpen, setSidebarOpen] = useState(false)
+    70→    70→  const [helpOpen, setHelpOpen] = useState(true)
+    71→    71→  const [helpTab, setHelpTab] = useState('guide')
+    72→    72→  const [refsOpen, setRefsOpen] = useState(false)
+    73→    73→  const [exportOpen, setExportOpen] = useState(false)
+    74→    74→  const isMobile = useIsMobile()
+    75→    75→
+    76→    76→  // AI chat state (in help panel)
+    77→    77→  const [aiMessages, setAiMessages] = useState<ChatMsg[]>([])
+    78→    78→  const [aiInput, setAiInput] = useState('')
+    79→    79→  const [aiLoading, setAiLoading] = useState(false)
+    80→    80→  const [aiMode, setAiMode] = useState('scientific-writing')
+    81→    81→
+    82→    82→  // Director state
+    83→    83→  const [directorLoading, setDirectorLoading] = useState(false)
+    84→    84→  const [directorFeedback, setDirectorFeedback] = useState('')
+    85→    85→
+    86→    86→  // Auto-save
+    87→    87→  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    88→    88→  const localContent = useRef<string>('')
+    89→    89→
+    90→    90→  // Load thesis on mount
+    91→    91→  useEffect(() => {
+    92→    92→    async function load() {
+    93→    93→      try {
+    94→    94→        // Seed ensures thesis exists
+    95→    95→        await fetch('/api/thesis/seed', { method: 'POST' })
+    96→    96→        const res = await fetch('/api/thesis')
+    97→    97→        const data = await res.json()
+    98→    98→        const thesisData = data.thesis || data
+    99→    99→        if (thesisData?.id) {
+   100→   100→          setThesis(thesisData)
+   101→   101→          if (thesisData.chapters?.length > 0) {
+   102→   102→            setActiveChapterId(thesisData.chapters[0].id)
+   103→   103→          }
+   104→   104→        }
+   105→   105→      } catch (err) {
+   106→   106→        console.error('Failed to load thesis:', err)
+   107→   107→      } finally {
+   108→   108→        setLoading(false)
+   109→   109→      }
+   110→   110→    }
+   111→   111→    load()
+   112→   112→  }, [])
+   113→   113→
+   114→   114→  const activeChapter = thesis?.chapters.find(c => c.id === activeChapterId)
+   115→   115→  const chapterMeta = CHAPTERS.find(c => c.order === activeChapter?.order)
+   116→   116→  const colors = chapterMeta ? CHAPTER_COLORS[chapterMeta.color] : CHAPTER_COLORS.emerald
+   117→   117→
+   118→   118→  // Total word count
+   119→   119→  const totalWords = thesis?.chapters.reduce((sum, c) => sum + c.wordCount, 0) || 0
+   120→   120→
+   121→   121→  // ─── Auto-save handler ───────────────────────────────────
+   122→   122→  const handleContentChange = useCallback((content: string) => {
+   123→   123→    if (!activeChapter) return
+   124→   124→    localContent.current = content
+   125→   125→
+   126→   126→    // Optimistic update
+   127→   127→    setThesis(prev => prev ? {
+   128→   128→      ...prev,
+   129→   129→      chapters: prev.chapters.map(c =>
+   130→   130→        c.id === activeChapterId ? { ...c, content } : c
+   131→   131→      ),
+   132→   132→    } : null)
+   133→   133→
+   134→   134→    // Debounced save
+   135→   135→    setSaveStatus('idle')
+   136→   136→    if (saveTimer.current) clearTimeout(saveTimer.current)
+   137→   137→    saveTimer.current = setTimeout(async () => {
+   138→   138→ setSaveStatus('saving')
+   139→   139→      try {
+   140→   140→        const wordCount = content.split(/\s+/).filter(w => w.length > 0).length
+   141→   141→        const res = await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+   142→   142→          method: 'PATCH',
+   143→   143→          headers: { 'Content-Type': 'application/json' },
+   144→   144→          body: JSON.stringify({ content, wordCount, status: wordCount > 0 ? 'in_progress' : 'draft' }),
+   145→   145→        })
+   146→   146→        if (res.ok) {
+   147→   147→          const data = await res.json()
+   148→   148→          setThesis(prev => prev ? {
+   149→   149→            ...prev,
+   150→   150→            chapters: prev.chapters.map(c => c.id === data.chapter.id ? { ...c, ...data.chapter } : c),
+   151→   151→          } : null)
+   152→   152→          setSaveStatus('saved')
+   153→   153→          setTimeout(() => setSaveStatus('idle'), 2000)
+   154→   154→        } else {
+   155→   155→          setSaveStatus('error')
+   156→   156→        }
+   157→   157→      } catch {
+   158→   158→        setSaveStatus('error')
+   159→   159→      }
+   160→   160→    }, 2000)
+   161→   161→  }, [activeChapter, activeChapterId])
+   162→   162→
+   163→   163→  // ─── Director submit ─────────────────────────────────────
+   164→   164→  const handleDirectorSubmit = useCallback(async () => {
+   165→   165→    if (!activeChapter || !chapterMeta) return
+   166→   166→    setDirectorLoading(true)
+   167→   167→    setDirectorFeedback('')
+   168→   168→    try {
+   169→   169→      const res = await fetch('/api/directeur', {
+   170→   170→        method: 'POST',
+   171→   171→        headers: { 'Content-Type': 'application/json' },
+   172→   172→        body: JSON.stringify({
+   173→   173→          chapitreTitre: `${chapterMeta.number}. ${chapterMeta.title}`,
+   174→   174→          chapitreContenu: activeChapter.content,
+   175→   175→          probleme: { quoi: 'Contenu du chapitre soumis', comment: 'Évaluation qualitative', pourquoi: 'Validation avant passage au chapitre suivant' },
+   176→   176→          hypothese: { texte: 'Chapitre soumis pour évaluation', observation: true, verifiable: true, coherente: true },
+   177→   177→          sousDomaineLabel: thesis?.field || 'Architecture et Urbanisme',
+   178→   178→          contraintesMethodologiques: '',
+   179→   179→        }),
+   180→   180→      })
+   181→   181→      const data = await res.json()
+   182→   182→      if (!res.ok) throw new Error(data.error)
+   183→   183→      setDirectorFeedback(data.response)
+   184→   184→      // Update chapter status
+   185→   185→      await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+   186→   186→        method: 'PATCH',
+   187→   187→        headers: { 'Content-Type': 'application/json' },
+   188→   188→        body: JSON.stringify({ status: 'submitted', directorFeedback: data.response }),
+   189→   189→      })
+   190→   190→    } catch (err) {
+   191→   191→      setDirectorFeedback(err instanceof Error ? err.message : 'Erreur lors de la soumission.')
+   192→   192→    } finally {
+   193→   193→      setDirectorLoading(false)
+   194→   194→    }
+   195→   195→  }, [activeChapter, chapterMeta, thesis, activeChapterId])
+   196→   196→
+   197→   197→  // ─── AI chat ────────────────────────────────────────────
+   198→   198→  const handleAiSend = useCallback(async () => {
+   199→   199→    if (!aiInput.trim() || aiLoading) return
+   200→   200→    const msg = aiInput.trim()
+   201→   201→    setAiInput('')
+   202→   202→    const newMessages: ChatMsg[] = [...aiMessages, { role: 'user', content: msg }]
+   203→   203→    setAiMessages(newMessages)
+   204→   204→    setAiLoading(true)
+   205→   205→    try {
+   206→   206→      const res = await fetch('/api/ai-writing', {
+   207→   207→        method: 'POST',
+   208→   208→        headers: { 'Content-Type': 'application/json' },
+   209→   209→        body: JSON.stringify({ mode: aiMode, message: msg, temperature: 0.7, maxTokens: 2048, thinking: 'disabled' }),
+   210→   210→      })
+   211→   211→      const data = await res.json()
+   212→   212→      if (!res.ok) throw new Error(data.error)
+   213→   213→      setAiMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+   214→   214→    } catch (err) {
+   215→   215→      setAiMessages(prev => [...prev, { role: 'assistant', content: `Erreur : ${err instanceof Error ? err.message : 'inconnue'}` }])
+   216→   216→    } finally {
+   217→   217→      setAiLoading(false)
+   218→   218→    }
+   219→   219→  }, [aiInput, aiLoading, aiMessages, aiMode])
+   220→   220→
+   221→   221→  // ─── Render ─────────────────────────────────────────────
+   222→   222→  if (loading) {
+   223→   223→    return (
+   224→   224→      <div className="h-screen flex items-center justify-center bg-slate-50">
+   225→   225→        <div className="text-center space-y-3">
+   226→   226→          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto" />
+   227→   227→          <p className="text-sm text-muted-foreground">Chargement de votre thèse...</p>
+   228→   228→        </div>
+   229→   229→      </div>
+   230→   230→    )
+   231→   231→  }
+   232→   232→
+   233→   233→  if (!thesis) {
+   234→   234→    return (
+   235→   235→      <div className="h-screen flex items-center justify-center bg-slate-50">
+   236→   236→        <div className="text-center space-y-3">
+   237→   237→          <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
+   238→   238→          <p className="text-sm text-muted-foreground">Impossible de charger la thèse.</p>
+   239→   239→          <Button onClick={() => window.location.reload()} variant="outline" size="sm"><RefreshCw className="h-3 w-3 mr-1" />Réessayer</Button>
+   240→   240→        </div>
+   241→   241→      </div>
+   242→   242→    )
+   243→   243→  }
+   244→   244→
+   245→   245→  return (
+   246→   246→    <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
+   247→   247→      {/* ── MOBILE OVERLAY ── */}
+   248→   248→      {sidebarOpen && isMobile && (
+   249→   249→        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30" onClick={() => setSidebarOpen(false)} />
+   250→   250→      )}
+   251→   251→
+   252→   252→      <div className="flex flex-1 min-h-0">
+   253→   253→        {/* ═══ LEFT SIDEBAR ═══ */}
+   254→   254→        <aside className={cn(
+   255→   255→          'bg-slate-900 border-r border-slate-800 flex flex-col z-40 shrink-0 transition-all duration-300 shadow-2xl',
+   256→   256→          'w-64',
+   257→   257→          isMobile && !sidebarOpen && 'fixed -translate-x-full',
+   258→   258→          isMobile && sidebarOpen && 'fixed translate-x-0',
+   259→   259→          !isMobile && 'relative',
+   260→   260→        )}>
+   261→   261→          {/* Brand */}
+   262→   262→          <div className="flex items-center gap-3 px-3 py-4 mb-2">
+   263→   263→            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-[0_0_16px_rgba(16,185,129,0.3)] shrink-0">
+   264→   264→              <GraduationCap className="h-4 w-4" />
+   265→   265→            </div>
+   266→   266→            <div className="overflow-hidden">
+   267→   267→              <h1 className="font-bold text-sm text-white tracking-tight leading-tight">ThesisFrame</h1>
+   268→   268→              <p className="text-[10px] text-emerald-400 font-medium">{thesis.title}</p>
+   269→   269→            </div>
+   270→   270→            {isMobile && (
+   271→   271→              <button onClick={() => setSidebarOpen(false)} className="ml-auto text-slate-400 hover:text-white p-1"><X className="h-4 w-4" /></button>
+   272→   272→            )}
+   273→   273→          </div>
+   274→   274→
+   275→   275→          {/* Progress */}
+   276→   276→          <div className="px-3 pb-3">
+   277→   277→            <div className="flex items-center justify-between mb-1">
+   278→   278→              <span className="text-[10px] text-slate-500 font-medium">PROGRESSION</span>
+   279→   279→              <span className="text-[10px] text-emerald-400 font-bold">{totalWords.toLocaleString()} mots</span>
+   280→   280→            </div>
+   281→   281→            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+   282→   282→              <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (totalWords / 80000) * 100)}%` }} />
+   283→   283→            </div>
+   284→   284→          </div>
+   285→   285→
+   286→   286→          <Separator className="bg-slate-800" />
+   287→   287→
+   288→   288→          {/* Chapters list */}
+   289→   289→          <div className="px-3 pt-2 pb-1">
+   290→   290→            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Chapitres</span>
+   291→   291→          </div>
+   292→   292→          <nav className="flex-1 overflow-y-auto space-y-0.5 px-2">
+   293→   293→            {thesis.chapters.map((ch) => {
+   294→   294→              const meta = CHAPTERS.find(m => m.order === ch.order)
+   295→   295→              const isActive = ch.id === activeChapterId
+   296→   296→              const Icon = (meta?.icon && ICON_MAP[meta.icon]) || FileText
+   297→   297→              const chColors = meta ? CHAPTER_COLORS[meta.color] : CHAPTER_COLORS.emerald
+   298→   298→              return (
+   299→   299→                <button
+   300→   300→                  key={ch.id}
+   301→   301→                  onClick={() => { setActiveChapterId(ch.id); setSidebarOpen(false) }}
+   302→   302→                  className={cn(
+   303→   303→                    'w-full p-2.5 flex items-start gap-2.5 rounded-xl text-left transition-all duration-200 group relative overflow-hidden',
+   304→   304→                    isActive
+   305→   305→                      ? 'bg-gradient-to-r from-emerald-900/80 to-slate-900 text-white border border-emerald-500/40'
+   306→   306→                      : 'text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent',
+   307→   307→                  )}
+   308→   308→                >
+   309→   309→                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+   310→   310→                  <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors',
+   311→   311→                    isActive ? chColors.bg.replace('bg-', 'bg-').replace('/500', '/500/20') : 'bg-slate-800 group-hover:bg-slate-700',
+   312→   312→                  )}>
+   313→   313→                    <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400')} />
+   314→   314→                  </div>
+   315→   315→                  <div className="flex-1 min-w-0">
+   316→   316→                    <div className="flex items-center gap-1.5">
+   317→   317→                      <span className={cn('text-[10px] font-bold', isActive ? 'text-emerald-400' : 'text-slate-600')}>{ch.number}</span>
+   318→   318→                      <span className={cn('text-[11px] font-semibold leading-tight truncate', isActive && 'text-white')}>{ch.title}</span>
+   319→   319→                    </div>
+   320→   320→                    <div className="flex items-center gap-1.5 mt-0.5">
+   321→   321→                      <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status] || STATUS_COLORS.draft)} />
+   322→   322→                      <span className="text-[9px] text-slate-600">{ch.wordCount.toLocaleString()} mots</span>
+   323→   323→                    </div>
+   324→   324→                  </div>
+   325→   325→                </button>
+   326→   326→              )
+   327→   327→            })}
+   328→   328→          </nav>
+   329→   329→
+   330→   330→          <Separator className="bg-slate-800" />
+   331→   331→
+   332→   332→          {/* Tools */}
+   333→   333→          <div className="px-3 pt-2 pb-1">
+   334→   334→            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Outils</span>
+   335→   335→          </div>
+   336→   336→          <div className="px-2 pb-3 space-y-0.5">
+   337→   337→            <button onClick={() => setRefsOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+   338→   338→              <Library className="h-3.5 w-3.5" /><span>Références biblio.</span>
+   339→   339→            </button>
+   340→   340→            <button onClick={() => setExportOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+   341→   341→              <Download className="h-3.5 w-3.5" /><span>Export PDF</span>
+   342→   342→            </button>
+   343→   343→          </div>
+   344→   344→
+   345→   345→          {/* User */}
+   346→   346→          <div className="p-3 border-t border-slate-800">
+   347→   347→            <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center gap-2">
+   348→   348→              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[10px] ring-2 ring-emerald-500/30 shrink-0">DR</div>
+   349→   349→              <div className="overflow-hidden flex-1">
+   350→   350→                <div className="text-[10px] font-medium text-slate-200 truncate">{thesis.author}</div>
+   351→   351→                <div className="text-[9px] text-slate-500 truncate">{thesis.university}</div>
+   352→   352→              </div>
+   353→   353→            </div>
+   354→   354→          </div>
+   355→   355→        </aside>
+   356→   356→
+   357→   357→        {/* ═══ MAIN AREA ═══ */}
+   358→   358→        <div className="flex-1 flex flex-col min-w-0">
+   359→   359→          {/* Chapter header bar */}
+   360→   360→          <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 shrink-0 z-20">
+   361→   361→            {isMobile && (
+   362→   362→              <button onClick={() => setSidebarOpen(true)} className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+   363→   363→                <Menu className="h-4 w-4" />
+   364→   364→              </button>
+   365→   365→            )}
+   366→   366→            {chapterMeta && (
+   367→   367→              <>
+   368→   368→                <div className={cn('p-1.5 rounded-lg flex items-center justify-center', colors.light, colors.text)}>
+   369→   369→                  {createElement(ICON_MAP[chapterMeta.icon] || FileText, { className: 'h-3.5 w-3.5' })}
+   370→   370→                </div>
+   371→   371→                <div className="flex-1 min-w-0">
+   372→   372→                  <div className="flex items-center gap-2">
+   373→   373→                    <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
+   374→   374→                      Chapitre {chapterMeta.number}. {chapterMeta.title}
+   375→   375→                    </h2>
+   376→   376→                  </div>
+   377→   377→                  <p className="text-[10px] sm:text-xs text-slate-500 truncate">{chapterMeta.description}</p>
+   378→   378→                </div>
+   379→   379→                <div className="flex items-center gap-2 shrink-0">
+   380→   380→                  <Badge variant="outline" className="text-[10px] gap-1">
+   381→   381→                    <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[activeChapter?.status || 'draft'])} />
+   382→   382→                    {activeChapter?.status || 'brouillon'}
+   383→   383→                  </Badge>
+   384→   384→                  <Badge variant="secondary" className="text-[10px] hidden sm:inline-flex">
+   385→   385→                    {activeChapter?.wordCount?.toLocaleString() || 0} mots
+   386→   386→                  </Badge>
+   387→   387→                  {saveStatus === 'saving' && <Loader2 className="h-3 w-3 text-slate-400 animate-spin" />}
+   388→   388→                  {saveStatus === 'saved' && <Check className="h-3 w-3 text-emerald-500" />}
+   389→   389→                </div>
+   390→   390→              </>
+   391→   391→            )}
+   392→   392→            <button
+   393→   393→              onClick={() => setHelpOpen(!helpOpen)}
+   394→   394→              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+   395→   395→              title={helpOpen ? 'Fermer le panneau' : 'Ouvrir l\'aide'}
+   396→   396→            >
+   397→   397→              {helpOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+   398→   398→            </button>
+   399→   399→          </header>
+   400→   400→
+   401→   401→          {/* Editor + Help panel */}
+   402→   402→          <div className="flex flex-1 min-h-0">
+   403→   403→            {/* ── TEXT EDITOR ── */}
+   404→   404→            <div className="flex-1 flex flex-col min-w-0">
+   405→   405→              <div className="flex-1 overflow-hidden bg-white">
+   406→   406→                <textarea
+   407→   407→                  value={activeChapter?.content || ''}
+   408→   408→                  onChange={(e) => handleContentChange(e.target.value)}
+   409→   409→                  className="w-full h-full resize-none border-0 focus:outline-none p-6 sm:p-10 text-[15px] leading-[1.8] font-serif text-slate-800 bg-white placeholder:text-slate-300"
+   410→   410→                  placeholder={`Commencez la rédaction du Chapitre ${chapterMeta?.number || 'I'}. ${chapterMeta?.title || ''}...\n\nCe que vous écrivez ici EST le texte de votre thèse.`}
+   411→   411→                  spellCheck
+   412→   412→                />
+   413→   413→              </div>
+   414→   414→            </div>
+   415→   415→
+   416→   416→            {/* ── RIGHT HELP PANEL ── */}
+   417→   417→            {helpOpen && !isMobile && (
+   418→   418→              <aside className="w-80 border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-hidden">
+   419→   419→                <Tabs value={helpTab} onValueChange={setHelpTab} className="flex flex-col h-full">
+   420→   420→                  <TabsList className="mx-3 mt-3 bg-slate-100 rounded-lg p-0.5 h-auto grid grid-cols-3">
+   421→   421→                    <TabsTrigger value="guide" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+   422→   422→                      <ClipboardList className="h-3 w-3" /> Guide
+   423→   423→                    </TabsTrigger>
+   424→   424→                    <TabsTrigger value="ai" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+   425→   425→                      <Sparkles className="h-3 w-3" /> IA
+   426→   426→                    </TabsTrigger>
+   427→   427→                    <TabsTrigger value="director" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+   428→   428→                      <ShieldCheck className="h-3 w-3" /> Dir.
+   429→   429→                    </TabsTrigger>
+   430→   430→                  </TabsList>
+   431→   431→
+   432→   432→                  {/* ── GUIDE TAB ── */}
+   433→   433→                  <TabsContent value="guide" className="flex-1 overflow-y-auto p-3 mt-2 space-y-4">
+   434→   434→                    {chapterMeta && (
+   435→   435→                      <>
+   436→   436→                        <div>
+   437→   437→                          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+   438→   438→                            <ListChecks className="h-3.5 w-3.5 text-emerald-600" />
+   439→   439→                            Ce chapitre doit contenir
+   440→   440→                          </h3>
+   441→   441→                          <ul className="space-y-1.5">
+   442→   442→                            {chapterMeta.expectations.map((exp, i) => (
+   443→   443→                              <li key={i} className="text-[11px] text-slate-600 flex gap-1.5">
+   444→   444→                                <span className="text-emerald-500 mt-0.5">•</span>
+   445→   445→                                <span>{exp}</span>
+   446→   446→                              </li>
+   447→   447→                            ))}
+   448→   448→                          </ul>
+   449→   449→                        </div>
+   450→   450→                        <Separator />
+   451→   451→                        <div>
+   452→   452→                          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+   453→   453→                            <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+   454→   454→                            Structure suggérée
+   455→   455→                          </h3>
+   456→   456→                          <ul className="space-y-1">
+   457→   457→                            {chapterMeta.structure.map((s, i) => (
+   458→   458→                              <li key={i} className="text-[11px] text-slate-500 font-mono bg-slate-50 rounded px-2 py-1">{s}</li>
+   459→   459→                            ))}
+   460→   460→                          </ul>
+   461→   461→                        </div>
+   462→   462→                      </>
+   463→   463→                    )}
+   464→   464→                  </TabsContent>
+   465→   465→
+   466→   466→                  {/* ── AI TAB ── */}
+   467→   467→                  <TabsContent value="ai" className="flex-1 flex flex-col min-h-0 mt-0">
+   468→   468→                    <div className="px-3 pt-2">
+   469→   469→                      <select
+   470→   470→                        value={aiMode}
+   471→   471→                        onChange={e => setAiMode(e.target.value)}
+   472→   472→                        className="w-full text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+   473→   473→                      >
+   474→   474→                        <option value="scientific-writing">Rédaction scientifique</option>
+   475→   475→                        <option value="literature-review">Revue de littérature</option>
+   476→   476→                        <option value="paraphrase">Paraphrase</option>
+   477→   477→                        <option value="peer-review">Relecture critique</option>
+   478→   478→                        <option value="abstract">Résumé & Abstract</option>
+   479→   479→                        <option value="hypothesis">Génération d'hypothèses</option>
+   480→   480→                        <option value="methodo-positioning">Positionnement méthodo.</option>
+   481→   481→                        <option value="theory-building">Construction théorique</option>
+   482→   482→                      </select>
+   483→   483→                    </div>
+   484→   484→                    <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-0">
+   485→   485→                      {aiMessages.length === 0 && (
+   486→   486→                        <div className="text-center py-8">
+   487→   487→                          <Sparkles className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+   488→   488→                          <p className="text-[11px] text-muted-foreground">Posez une question à l&apos;IA pour ce chapitre</p>
+   489→   489→                        </div>
+   490→   490→                      )}
+   491→   491→                      {aiMessages.map((msg, i) => (
+   492→   492→                        <div key={i} className={cn('text-[11px] rounded-lg p-2.5',
+   493→   493→                          msg.role === 'user' ? 'bg-primary text-primary-foreground ml-6' : 'bg-slate-50 text-slate-700 mr-6',
+   494→   494→                        )}>
+   495→   495→                          <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+   496→   496→                        </div>
+   497→   497→                      ))}
+   498→   498→                      {aiLoading && <Loader2 className="h-4 w-4 text-emerald-500 animate-spin mx-auto" />}
+   499→   499→                    </div>
+   500→   500→                    <div className="p-2 border-t">
+   501→   501→                      <div className="flex gap-1">
+   502→   502→                        <Textarea
+   503→   503→                          value={aiInput}
+   504→   504→                          onChange={e => setAiInput(e.target.value)}
+   505→   505→                          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiSend() } }}
+   506→   506→                          placeholder="Votre question..."
+   507→   507→                          className="min-h-[36px] max-h-[80px] text-[11px] resize-none"
+   508→   508→                          rows={1}
+   509→   509→                        />
+   510→   510→                        <Button onClick={handleAiSend} disabled={!aiInput.trim() || aiLoading} size="icon" className="h-9 w-9 shrink-0">
+   511→   511→                          <Send className="h-3.5 w-3.5" />
+   512→   512→                        </Button>
+   513→   513→                      </div>
+   514→   514→                    </div>
+   515→   515→                  </TabsContent>
+   516→   516→
+   517→   517→                  {/* ── DIRECTOR TAB ── */}
+   518→   518→                  <TabsContent value="director" className="flex-1 overflow-y-auto p-3 mt-2 space-y-3">
+   519→   519→                    <div className={cn('rounded-lg border p-3', colors.light, colors.border)}>
+   520→   520→                      <div className="flex items-center gap-2 mb-1">
+   521→   521→                        <ShieldCheck className={cn('h-4 w-4', colors.text)} />
+   522→   522→                        <span className="text-xs font-bold">Soumettre au directeur</span>
+   523→   523→                      </div>
+   524→   524→                      <p className="text-[10px] text-slate-600">
+   525→   525→                        Le directeur évaluera le chapitre que vous avez rédigé et vous donnera un avis structuré.
+   526→   526→                      </p>
+   527→   527→                      <Button
+   528→   528→                        onClick={handleDirectorSubmit}
+   529→   529→                        disabled={directorLoading || !activeChapter?.content}
+   530→   530→                        size="sm"
+   531→   531→                        className="w-full mt-3 text-xs"
+   532→   532→                      >
+   533→   533→                        {directorLoading ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1.5" />}
+   534→   534→                        {directorLoading ? 'Évaluation en cours...' : 'Soumettre ce chapitre'}
+   535→   535→                      </Button>
+   536→   536→                    </div>
+   537→   537→
+   538→   538→                    {directorFeedback && (
+   539→   539→                      <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+   540→   540→                        <div className="flex items-center gap-1.5 mb-2">
+   541→   541→                          <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />
+   542→   542→                          <span className="text-[11px] font-bold text-amber-800">Avis du directeur</span>
+   543→   543→                        </div>
+   544→   544→                        <div className="text-[11px] text-amber-900 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
+   545→   545→                          {directorFeedback}
+   546→   546→                        </div>
+   547→   547→                      </div>
+   548→   548→                    )}
+   549→   549→
+   550→   550→                    {activeChapter?.directorFeedback && !directorFeedback && (
+   551→   551→                      <div className="rounded-lg border border-sky-200 bg-sky-50/50 p-3">
+   552→   552→                        <span className="text-[10px] font-bold text-sky-700">Dernier avis :</span>
+   553→   553→                        <div className="text-[11px] text-sky-900 whitespace-pre-wrap leading-relaxed mt-1 max-h-48 overflow-y-auto">
+   554→   554→                          {activeChapter.directorFeedback}
+   555→   555→                        </div>
+   556→   556→                      </div>
+   557→   557→                    )}
+   558→   558→                  </TabsContent>
+   559→   559→                </Tabs>
+   560→   560→              </aside>
+   561→   561→            )}
+   562→   562→          </div>
+   563→   563→
+   564→   564→          {/* Footer */}
+   565→   565→          <footer className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+   566→   566→            <p>ThesisFrame © 2025 — {thesis.university}</p>
+   567→   567→            <p>{thesis.field} · {(totalWords / 1000).toFixed(1)}k mots rédigés</p>
+   568→   568→          </footer>
+   569→   569→        </div>
+   570→   570→      </div>
+   571→   571→
+   572→   572→      {/* ═══ DIALOGS ═══ */}
+   573→   573→      <Dialog open={refsOpen} onOpenChange={setRefsOpen}>
+   574→   574→        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
+   575→   575→          <DialogHeader>
+   576→   576→            <DialogTitle className="flex items-center gap-2 text-base"><Library className="h-4 w-4 text-emerald-600" />Références bibliographiques</DialogTitle>
+   577→   577→          </DialogHeader>
+   578→   578→          <ReferencesTab />
+   579→   579→        </DialogContent>
+   580→   580→      </Dialog>
+   581→   581→
+   582→   582→      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+   583→   583→        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+   584→   584→          <DialogHeader>
+   585→   585→            <DialogTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-emerald-600" />Export PDF</DialogTitle>
+   586→   586→          </DialogHeader>
+   587→   587→          <ExportPdfContent />
+   588→   588→        </DialogContent>
+   589→   589→      </Dialog>
+   590→   590→    </div>
+   591→   591→  )
+   592→   592→}
+   593→   593→

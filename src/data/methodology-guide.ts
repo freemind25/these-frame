@@ -1,7 +1,6 @@
 /**
  * Guide de méthodologie de recherche
- * Basé sur le cours IGTU-Cne3 — Gestion Des Techniques Urbaines
- * Université Constantine 3
+ * Guide général de méthodologie scientifique
  */
 
 export interface MethodoStep {
@@ -382,7 +381,7 @@ export const collectTools: CollectTool[] = [
     ],
     conseils: [
       'Préparer une grille d\'observation structurée (thèmes, sous-thèmes, notes)',
-      'Observer l\'ambiance, les éléments temporels, l\'architecture, le mobilier',
+      'Observer l\'ambiance, les éléments temporels, l\'espace, le mobilier',
       'Notez les horaires, la météo, les conditions d\'observation',
       'Répéter les observations à différents moments pour valider',
     ],

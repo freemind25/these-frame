@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,12 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { CHAPTERS, CHAPTER_COLORS, type ChapterStructure } from '@/data/chapters-structure'
 import ReferencesTab from '@/components/thesis/references-tab'
@@ -78,6 +83,44 @@ export default function Home() {
   const [aiInput, setAiInput] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [aiMode, setAiMode] = useState('scientific-writing')
+
+  // AI provider state
+  const [providerSettingsOpen, setProviderSettingsOpen] = useState(false)
+  const [aiProvider, setAiProvider] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_provider') || 'z-ai'
+    return 'z-ai'
+  })
+  const [aiApiKey, setAiApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_apiKey') || ''
+    return ''
+  })
+  const [aiBaseUrl, setAiBaseUrl] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_baseUrl') || ''
+    return ''
+  })
+  const [aiModel, setAiModel] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_model') || ''
+    return ''
+  })
+
+  const saveProviderSettings = useCallback(() => {
+    localStorage.setItem('tf_provider', aiProvider)
+    localStorage.setItem('tf_apiKey', aiApiKey)
+    localStorage.setItem('tf_baseUrl', aiBaseUrl)
+    localStorage.setItem('tf_model', aiModel)
+    setProviderSettingsOpen(false)
+  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel])
+
+  const clearProviderSettings = useCallback(() => {
+    localStorage.removeItem('tf_provider')
+    localStorage.removeItem('tf_apiKey')
+    localStorage.removeItem('tf_baseUrl')
+    localStorage.removeItem('tf_model')
+    setAiProvider('z-ai')
+    setAiApiKey('')
+    setAiBaseUrl('')
+    setAiModel('')
+  }, [])
 
   // Director state
   const [directorLoading, setDirectorLoading] = useState(false)
@@ -174,7 +217,7 @@ export default function Home() {
           chapitreContenu: activeChapter.content,
           probleme: { quoi: 'Contenu du chapitre soumis', comment: 'Évaluation qualitative', pourquoi: 'Validation avant passage au chapitre suivant' },
           hypothese: { texte: 'Chapitre soumis pour évaluation', observation: true, verifiable: true, coherente: true },
-          sousDomaineLabel: thesis?.field || 'Architecture et Urbanisme',
+          sousDomaineLabel: thesis?.field || 'Non précisé',
           contraintesMethodologiques: '',
         }),
       })
@@ -203,10 +246,17 @@ export default function Home() {
     setAiMessages(newMessages)
     setAiLoading(true)
     try {
+      const reqBody: Record<string, unknown> = { mode: aiMode, message: msg, temperature: 0.7, maxTokens: 2048, thinking: 'disabled' }
+      if (aiProvider !== 'z-ai') {
+        reqBody.provider = aiProvider
+        reqBody.apiKey = aiApiKey
+        reqBody.baseUrl = aiBaseUrl
+        reqBody.model = aiModel
+      }
       const res = await fetch('/api/ai-writing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: aiMode, message: msg, temperature: 0.7, maxTokens: 2048, thinking: 'disabled' }),
+        body: JSON.stringify(reqBody),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -465,11 +515,11 @@ export default function Home() {
 
                   {/* ── AI TAB ── */}
                   <TabsContent value="ai" className="flex-1 flex flex-col min-h-0 mt-0">
-                    <div className="px-3 pt-2">
+                    <div className="px-3 pt-2 flex items-center gap-2">
                       <select
                         value={aiMode}
                         onChange={e => setAiMode(e.target.value)}
-                        className="w-full text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                        className="flex-1 text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
                       >
                         <option value="scientific-writing">Rédaction scientifique</option>
                         <option value="literature-review">Revue de littérature</option>
@@ -479,7 +529,26 @@ export default function Home() {
                         <option value="hypothesis">Génération d'hypothèses</option>
                         <option value="methodo-positioning">Positionnement méthodo.</option>
                         <option value="theory-building">Construction théorique</option>
+                        <option value="supervision-document">Doc. de supervision</option>
+                        <option value="conference-presentation">Présentation conf.</option>
                       </select>
+                      <button
+                        onClick={() => setProviderSettingsOpen(true)}
+                        className={cn(
+                          'p-1.5 rounded-lg border transition-colors shrink-0',
+                          aiProvider === 'z-ai'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            : 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                        )}
+                        title="Configurer le fournisseur IA"
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    <div className="px-3 pt-1">
+                      <Badge variant="outline" className={cn('text-[9px]', aiProvider === 'z-ai' ? 'border-emerald-300 text-emerald-700' : 'border-violet-300 text-violet-700')}>
+                        {aiProvider === 'z-ai' ? 'Z.ai (par défaut)' : aiProvider.toUpperCase()}
+                      </Badge>
                     </div>
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-0">
                       {aiMessages.length === 0 && (
@@ -585,6 +654,98 @@ export default function Home() {
             <DialogTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-emerald-600" />Export PDF</DialogTitle>
           </DialogHeader>
           <ExportPdfContent />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ AI PROVIDER SETTINGS DIALOG ═══ */}
+      <Dialog open={providerSettingsOpen} onOpenChange={setProviderSettingsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Settings className="h-4 w-4 text-violet-600" />
+              Fournisseur IA
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fournisseur</Label>
+              <Select value={aiProvider} onValueChange={v => {
+                setAiProvider(v)
+                if (v === 'mistral') { setAiBaseUrl('https://api.mistral.ai/v1'); setAiModel('mistral-large-latest') }
+                else if (v === 'openai') { setAiBaseUrl('https://api.openai.com/v1'); setAiModel('gpt-4o') }
+                else if (v === 'anthropic') { setAiBaseUrl('https://api.anthropic.com/v1'); setAiModel('claude-sonnet-4-20250514') }
+                else if (v === 'groq') { setAiBaseUrl('https://api.groq.com/openai/v1'); setAiModel('llama-3.3-70b-versatile') }
+                else if (v === 'ollama') { setAiBaseUrl('http://localhost:11434/v1'); setAiModel('llama3') }
+                else if (v === 'custom') { setAiBaseUrl(''); setAiModel('') }
+              }}>
+                <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="z-ai">Z.ai (intégré, recommandé)</SelectItem>
+                  <SelectItem value="mistral">Mistral AI</SelectItem>
+                  <SelectItem value="openai">OpenAI</SelectItem>
+                  <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                  <SelectItem value="groq">Groq</SelectItem>
+                  <SelectItem value="ollama">Ollama (local)</SelectItem>
+                  <SelectItem value="custom">Personnalisé (OpenAI-compat.)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {aiProvider !== 'z-ai' && (
+              <>
+                <div className="rounded-lg bg-violet-50 border border-violet-200 p-3">
+                  <p className="text-xs text-violet-800">
+                    <strong>Configuration requise.</strong> Votre clé API est stockée uniquement dans votre navigateur (localStorage) et n'est jamais envoyée à nos serveurs — elle transite directement vers le fournisseur choisi.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Clé API *</Label>
+                  <Input
+                    type="password"
+                    value={aiApiKey}
+                    onChange={e => setAiApiKey(e.target.value)}
+                    placeholder="sk-..."
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">URL de base *</Label>
+                  <Input
+                    value={aiBaseUrl}
+                    onChange={e => setAiBaseUrl(e.target.value)}
+                    placeholder="https://api.example.com/v1"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Modèle *</Label>
+                  <Input
+                    value={aiModel}
+                    onChange={e => setAiModel(e.target.value)}
+                    placeholder="gpt-4o, mistral-large-latest, ..."
+                    className="h-9 text-sm"
+                  />
+                </div>
+              </>
+            )}
+
+            {aiProvider === 'z-ai' && (
+              <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+                <p className="text-xs text-emerald-800">
+                  Le fournisseur <strong>Z.ai</strong> est utilisé par défaut. Aucune configuration supplémentaire n'est nécessaire.
+                </p>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2">
+              <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={clearProviderSettings}>
+                <Trash2 className="h-3 w-3 mr-1" />Réinitialiser
+              </Button>
+              <Button size="sm" className="text-xs" onClick={saveProviderSettings}>
+                <Check className="h-3 w-3 mr-1" />Enregistrer
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

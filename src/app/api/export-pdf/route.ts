@@ -159,7 +159,9 @@ async function generateThesisPdf(data: ExportRequest): Promise<Uint8Array> {
   y -= LINE_HEIGHT * 1.5
 
   // Discipline
-  drawLine('Discipline : Architecture et Urbanisme', PAGE_W / 2, 11, COLOR_MUTED, fontItalic)
+  if (data.keywords) {
+    drawLine(`Mots-clés : ${data.keywords}`, PAGE_W / 2, 11, COLOR_MUTED, fontItalic)
+  }
   y -= LINE_HEIGHT * 2
 
   // Title

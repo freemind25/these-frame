@@ -216,7 +216,7 @@ export default function DirecteurTab() {
                 <Select value={sousDomaine} onValueChange={setSousDomaine}>
                   <SelectTrigger className="mt-1 text-sm"><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
                   <SelectContent>
-                    {['Architecture et patrimoine', 'Urbanisme et aménagement du territoire', 'Ville durable et écologie urbaine', 'Transport et mobilité urbaine', 'Logement et habitat', 'Espaces publics et paysage', 'Gestion urbaine et techniques urbaines', 'Socio-spatialité et dynamiques urbaines', 'Risque, vulnérabilité et résilience urbaine', 'Technologies de l\'information et ville intelligente'].map(d => (
+                    {['Sciences humaines et sociales', 'Sciences de l\'ingénieur', 'Sciences de la vie et de la santé', 'Sciences exactes et naturelles', 'Droit et sciences politiques', 'Économie et gestion', 'Lettres et langues', 'Arts et humanités', 'Informatique et sciences du numérique', 'Environnement et développement durable'].map(d => (
                       <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
                     ))}
                   </SelectContent>
@@ -295,8 +295,8 @@ export default function DirecteurTab() {
                   Remplissez le formulaire et soumettez votre chapitre pour recevoir une évaluation critique de votre directeur de thèse virtuel.
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4 justify-center">
-                  <Badge variant="outline" className="text-xs">IGTU — UC3</Badge>
-                  <Badge variant="outline" className="text-xs">Architecture & Urbanisme</Badge>
+                  <Badge variant="outline" className="text-xs">IMRaD</Badge>
+                  <Badge variant="outline" className="text-xs">Évaluation critique</Badge>
                 </div>
               </CardContent>
             </Card>

@@ -308,7 +308,7 @@ function AddReferenceDialog({ onAdd }: { onAdd: (data: Record<string, string>) =
           </div>
           <div className="grid gap-1.5">
             <Label className="text-xs">Tags (séparés par , )</Label>
-            <Input placeholder="architecture, urbanisme, réhabilitation" value={form.tags} onChange={e => update('tags', e.target.value)} className="text-sm" />
+            <Input placeholder="thèse, recherche, méthodologie" value={form.tags} onChange={e => update('tags', e.target.value)} className="text-sm" />
           </div>
           <div className="grid gap-1.5">
             <Label className="text-xs">Notes</Label>
