@@ -1,0 +1,1674 @@
+- main
+  - tablist [ref=e3] focusable [tabindex]
+    - tab "Assistant IA" [ref=e5]
+      - StaticText "Assistant IA"
+    - tab "Méthodologie" [selected, ref=e6]
+      - StaticText "Méthodologie"
+    - tab "Articles scientifiques" [ref=e7]
+      - StaticText "Articles scientifiques"
+    - tab "Références biblio." [ref=e8]
+      - StaticText "Références biblio."
+    - tab "Plan de thèse" [ref=e9]
+      - StaticText "Plan de thèse"
+  - tabpanel "Méthodologie" [ref=e4] focusable [tabindex]
+    - heading "Guide de méthodologie de la recherche" [level=3, ref=e10]
+    - paragraph
+      - StaticText "Basé sur le cours de Gestion des Techniques Urbaines — IGTU-Cne3, Université Constantine 3. Ce guide couvre la démarche scientifique, la problématique, les outils de collecte et la recherche documentaire."
+    - tablist [ref=e11] focusable [tabindex]
+      - tab "Démarche" [ref=e13]
+      - tab "Problématique" [selected, ref=e14]
+      - tab "Outils" [ref=e15]
+      - tab "Variables" [ref=e16]
+      - tab "Doc." [ref=e17]
+    - tabpanel "Problématique" [ref=e12] focusable [tabindex]
+      - StaticText "La problématique — Trois questions essentielles"
+      - StaticText "La problématique est la question de recherche, incluse dans l'introduction. Elle doit déterminer un cadre spatial et/ou temporel."
+      - StaticText "QUOI ?"
+      - paragraph
+        - StaticText "Définition de l'objet — De quoi s'agit-il exactement ? Quels sont les concepts clés ?"
+      - paragraph
+        - StaticText "Identifier et définir les variables X et Y du sujet de recherche."
+      - StaticText "COMMENT ?"
+      - paragraph
+        - StaticText "Explication du processus — Par quels mécanismes X influence-t-il Y ?"
+      - paragraph
+        - StaticText "Décrire les liens causaux et les relations entre les variables étudiées."
+      - StaticText "POURQUOI ?"
+      - paragraph
+        - StaticText "Exposé de la finalité — Quel est l'intérêt scientifique et pratique de cette recherche ?"
+      - paragraph
+        - StaticText "Justifier la pertinence et l'originalité de la démarche dans le contexte actuel."
+      - StaticText "Conseils pour une bonne problématique"
+      - list
+        - listitem [level=1]
+          - StaticText "La problématique doit être centrale par rapport au sujet — pas un point secondaire."
+        - listitem [level=1]
+          - StaticText "Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS."
+        - listitem [level=1]
+          - StaticText "Elle doit annoncer une idée directrice pour la suite du travail."
+        - listitem [level=1]
+          - StaticText "Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction."
+        - listitem [level=1]
+          - StaticText "Elle doit recevoir l'aval du directeur de recherche."
+        - listitem [level=1]
+          - StaticText "Le titre de recherche prend généralement la forme d'une AFFIRMATION (X influence Y chez Z), et non d'une question."
+      - StaticText "L'opérationnalisation"
+      - StaticText "Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé."
+      - paragraph
+        - StaticText "« Le cadre opératoire forme un élément central du travail de recherche dans la mesure où il spécifie ce que nous allons analyser précisément pour vérifier notre hypothèse. » — Gordon MACE"
+      - generic
+        - generic
+          - StaticText "1"
+          - StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+        - generic
+          - StaticText "2"
+          - StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+        - generic
+          - StaticText "3"
+          - StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+        - generic
+          - StaticText "4"
+          - StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+        - generic
+          - StaticText "5"
+          - StaticText "Construire les instruments de mesure adaptés"
+      - generic
+        - StaticText "Exemple : Ressources d'une ville"
+      - StaticText "Concept → Dimensions → Indicateurs"
+      - paragraph
+        - StaticText "Ressources financières"
+      - StaticText "Budget communal"
+      - StaticText "Dotations de l'État"
+      - StaticText "Recettes fiscales"
+      - StaticText "Investissements privés"
+      - paragraph
+        - StaticText "Ressources patrimoniales"
+      - StaticText "Patrimoine immobilier"
+      - StaticText "Patrimoine mobilier"
+      - StaticText "Espaces publics"
+      - StaticText "Infrastructures"
+      - paragraph
+        - StaticText "Ressources sociales"
+      - StaticText "Niveau d'emploi"
+      - StaticText "Taux d'activité"
+      - StaticText "Diplômés supérieurs"
+      - StaticText "Associations"
+      - paragraph
+        - StaticText "Ressources d'équipement"
+      - StaticText "Services publics"
+      - StaticText "Équipements sportifs"
+      - StaticText "Établissements scolaires"
+      - StaticText "Infrastructures de transport"
+      - StaticText "Conditions d'une hypothèse rigoureuse"
+      - list
+        - listitem [level=1]
+          - StaticText "L'hypothèse doit se faire à partir d'une observation empirique ou d'une étude préalable."
+        - listitem [level=1]
+          - StaticText "L'hypothèse doit pouvoir être vérifiable dans la réalité."
+        - listitem [level=1]
+          - StaticText "L'hypothèse doit être cohérente avec les connaissances existantes."
+      - StaticText "Vérification des hypothèses"
+      - list
+        - listitem [level=1]
+          - StaticText "Par l'expérience : vérification empirique directe sur le terrain."
+        - listitem [level=1]
+          - StaticText "Par l'enquête : collecte de données auprès de la population étudiée."
+        - listitem [level=1]
+          - StaticText "Par la contre-épreuve : apporter un exemple ou fait qui contredise l'hypothèse (un seul contre-exemple suffit à invalider)."
+        - listitem [level=1]
+          - StaticText "Par la variation de la preuve : vérifier l'hypothèse sur des parties différentes d'un même ensemble."
+      - StaticText "Structure de l'introduction"
+      - StaticText "C'est la porte d'accès à votre travail — chaque sous-partie doit être présente sans intertitre."
+      - generic
+        - generic
+          - StaticText "1"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "2"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "3"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "4"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "5"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "6"
+          - paragraph
+          - paragraph
+        - generic
+          - StaticText "7"
+          - paragraph
+          - paragraph
+      - StaticText "Le titre de recherche"
+      - list
+        - listitem [level=1]
+          - StaticText "Un bon titre doit contenir la ou les variable(s) à l'étude (X et Y) ou CONCEPTS."
+        - listitem [level=1]
+          - StaticText "Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y)."
+        - listitem [level=1]
+          - StaticText "Il doit mentionner le territoire et/ou la population Z à l'étude (X influence Y chez Z)."
+        - listitem [level=1]
+          - StaticText "Le titre doit être à la fois BREF et PRÉCIS."
+        - listitem [level=1]
+          - StaticText "Il prend généralement la forme d'une AFFIRMATION, et non d'une QUESTION."
+        - listitem [level=1]
+          - StaticText "La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche."
+      - StaticText "8 questions de l'énoncé du problème"
+      - StaticText "Un bon énoncé de problème doit répondre à ces 8 questions (Faryadi, 2018)."
+      - paragraph
+        - StaticText "Quoi ?"
+      - paragraph
+        - StaticText "Quel est le problème ?"
+      - paragraph
+        - StaticText "Où ?"
+      - paragraph
+        - StaticText "Où se situe le problème ?"
+      - paragraph
+        - StaticText "Comment ?"
+      - paragraph
+        - StaticText "Comment le problème peut-il être résolu ?"
+      - paragraph
+        - StaticText "Pourquoi ?"
+      - paragraph
+        - StaticText "Pourquoi voulez-vous résoudre le problème ?"
+      - paragraph
+        - StaticText "Actualité ?"
+      - paragraph
+        - StaticText "Le problème est-il un enjeu actuel ?"
+      - paragraph
+        - StaticText "Persistance ?"
+      - paragraph
+        - StaticText "Le problème persistera-t-il s'il n'est pas résolu ?"
+      - paragraph
+        - StaticText "Qui ?"
+      - paragraph
+        - StaticText "Qui est affecté négativement par le problème ?"
+      - paragraph
+        - StaticText "Contribution ?"
+      - paragraph
+        - StaticText "Ce problème prouvera-t-il ou infirmera-t-il les connaissances existantes ?"
+      - paragraph
+        - StaticText "Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545."
+      - StaticText "10 types de lacunes de recherche"
+      - StaticText "Identifier et combler les lacunes est essentiel pour justifier votre recherche (Miles, 2017)."
+      - paragraph
+        - StaticText "Lacune méthodologique"
+      - StaticText "Methodological Gap"
+      - paragraph
+        - StaticText "Inadéquation ou absence de méthodes de recherche adaptées."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Développer de nouvelles méthodologies"
+        - listitem [level=1]
+          - StaticText "Adapter des méthodes d'autres champs disciplinaires"
+        - listitem [level=1]
+          - StaticText "Combiner des méthodes existantes de manière innovante"
+      - paragraph
+        - StaticText "Lacune de données"
+      - StaticText "Data Gap"
+      - paragraph
+        - StaticText "Données insuffisantes pour répondre à la question de recherche."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener une collecte de données primaires"
+        - listitem [level=1]
+          - StaticText "Accéder à des bases de données existantes"
+        - listitem [level=1]
+          - StaticText "Collaborer avec d'autres chercheurs ou institutions"
+      - paragraph
+        - StaticText "Lacune empirique"
+      - StaticText "Empirical Gap"
+      - paragraph
+        - StaticText "Absence de données ou d'études sur un sujet particulier."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener des études exploratoires"
+        - listitem [level=1]
+          - StaticText "Effectuer des revues de littérature systématiques"
+        - listitem [level=1]
+          - StaticText "Identifier les aspects sous-étudiés du sujet"
+      - paragraph
+        - StaticText "Lacune contextuelle"
+      - StaticText "Contextual Gap"
+      - paragraph
+        - StaticText "Impossibilité de généraliser les résultats en raison de différences de contextes."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener des études comparatives"
+        - listitem [level=1]
+          - StaticText "Explorer les implications interculturelles"
+        - listitem [level=1]
+          - StaticText "Identifier les facteurs contextuels influençant les résultats"
+      - paragraph
+        - StaticText "Lacune de mise en œuvre"
+      - StaticText "Implementation Gap"
+      - paragraph
+        - StaticText "Déconnexion entre les résultats de recherche et l'application pratique."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "S'engager avec les praticiens"
+        - listitem [level=1]
+          - StaticText "Développer des projets de recherche-action"
+        - listitem [level=1]
+          - StaticText "Créer des lignes directrices ou cadres pratiques"
+      - paragraph
+        - StaticText "Lacune populationnelle"
+      - StaticText "Population Gap"
+      - paragraph
+        - StaticText "Sous-représentation ou exclusion de certains groupes dans la recherche."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Diversifier les échantillons d'étude"
+        - listitem [level=1]
+          - StaticText "Mener des recherches ciblées sur les groupes sous-représentés"
+        - listitem [level=1]
+          - StaticText "Analyser les données existantes en ciblant les populations exclues"
+      - paragraph
+        - StaticText "Lacune de connaissance pratique"
+      - StaticText "Practical Knowledge Gap"
+      - paragraph
+        - StaticText "Incapacité à appliquer les connaissances théoriques aux problèmes réels."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener des études de cas"
+        - listitem [level=1]
+          - StaticText "Développer des projets de recherche appliquée"
+        - listitem [level=1]
+          - StaticText "Collaborer avec des partenaires industriels"
+      - paragraph
+        - StaticText "Lacune de preuves"
+      - StaticText "Evidence Gap"
+      - paragraph
+        - StaticText "Preuves insuffisantes ou contradictoires pour étayer une conclusion."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener des méta-analyses"
+        - listitem [level=1]
+          - StaticText "Effectuer des études de réplication"
+        - listitem [level=1]
+          - StaticText "Concevoir des études avec une puissance statistique accrue"
+      - paragraph
+        - StaticText "Lacune de connaissances"
+      - StaticText "Knowledge Gap"
+      - paragraph
+        - StaticText "Manque de compréhension ou d'information sur un sujet spécifique."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Mener des revues de littérature approfondies"
+        - listitem [level=1]
+          - StaticText "Identifier les questions de recherche clés"
+        - listitem [level=1]
+          - StaticText "Développer des cadres conceptuels"
+      - paragraph
+        - StaticText "Lacune théorique"
+      - StaticText "Theoretical Gap"
+      - paragraph
+        - StaticText "Cadres théoriques insuffisants pour expliquer un phénomène."
+      - paragraph
+        - StaticText "Stratégies :"
+      - list
+        - listitem [level=1]
+          - StaticText "Développer de nouvelles théories"
+        - listitem [level=1]
+          - StaticText "Intégrer des théories existantes"
+        - listitem [level=1]
+          - StaticText "Appliquer des théories d'autres disciplines"
+      - paragraph
+        - StaticText "Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke."
+      - StaticText "6 étapes pour rédiger l'introduction"
+      - StaticText "Conseils pratiques pour une introduction captivante (Faryadi, 2018)."
+      - StaticText "1"
+      - paragraph
+        - StaticText "Énoncez le problème ou le phénomène à étudier."
+      - StaticText "2"
+      - paragraph
+        - StaticText "Identifiez la partie affectée par le problème."
+      - StaticText "3"
+      - paragraph
+        - StaticText "Expliquez comment vous comptez résoudre le problème."
+      - StaticText "4"
+      - paragraph
+        - StaticText "Convainquez le lecteur que vous êtes qualifié et équipé des bonnes méthodes."
+      - StaticText "5"
+      - paragraph
+        - StaticText "Mettez en évidence les bénéfices de la résolution du problème."
+      - StaticText "6"
+      - paragraph
+        - StaticText "Indiquez au lecteur les résultats que vous anticipez."
+      - paragraph
+        - StaticText "Conseils de rédaction :"
+      - list
+        - listitem [level=1]
+          - StaticText "Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche."
+        - listitem [level=1]
+          - StaticText "Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline."
+        - listitem [level=1]
+          - StaticText "Si c'est votre propre découverte scientifique, expliquez clairement comment les résultats s'ajouteront aux connaissances existantes."
+        - listitem [level=1]
+          - StaticText "Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant."
+        - listitem [level=1]
+          - StaticText "L'introduction doit être motivante et captivante pour donner envie au lecteur de continuer."
+- tablist [ref=e3] focusable [tabindex]
+  - tab "Assistant IA" [ref=e5]
+    - StaticText "Assistant IA"
+  - tab "Méthodologie" [selected, ref=e6]
+    - StaticText "Méthodologie"
+  - tab "Articles scientifiques" [ref=e7]
+    - StaticText "Articles scientifiques"
+  - tab "Références biblio." [ref=e8]
+    - StaticText "Références biblio."
+  - tab "Plan de thèse" [ref=e9]
+    - StaticText "Plan de thèse"
+- tabpanel "Méthodologie" [ref=e4] focusable [tabindex]
+  - heading "Guide de méthodologie de la recherche" [level=3, ref=e10]
+  - paragraph
+    - StaticText "Basé sur le cours de Gestion des Techniques Urbaines — IGTU-Cne3, Université Constantine 3. Ce guide couvre la démarche scientifique, la problématique, les outils de collecte et la recherche documentaire."
+  - tablist [ref=e11] focusable [tabindex]
+    - tab "Démarche" [ref=e13]
+    - tab "Problématique" [selected, ref=e14]
+    - tab "Outils" [ref=e15]
+    - tab "Variables" [ref=e16]
+    - tab "Doc." [ref=e17]
+  - tabpanel "Problématique" [ref=e12] focusable [tabindex]
+    - StaticText "La problématique — Trois questions essentielles"
+    - StaticText "La problématique est la question de recherche, incluse dans l'introduction. Elle doit déterminer un cadre spatial et/ou temporel."
+    - StaticText "QUOI ?"
+    - paragraph
+      - StaticText "Définition de l'objet — De quoi s'agit-il exactement ? Quels sont les concepts clés ?"
+    - paragraph
+      - StaticText "Identifier et définir les variables X et Y du sujet de recherche."
+    - StaticText "COMMENT ?"
+    - paragraph
+      - StaticText "Explication du processus — Par quels mécanismes X influence-t-il Y ?"
+    - paragraph
+      - StaticText "Décrire les liens causaux et les relations entre les variables étudiées."
+    - StaticText "POURQUOI ?"
+    - paragraph
+      - StaticText "Exposé de la finalité — Quel est l'intérêt scientifique et pratique de cette recherche ?"
+    - paragraph
+      - StaticText "Justifier la pertinence et l'originalité de la démarche dans le contexte actuel."
+    - StaticText "Conseils pour une bonne problématique"
+    - list
+      - listitem [level=1]
+        - StaticText "La problématique doit être centrale par rapport au sujet — pas un point secondaire."
+      - listitem [level=1]
+        - StaticText "Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS."
+      - listitem [level=1]
+        - StaticText "Elle doit annoncer une idée directrice pour la suite du travail."
+      - listitem [level=1]
+        - StaticText "Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction."
+      - listitem [level=1]
+        - StaticText "Elle doit recevoir l'aval du directeur de recherche."
+      - listitem [level=1]
+        - StaticText "Le titre de recherche prend généralement la forme d'une AFFIRMATION (X influence Y chez Z), et non d'une question."
+    - StaticText "L'opérationnalisation"
+    - StaticText "Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé."
+    - paragraph
+      - StaticText "« Le cadre opératoire forme un élément central du travail de recherche dans la mesure où il spécifie ce que nous allons analyser précisément pour vérifier notre hypothèse. » — Gordon MACE"
+    - generic
+      - generic
+        - StaticText "1"
+        - StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+      - generic
+        - StaticText "2"
+        - StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+      - generic
+        - StaticText "3"
+        - StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+      - generic
+        - StaticText "4"
+        - StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+      - generic
+        - StaticText "5"
+        - StaticText "Construire les instruments de mesure adaptés"
+    - generic
+      - StaticText "Exemple : Ressources d'une ville"
+    - StaticText "Concept → Dimensions → Indicateurs"
+    - paragraph
+      - StaticText "Ressources financières"
+    - StaticText "Budget communal"
+    - StaticText "Dotations de l'État"
+    - StaticText "Recettes fiscales"
+    - StaticText "Investissements privés"
+    - paragraph
+      - StaticText "Ressources patrimoniales"
+    - StaticText "Patrimoine immobilier"
+    - StaticText "Patrimoine mobilier"
+    - StaticText "Espaces publics"
+    - StaticText "Infrastructures"
+    - paragraph
+      - StaticText "Ressources sociales"
+    - StaticText "Niveau d'emploi"
+    - StaticText "Taux d'activité"
+    - StaticText "Diplômés supérieurs"
+    - StaticText "Associations"
+    - paragraph
+      - StaticText "Ressources d'équipement"
+    - StaticText "Services publics"
+    - StaticText "Équipements sportifs"
+    - StaticText "Établissements scolaires"
+    - StaticText "Infrastructures de transport"
+    - StaticText "Conditions d'une hypothèse rigoureuse"
+    - list
+      - listitem [level=1]
+        - StaticText "L'hypothèse doit se faire à partir d'une observation empirique ou d'une étude préalable."
+      - listitem [level=1]
+        - StaticText "L'hypothèse doit pouvoir être vérifiable dans la réalité."
+      - listitem [level=1]
+        - StaticText "L'hypothèse doit être cohérente avec les connaissances existantes."
+    - StaticText "Vérification des hypothèses"
+    - list
+      - listitem [level=1]
+        - StaticText "Par l'expérience : vérification empirique directe sur le terrain."
+      - listitem [level=1]
+        - StaticText "Par l'enquête : collecte de données auprès de la population étudiée."
+      - listitem [level=1]
+        - StaticText "Par la contre-épreuve : apporter un exemple ou fait qui contredise l'hypothèse (un seul contre-exemple suffit à invalider)."
+      - listitem [level=1]
+        - StaticText "Par la variation de la preuve : vérifier l'hypothèse sur des parties différentes d'un même ensemble."
+    - StaticText "Structure de l'introduction"
+    - StaticText "C'est la porte d'accès à votre travail — chaque sous-partie doit être présente sans intertitre."
+    - generic
+      - generic
+        - StaticText "1"
+        - paragraph
+          - StaticText "Amener le sujet (Y)"
+        - paragraph
+          - StaticText "Présenter le contexte général, amener progressivement le lecteur vers le sujet."
+      - generic
+        - StaticText "2"
+        - paragraph
+          - StaticText "Poser le sujet (X → Y : Z)"
+        - paragraph
+          - StaticText "Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire)."
+      - generic
+        - StaticText "3"
+        - paragraph
+          - StaticText "Diviser le sujet"
+        - paragraph
+          - StaticText "Délimiter le cadre de l'étude et l'optique dans laquelle sera traitée la question."
+      - generic
+        - StaticText "4"
+        - paragraph
+          - StaticText "Problématique"
+        - paragraph
+          - StaticText "Reformulation interrogative de l'intitulé initial (QUOI ? COMMENT ? POURQUOI ?)."
+      - generic
+        - StaticText "5"
+        - paragraph
+          - StaticText "État de la question"
+        - paragraph
+          - StaticText "Synthétiser \"ce que l'on sait\" sur le sujet ou la question choisie."
+      - generic
+        - StaticText "6"
+        - paragraph
+          - StaticText "Corpus d'étude"
+        - paragraph
+          - StaticText "Présenter le support de l'étude et justifier son choix."
+      - generic
+        - StaticText "7"
+        - paragraph
+          - StaticText "Objectifs & Hypothèses"
+        - paragraph
+          - StaticText "Annoncer les grandes lignes du travail et les axes d'analyse retenus."
+    - StaticText "Le titre de recherche"
+    - list
+      - listitem [level=1]
+        - StaticText "Un bon titre doit contenir la ou les variable(s) à l'étude (X et Y) ou CONCEPTS."
+      - listitem [level=1]
+        - StaticText "Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y)."
+      - listitem [level=1]
+        - StaticText "Il doit mentionner le territoire et/ou la population Z à l'étude (X influence Y chez Z)."
+      - listitem [level=1]
+        - StaticText "Le titre doit être à la fois BREF et PRÉCIS."
+      - listitem [level=1]
+        - StaticText "Il prend généralement la forme d'une AFFIRMATION, et non d'une QUESTION."
+      - listitem [level=1]
+        - StaticText "La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche."
+    - StaticText "8 questions de l'énoncé du problème"
+    - StaticText "Un bon énoncé de problème doit répondre à ces 8 questions (Faryadi, 2018)."
+    - paragraph
+      - StaticText "Quoi ?"
+    - paragraph
+      - StaticText "Quel est le problème ?"
+    - paragraph
+      - StaticText "Où ?"
+    - paragraph
+      - StaticText "Où se situe le problème ?"
+    - paragraph
+      - StaticText "Comment ?"
+    - paragraph
+      - StaticText "Comment le problème peut-il être résolu ?"
+    - paragraph
+      - StaticText "Pourquoi ?"
+    - paragraph
+      - StaticText "Pourquoi voulez-vous résoudre le problème ?"
+    - paragraph
+      - StaticText "Actualité ?"
+    - paragraph
+      - StaticText "Le problème est-il un enjeu actuel ?"
+    - paragraph
+      - StaticText "Persistance ?"
+    - paragraph
+      - StaticText "Le problème persistera-t-il s'il n'est pas résolu ?"
+    - paragraph
+      - StaticText "Qui ?"
+    - paragraph
+      - StaticText "Qui est affecté négativement par le problème ?"
+    - paragraph
+      - StaticText "Contribution ?"
+    - paragraph
+      - StaticText "Ce problème prouvera-t-il ou infirmera-t-il les connaissances existantes ?"
+    - paragraph
+      - StaticText "Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545."
+    - StaticText "10 types de lacunes de recherche"
+    - StaticText "Identifier et combler les lacunes est essentiel pour justifier votre recherche (Miles, 2017)."
+    - paragraph
+      - StaticText "Lacune méthodologique"
+    - StaticText "Methodological Gap"
+    - paragraph
+      - StaticText "Inadéquation ou absence de méthodes de recherche adaptées."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Développer de nouvelles méthodologies"
+      - listitem [level=1]
+        - StaticText "Adapter des méthodes d'autres champs disciplinaires"
+      - listitem [level=1]
+        - StaticText "Combiner des méthodes existantes de manière innovante"
+    - paragraph
+      - StaticText "Lacune de données"
+    - StaticText "Data Gap"
+    - paragraph
+      - StaticText "Données insuffisantes pour répondre à la question de recherche."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener une collecte de données primaires"
+      - listitem [level=1]
+        - StaticText "Accéder à des bases de données existantes"
+      - listitem [level=1]
+        - StaticText "Collaborer avec d'autres chercheurs ou institutions"
+    - paragraph
+      - StaticText "Lacune empirique"
+    - StaticText "Empirical Gap"
+    - paragraph
+      - StaticText "Absence de données ou d'études sur un sujet particulier."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener des études exploratoires"
+      - listitem [level=1]
+        - StaticText "Effectuer des revues de littérature systématiques"
+      - listitem [level=1]
+        - StaticText "Identifier les aspects sous-étudiés du sujet"
+    - paragraph
+      - StaticText "Lacune contextuelle"
+    - StaticText "Contextual Gap"
+    - paragraph
+      - StaticText "Impossibilité de généraliser les résultats en raison de différences de contextes."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener des études comparatives"
+      - listitem [level=1]
+        - StaticText "Explorer les implications interculturelles"
+      - listitem [level=1]
+        - StaticText "Identifier les facteurs contextuels influençant les résultats"
+    - paragraph
+      - StaticText "Lacune de mise en œuvre"
+    - StaticText "Implementation Gap"
+    - paragraph
+      - StaticText "Déconnexion entre les résultats de recherche et l'application pratique."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "S'engager avec les praticiens"
+      - listitem [level=1]
+        - StaticText "Développer des projets de recherche-action"
+      - listitem [level=1]
+        - StaticText "Créer des lignes directrices ou cadres pratiques"
+    - paragraph
+      - StaticText "Lacune populationnelle"
+    - StaticText "Population Gap"
+    - paragraph
+      - StaticText "Sous-représentation ou exclusion de certains groupes dans la recherche."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Diversifier les échantillons d'étude"
+      - listitem [level=1]
+        - StaticText "Mener des recherches ciblées sur les groupes sous-représentés"
+      - listitem [level=1]
+        - StaticText "Analyser les données existantes en ciblant les populations exclues"
+    - paragraph
+      - StaticText "Lacune de connaissance pratique"
+    - StaticText "Practical Knowledge Gap"
+    - paragraph
+      - StaticText "Incapacité à appliquer les connaissances théoriques aux problèmes réels."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener des études de cas"
+      - listitem [level=1]
+        - StaticText "Développer des projets de recherche appliquée"
+      - listitem [level=1]
+        - StaticText "Collaborer avec des partenaires industriels"
+    - paragraph
+      - StaticText "Lacune de preuves"
+    - StaticText "Evidence Gap"
+    - paragraph
+      - StaticText "Preuves insuffisantes ou contradictoires pour étayer une conclusion."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener des méta-analyses"
+      - listitem [level=1]
+        - StaticText "Effectuer des études de réplication"
+      - listitem [level=1]
+        - StaticText "Concevoir des études avec une puissance statistique accrue"
+    - paragraph
+      - StaticText "Lacune de connaissances"
+    - StaticText "Knowledge Gap"
+    - paragraph
+      - StaticText "Manque de compréhension ou d'information sur un sujet spécifique."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Mener des revues de littérature approfondies"
+      - listitem [level=1]
+        - StaticText "Identifier les questions de recherche clés"
+      - listitem [level=1]
+        - StaticText "Développer des cadres conceptuels"
+    - paragraph
+      - StaticText "Lacune théorique"
+    - StaticText "Theoretical Gap"
+    - paragraph
+      - StaticText "Cadres théoriques insuffisants pour expliquer un phénomène."
+    - paragraph
+      - StaticText "Stratégies :"
+    - list
+      - listitem [level=1]
+        - StaticText "Développer de nouvelles théories"
+      - listitem [level=1]
+        - StaticText "Intégrer des théories existantes"
+      - listitem [level=1]
+        - StaticText "Appliquer des théories d'autres disciplines"
+    - paragraph
+      - StaticText "Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke."
+    - StaticText "6 étapes pour rédiger l'introduction"
+    - StaticText "Conseils pratiques pour une introduction captivante (Faryadi, 2018)."
+    - StaticText "1"
+    - paragraph
+      - StaticText "Énoncez le problème ou le phénomène à étudier."
+    - StaticText "2"
+    - paragraph
+      - StaticText "Identifiez la partie affectée par le problème."
+    - StaticText "3"
+    - paragraph
+      - StaticText "Expliquez comment vous comptez résoudre le problème."
+    - StaticText "4"
+    - paragraph
+      - StaticText "Convainquez le lecteur que vous êtes qualifié et équipé des bonnes méthodes."
+    - StaticText "5"
+    - paragraph
+      - StaticText "Mettez en évidence les bénéfices de la résolution du problème."
+    - StaticText "6"
+    - paragraph
+      - StaticText "Indiquez au lecteur les résultats que vous anticipez."
+    - paragraph
+      - StaticText "Conseils de rédaction :"
+    - list
+      - listitem [level=1]
+        - StaticText "Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche."
+      - listitem [level=1]
+        - StaticText "Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline."
+      - listitem [level=1]
+        - StaticText "Si c'est votre propre découverte scientifique, expliquez clairement comment les résultats s'ajouteront aux connaissances existantes."
+      - listitem [level=1]
+        - StaticText "Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant."
+      - listitem [level=1]
+        - StaticText "L'introduction doit être motivante et captivante pour donner envie au lecteur de continuer."
+- heading "Guide de méthodologie de la recherche" [level=3, ref=e10]
+- paragraph
+  - StaticText "Basé sur le cours de Gestion des Techniques Urbaines — IGTU-Cne3, Université Constantine 3. Ce guide couvre la démarche scientifique, la problématique, les outils de collecte et la recherche documentaire."
+- tablist [ref=e11] focusable [tabindex]
+  - tab "Démarche" [ref=e13]
+  - tab "Problématique" [selected, ref=e14]
+  - tab "Outils" [ref=e15]
+  - tab "Variables" [ref=e16]
+  - tab "Doc." [ref=e17]
+- tabpanel "Problématique" [ref=e12] focusable [tabindex]
+  - StaticText "La problématique — Trois questions essentielles"
+  - StaticText "La problématique est la question de recherche, incluse dans l'introduction. Elle doit déterminer un cadre spatial et/ou temporel."
+  - StaticText "QUOI ?"
+  - paragraph
+    - StaticText "Définition de l'objet — De quoi s'agit-il exactement ? Quels sont les concepts clés ?"
+  - paragraph
+    - StaticText "Identifier et définir les variables X et Y du sujet de recherche."
+  - StaticText "COMMENT ?"
+  - paragraph
+    - StaticText "Explication du processus — Par quels mécanismes X influence-t-il Y ?"
+  - paragraph
+    - StaticText "Décrire les liens causaux et les relations entre les variables étudiées."
+  - StaticText "POURQUOI ?"
+  - paragraph
+    - StaticText "Exposé de la finalité — Quel est l'intérêt scientifique et pratique de cette recherche ?"
+  - paragraph
+    - StaticText "Justifier la pertinence et l'originalité de la démarche dans le contexte actuel."
+  - StaticText "Conseils pour une bonne problématique"
+  - list
+    - listitem [level=1]
+      - StaticText "La problématique doit être centrale par rapport au sujet — pas un point secondaire."
+    - listitem [level=1]
+      - StaticText "Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS."
+    - listitem [level=1]
+      - StaticText "Elle doit annoncer une idée directrice pour la suite du travail."
+    - listitem [level=1]
+      - StaticText "Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction."
+    - listitem [level=1]
+      - StaticText "Elle doit recevoir l'aval du directeur de recherche."
+    - listitem [level=1]
+      - StaticText "Le titre de recherche prend généralement la forme d'une AFFIRMATION (X influence Y chez Z), et non d'une question."
+  - StaticText "L'opérationnalisation"
+  - StaticText "Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé."
+  - paragraph
+    - StaticText "« Le cadre opératoire forme un élément central du travail de recherche dans la mesure où il spécifie ce que nous allons analyser précisément pour vérifier notre hypothèse. » — Gordon MACE"
+  - generic
+    - generic
+      - StaticText "1"
+      - StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+    - generic
+      - StaticText "2"
+      - StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+    - generic
+      - StaticText "3"
+      - StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+    - generic
+      - StaticText "4"
+      - StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+    - generic
+      - StaticText "5"
+      - StaticText "Construire les instruments de mesure adaptés"
+  - generic
+    - StaticText "Exemple : Ressources d'une ville"
+  - StaticText "Concept → Dimensions → Indicateurs"
+  - paragraph
+    - StaticText "Ressources financières"
+  - StaticText "Budget communal"
+  - StaticText "Dotations de l'État"
+  - StaticText "Recettes fiscales"
+  - StaticText "Investissements privés"
+  - paragraph
+    - StaticText "Ressources patrimoniales"
+  - StaticText "Patrimoine immobilier"
+  - StaticText "Patrimoine mobilier"
+  - StaticText "Espaces publics"
+  - StaticText "Infrastructures"
+  - paragraph
+    - StaticText "Ressources sociales"
+  - StaticText "Niveau d'emploi"
+  - StaticText "Taux d'activité"
+  - StaticText "Diplômés supérieurs"
+  - StaticText "Associations"
+  - paragraph
+    - StaticText "Ressources d'équipement"
+  - StaticText "Services publics"
+  - StaticText "Équipements sportifs"
+  - StaticText "Établissements scolaires"
+  - StaticText "Infrastructures de transport"
+  - StaticText "Conditions d'une hypothèse rigoureuse"
+  - list
+    - listitem [level=1]
+      - StaticText "L'hypothèse doit se faire à partir d'une observation empirique ou d'une étude préalable."
+    - listitem [level=1]
+      - StaticText "L'hypothèse doit pouvoir être vérifiable dans la réalité."
+    - listitem [level=1]
+      - StaticText "L'hypothèse doit être cohérente avec les connaissances existantes."
+  - StaticText "Vérification des hypothèses"
+  - list
+    - listitem [level=1]
+      - StaticText "Par l'expérience : vérification empirique directe sur le terrain."
+    - listitem [level=1]
+      - StaticText "Par l'enquête : collecte de données auprès de la population étudiée."
+    - listitem [level=1]
+      - StaticText "Par la contre-épreuve : apporter un exemple ou fait qui contredise l'hypothèse (un seul contre-exemple suffit à invalider)."
+    - listitem [level=1]
+      - StaticText "Par la variation de la preuve : vérifier l'hypothèse sur des parties différentes d'un même ensemble."
+  - StaticText "Structure de l'introduction"
+  - StaticText "C'est la porte d'accès à votre travail — chaque sous-partie doit être présente sans intertitre."
+  - generic
+    - generic
+      - StaticText "1"
+      - paragraph
+        - StaticText "Amener le sujet (Y)"
+      - paragraph
+        - StaticText "Présenter le contexte général, amener progressivement le lecteur vers le sujet."
+    - generic
+      - StaticText "2"
+      - paragraph
+        - StaticText "Poser le sujet (X → Y : Z)"
+      - paragraph
+        - StaticText "Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire)."
+    - generic
+      - StaticText "3"
+      - paragraph
+        - StaticText "Diviser le sujet"
+      - paragraph
+        - StaticText "Délimiter le cadre de l'étude et l'optique dans laquelle sera traitée la question."
+    - generic
+      - StaticText "4"
+      - paragraph
+        - StaticText "Problématique"
+      - paragraph
+        - StaticText "Reformulation interrogative de l'intitulé initial (QUOI ? COMMENT ? POURQUOI ?)."
+    - generic
+      - StaticText "5"
+      - paragraph
+        - StaticText "État de la question"
+      - paragraph
+        - StaticText "Synthétiser \"ce que l'on sait\" sur le sujet ou la question choisie."
+    - generic
+      - StaticText "6"
+      - paragraph
+        - StaticText "Corpus d'étude"
+      - paragraph
+        - StaticText "Présenter le support de l'étude et justifier son choix."
+    - generic
+      - StaticText "7"
+      - paragraph
+        - StaticText "Objectifs & Hypothèses"
+      - paragraph
+        - StaticText "Annoncer les grandes lignes du travail et les axes d'analyse retenus."
+  - StaticText "Le titre de recherche"
+  - list
+    - listitem [level=1]
+      - StaticText "Un bon titre doit contenir la ou les variable(s) à l'étude (X et Y) ou CONCEPTS."
+    - listitem [level=1]
+      - StaticText "Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y)."
+    - listitem [level=1]
+      - StaticText "Il doit mentionner le territoire et/ou la population Z à l'étude (X influence Y chez Z)."
+    - listitem [level=1]
+      - StaticText "Le titre doit être à la fois BREF et PRÉCIS."
+    - listitem [level=1]
+      - StaticText "Il prend généralement la forme d'une AFFIRMATION, et non d'une QUESTION."
+    - listitem [level=1]
+      - StaticText "La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche."
+  - StaticText "8 questions de l'énoncé du problème"
+  - StaticText "Un bon énoncé de problème doit répondre à ces 8 questions (Faryadi, 2018)."
+  - paragraph
+    - StaticText "Quoi ?"
+  - paragraph
+    - StaticText "Quel est le problème ?"
+  - paragraph
+    - StaticText "Où ?"
+  - paragraph
+    - StaticText "Où se situe le problème ?"
+  - paragraph
+    - StaticText "Comment ?"
+  - paragraph
+    - StaticText "Comment le problème peut-il être résolu ?"
+  - paragraph
+    - StaticText "Pourquoi ?"
+  - paragraph
+    - StaticText "Pourquoi voulez-vous résoudre le problème ?"
+  - paragraph
+    - StaticText "Actualité ?"
+  - paragraph
+    - StaticText "Le problème est-il un enjeu actuel ?"
+  - paragraph
+    - StaticText "Persistance ?"
+  - paragraph
+    - StaticText "Le problème persistera-t-il s'il n'est pas résolu ?"
+  - paragraph
+    - StaticText "Qui ?"
+  - paragraph
+    - StaticText "Qui est affecté négativement par le problème ?"
+  - paragraph
+    - StaticText "Contribution ?"
+  - paragraph
+    - StaticText "Ce problème prouvera-t-il ou infirmera-t-il les connaissances existantes ?"
+  - paragraph
+    - StaticText "Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545."
+  - StaticText "10 types de lacunes de recherche"
+  - StaticText "Identifier et combler les lacunes est essentiel pour justifier votre recherche (Miles, 2017)."
+  - paragraph
+    - StaticText "Lacune méthodologique"
+  - StaticText "Methodological Gap"
+  - paragraph
+    - StaticText "Inadéquation ou absence de méthodes de recherche adaptées."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Développer de nouvelles méthodologies"
+    - listitem [level=1]
+      - StaticText "Adapter des méthodes d'autres champs disciplinaires"
+    - listitem [level=1]
+      - StaticText "Combiner des méthodes existantes de manière innovante"
+  - paragraph
+    - StaticText "Lacune de données"
+  - StaticText "Data Gap"
+  - paragraph
+    - StaticText "Données insuffisantes pour répondre à la question de recherche."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener une collecte de données primaires"
+    - listitem [level=1]
+      - StaticText "Accéder à des bases de données existantes"
+    - listitem [level=1]
+      - StaticText "Collaborer avec d'autres chercheurs ou institutions"
+  - paragraph
+    - StaticText "Lacune empirique"
+  - StaticText "Empirical Gap"
+  - paragraph
+    - StaticText "Absence de données ou d'études sur un sujet particulier."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener des études exploratoires"
+    - listitem [level=1]
+      - StaticText "Effectuer des revues de littérature systématiques"
+    - listitem [level=1]
+      - StaticText "Identifier les aspects sous-étudiés du sujet"
+  - paragraph
+    - StaticText "Lacune contextuelle"
+  - StaticText "Contextual Gap"
+  - paragraph
+    - StaticText "Impossibilité de généraliser les résultats en raison de différences de contextes."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener des études comparatives"
+    - listitem [level=1]
+      - StaticText "Explorer les implications interculturelles"
+    - listitem [level=1]
+      - StaticText "Identifier les facteurs contextuels influençant les résultats"
+  - paragraph
+    - StaticText "Lacune de mise en œuvre"
+  - StaticText "Implementation Gap"
+  - paragraph
+    - StaticText "Déconnexion entre les résultats de recherche et l'application pratique."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "S'engager avec les praticiens"
+    - listitem [level=1]
+      - StaticText "Développer des projets de recherche-action"
+    - listitem [level=1]
+      - StaticText "Créer des lignes directrices ou cadres pratiques"
+  - paragraph
+    - StaticText "Lacune populationnelle"
+  - StaticText "Population Gap"
+  - paragraph
+    - StaticText "Sous-représentation ou exclusion de certains groupes dans la recherche."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Diversifier les échantillons d'étude"
+    - listitem [level=1]
+      - StaticText "Mener des recherches ciblées sur les groupes sous-représentés"
+    - listitem [level=1]
+      - StaticText "Analyser les données existantes en ciblant les populations exclues"
+  - paragraph
+    - StaticText "Lacune de connaissance pratique"
+  - StaticText "Practical Knowledge Gap"
+  - paragraph
+    - StaticText "Incapacité à appliquer les connaissances théoriques aux problèmes réels."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener des études de cas"
+    - listitem [level=1]
+      - StaticText "Développer des projets de recherche appliquée"
+    - listitem [level=1]
+      - StaticText "Collaborer avec des partenaires industriels"
+  - paragraph
+    - StaticText "Lacune de preuves"
+  - StaticText "Evidence Gap"
+  - paragraph
+    - StaticText "Preuves insuffisantes ou contradictoires pour étayer une conclusion."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener des méta-analyses"
+    - listitem [level=1]
+      - StaticText "Effectuer des études de réplication"
+    - listitem [level=1]
+      - StaticText "Concevoir des études avec une puissance statistique accrue"
+  - paragraph
+    - StaticText "Lacune de connaissances"
+  - StaticText "Knowledge Gap"
+  - paragraph
+    - StaticText "Manque de compréhension ou d'information sur un sujet spécifique."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Mener des revues de littérature approfondies"
+    - listitem [level=1]
+      - StaticText "Identifier les questions de recherche clés"
+    - listitem [level=1]
+      - StaticText "Développer des cadres conceptuels"
+  - paragraph
+    - StaticText "Lacune théorique"
+  - StaticText "Theoretical Gap"
+  - paragraph
+    - StaticText "Cadres théoriques insuffisants pour expliquer un phénomène."
+  - paragraph
+    - StaticText "Stratégies :"
+  - list
+    - listitem [level=1]
+      - StaticText "Développer de nouvelles théories"
+    - listitem [level=1]
+      - StaticText "Intégrer des théories existantes"
+    - listitem [level=1]
+      - StaticText "Appliquer des théories d'autres disciplines"
+  - paragraph
+    - StaticText "Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke."
+  - StaticText "6 étapes pour rédiger l'introduction"
+  - StaticText "Conseils pratiques pour une introduction captivante (Faryadi, 2018)."
+  - StaticText "1"
+  - paragraph
+    - StaticText "Énoncez le problème ou le phénomène à étudier."
+  - StaticText "2"
+  - paragraph
+    - StaticText "Identifiez la partie affectée par le problème."
+  - StaticText "3"
+  - paragraph
+    - StaticText "Expliquez comment vous comptez résoudre le problème."
+  - StaticText "4"
+  - paragraph
+    - StaticText "Convainquez le lecteur que vous êtes qualifié et équipé des bonnes méthodes."
+  - StaticText "5"
+  - paragraph
+    - StaticText "Mettez en évidence les bénéfices de la résolution du problème."
+  - StaticText "6"
+  - paragraph
+    - StaticText "Indiquez au lecteur les résultats que vous anticipez."
+  - paragraph
+    - StaticText "Conseils de rédaction :"
+  - list
+    - listitem [level=1]
+      - StaticText "Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche."
+    - listitem [level=1]
+      - StaticText "Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline."
+    - listitem [level=1]
+      - StaticText "Si c'est votre propre découverte scientifique, expliquez clairement comment les résultats s'ajouteront aux connaissances existantes."
+    - listitem [level=1]
+      - StaticText "Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant."
+    - listitem [level=1]
+      - StaticText "L'introduction doit être motivante et captivante pour donner envie au lecteur de continuer."
+- StaticText "Assistant IA"
+- StaticText "Méthodologie"
+- StaticText "Articles scientifiques"
+- StaticText "Références biblio."
+- StaticText "Plan de thèse"
+- StaticText "La problématique — Trois questions essentielles"
+- StaticText "La problématique est la question de recherche, incluse dans l'introduction. Elle doit déterminer un cadre spatial et/ou temporel."
+- StaticText "QUOI ?"
+- paragraph
+  - StaticText "Définition de l'objet — De quoi s'agit-il exactement ? Quels sont les concepts clés ?"
+- paragraph
+  - StaticText "Identifier et définir les variables X et Y du sujet de recherche."
+- StaticText "COMMENT ?"
+- paragraph
+  - StaticText "Explication du processus — Par quels mécanismes X influence-t-il Y ?"
+- paragraph
+  - StaticText "Décrire les liens causaux et les relations entre les variables étudiées."
+- StaticText "POURQUOI ?"
+- paragraph
+  - StaticText "Exposé de la finalité — Quel est l'intérêt scientifique et pratique de cette recherche ?"
+- paragraph
+  - StaticText "Justifier la pertinence et l'originalité de la démarche dans le contexte actuel."
+- StaticText "Conseils pour une bonne problématique"
+- list
+  - listitem [level=1]
+    - StaticText "La problématique doit être centrale par rapport au sujet — pas un point secondaire."
+  - listitem [level=1]
+    - StaticText "Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS."
+  - listitem [level=1]
+    - StaticText "Elle doit annoncer une idée directrice pour la suite du travail."
+  - listitem [level=1]
+    - StaticText "Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction."
+  - listitem [level=1]
+    - StaticText "Elle doit recevoir l'aval du directeur de recherche."
+  - listitem [level=1]
+    - StaticText "Le titre de recherche prend généralement la forme d'une AFFIRMATION (X influence Y chez Z), et non d'une question."
+- StaticText "L'opérationnalisation"
+- StaticText "Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé."
+- paragraph
+  - StaticText "« Le cadre opératoire forme un élément central du travail de recherche dans la mesure où il spécifie ce que nous allons analyser précisément pour vérifier notre hypothèse. » — Gordon MACE"
+- generic
+  - generic
+    - StaticText "1"
+    - StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+  - generic
+    - StaticText "2"
+    - StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+  - generic
+    - StaticText "3"
+    - StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+  - generic
+    - StaticText "4"
+    - StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+  - generic
+    - StaticText "5"
+    - StaticText "Construire les instruments de mesure adaptés"
+- generic
+  - StaticText "Exemple : Ressources d'une ville"
+- StaticText "Concept → Dimensions → Indicateurs"
+- paragraph
+  - StaticText "Ressources financières"
+- StaticText "Budget communal"
+- StaticText "Dotations de l'État"
+- StaticText "Recettes fiscales"
+- StaticText "Investissements privés"
+- paragraph
+  - StaticText "Ressources patrimoniales"
+- StaticText "Patrimoine immobilier"
+- StaticText "Patrimoine mobilier"
+- StaticText "Espaces publics"
+- StaticText "Infrastructures"
+- paragraph
+  - StaticText "Ressources sociales"
+- StaticText "Niveau d'emploi"
+- StaticText "Taux d'activité"
+- StaticText "Diplômés supérieurs"
+- StaticText "Associations"
+- paragraph
+  - StaticText "Ressources d'équipement"
+- StaticText "Services publics"
+- StaticText "Équipements sportifs"
+- StaticText "Établissements scolaires"
+- StaticText "Infrastructures de transport"
+- StaticText "Conditions d'une hypothèse rigoureuse"
+- list
+  - listitem [level=1]
+    - StaticText "L'hypothèse doit se faire à partir d'une observation empirique ou d'une étude préalable."
+  - listitem [level=1]
+    - StaticText "L'hypothèse doit pouvoir être vérifiable dans la réalité."
+  - listitem [level=1]
+    - StaticText "L'hypothèse doit être cohérente avec les connaissances existantes."
+- StaticText "Vérification des hypothèses"
+- list
+  - listitem [level=1]
+    - StaticText "Par l'expérience : vérification empirique directe sur le terrain."
+  - listitem [level=1]
+    - StaticText "Par l'enquête : collecte de données auprès de la population étudiée."
+  - listitem [level=1]
+    - StaticText "Par la contre-épreuve : apporter un exemple ou fait qui contredise l'hypothèse (un seul contre-exemple suffit à invalider)."
+  - listitem [level=1]
+    - StaticText "Par la variation de la preuve : vérifier l'hypothèse sur des parties différentes d'un même ensemble."
+- StaticText "Structure de l'introduction"
+- StaticText "C'est la porte d'accès à votre travail — chaque sous-partie doit être présente sans intertitre."
+- generic
+  - generic
+    - StaticText "1"
+    - paragraph
+      - StaticText "Amener le sujet (Y)"
+    - paragraph
+      - StaticText "Présenter le contexte général, amener progressivement le lecteur vers le sujet."
+  - generic
+    - StaticText "2"
+    - paragraph
+      - StaticText "Poser le sujet (X → Y : Z)"
+    - paragraph
+      - StaticText "Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire)."
+  - generic
+    - StaticText "3"
+    - paragraph
+      - StaticText "Diviser le sujet"
+    - paragraph
+      - StaticText "Délimiter le cadre de l'étude et l'optique dans laquelle sera traitée la question."
+  - generic
+    - StaticText "4"
+    - paragraph
+      - StaticText "Problématique"
+    - paragraph
+      - StaticText "Reformulation interrogative de l'intitulé initial (QUOI ? COMMENT ? POURQUOI ?)."
+  - generic
+    - StaticText "5"
+    - paragraph
+      - StaticText "État de la question"
+    - paragraph
+      - StaticText "Synthétiser \"ce que l'on sait\" sur le sujet ou la question choisie."
+  - generic
+    - StaticText "6"
+    - paragraph
+      - StaticText "Corpus d'étude"
+    - paragraph
+      - StaticText "Présenter le support de l'étude et justifier son choix."
+  - generic
+    - StaticText "7"
+    - paragraph
+      - StaticText "Objectifs & Hypothèses"
+    - paragraph
+      - StaticText "Annoncer les grandes lignes du travail et les axes d'analyse retenus."
+- StaticText "Le titre de recherche"
+- list
+  - listitem [level=1]
+    - StaticText "Un bon titre doit contenir la ou les variable(s) à l'étude (X et Y) ou CONCEPTS."
+  - listitem [level=1]
+    - StaticText "Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y)."
+  - listitem [level=1]
+    - StaticText "Il doit mentionner le territoire et/ou la population Z à l'étude (X influence Y chez Z)."
+  - listitem [level=1]
+    - StaticText "Le titre doit être à la fois BREF et PRÉCIS."
+  - listitem [level=1]
+    - StaticText "Il prend généralement la forme d'une AFFIRMATION, et non d'une QUESTION."
+  - listitem [level=1]
+    - StaticText "La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche."
+- StaticText "8 questions de l'énoncé du problème"
+- StaticText "Un bon énoncé de problème doit répondre à ces 8 questions (Faryadi, 2018)."
+- paragraph
+  - StaticText "Quoi ?"
+- paragraph
+  - StaticText "Quel est le problème ?"
+- paragraph
+  - StaticText "Où ?"
+- paragraph
+  - StaticText "Où se situe le problème ?"
+- paragraph
+  - StaticText "Comment ?"
+- paragraph
+  - StaticText "Comment le problème peut-il être résolu ?"
+- paragraph
+  - StaticText "Pourquoi ?"
+- paragraph
+  - StaticText "Pourquoi voulez-vous résoudre le problème ?"
+- paragraph
+  - StaticText "Actualité ?"
+- paragraph
+  - StaticText "Le problème est-il un enjeu actuel ?"
+- paragraph
+  - StaticText "Persistance ?"
+- paragraph
+  - StaticText "Le problème persistera-t-il s'il n'est pas résolu ?"
+- paragraph
+  - StaticText "Qui ?"
+- paragraph
+  - StaticText "Qui est affecté négativement par le problème ?"
+- paragraph
+  - StaticText "Contribution ?"
+- paragraph
+  - StaticText "Ce problème prouvera-t-il ou infirmera-t-il les connaissances existantes ?"
+- paragraph
+  - StaticText "Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545."
+- StaticText "10 types de lacunes de recherche"
+- StaticText "Identifier et combler les lacunes est essentiel pour justifier votre recherche (Miles, 2017)."
+- paragraph
+  - StaticText "Lacune méthodologique"
+- StaticText "Methodological Gap"
+- paragraph
+  - StaticText "Inadéquation ou absence de méthodes de recherche adaptées."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Développer de nouvelles méthodologies"
+  - listitem [level=1]
+    - StaticText "Adapter des méthodes d'autres champs disciplinaires"
+  - listitem [level=1]
+    - StaticText "Combiner des méthodes existantes de manière innovante"
+- paragraph
+  - StaticText "Lacune de données"
+- StaticText "Data Gap"
+- paragraph
+  - StaticText "Données insuffisantes pour répondre à la question de recherche."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener une collecte de données primaires"
+  - listitem [level=1]
+    - StaticText "Accéder à des bases de données existantes"
+  - listitem [level=1]
+    - StaticText "Collaborer avec d'autres chercheurs ou institutions"
+- paragraph
+  - StaticText "Lacune empirique"
+- StaticText "Empirical Gap"
+- paragraph
+  - StaticText "Absence de données ou d'études sur un sujet particulier."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener des études exploratoires"
+  - listitem [level=1]
+    - StaticText "Effectuer des revues de littérature systématiques"
+  - listitem [level=1]
+    - StaticText "Identifier les aspects sous-étudiés du sujet"
+- paragraph
+  - StaticText "Lacune contextuelle"
+- StaticText "Contextual Gap"
+- paragraph
+  - StaticText "Impossibilité de généraliser les résultats en raison de différences de contextes."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener des études comparatives"
+  - listitem [level=1]
+    - StaticText "Explorer les implications interculturelles"
+  - listitem [level=1]
+    - StaticText "Identifier les facteurs contextuels influençant les résultats"
+- paragraph
+  - StaticText "Lacune de mise en œuvre"
+- StaticText "Implementation Gap"
+- paragraph
+  - StaticText "Déconnexion entre les résultats de recherche et l'application pratique."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "S'engager avec les praticiens"
+  - listitem [level=1]
+    - StaticText "Développer des projets de recherche-action"
+  - listitem [level=1]
+    - StaticText "Créer des lignes directrices ou cadres pratiques"
+- paragraph
+  - StaticText "Lacune populationnelle"
+- StaticText "Population Gap"
+- paragraph
+  - StaticText "Sous-représentation ou exclusion de certains groupes dans la recherche."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Diversifier les échantillons d'étude"
+  - listitem [level=1]
+    - StaticText "Mener des recherches ciblées sur les groupes sous-représentés"
+  - listitem [level=1]
+    - StaticText "Analyser les données existantes en ciblant les populations exclues"
+- paragraph
+  - StaticText "Lacune de connaissance pratique"
+- StaticText "Practical Knowledge Gap"
+- paragraph
+  - StaticText "Incapacité à appliquer les connaissances théoriques aux problèmes réels."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener des études de cas"
+  - listitem [level=1]
+    - StaticText "Développer des projets de recherche appliquée"
+  - listitem [level=1]
+    - StaticText "Collaborer avec des partenaires industriels"
+- paragraph
+  - StaticText "Lacune de preuves"
+- StaticText "Evidence Gap"
+- paragraph
+  - StaticText "Preuves insuffisantes ou contradictoires pour étayer une conclusion."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener des méta-analyses"
+  - listitem [level=1]
+    - StaticText "Effectuer des études de réplication"
+  - listitem [level=1]
+    - StaticText "Concevoir des études avec une puissance statistique accrue"
+- paragraph
+  - StaticText "Lacune de connaissances"
+- StaticText "Knowledge Gap"
+- paragraph
+  - StaticText "Manque de compréhension ou d'information sur un sujet spécifique."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Mener des revues de littérature approfondies"
+  - listitem [level=1]
+    - StaticText "Identifier les questions de recherche clés"
+  - listitem [level=1]
+    - StaticText "Développer des cadres conceptuels"
+- paragraph
+  - StaticText "Lacune théorique"
+- StaticText "Theoretical Gap"
+- paragraph
+  - StaticText "Cadres théoriques insuffisants pour expliquer un phénomène."
+- paragraph
+  - StaticText "Stratégies :"
+- list
+  - listitem [level=1]
+    - StaticText "Développer de nouvelles théories"
+  - listitem [level=1]
+    - StaticText "Intégrer des théories existantes"
+  - listitem [level=1]
+    - StaticText "Appliquer des théories d'autres disciplines"
+- paragraph
+  - StaticText "Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke."
+- StaticText "6 étapes pour rédiger l'introduction"
+- StaticText "Conseils pratiques pour une introduction captivante (Faryadi, 2018)."
+- StaticText "1"
+- paragraph
+  - StaticText "Énoncez le problème ou le phénomène à étudier."
+- StaticText "2"
+- paragraph
+  - StaticText "Identifiez la partie affectée par le problème."
+- StaticText "3"
+- paragraph
+  - StaticText "Expliquez comment vous comptez résoudre le problème."
+- StaticText "4"
+- paragraph
+  - StaticText "Convainquez le lecteur que vous êtes qualifié et équipé des bonnes méthodes."
+- StaticText "5"
+- paragraph
+  - StaticText "Mettez en évidence les bénéfices de la résolution du problème."
+- StaticText "6"
+- paragraph
+  - StaticText "Indiquez au lecteur les résultats que vous anticipez."
+- paragraph
+  - StaticText "Conseils de rédaction :"
+- list
+  - listitem [level=1]
+    - StaticText "Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche."
+  - listitem [level=1]
+    - StaticText "Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline."
+  - listitem [level=1]
+    - StaticText "Si c'est votre propre découverte scientifique, expliquez clairement comment les résultats s'ajouteront aux connaissances existantes."
+  - listitem [level=1]
+    - StaticText "Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant."
+  - listitem [level=1]
+    - StaticText "L'introduction doit être motivante et captivante pour donner envie au lecteur de continuer."
+- generic
+  - StaticText "1"
+  - StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+- generic
+  - StaticText "2"
+  - StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+- generic
+  - StaticText "3"
+  - StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+- generic
+  - StaticText "4"
+  - StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+- generic
+  - StaticText "5"
+  - StaticText "Construire les instruments de mesure adaptés"
+- generic
+  - StaticText "1"
+  - paragraph
+    - StaticText "Amener le sujet (Y)"
+  - paragraph
+    - StaticText "Présenter le contexte général, amener progressivement le lecteur vers le sujet."
+- generic
+  - StaticText "2"
+  - paragraph
+    - StaticText "Poser le sujet (X → Y : Z)"
+  - paragraph
+    - StaticText "Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire)."
+- generic
+  - StaticText "3"
+  - paragraph
+    - StaticText "Diviser le sujet"
+  - paragraph
+    - StaticText "Délimiter le cadre de l'étude et l'optique dans laquelle sera traitée la question."
+- generic
+  - StaticText "4"
+  - paragraph
+    - StaticText "Problématique"
+  - paragraph
+    - StaticText "Reformulation interrogative de l'intitulé initial (QUOI ? COMMENT ? POURQUOI ?)."
+- generic
+  - StaticText "5"
+  - paragraph
+    - StaticText "État de la question"
+  - paragraph
+    - StaticText "Synthétiser \"ce que l'on sait\" sur le sujet ou la question choisie."
+- generic
+  - StaticText "6"
+  - paragraph
+    - StaticText "Corpus d'étude"
+  - paragraph
+    - StaticText "Présenter le support de l'étude et justifier son choix."
+- generic
+  - StaticText "7"
+  - paragraph
+    - StaticText "Objectifs & Hypothèses"
+  - paragraph
+    - StaticText "Annoncer les grandes lignes du travail et les axes d'analyse retenus."
+- StaticText "La problématique doit être centrale par rapport au sujet — pas un point secondaire."
+- StaticText "Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS."
+- StaticText "Elle doit annoncer une idée directrice pour la suite du travail."
+- StaticText "Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction."
+- StaticText "Elle doit recevoir l'aval du directeur de recherche."
+- StaticText "Le titre de recherche prend généralement la forme d'une AFFIRMATION (X influence Y chez Z), et non d'une question."
+- StaticText "1"
+- StaticText "Identifier les CONCEPTS clés de la recherche (ex : \"utilisation des médias sociaux\", \"dépression\")"
+- StaticText "2"
+- StaticText "Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)"
+- StaticText "3"
+- StaticText "Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)"
+- StaticText "4"
+- StaticText "Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)"
+- StaticText "5"
+- StaticText "Construire les instruments de mesure adaptés"
+- StaticText "L'hypothèse doit se faire à partir d'une observation empirique ou d'une étude préalable."
+- StaticText "L'hypothèse doit pouvoir être vérifiable dans la réalité."
+- StaticText "L'hypothèse doit être cohérente avec les connaissances existantes."
+- StaticText "Par l'expérience : vérification empirique directe sur le terrain."
+- StaticText "Par l'enquête : collecte de données auprès de la population étudiée."
+- StaticText "Par la contre-épreuve : apporter un exemple ou fait qui contredise l'hypothèse (un seul contre-exemple suffit à invalider)."
+- StaticText "Par la variation de la preuve : vérifier l'hypothèse sur des parties différentes d'un même ensemble."
+- StaticText "1"
+- paragraph
+  - StaticText "Amener le sujet (Y)"
+- paragraph
+  - StaticText "Présenter le contexte général, amener progressivement le lecteur vers le sujet."
+- StaticText "2"
+- paragraph
+  - StaticText "Poser le sujet (X → Y : Z)"
+- paragraph
+  - StaticText "Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire)."
+- StaticText "3"
+- paragraph
+  - StaticText "Diviser le sujet"
+- paragraph
+  - StaticText "Délimiter le cadre de l'étude et l'optique dans laquelle sera traitée la question."
+- StaticText "4"
+- paragraph
+  - StaticText "Problématique"
+- paragraph
+  - StaticText "Reformulation interrogative de l'intitulé initial (QUOI ? COMMENT ? POURQUOI ?)."
+- StaticText "5"
+- paragraph
+  - StaticText "État de la question"
+- paragraph
+  - StaticText "Synthétiser \"ce que l'on sait\" sur le sujet ou la question choisie."
+- StaticText "6"
+- paragraph
+  - StaticText "Corpus d'étude"
+- paragraph
+  - StaticText "Présenter le support de l'étude et justifier son choix."
+- StaticText "7"
+- paragraph
+  - StaticText "Objectifs & Hypothèses"
+- paragraph
+  - StaticText "Annoncer les grandes lignes du travail et les axes d'analyse retenus."
+- StaticText "Un bon titre doit contenir la ou les variable(s) à l'étude (X et Y) ou CONCEPTS."
+- StaticText "Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y)."
+- StaticText "Il doit mentionner le territoire et/ou la population Z à l'étude (X influence Y chez Z)."
+- StaticText "Le titre doit être à la fois BREF et PRÉCIS."
+- StaticText "Il prend généralement la forme d'une AFFIRMATION, et non d'une QUESTION."
+- StaticText "La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche."
+- StaticText "Développer de nouvelles méthodologies"
+- StaticText "Adapter des méthodes d'autres champs disciplinaires"
+- StaticText "Combiner des méthodes existantes de manière innovante"
+- StaticText "Mener une collecte de données primaires"
+- StaticText "Accéder à des bases de données existantes"
+- StaticText "Collaborer avec d'autres chercheurs ou institutions"
+- StaticText "Mener des études exploratoires"
+- StaticText "Effectuer des revues de littérature systématiques"
+- StaticText "Identifier les aspects sous-étudiés du sujet"
+- StaticText "Mener des études comparatives"
+- StaticText "Explorer les implications interculturelles"
+- StaticText "Identifier les facteurs contextuels influençant les résultats"
+- StaticText "S'engager avec les praticiens"
+- StaticText "Développer des projets de recherche-action"
+- StaticText "Créer des lignes directrices ou cadres pratiques"
+- StaticText "Diversifier les échantillons d'étude"
+- StaticText "Mener des recherches ciblées sur les groupes sous-représentés"
+- StaticText "Analyser les données existantes en ciblant les populations exclues"
+- StaticText "Mener des études de cas"
+- StaticText "Développer des projets de recherche appliquée"
+- StaticText "Collaborer avec des partenaires industriels"
+- StaticText "Mener des méta-analyses"
+- StaticText "Effectuer des études de réplication"
+- StaticText "Concevoir des études avec une puissance statistique accrue"
+- StaticText "Mener des revues de littérature approfondies"
+- StaticText "Identifier les questions de recherche clés"
+- StaticText "Développer des cadres conceptuels"
+- StaticText "Développer de nouvelles théories"
+- StaticText "Intégrer des théories existantes"
+- StaticText "Appliquer des théories d'autres disciplines"
+- StaticText "Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche."
+- StaticText "Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline."
+- StaticText "Si c'est votre propre découverte scientifique, expliquez clairement comment les résultats s'ajouteront aux connaissances existantes."
+- StaticText "Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant."
+- StaticText "L'introduction doit être motivante et captivante pour donner envie au lecteur de continuer."

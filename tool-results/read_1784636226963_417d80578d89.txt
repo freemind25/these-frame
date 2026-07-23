@@ -1,0 +1,826 @@
+  2960→function HumanizerPanel() {
+  2961→  const [input, setInput] = useState('')
+  2962→  const [voiceSample, setVoiceSample] = useState('')
+  2963→  const [result, setResult] = useState('')
+  2964→  const [isLoading, setIsLoading] = useState(false)
+  2965→  const [showVoice, setShowVoice] = useState(false)
+  2966→  const [copied, setCopied] = useState(false)
+  2967→  const [charCount, setCharCount] = useState(0)
+  2968→
+  2969→  function handleInputChange(v: string) {
+  2970→    setInput(v)
+  2971→    setCharCount(v.length)
+  2972→  }
+  2973→
+  2974→  async function handleHumanize() {
+  2975→    if (!input.trim() || isLoading) return
+  2976→    setIsLoading(true)
+  2977→    setResult('')
+  2978→    try {
+  2979→      const res = await fetch('/api/humanizer', {
+  2980→        method: 'POST',
+  2981→        headers: { 'Content-Type': 'application/json' },
+  2982→        body: JSON.stringify({
+  2983→          text: input.trim(),
+  2984→          voiceSample: voiceSample.trim() || undefined,
+  2985→        }),
+  2986→      })
+  2987→      const data = await res.json()
+  2988→      if (!res.ok) throw new Error(data.error || 'Erreur')
+  2989→      setResult(data.humanized)
+  2990→    } catch (err) {
+  2991→      setResult(err instanceof Error ? `Erreur : ${err.message}` : 'Erreur inconnue')
+  2992→    } finally {
+  2993→      setIsLoading(false)
+  2994→    }
+  2995→  }
+  2996→
+  2997→  function handleCopy(text: string) {
+  2998→    navigator.clipboard.writeText(text)
+  2999→    setCopied(true)
+  3000→    setTimeout(() => setCopied(false), 2000)
+  3001→  }
+  3002→
+  3003→  function handleClear() {
+  3004→    setInput('')
+  3005→    setResult('')
+  3006→    setCharCount(0)
+  3007→  }
+  3008→
+  3009→  return (
+  3010→    <div className="space-y-4">
+  3011→      <div>
+  3012→        <h3 className="text-lg font-semibold flex items-center gap-2">
+  3013→          <Wand2 className="h-5 w-5 text-violet-600" />
+  3014→          Humaniser le texte
+  3015→        </h3>
+  3016→        <p className="text-sm text-muted-foreground mt-1">
+  3017→          Détecte et corrige les 33 patterns d&apos;écriture IA (basé sur le guide Wikipedia WikiProject AI Cleanup).
+  3018→          Le texte est réécrit pour paraître naturel tout en conservant le sens et le registre académique.
+  3019→        </p>
+  3020→      </div>
+  3021→
+  3022→      <Card className="border-violet-200 bg-violet-50/50">
+  3023→        <CardContent className="py-3 px-4">
+  3024→          <div className="flex items-start gap-3">
+  3025→            <Lightbulb className="h-5 w-5 text-violet-600 shrink-0 mt-0.5" />
+  3026→            <div className="text-xs text-muted-foreground space-y-1">
+  3027→              <p><strong>Cet outil détecte :</strong> vocabulaire IA sur-représenté, langage promotionnel, parallélismes négatifs, règle de trois, phrases de remplissage, conclusions génériques, et 26 autres patterns.</p>
+  3028→              <p><strong>Processus en 3 passes :</strong> Réécriture → Audit des résidus → Passe finale.</p>
+  3029→            </div>
+  3030→          </div>
+  3031→        </CardContent>
+  3032→      </Card>
+  3033→
+  3034→      <div className="flex items-center gap-2">
+  3035→        <Button
+  3036→          variant={showVoice ? 'default' : 'outline'}
+  3037→          size="sm"
+  3038→          onClick={() => setShowVoice(!showVoice)}
+  3039→          className="text-xs"
+  3040→        >
+  3041→          <User className="h-3.5 w-3.5 mr-1.5" />
+  3042→          {showVoice ? 'Masquer' : 'Calibrer ma voix'}
+  3043→        </Button>
+  3044→        <span className="text-xs text-muted-foreground">Optionnel : collez un échantillon de votre écriture</span>
+  3045→      </div>
+  3046→
+  3047→      {showVoice && (
+  3048→        <Card className="border-dashed">
+  3049→          <CardContent className="pt-4">
+  3050→            <Label className="text-xs font-medium">Votre échantillon d&apos;écriture (2-3 paragraphes)</Label>
+  3051→            <Textarea
+  3052→              value={voiceSample}
+  3053→              onChange={e => setVoiceSample(e.target.value)}
+  3054→              placeholder="Collez ici un texte que vous avez écrit vous-même..."
+  3055→              className="mt-2 min-h-[80px] text-sm"
+  3056→              rows={3}
+  3057→            />
+  3058→          </CardContent>
+  3059→        </Card>
+  3060→      )}
+  3061→
+  3062→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  3063→        <div className="space-y-2">
+  3064→          <div className="flex items-center justify-between">
+  3065→            <Label className="text-sm font-medium">Texte à humaniser</Label>
+  3066→            <span className="text-xs text-muted-foreground">{charCount} car.</span>
+  3067→          </div>
+  3068→          <Textarea
+  3069→            value={input}
+  3070→            onChange={e => handleInputChange(e.target.value)}
+  3071→            placeholder="Collez ici le texte généré par l'IA que vous souhaitez humaniser..."
+  3072→            className="min-h-[250px] text-sm"
+  3073→            disabled={isLoading}
+  3074→          />
+  3075→          <div className="flex gap-2">
+  3076→            <Button
+  3077→              onClick={handleHumanize}
+  3078→              disabled={!input.trim() || isLoading || charCount > 15000}
+  3079→              className="flex-1"
+  3080→              size="sm"
+  3081→            >
+  3082→              {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />}
+  3083→              {isLoading ? 'Humanisation en cours...' : 'Humaniser'}
+  3084→            </Button>
+  3085→            {(input || result) && (
+  3086→              <Button variant="outline" size="sm" onClick={handleClear}>
+  3087→                <RotateCcw className="h-4 w-4" />
+  3088→              </Button>
+  3089→            )}
+  3090→          </div>
+  3091→          {charCount > 15000 && (
+  3092→            <p className="text-xs text-red-500">Maximum 15 000 caractères dépassé.</p>
+  3093→          )}
+  3094→        </div>
+  3095→
+  3096→        <div className="space-y-2">
+  3097→          <div className="flex items-center justify-between">
+  3098→            <Label className="text-sm font-medium">Texte humanisé</Label>
+  3099→            {result && !result.startsWith('Erreur') && (
+  3100→              <Button variant="ghost" size="sm" onClick={() => handleCopy(result)} className="h-7 text-xs">
+  3101→                {copied ? <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+  3102→                {copied ? 'Copié !' : 'Copier'}
+  3103→              </Button>
+  3104→            )}
+  3105→          </div>
+  3106→          <div className="min-h-[250px] rounded-lg border bg-muted/30 p-3">
+  3107→            {result ? (
+  3108→              <p className={`text-sm whitespace-pre-wrap leading-relaxed ${result.startsWith('Erreur') ? 'text-red-600' : ''}`}>{result}</p>
+  3109→            ) : isLoading ? (
+  3110→              <div className="flex items-center gap-2 h-full min-h-[220px]">
+  3111→                <Loader2 className="h-5 w-5 animate-spin text-violet-500" />
+  3112→                <span className="text-sm text-muted-foreground">Analyse et réécriture en cours (3 passes)...</span>
+  3113→              </div>
+  3114→            ) : (
+  3115→              <div className="flex flex-col items-center justify-center h-full min-h-[220px] text-center">
+  3116→                <Wand2 className="h-10 w-10 text-violet-300 mb-2" />
+  3117→                <p className="text-sm text-muted-foreground">Le texte humanisé apparaîtra ici</p>
+  3118→              </div>
+  3119→            )}
+  3120→          </div>
+  3121→        </div>
+  3122→      </div>
+  3123→
+  3124→      <Card>
+  3125→        <CardHeader className="pb-2">
+  3126→          <CardTitle className="text-sm">Les 33 patterns détectés</CardTitle>
+  3127→          <CardDescription className="text-xs">Basé sur le guide Wikipedia &quot;Signs of AI writing&quot;</CardDescription>
+  3128→        </CardHeader>
+  3129→        <CardContent>
+  3130→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
+  3131→            <PatternCategory title="Contenu" patterns={['Gonflement de l\'importance', 'Mise en avant notoriété', 'Analyses -ing superficielles', 'Langage promotionnel', 'Attributions vagues', 'Sections défis/perspectives']} />
+  3132→            <PatternCategory title="Langage" patterns={['Vocabulaire IA (crucial, en effet...)', 'Évitement du verbe être', 'Parallélismes négatifs', 'Règle de trois', 'Cyclage de synonymes', 'Fausses étendues', 'Voix passive excessive']} />
+  3133→            <PatternCategory title="Style & Forme" patterns={['Tirets excessifs', 'Gras abusif', 'Émojis', 'Artéfacts chatbot', 'Phrases de remplissage', 'Hésitation excessive', 'Conclusions génériques', 'Tropes d\'autorité', 'Effets staccato', 'Aphorismes formulas']} />
+  3134→          </div>
+  3135→        </CardContent>
+  3136→      </Card>
+  3137→    </div>
+  3138→  )
+  3139→}
+  3140→
+  3141→function PatternCategory({ title, patterns }: { title: string; patterns: string[] }) {
+  3142→  return (
+  3143→    <div>
+  3144→      <p className="text-xs font-semibold text-violet-700 mb-1">{title}</p>
+  3145→      <ul className="space-y-0.5">
+  3146→        {patterns.map((p, i) => (
+  3147→          <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+  3148→            <div className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0 mt-1.5" />
+  3149→            <span>{p}</span>
+  3150→          </li>
+  3151→        ))}
+  3152→      </ul>
+  3153→    </div>
+  3154→  )
+  3155→}
+  3156→
+  3157→function AIToolsTab() {
+  3158→  return (
+  3159→    <Tabs defaultValue="consensus" className="w-full">
+  3160→      <TabsList className="mb-4 w-full sm:w-auto">
+  3161→        <TabsTrigger value="consensus" className="text-xs sm:text-sm gap-1.5">
+  3162→          <Brain className="h-4 w-4" />
+  3163→          AI Consensus
+  3164→        </TabsTrigger>
+  3165→        <TabsTrigger value="notebook" className="text-xs sm:text-sm gap-1.5">
+  3166→          <BookOpenText className="h-4 w-4" />
+  3167→          Carnet de recherche
+  3168→        </TabsTrigger>
+  3169→        <TabsTrigger value="humanizer" className="text-xs sm:text-sm gap-1.5">
+  3170→          <Wand2 className="h-4 w-4" />
+  3171→          Humaniser
+  3172→        </TabsTrigger>
+  3173→        <TabsTrigger value="dataviz" className="text-xs sm:text-sm gap-1.5">
+  3174→          <BarChart3 className="h-4 w-4" />
+  3175→          Visualisation
+  3176→        </TabsTrigger>
+  3177→      </TabsList>
+  3178→
+  3179→      <TabsContent value="consensus">
+  3180→        <AIConsensusPanel />
+  3181→      </TabsContent>
+  3182→
+  3183→      <TabsContent value="notebook">
+  3184→        <ResearchNotebookPanel />
+  3185→      </TabsContent>
+  3186→
+  3187→      <TabsContent value="humanizer">
+  3188→        <HumanizerPanel />
+  3189→      </TabsContent>
+  3190→
+  3191→      <TabsContent value="dataviz">
+  3192→        <DataVizPanel />
+  3193→      </TabsContent>
+  3194→    </Tabs>
+  3195→  )
+  3196→}
+  3197→
+  3198→function AIConsensusPanel() {
+  3199→  const [connected, setConnected] = useState(false)
+  3200→  const [apiKey, setApiKey] = useState('')
+  3201→  const [selectedModels, setSelectedModels] = useState<string[]>(DEFAULT_MODELS.map((m) => m.id))
+  3202→  const [question, setQuestion] = useState('')
+  3203→  const [rounds, setRounds] = useState<ConsensusRound[]>([])
+  3204→  const [consensusResult, setConsensusResult] = useState<ConsensusResult | null>(null)
+  3205→  const [isLoading, setIsLoading] = useState(false)
+  3206→
+  3207→  useEffect(() => {
+  3208→    fetch('/api/consensus')
+  3209→      .then((r) => r.json())
+  3210→      .then((data) => {
+  3211→        if (data.connected) setConnected(true)
+  3212→      })
+  3213→      .catch(() => {})
+  3214→  }, [])
+  3215→
+  3216→  const handleConnect = async () => {
+  3217→    try {
+  3218→      const res = await fetch('/api/consensus/config', {
+  3219→        method: 'POST',
+  3220→        headers: { 'Content-Type': 'application/json' },
+  3221→        body: JSON.stringify({ apiKey }),
+  3222→      })
+  3223→      if (res.ok) setConnected(true)
+  3224→    } catch {}
+  3225→  }
+  3226→
+  3227→  const handleDisconnect = async () => {
+  3228→    try {
+  3229→      await fetch('/api/consensus/config', { method: 'DELETE' })
+  3230→      setConnected(false)
+  3231→      setApiKey('')
+  3232→    } catch {}
+  3233→  }
+  3234→
+  3235→  const toggleModel = (modelId: string) => {
+  3236→    setSelectedModels((prev) =>
+  3237→      prev.includes(modelId) ? prev.filter((m) => m !== modelId) : [...prev, modelId]
+  3238→    )
+  3239→  }
+  3240→
+  3241→  const handleSend = async () => {
+  3242→    if (!question.trim() || selectedModels.length === 0) return
+  3243→    setIsLoading(true)
+  3244→    setRounds([])
+  3245→    setConsensusResult(null)
+  3246→    try {
+  3247→      const res = await fetch('/api/consensus', {
+  3248→        method: 'POST',
+  3249→        headers: { 'Content-Type': 'application/json' },
+  3250→        body: JSON.stringify({ question, models: selectedModels }),
+  3251→      })
+  3252→      const data = await res.json()
+  3253→      if (data.rounds) setRounds(data.rounds)
+  3254→      if (data.consensus) setConsensusResult(data)
+  3255→    } catch {}
+  3256→    setIsLoading(false)
+  3257→  }
+  3258→
+  3259→  return (
+  3260→    <div className="space-y-4">
+  3261→      {/* API Key Config */}
+  3262→      <Card className="border-emerald-200">
+  3263→        <CardHeader className="pb-3">
+  3264→          <CardTitle className="text-sm flex items-center gap-2">
+  3265→            <Key className="h-4 w-4 text-emerald-600" />
+  3266→            Configuration OpenRouter
+  3267→          </CardTitle>
+  3268→        </CardHeader>
+  3269→        <CardContent>
+  3270→          {!connected ? (
+  3271→            <div className="flex gap-2">
+  3272→              <Input
+  3273→                type="password"
+  3274→                placeholder="Clé API OpenRouter..."
+  3275→                value={apiKey}
+  3276→                onChange={(e) => setApiKey(e.target.value)}
+  3277→                className="text-sm"
+  3278→              />
+  3279→              <Button
+  3280→                size="sm"
+  3281→                onClick={handleConnect}
+  3282→                disabled={!apiKey.trim()}
+  3283→                className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+  3284→              >
+  3285→                Connecter
+  3286→              </Button>
+  3287→            </div>
+  3288→          ) : (
+  3289→            <div className="flex items-center justify-between">
+  3290→              <div className="flex items-center gap-2 text-sm text-emerald-700">
+  3291→                <CheckCircle2 className="h-4 w-4" />
+  3292→                <span>Connecté — ••••••••</span>
+  3293→              </div>
+  3294→              <Button variant="outline" size="sm" onClick={handleDisconnect} className="text-red-600 hover:text-red-700 gap-1.5">
+  3295→                <Unplug className="h-3.5 w-3.5" />
+  3296→                Déconnecter
+  3297→              </Button>
+  3298→            </div>
+  3299→          )}
+  3300→        </CardContent>
+  3301→      </Card>
+  3302→
+  3303→      {/* Model Selection */}
+  3304→      <Card>
+  3305→        <CardHeader className="pb-3">
+  3306→          <CardTitle className="text-sm">Modèles sélectionnés</CardTitle>
+  3307→        </CardHeader>
+  3308→        <CardContent>
+  3309→          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+  3310→            {DEFAULT_MODELS.map((model) => (
+  3311→              <label
+  3312→                key={model.id}
+  3313→                className="flex items-center gap-2 text-sm cursor-pointer rounded-lg border p-2.5 hover:bg-emerald-50/50 transition-colors"
+  3314→              >
+  3315→                <Checkbox
+  3316→                  checked={selectedModels.includes(model.id)}
+  3317→                  onCheckedChange={() => toggleModel(model.id)}
+  3318→                  className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+  3319→                />
+  3320→                {model.label}
+  3321→              </label>
+  3322→            ))}
+  3323→          </div>
+  3324→        </CardContent>
+  3325→      </Card>
+  3326→
+  3327→      {/* Question Input */}
+  3328→      <Card>
+  3329→        <CardContent className="pt-4">
+  3330→          <div className="flex gap-2">
+  3331→            <Textarea
+  3332→              placeholder="Posez votre question pour obtenir un consensus d'IA..."
+  3333→              value={question}
+  3334→              onChange={(e) => setQuestion(e.target.value)}
+  3335→              className="text-sm min-h-[60px] resize-none"
+  3336→              rows={2}
+  3337→            />
+  3338→            <Button
+  3339→              size="sm"
+  3340→              onClick={handleSend}
+  3341→              disabled={!connected || !question.trim() || isLoading || selectedModels.length === 0}
+  3342→              className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 self-end"
+  3343→            >
+  3344→              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+  3345→            </Button>
+  3346→          </div>
+  3347→        </CardContent>
+  3348→      </Card>
+  3349→
+  3350→      {/* Results */}
+  3351→      {rounds.length > 0 && (
+  3352→        <div className="space-y-3">
+  3353→          {rounds.map((round) => (
+  3354→            <Card key={round.round}>
+  3355→              <CardHeader className="pb-2">
+  3356→                <CardTitle className="text-sm text-emerald-700">Round {round.round}</CardTitle>
+  3357→              </CardHeader>
+  3358→              <CardContent>
+  3359→                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+  3360→                  {round.responses.map((r) => (
+  3361→                    <Card key={r.model} className="border-emerald-100 bg-emerald-50/30">
+  3362→                      <CardContent className="p-3">
+  3363→                        <p className="text-xs font-medium text-emerald-700 mb-1">{r.label}</p>
+  3364→                        <p className="text-xs text-muted-foreground line-clamp-4">{r.response}</p>
+  3365→                      </CardContent>
+  3366→                    </Card>
+  3367→                  ))}
+  3368→                </div>
+  3369→              </CardContent>
+  3370→            </Card>
+  3371→          ))}
+  3372→        </div>
+  3373→      )}
+  3374→
+  3375→      {consensusResult && (
+  3376→        <Card className="border-emerald-300 bg-emerald-50/30">
+  3377→          <CardHeader className="pb-3">
+  3378→            <CardTitle className="text-sm flex items-center gap-2">
+  3379→              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+  3380→              Consensus
+  3381→            </CardTitle>
+  3382→          </CardHeader>
+  3383→          <CardContent className="space-y-3">
+  3384→            <div className="space-y-1">
+  3385→              <div className="flex justify-between text-xs">
+  3386→                <span>Score de consensus</span>
+  3387→                <span className="font-medium">{consensusResult.score}%</span>
+  3388→              </div>
+  3389→              <Progress value={consensusResult.score} className="h-2 bg-emerald-100" />
+  3390→            </div>
+  3391→            <p className="text-sm">{consensusResult.consensus}</p>
+  3392→          </CardContent>
+  3393→        </Card>
+  3394→      )}
+  3395→    </div>
+  3396→  )
+  3397→}
+  3398→
+  3399→function ResearchNotebookPanel() {
+  3400→  const [sources, setSources] = useState<NotebookSource[]>([])
+  3401→  const [entries, setEntries] = useState<NotebookEntry[]>([])
+  3402→  const [question, setQuestion] = useState('')
+  3403→  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([])
+  3404→  const [isLoading, setIsLoading] = useState(false)
+  3405→  const [showAddSource, setShowAddSource] = useState(false)
+  3406→  const [newTitle, setNewTitle] = useState('')
+  3407→  const [newContent, setNewContent] = useState('')
+  3408→  const [newTags, setNewTags] = useState('')
+  3409→  const [copiedId, setCopiedId] = useState<string | null>(null)
+  3410→
+  3411→  const fetchSources = async () => {
+  3412→    try {
+  3413→      const res = await fetch('/api/notebook/sources')
+  3414→      const data = await res.json()
+  3415→      setSources(Array.isArray(data) ? data : data.sources || [])
+  3416→    } catch {}
+  3417→  }
+  3418→
+  3419→  const fetchEntries = async () => {
+  3420→    try {
+  3421→      const res = await fetch('/api/notebook/entries')
+  3422→      const data = await res.json()
+  3423→      setEntries(Array.isArray(data) ? data : data.entries || [])
+  3424→    } catch {}
+  3425→  }
+  3426→
+  3427→  useEffect(() => {
+  3428→    const load = async () => {
+  3429→      try {
+  3430→        const [sourcesRes, entriesRes] = await Promise.all([
+  3431→          fetch('/api/notebook/sources'),
+  3432→          fetch('/api/notebook/entries'),
+  3433→        ])
+  3434→        const sourcesData = await sourcesRes.json()
+  3435→        const entriesData = await entriesRes.json()
+  3436→        setSources(Array.isArray(sourcesData) ? sourcesData : sourcesData.sources || [])
+  3437→        setEntries(Array.isArray(entriesData) ? entriesData : entriesData.entries || [])
+  3438→      } catch {}
+  3439→    }
+  3440→    load()
+  3441→  }, [])
+  3442→
+  3443→  const handleAddSource = async () => {
+  3444→    if (!newTitle.trim() || !newContent.trim()) return
+  3445→    try {
+  3446→      await fetch('/api/notebook/sources', {
+  3447→        method: 'POST',
+  3448→        headers: { 'Content-Type': 'application/json' },
+  3449→        body: JSON.stringify({ title: newTitle, content: newContent, tags: newTags }),
+  3450→      })
+  3451→      setNewTitle('')
+  3452→      setNewContent('')
+  3453→      setNewTags('')
+  3454→      setShowAddSource(false)
+  3455→      fetchSources()
+  3456→    } catch {}
+  3457→  }
+  3458→
+  3459→  const handleDeleteSource = async (id: string) => {
+  3460→    try {
+  3461→      await fetch(`/api/notebook/sources?id=${id}`, { method: 'DELETE' })
+  3462→      fetchSources()
+  3463→    } catch {}
+  3464→  }
+  3465→
+  3466→  const toggleSource = (id: string) => {
+  3467→    setSelectedSourceIds((prev) =>
+  3468→      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+  3469→    )
+  3470→  }
+  3471→
+  3472→  const handleAsk = async () => {
+  3473→    if (!question.trim()) return
+  3474→    setIsLoading(true)
+  3475→    try {
+  3476→      const body: Record<string, unknown> = { question }
+  3477→      if (selectedSourceIds.length > 0) body.sourceIds = selectedSourceIds
+  3478→      await fetch('/api/notebook/ask', {
+  3479→        method: 'POST',
+  3480→        headers: { 'Content-Type': 'application/json' },
+  3481→        body: JSON.stringify(body),
+  3482→      })
+  3483→      setQuestion('')
+  3484→      setSelectedSourceIds([])
+  3485→      fetchEntries()
+  3486→    } catch {}
+  3487→    setIsLoading(false)
+  3488→  }
+  3489→
+  3490→  const handleCopy = (text: string, id: string) => {
+  3491→    navigator.clipboard.writeText(text)
+  3492→    setCopiedId(id)
+  3493→    setTimeout(() => setCopiedId(null), 2000)
+  3494→  }
+  3495→
+  3496→  return (
+  3497→    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  3498→      {/* Left panel — Sources */}
+  3499→      <div className="space-y-3">
+  3500→        <div className="flex items-center justify-between">
+  3501→          <h3 className="text-sm font-semibold flex items-center gap-1.5">
+  3502→            <BookOpenText className="h-4 w-4 text-sky-600" />
+  3503→            Sources ({sources.length})
+  3504→          </h3>
+  3505→          <Dialog open={showAddSource} onOpenChange={setShowAddSource}>
+  3506→            <DialogTrigger asChild>
+  3507→              <Button size="sm" className="bg-sky-600 hover:bg-sky-700 text-white gap-1.5 text-xs">
+  3508→                <Plus className="h-3.5 w-3.5" />
+  3509→                Ajouter une source
+  3510→              </Button>
+  3511→            </DialogTrigger>
+  3512→            <DialogContent>
+  3513→              <DialogHeader>
+  3514→                <DialogTitle>Ajouter une source</DialogTitle>
+  3515→                <DialogDescription>Entrez le contenu de votre source de recherche.</DialogDescription>
+  3516→              </DialogHeader>
+  3517→              <div className="space-y-3 py-2">
+  3518→                <div>
+  3519→                  <Label className="text-xs">Titre</Label>
+  3520→                  <Input
+  3521→                    value={newTitle}
+  3522→                    onChange={(e) => setNewTitle(e.target.value)}
+  3523→                    placeholder="Titre de la source"
+  3524→                    className="text-sm mt-1"
+  3525→                  />
+  3526→                </div>
+  3527→                <div>
+  3528→                  <Label className="text-xs">Contenu</Label>
+  3529→                  <Textarea
+  3530→                    value={newContent}
+  3531→                    onChange={(e) => setNewContent(e.target.value)}
+  3532→                    placeholder="Collez ou tapez le contenu..."
+  3533→                    className="text-sm mt-1 min-h-[120px]"
+  3534→                  />
+  3535→                </div>
+  3536→                <div>
+  3537→                  <Label className="text-xs">Tags (séparés par des virgules)</Label>
+  3538→                  <Input
+  3539→                    value={newTags}
+  3540→                    onChange={(e) => setNewTags(e.target.value)}
+  3541→                    placeholder="tag1, tag2, tag3"
+  3542→                    className="text-sm mt-1"
+  3543→                  />
+  3544→                </div>
+  3545→              </div>
+  3546→              <DialogFooter>
+  3547→                <Button variant="outline" size="sm" onClick={() => setShowAddSource(false)}>
+  3548→                  Annuler
+  3549→                </Button>
+  3550→                <Button
+  3551→                  size="sm"
+  3552→                  onClick={handleAddSource}
+  3553→                  disabled={!newTitle.trim() || !newContent.trim()}
+  3554→                  className="bg-sky-600 hover:bg-sky-700 text-white"
+  3555→                >
+  3556→                  Ajouter
+  3557→                </Button>
+  3558→              </DialogFooter>
+  3559→            </DialogContent>
+  3560→          </Dialog>
+  3561→        </div>
+  3562→
+  3563→        <div className="max-h-96 overflow-y-auto space-y-2">
+  3564→          {sources.length === 0 ? (
+  3565→            <Card>
+  3566→              <CardContent className="p-4 text-center text-xs text-muted-foreground">
+  3567→                Aucune source ajoutée. Cliquez sur « Ajouter une source » pour commencer.
+  3568→              </CardContent>
+  3569→            </Card>
+  3570→          ) : (
+  3571→            sources.map((source) => (
+  3572→              <Card key={source.id} className="border-sky-100">
+  3573→                <CardContent className="p-3">
+  3574→                  <div className="flex items-start justify-between gap-2">
+  3575→                    <div className="min-w-0 flex-1">
+  3576→                      <p className="text-sm font-medium truncate">{source.title}</p>
+  3577→                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+  3578→                        {source.content}
+  3579→                      </p>
+  3580→                      {source.tags && (
+  3581→                        <div className="flex flex-wrap gap-1 mt-1.5">
+  3582→                          {source.tags.split(',').map((tag) => (
+  3583→                            <Badge key={tag.trim()} variant="secondary" className="text-[10px] px-1.5 py-0 bg-sky-50 text-sky-700 border-sky-200">
+  3584→                              {tag.trim()}
+  3585→                            </Badge>
+  3586→                          ))}
+  3587→                        </div>
+  3588→                      )}
+  3589→                    </div>
+  3590→                    <Button
+  3591→                      variant="ghost"
+  3592→                      size="sm"
+  3593→                      onClick={() => handleDeleteSource(source.id)}
+  3594→                      className="text-red-500 hover:text-red-700 shrink-0 h-7 w-7 p-0"
+  3595→                    >
+  3596→                      <Trash2 className="h-3.5 w-3.5" />
+  3597→                    </Button>
+  3598→                  </div>
+  3599→                </CardContent>
+  3600→              </Card>
+  3601→            ))
+  3602→          )}
+  3603→        </div>
+  3604→      </div>
+  3605→
+  3606→      {/* Right panel — Q&A */}
+  3607→      <div className="space-y-3">
+  3608→        <h3 className="text-sm font-semibold flex items-center gap-1.5">
+  3609→          <MessageSquare className="h-4 w-4 text-sky-600" />
+  3610→          Questions &amp; Réponses
+  3611→        </h3>
+  3612→
+  3613→        {/* Source selection checkboxes */}
+  3614→        {sources.length > 0 && (
+  3615→          <Card className="border-sky-100">
+  3616→            <CardContent className="p-3">
+  3617→              <p className="text-xs font-medium mb-2 text-sky-700">Sources à utiliser :</p>
+  3618→              <div className="flex flex-wrap gap-2">
+  3619→                {sources.map((source) => (
+  3620→                  <label key={source.id} className="flex items-center gap-1.5 text-xs cursor-pointer">
+  3621→                    <Checkbox
+  3622→                      checked={selectedSourceIds.includes(source.id)}
+  3623→                      onCheckedChange={() => toggleSource(source.id)}
+  3624→                      className="data-[state=checked]:bg-sky-600 data-[state=checked]:border-sky-600 h-3.5 w-3.5"
+  3625→                    />
+  3626→                    <span className="truncate max-w-[150px]">{source.title}</span>
+  3627→                  </label>
+  3628→                ))}
+  3629→              </div>
+  3630→            </CardContent>
+  3631→          </Card>
+  3632→        )}
+  3633→
+  3634→        {/* Question input */}
+  3635→        <div className="flex gap-2">
+  3636→          <Input
+  3637→            placeholder="Posez une question sur vos sources..."
+  3638→            value={question}
+  3639→            onChange={(e) => setQuestion(e.target.value)}
+  3640→            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAsk()}
+  3641→            className="text-sm"
+  3642→          />
+  3643→          <Button
+  3644→            size="sm"
+  3645→            onClick={handleAsk}
+  3646→            disabled={!question.trim() || isLoading}
+  3647→            className="bg-sky-600 hover:bg-sky-700 text-white shrink-0"
+  3648→          >
+  3649→            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+  3650→          </Button>
+  3651→        </div>
+  3652→
+  3653→        {/* Entries history */}
+  3654→        <div className="max-h-96 overflow-y-auto space-y-2">
+  3655→          {entries.length === 0 ? (
+  3656→            <Card>
+  3657→              <CardContent className="p-4 text-center text-xs text-muted-foreground">
+  3658→                Aucune question posée pour le moment.
+  3659→              </CardContent>
+  3660→            </Card>
+  3661→          ) : (
+  3662→            entries.map((entry) => (
+  3663→              <Card key={entry.id} className="border-sky-100">
+  3664→                <CardContent className="p-3 space-y-2">
+  3665→                  <div className="flex items-start justify-between gap-2">
+  3666→                    <p className="text-sm font-medium text-sky-800">{entry.question}</p>
+  3667→                    <Button
+  3668→                      variant="ghost"
+  3669→                      size="sm"
+  3670→                      onClick={() => handleCopy(entry.answer, entry.id)}
+  3671→                      className="shrink-0 h-7 w-7 p-0"
+  3672→                    >
+  3673→                      {copiedId === entry.id ? (
+  3674→                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+  3675→                      ) : (
+  3676→                        <Copy className="h-3.5 w-3.5" />
+  3677→                      )}
+  3678→                    </Button>
+  3679→                  </div>
+  3680→                  <p className="text-xs text-muted-foreground whitespace-pre-wrap">{entry.answer}</p>
+  3681→                </CardContent>
+  3682→              </Card>
+  3683→            ))
+  3684→          )}
+  3685→        </div>
+  3686→      </div>
+  3687→    </div>
+  3688→  )
+  3689→}
+  3690→
+  3691→// ─── Main Page ────────────────────────────────────────────────────
+  3692→export default function Home() {
+  3693→  return (
+  3694→    <div className="min-h-screen flex flex-col bg-background">
+  3695→      {/* Header */}
+  3696→      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+  3697→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+  3698→          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-600 text-white">
+  3699→            <GraduationCap className="h-6 w-6" />
+  3700→          </div>
+  3701→          <div>
+  3702→            <h1 className="text-lg font-bold tracking-tight">ThesisFrame</h1>
+  3703→            <p className="text-xs text-muted-foreground">Aide à la structuration — Université Constantine 3</p>
+  3704→          </div>
+  3705→        </div>
+  3706→      </header>
+  3707→
+  3708→      {/* Main content */}
+  3709→      <main className="flex-1">
+  3710→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  3711→          <Tabs defaultValue="articles" className="w-full">
+  3712→            <TabsList className="w-full grid grid-cols-6 mb-6">
+  3713→              <TabsTrigger value="ai-writing" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3714→                <Sparkles className="h-4 w-4" />
+  3715→                <span className="hidden sm:inline">Assistant IA</span>
+  3716→                <span className="sm:hidden">IA</span>
+  3717→              </TabsTrigger>
+  3718→              <TabsTrigger value="methodology" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3719→                <FlaskConical className="h-4 w-4" />
+  3720→                <span className="hidden sm:inline">Méthodologie</span>
+  3721→                <span className="sm:hidden">Méthodo.</span>
+  3722→              </TabsTrigger>
+  3723→              <TabsTrigger value="articles" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3724→                <FileText className="h-4 w-4" />
+  3725→                <span className="hidden sm:inline">Articles scientifiques</span>
+  3726→                <span className="sm:hidden">Articles</span>
+  3727→              </TabsTrigger>
+  3728→              <TabsTrigger value="references" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3729→                <Library className="h-4 w-4" />
+  3730→                <span className="hidden sm:inline">Références biblio.</span>
+  3731→                <span className="sm:hidden">Références</span>
+  3732→              </TabsTrigger>
+  3733→              <TabsTrigger value="thesis" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3734→                <BookOpen className="h-4 w-4" />
+  3735→                <span className="hidden sm:inline">Plan de thèse</span>
+  3736→                <span className="sm:hidden">Thèse</span>
+  3737→              </TabsTrigger>
+  3738→              <TabsTrigger value="ai-tools" className="text-xs sm:text-sm flex items-center gap-1.5 py-3">
+  3739→                <Wand2 className="h-4 w-4" />
+  3740→                <span className="hidden sm:inline">Outils IA</span>
+  3741→                <span className="sm:hidden">Outils</span>
+  3742→              </TabsTrigger>
+  3743→            </TabsList>
+  3744→
+  3745→            <TabsContent value="ai-writing">
+  3746→              <AIWritingTab />
+  3747→            </TabsContent>
+  3748→
+  3749→            <TabsContent value="methodology">
+  3750→              <MethodologyTab />
+  3751→            </TabsContent>
+  3752→
+  3753→            <TabsContent value="articles">
+  3754→              <ArticlesGuideTab />
+  3755→            </TabsContent>
+  3756→
+  3757→            <TabsContent value="references">
+  3758→              <ReferencesTab />
+  3759→            </TabsContent>
+  3760→
+  3761→            <TabsContent value="thesis">
+  3762→              <ThesisPlanTab />
+  3763→            </TabsContent>
+  3764→
+  3765→            <TabsContent value="ai-tools">
+  3766→              <AIToolsTab />
+  3767→            </TabsContent>
+  3768→          </Tabs>
+  3769→        </div>
+  3770→      </main>
+  3771→
+  3772→      {/* Footer */}
+  3773→      <footer className="border-t bg-white/80 backdrop-blur-sm mt-auto">
+  3774→        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+  3775→          <p className="text-xs text-muted-foreground">
+  3776→            ThesisFrame © 2025 — Université Constantine 3, Faculté d&apos;Architecture et d&apos;Urbanisme
+  3777→          </p>
+  3778→          <p className="text-xs text-muted-foreground">
+  3779→            Basé sur le squelette IMRaD • Guide Ecarnot et al. (2015)
+  3780→          </p>
+  3781→        </div>
+  3782→      </footer>
+  3783→    </div>
+  3784→  )
+  3785→}
