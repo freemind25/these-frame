@@ -162,7 +162,7 @@ function ThesisPlanTab() {
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              Squelette IMRaD — Université Constantine 3
+              Squelette IMRaD — Structure standard de thèse
             </p>
           </CardContent>
         </Card>

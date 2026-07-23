@@ -317,8 +317,8 @@ export default function ArticlesGuideTab() {
               <h3 className="font-semibold text-emerald-900">Guide de rédaction d&apos;articles scientifiques</h3>
               <p className="text-sm text-emerald-700 mt-1">
                 Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas
-                d&apos;Ecarnot et al. (2015). Il est conçu pour les doctorants en architecture et urbanisme
-                de l&apos;Université Constantine 3.
+                d&apos;Ecarnot et al. (2015). Il est conçu pour les doctorants et chercheurs
+                en rédaction scientifique.
               </p>
             </div>
           </div>

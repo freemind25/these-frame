@@ -65,8 +65,8 @@ model Thesis {
   title     String    @default("Ma thèse de doctorat")
   subtitle  String?
   author    String    @default("Doctorant")
-  field     String    @default("Architecture et Urbanisme")
-  university String   @default("Université Constantine 3")
+  field     String    @default("")
+  university String   @default("")
   status    String    @default("draft") // draft | in_progress | submitted | defended
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

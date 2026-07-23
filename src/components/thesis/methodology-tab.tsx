@@ -66,8 +66,8 @@ export default function MethodologyTab() {
             <div>
               <h3 className="font-semibold text-sky-900">Guide de méthodologie de la recherche</h3>
               <p className="text-sm text-sky-700 mt-1">
-                Basé sur le cours de Gestion des Techniques Urbaines — IGTU-Cne3, Université Constantine 3.
-                Ce guide couvre la démarche scientifique, la problématique, les outils de collecte et la recherche documentaire.
+                Guide complet de la méthodologie de la recherche scientifique.
+                Couvre la démarche scientifique, la problématique, les outils de collecte et la recherche documentaire.
               </p>
             </div>
           </div>

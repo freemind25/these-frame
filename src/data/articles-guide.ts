@@ -264,7 +264,7 @@ export const sectionGuides: SectionGuide[] = [
       'Mots-clés en fin d\'abstract (4-6 termes)',
     ],
     wordCount: '150-300 mots',
-    example: 'Contexte : La réhabilitation urbaine à Constantine 3 nécessite… Objectif : Cette étude vise à évaluer… Méthode : Nous avons analysé 200 projets de… Résultats : 67% des projets ont montré… Conclusion : Ces résultats suggèrent que…',
+    example: 'Contexte : La réhabilitation du centre-ville nécessite… Objectif : Cette étude vise à évaluer… Méthode : Nous avons analysé 200 projets de… Résultats : 67% des projets ont montré… Conclusion : Ces résultats suggèrent que…',
   },
   {
     id: 'intro-section',

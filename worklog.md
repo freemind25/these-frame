@@ -1,33 +1,61 @@
+# ThesisFrame — Worklog
+
 ---
 Task ID: 1
 Agent: Main
-Task: Fix Vercel deployment failure (red cross) and zai.ts crashes
+Task: Remove all university-specific references (UC3, IGTU, Constantine 3, Architecture/Urbanisme) and make app generic for all users
 
 Work Log:
-- Analyzed the project: identified z-ai-web-dev-sdk uses fs/path/os ESM imports
-- Found that next.config.ts was missing serverExternalPackages
-- Found that zai.ts had ensureZaiConfig() which tried to write files on Vercel's read-only filesystem
-- Added z-ai-web-dev-sdk and sharp to serverExternalPackages in next.config.ts
-- Completely rewrote zai.ts to be Vercel-safe: no file writes, proper error handling, isZAIConfigured() check
-- Added /api/ai-status endpoint for configuration diagnostics
-- Verified locally: lint passes, dev server runs, all pages render correctly
-- Pushed fix to GitHub (commit 0db769c)
+- Searched entire codebase for references to: IGTU, UC3, Constantine, Constantine 3, Architecture et Urbanisme, urbanisme, architecture
+- Found and fixed 14 source files + prisma schema
+- Files modified:
+  1. `src/app/layout.tsx` — Removed UC3/IGTU/architecture/urbanisme from metadata & keywords
+  2. `prisma/schema.prisma` — Changed Thesis.field/university defaults to empty strings
+  3. `src/data/methodology-guide.ts` — Removed IGTU-Cne3/Constantine 3 from header comment, generalized 'architecture' reference
+  4. `src/data/directeur-prompt.ts` — Complete rewrite: removed all IGTU/UC3/architecture/urbanisme references from system prompt, replaced SOUS_DOMAINES with 10 generic disciplinary fields
+  5. `src/data/articles-guide.ts` — Removed "Constantine 3" from abstract example
+  6. `src/data/latex-template.ts` — Removed university-specific defaults, made all fields empty
+  7. `src/app/api/ai-writing/route.ts` — Removed (architecture, urbanisme, aménagement) from all 6 system prompts
+  8. `src/app/api/export-pdf/route.ts` — Replaced hardcoded "Architecture et Urbanisme" with dynamic keywords field
+  9. `src/components/thesis/export-pdf-tab.tsx` — Added university/faculty/department/keywords as user-editable fields, removed hardcoded values
+  10. `src/components/thesis/directeur-tab.tsx` — Replaced IGTU-UC3/Architecture badges with IMRaD/Évaluation critique, updated sous-domaines dropdown
+  11. `src/components/thesis/methodology-tab.tsx` — Removed IGTU-Cne3/Université Constantine 3 from description
+  12. `src/components/thesis/articles-tab.tsx` — Removed "architecture et urbanisme" / "Université Constantine 3" from description
+  13. `src/components/thesis/thesis-plan-tab.tsx` — Changed "Université Constantine 3" to "Structure standard de thèse"
+  14. `src/components/thesis/references-tab.tsx` — Changed placeholder tags
+  15. `src/app/page.tsx` — Changed default field from "Architecture et Urbanisme" to "Non précisé"
+- Ran `bun run db:push` to apply schema changes
+- Verified with `rg` that zero references remain in src/ and prisma/
 
 Stage Summary:
-- Root cause: z-ai-web-dev-sdk was being bundled by Next.js (needs serverExternalPackages), and zai.ts tried writing files on read-only Vercel filesystem
-- Fix: serverExternalPackages + never-write zai.ts + clear error messages
-- Pushed to https://github.com/freemind25/these-frame.git (main branch)
+- All university-specific references removed from 15 files
+- App is now fully generic — works for any discipline/university
+- SOUS_DOMAINES expanded from 10 architecture-specific to 10 generic disciplinary fields
+
 ---
 Task ID: 2
-Agent: fullstack-api-routes
-Task: Create thesis CRUD API routes
+Agent: Main
+Task: Implement multi-provider AI integration with provider selector UI
 
 Work Log:
-- Created /api/thesis/route.ts (GET + PATCH)
-- Created /api/thesis/chapters/[chapterId]/route.ts (GET + PATCH + DELETE)
-- Created /api/thesis/seed/route.ts (POST - ensure thesis with 6 chapters)
+- Backend already supported external providers (Mistral, OpenAI, etc.) via OpenAI-compatible API in `src/app/api/ai-writing/route.ts`
+- Added AI provider state management in page.tsx with localStorage persistence:
+  - aiProvider, aiApiKey, aiBaseUrl, aiModel
+  - saveProviderSettings() and clearProviderSettings() callbacks
+- Added provider settings dialog with:
+  - 7 provider options: Z.ai (default), Mistral AI, OpenAI, Anthropic (Claude), Groq, Ollama (local), Custom (OpenAI-compatible)
+  - Auto-fill base URL and model for each provider
+  - API key input (password type, stored in localStorage only)
+  - Security notice about client-side storage
+  - Reset and Save buttons
+- Added visual provider badge in AI tab showing current provider
+- Added settings gear button (⚙) next to mode selector
+- Updated handleAiSend() to pass provider config to API when not using Z.ai
+- Added 2 previously missing AI modes to the UI dropdown: "Doc. de supervision" and "Présentation conf."
+- Browser tested: provider selector, Mistral auto-fill, settings persistence, reset, Export PDF new fields
 
 Stage Summary:
-- Full CRUD for thesis and chapters
-- Seed endpoint creates default thesis with 6 empty chapters
-- Word count auto-computed on chapter save
+- Multi-provider AI fully functional with 7 provider options
+- Settings persisted in localStorage (never sent to our servers)
+- Clean UI with provider badge and settings dialog
+- All 10 AI writing modes now accessible from the editor panel

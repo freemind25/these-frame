@@ -36,6 +36,10 @@ export default function ExportPdfContent() {
   const [thesisTitle, setThesisTitle] = useState('Titre de la thèse')
   const [author, setAuthor] = useState('Prénom NOM')
   const [supervisor, setSupervisor] = useState('Pr. Prénom NOM')
+  const [university, setUniversity] = useState('')
+  const [faculty, setFaculty] = useState('')
+  const [department, setDepartment] = useState('')
+  const [keywords, setKeywords] = useState('')
   const [includeToc, setIncludeToc] = useState(true)
   const [includePageNumbers, setIncludePageNumbers] = useState(true)
   const [watermark, setWatermark] = useState('none')
@@ -81,9 +85,10 @@ export default function ExportPdfContent() {
           thesisTitle,
           author,
           supervisor,
-          university: 'Université Constantine 3',
-          faculty: "Faculté d'Architecture et d'Urbanisme",
-          department: "Département d'Architecture",
+          university,
+          faculty,
+          department,
+          keywords,
           date: new Date().getFullYear().toString(),
           includeToc,
           includePageNumbers,
@@ -142,6 +147,22 @@ export default function ExportPdfContent() {
             <div className="space-y-1">
               <Label className="text-xs">Directeur(rice) de thèse</Label>
               <Input value={supervisor} onChange={e => setSupervisor(e.target.value)} placeholder="Pr. Prénom NOM" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Université (optionnel)</Label>
+              <Input value={university} onChange={e => setUniversity(e.target.value)} placeholder="Nom de l'université" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Faculté (optionnel)</Label>
+              <Input value={faculty} onChange={e => setFaculty(e.target.value)} placeholder="Nom de la faculté" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Département (optionnel)</Label>
+              <Input value={department} onChange={e => setDepartment(e.target.value)} placeholder="Nom du département" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Mots-clés (optionnel)</Label>
+              <Input value={keywords} onChange={e => setKeywords(e.target.value)} placeholder="mot-clé 1, mot-clé 2, …" className="h-9 text-sm" />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Filigrane (optionnel)</Label>

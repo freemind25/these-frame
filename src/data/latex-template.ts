@@ -1,6 +1,6 @@
 /**
- * Template LaTeX pour thèse de doctorat en architecture/urbanisme
- * Université Constantine 3 — format francophone IMRaD
+ * Template LaTeX pour thèse de doctorat
+ * Format francophone IMRaD
  */
 
 export interface ThesisData {
@@ -32,16 +32,16 @@ export const DEFAULT_THESIS_DATA: ThesisData = {
   author: 'Prénom NOM',
   supervisor: 'Pr. Prénom NOM',
   coSupervisor: '',
-  speciality: 'Architecture et Urbanisme',
-  laboratory: 'Laboratoire de recherche en architecture et urbanisme',
-  university: 'Université Constantine 3',
-  faculty: "Faculté d'Architecture et d'Urbanisme",
-  department: "Département d'Architecture",
+  speciality: '',
+  laboratory: '',
+  university: '',
+  faculty: '',
+  department: '',
   date: '2025',
   abstractFr: 'Résumé de la thèse en français…',
   abstractEn: 'Abstract of the thesis in English…',
-  keywordsFr: 'architecture, urbanisme, réhabilitation, Constantine',
-  keywordsEn: 'architecture, urbanism, rehabilitation, Constantine',
+  keywordsFr: '',
+  keywordsEn: '',
   dedication: '',
   acknowledgements: '',
   chapters: [
