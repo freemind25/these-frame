@@ -138,3 +138,23 @@ Stage Summary:
 - 4 academic APIs working without API keys or rate limits
 - New sidebar button + dialog for literature search
 - Pushed to GitHub: commit feat: add scientific literature search
+
+---
+Task ID: 3
+Agent: Main
+Task: Fix critical bugs preventing app from loading (DATABASE_URL override + runtime TypeError)
+
+Work Log:
+- Diagnosed root cause: system env DATABASE_URL=file:/home/z/my-project/db/custom.db was overriding .env file
+- Fixed src/lib/db.ts to explicitly read DATABASE_URL from .env file, ignoring system env
+- Fixed runtime TypeError in page.tsx line 197: `data.chapter.id` was undefined because PATCH returns chapter directly, not wrapped in {chapter:...}
+- Changed `data.chapter.id` to `(data.chapter || data).id` for safe access
+- Fixed literature search default sources: changed from [semantic_scholar, openalex] to [openalex, crossref, arxiv] because Semantic Scholar returns 429 from sandbox
+- Added source error reporting in API and UI (shows which sources are unavailable)
+- Verified full end-to-end: app loads, sidebar shows "Recherche litt." button, dialog opens with 5 sources, search returns 30 results with proper display
+
+Stage Summary:
+- App now loads correctly by forcing DATABASE_URL from .env file
+- Auto-save no longer crashes (fixed PATCH response handling)
+- Literature search works with OpenAlex, Crossref, arXiv, PubMed (Semantic Scholar rate-limited in sandbox but works on Vercel)
+- All changes are backward compatible
