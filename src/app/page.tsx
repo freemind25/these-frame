@@ -344,7 +344,7 @@ export default function Home() {
           <div className="px-3 pt-2 pb-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Chapitres</span>
           </div>
-          <nav className="flex-1 overflow-y-auto space-y-0.5 px-2">
+          <nav className="flex-1 overflow-y-auto space-y-0.5 px-2 min-h-0">
             {thesis.chapters.map((ch) => {
               const meta = CHAPTERS.find(m => m.order === ch.order)
               const isActive = ch.id === activeChapterId
@@ -384,11 +384,11 @@ export default function Home() {
 
           <Separator className="bg-slate-800" />
 
-          {/* Tools */}
-          <div className="px-3 pt-2 pb-1">
+          {/* Tools — always visible, never shrunk */}
+          <div className="shrink-0 px-3 pt-2 pb-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Outils</span>
           </div>
-          <div className="px-2 pb-3 space-y-0.5">
+          <div className="shrink-0 px-2 pb-3 space-y-0.5">
             <button onClick={() => setRefsOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Library className="h-3.5 w-3.5" /><span>Références biblio.</span>
             </button>
@@ -404,7 +404,7 @@ export default function Home() {
           </div>
 
           {/* User */}
-          <div className="p-3 border-t border-slate-800">
+          <div className="shrink-0 p-3 border-t border-slate-800">
             <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[10px] ring-2 ring-emerald-500/30 shrink-0">DR</div>
               <div className="overflow-hidden flex-1">
