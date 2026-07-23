@@ -34,10 +34,11 @@ export default function LiteratureSearch() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [selectedSources, setSelectedSources] = useState<string[]>(['semantic_scholar', 'openalex'])
+  const [selectedSources, setSelectedSources] = useState<string[]>(['openalex', 'crossref', 'arxiv'])
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
   const [totalResults, setTotalResults] = useState(0)
+  const [sourceErrors, setSourceErrors] = useState<string[]>([])
 
   // Related papers state
   const [relatedDois, setRelatedDois] = useState<Record<string, SearchResult[]>>({})
@@ -60,6 +61,7 @@ export default function LiteratureSearch() {
     setExpandedIdx(null)
     setRelatedDois({})
     setAddedDois(new Set())
+    setSourceErrors([])
     try {
       const res = await fetch('/api/literature-search', {
         method: 'POST',
@@ -70,6 +72,7 @@ export default function LiteratureSearch() {
       if (!res.ok) throw new Error(data.error)
       setResults(data.results || [])
       setTotalResults(data.totalResults || 0)
+      if (data.errors?.length > 0) setSourceErrors(data.errors)
     } catch (err) {
       setResults([])
       setTotalResults(0)
@@ -304,6 +307,9 @@ export default function LiteratureSearch() {
       {/* Results */}
       {totalResults > 0 && (
         <p className="text-xs text-slate-500">{totalResults} résultat{totalResults > 1 ? 's' : ''} trouvé{totalResults > 1 ? 's' : ''}</p>
+      )}
+      {sourceErrors.length > 0 && (
+        <p className="text-xs text-amber-600">⚠ {sourceErrors.length} source{sourceErrors.length > 1 ? 's' : ''} indisponible{sourceErrors.length > 1 ? 's' : ''} ({sourceErrors.join(', ')})</p>
       )}
 
       <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">

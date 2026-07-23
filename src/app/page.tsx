@@ -192,9 +192,10 @@ export default function Home() {
         })
         if (res.ok) {
           const data = await res.json()
+          const updated = data.chapter || data
           setThesis(prev => prev ? {
             ...prev,
-            chapters: prev.chapters.map(c => c.id === data.chapter.id ? { ...c, ...data.chapter } : c),
+            chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
           } : null)
           setSaveStatus('saved')
           setTimeout(() => setSaveStatus('idle'), 2000)

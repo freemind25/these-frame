@@ -244,9 +244,19 @@ export async function POST(request: NextRequest) {
       searches.push(searchPubmed(query, safeLimit))
     }
 
-    const rawResults = (await Promise.allSettled(searches)).flatMap(r =>
-      r.status === 'fulfilled' ? r.value : []
-    )
+    const rawResults: SearchResult[] = []
+    const errors: string[] = []
+
+    const settled = await Promise.allSettled(searches)
+    for (let i = 0; i < settled.length; i++) {
+      const r = settled[i]
+      if (r.status === 'fulfilled') {
+        rawResults.push(...r.value)
+      } else {
+        const srcName = sources[i] || 'unknown'
+        errors.push(srcName)
+      }
+    }
 
     const results = deduplicateResults(rawResults)
 
@@ -254,6 +264,7 @@ export async function POST(request: NextRequest) {
       query,
       totalResults: results.length,
       results,
+      ...(errors.length > 0 ? { errors } : {}),
     })
   } catch (error) {
     console.error('[POST /api/literature-search] Error:', error)
