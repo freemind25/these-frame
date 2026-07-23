@@ -17,3 +17,17 @@ Stage Summary:
 - Root cause: z-ai-web-dev-sdk was being bundled by Next.js (needs serverExternalPackages), and zai.ts tried writing files on read-only Vercel filesystem
 - Fix: serverExternalPackages + never-write zai.ts + clear error messages
 - Pushed to https://github.com/freemind25/these-frame.git (main branch)
+---
+Task ID: 2
+Agent: fullstack-api-routes
+Task: Create thesis CRUD API routes
+
+Work Log:
+- Created /api/thesis/route.ts (GET + PATCH)
+- Created /api/thesis/chapters/[chapterId]/route.ts (GET + PATCH + DELETE)
+- Created /api/thesis/seed/route.ts (POST - ensure thesis with 6 chapters)
+
+Stage Summary:
+- Full CRUD for thesis and chapters
+- Seed endpoint creates default thesis with 6 empty chapters
+- Word count auto-computed on chapter save

@@ -42,7 +42,7 @@ model Reference {
   type        String   @default("article")
   citationKey String?
   title       String
-  authors     String   // semicolon-separated
+  authors     String
   year        String?
   journal     String?
   volume      String?
@@ -50,10 +50,43 @@ model Reference {
   pages       String?
   doi         String?
   abstract    String?
-  tags        String?  // comma-separated
+  tags        String?
   notes       String?
-  source      String   @default("manual") // "manual" | "mendeley"
+  source      String   @default("manual")
   mendeleyId  String?  @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─── Thesis Editor Models ─────────────────────────────────────
+
+model Thesis {
+  id        String    @id @default(cuid())
+  title     String    @default("Ma thèse de doctorat")
+  subtitle  String?
+  author    String    @default("Doctorant")
+  field     String    @default("Architecture et Urbanisme")
+  university String   @default("Université Constantine 3")
+  status    String    @default("draft") // draft | in_progress | submitted | defended
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  chapters  Chapter[]
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  thesisId    String
+  order       Int      // 1-6
+  number      String   // "I", "II", etc.
+  title       String   // "Introduction générale"
+  content     String   @default("") // MDX / rich text content
+  wordCount   Int      @default(0)
+  status      String   @default("draft") // draft | in_progress | submitted | revised
+  directorFeedback String? @default("") // feedback from AI director
+  directorFeedbackAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  thesis      Thesis   @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+
+  @@unique([thesisId, order])
 }

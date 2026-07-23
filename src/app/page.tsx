@@ -1,265 +1,592 @@
 'use client'
 
-import { createElement, useState, useCallback } from 'react'
+import { createElement, useState, useCallback, useEffect, useRef } from 'react'
 import {
-  FileText,
-  GraduationCap,
-  Sparkles,
-  FlaskConical,
-  Library,
-  Download,
-  ShieldCheck,
-  Search,
-  Bell,
-  HelpCircle,
-  BookOpen,
-  type LucideIcon,
-  Menu,
-  X,
+  GraduationCap, BookOpen, FlaskConical, BarChart3, MessageSquare,
+  FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
+  BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
+  ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
+  Library, ClipboardList, ListChecks, Lightbulb,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { CHAPTERS, CHAPTER_COLORS, type ChapterStructure } from '@/data/chapters-structure'
 import ReferencesTab from '@/components/thesis/references-tab'
-import ThesisPlanTab from '@/components/thesis/thesis-plan-tab'
-import ArticlesGuideTab from '@/components/thesis/articles-tab'
-import AIWritingTab from '@/components/thesis/ai-writing-tab'
-import DirecteurTab from '@/components/thesis/directeur-tab'
-import MethodologyTab from '@/components/thesis/methodology-tab'
 import ExportPdfContent from '@/components/thesis/export-pdf-tab'
 
-// ─── Navigation config ───────────────────────────────────────
-interface NavItem {
+// ─── Types ──────────────────────────────────────────────────────
+interface ChapterData {
   id: string
-  label: string
-  shortLabel: string
-  icon: LucideIcon
-  badge?: string
-  badgeColor?: string
+  thesisId: string
+  order: number
+  number: string
+  title: string
+  content: string
+  wordCount: number
+  status: string
+  directorFeedback: string | null
+  directorFeedbackAt: string | null
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { id: 'articles', label: 'Articles scientifiques', shortLabel: 'Articles', icon: FileText, badge: '7 onglets', badgeColor: 'text-emerald-400' },
-  { id: 'ai-writing', label: 'Assistant IA', shortLabel: 'IA', icon: Sparkles },
-  { id: 'methodology', label: 'Méthodologie', shortLabel: 'Méthodo.', icon: FlaskConical, badge: '6 onglets', badgeColor: 'text-sky-400' },
-  { id: 'references', label: 'Références biblio.', shortLabel: 'Réf.', icon: Library },
-  { id: 'thesis', label: 'Plan de thèse', shortLabel: 'Thèse', icon: BookOpen },
-  { id: 'export-pdf', label: 'Export PDF', shortLabel: 'PDF', icon: Download },
-]
-
-const SECTION_TITLES: Record<string, { title: string; desc: string; color: string }> = {
-  'articles': { title: 'Articles scientifiques', desc: 'Guide de rédaction - Ecarnot et al. (2015)', color: 'text-emerald-700 bg-emerald-100' },
-  'ai-writing': { title: 'Assistant IA', desc: "Rédaction assistée & Direction de thèse", color: 'text-violet-700 bg-violet-100' },
-  'methodology': { title: 'Méthodologie de la recherche', desc: 'IGTU-Cne3 - Université Constantine 3', color: 'text-sky-700 bg-sky-100' },
-  'references': { title: 'Références bibliographiques', desc: 'BibTeX, Mendeley et gestion des sources', color: 'text-amber-700 bg-amber-100' },
-  'thesis': { title: 'Plan de these', desc: 'Structure IMRaD - Doctorat LMD', color: 'text-rose-700 bg-rose-100' },
-  'export-pdf': { title: 'Export PDF', desc: 'Génération de documents formatés', color: 'text-red-700 bg-red-100' },
+interface ThesisData {
+  id: string
+  title: string
+  subtitle: string | null
+  author: string
+  field: string
+  university: string
+  status: string
+  chapters: ChapterData[]
 }
 
+interface ChatMsg { role: 'user' | 'assistant'; content: string }
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  FileText, BookOpen, FlaskConical, BarChart3, MessageSquare, GraduationCap,
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  draft: 'bg-gray-400',
+  in_progress: 'bg-amber-400',
+  submitted: 'bg-sky-400',
+  revised: 'bg-emerald-400',
+}
+
+// ─── Component ─────────────────────────────────────────────────
 export default function Home() {
-  const [activeView, setActiveView] = useState('articles')
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [thesis, setThesis] = useState<ThesisData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [activeChapterId, setActiveChapterId] = useState<string>('')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
+  // UI state
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(true)
+  const [helpTab, setHelpTab] = useState('guide')
+  const [refsOpen, setRefsOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
   const isMobile = useIsMobile()
 
-  // Close mobile menu when switching view
-  const handleNavClick = useCallback((id: string) => {
-    setActiveView(id)
-    setMobileMenuOpen(false)
+  // AI chat state (in help panel)
+  const [aiMessages, setAiMessages] = useState<ChatMsg[]>([])
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiMode, setAiMode] = useState('scientific-writing')
+
+  // Director state
+  const [directorLoading, setDirectorLoading] = useState(false)
+  const [directorFeedback, setDirectorFeedback] = useState('')
+
+  // Auto-save
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const localContent = useRef<string>('')
+
+  // Load thesis on mount
+  useEffect(() => {
+    async function load() {
+      try {
+        // Seed ensures thesis exists
+        await fetch('/api/thesis/seed', { method: 'POST' })
+        const res = await fetch('/api/thesis')
+        const data = await res.json()
+        const thesisData = data.thesis || data
+        if (thesisData?.id) {
+          setThesis(thesisData)
+          if (thesisData.chapters?.length > 0) {
+            setActiveChapterId(thesisData.chapters[0].id)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load thesis:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [])
 
-  const sectionInfo = SECTION_TITLES[activeView]
+  const activeChapter = thesis?.chapters.find(c => c.id === activeChapterId)
+  const chapterMeta = CHAPTERS.find(c => c.order === activeChapter?.order)
+  const colors = chapterMeta ? CHAPTER_COLORS[chapterMeta.color] : CHAPTER_COLORS.emerald
+
+  // Total word count
+  const totalWords = thesis?.chapters.reduce((sum, c) => sum + c.wordCount, 0) || 0
+
+  // ─── Auto-save handler ───────────────────────────────────
+  const handleContentChange = useCallback((content: string) => {
+    if (!activeChapter) return
+    localContent.current = content
+
+    // Optimistic update
+    setThesis(prev => prev ? {
+      ...prev,
+      chapters: prev.chapters.map(c =>
+        c.id === activeChapterId ? { ...c, content } : c
+      ),
+    } : null)
+
+    // Debounced save
+    setSaveStatus('idle')
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(async () => {
+ setSaveStatus('saving')
+      try {
+        const wordCount = content.split(/\s+/).filter(w => w.length > 0).length
+        const res = await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, wordCount, status: wordCount > 0 ? 'in_progress' : 'draft' }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setThesis(prev => prev ? {
+            ...prev,
+            chapters: prev.chapters.map(c => c.id === data.chapter.id ? { ...c, ...data.chapter } : c),
+          } : null)
+          setSaveStatus('saved')
+          setTimeout(() => setSaveStatus('idle'), 2000)
+        } else {
+          setSaveStatus('error')
+        }
+      } catch {
+        setSaveStatus('error')
+      }
+    }, 2000)
+  }, [activeChapter, activeChapterId])
+
+  // ─── Director submit ─────────────────────────────────────
+  const handleDirectorSubmit = useCallback(async () => {
+    if (!activeChapter || !chapterMeta) return
+    setDirectorLoading(true)
+    setDirectorFeedback('')
+    try {
+      const res = await fetch('/api/directeur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapitreTitre: `${chapterMeta.number}. ${chapterMeta.title}`,
+          chapitreContenu: activeChapter.content,
+          probleme: { quoi: 'Contenu du chapitre soumis', comment: 'Évaluation qualitative', pourquoi: 'Validation avant passage au chapitre suivant' },
+          hypothese: { texte: 'Chapitre soumis pour évaluation', observation: true, verifiable: true, coherente: true },
+          sousDomaineLabel: thesis?.field || 'Architecture et Urbanisme',
+          contraintesMethodologiques: '',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setDirectorFeedback(data.response)
+      // Update chapter status
+      await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'submitted', directorFeedback: data.response }),
+      })
+    } catch (err) {
+      setDirectorFeedback(err instanceof Error ? err.message : 'Erreur lors de la soumission.')
+    } finally {
+      setDirectorLoading(false)
+    }
+  }, [activeChapter, chapterMeta, thesis, activeChapterId])
+
+  // ─── AI chat ────────────────────────────────────────────
+  const handleAiSend = useCallback(async () => {
+    if (!aiInput.trim() || aiLoading) return
+    const msg = aiInput.trim()
+    setAiInput('')
+    const newMessages: ChatMsg[] = [...aiMessages, { role: 'user', content: msg }]
+    setAiMessages(newMessages)
+    setAiLoading(true)
+    try {
+      const res = await fetch('/api/ai-writing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: aiMode, message: msg, temperature: 0.7, maxTokens: 2048, thinking: 'disabled' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setAiMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+    } catch (err) {
+      setAiMessages(prev => [...prev, { role: 'assistant', content: `Erreur : ${err instanceof Error ? err.message : 'inconnue'}` }])
+    } finally {
+      setAiLoading(false)
+    }
+  }, [aiInput, aiLoading, aiMessages, aiMode])
+
+  // ─── Render ─────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-3">
+          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto" />
+          <p className="text-sm text-muted-foreground">Chargement de votre thèse...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!thesis) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-3">
+          <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
+          <p className="text-sm text-muted-foreground">Impossible de charger la thèse.</p>
+          <Button onClick={() => window.location.reload()} variant="outline" size="sm"><RefreshCw className="h-3 w-3 mr-1" />Réessayer</Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-slate-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
       {/* ── MOBILE OVERLAY ── */}
-      {mobileMenuOpen && isMobile && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+      {sidebarOpen && isMobile && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* ── SIDEBAR ── */}
-      <aside
-        className={cn(
-          'bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-40 shrink-0 transition-all duration-300 shadow-2xl',
-          'w-[72px] md:w-64',
-          isMobile && !mobileMenuOpen && 'fixed -translate-x-full md:relative md:translate-x-0',
-          isMobile && mobileMenuOpen && 'fixed translate-x-0',
+      <div className="flex flex-1 min-h-0">
+        {/* ═══ LEFT SIDEBAR ═══ */}
+        <aside className={cn(
+          'bg-slate-900 border-r border-slate-800 flex flex-col z-40 shrink-0 transition-all duration-300 shadow-2xl',
+          'w-64',
+          isMobile && !sidebarOpen && 'fixed -translate-x-full',
+          isMobile && sidebarOpen && 'fixed translate-x-0',
           !isMobile && 'relative',
-        )}
-      >
-        <div>
-          {/* Brand Header */}
-          <div className="flex items-center gap-3 px-3 py-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] shrink-0">
-              <GraduationCap className="h-5 w-5" />
+        )}>
+          {/* Brand */}
+          <div className="flex items-center gap-3 px-3 py-4 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-[0_0_16px_rgba(16,185,129,0.3)] shrink-0">
+              <GraduationCap className="h-4 w-4" />
             </div>
-            <div className="hidden md:block overflow-hidden">
-              <h1 className="font-bold text-base text-white tracking-tight leading-tight">ThesisFrame</h1>
-              <p className="text-[10px] text-emerald-400 font-medium tracking-wide uppercase">Université Constantine 3</p>
+            <div className="overflow-hidden">
+              <h1 className="font-bold text-sm text-white tracking-tight leading-tight">ThesisFrame</h1>
+              <p className="text-[10px] text-emerald-400 font-medium">{thesis.title}</p>
             </div>
             {isMobile && (
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="ml-auto text-slate-400 hover:text-white p-1"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <button onClick={() => setSidebarOpen(false)} className="ml-auto text-slate-400 hover:text-white p-1"><X className="h-4 w-4" /></button>
             )}
           </div>
 
-          {/* Navigation Label */}
-          <div className="px-3 pb-2 hidden md:block">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Navigation</span>
+          {/* Progress */}
+          <div className="px-3 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-slate-500 font-medium">PROGRESSION</span>
+              <span className="text-[10px] text-emerald-400 font-bold">{totalWords.toLocaleString()} mots</span>
+            </div>
+            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (totalWords / 80000) * 100)}%` }} />
+            </div>
           </div>
 
-          {/* Nav Items */}
-          <nav className="space-y-1 px-2">
-            {NAV_ITEMS.map((item) => {
-              const isActive = activeView === item.id
-              const Icon = item.icon
+          <Separator className="bg-slate-800" />
+
+          {/* Chapters list */}
+          <div className="px-3 pt-2 pb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Chapitres</span>
+          </div>
+          <nav className="flex-1 overflow-y-auto space-y-0.5 px-2">
+            {thesis.chapters.map((ch) => {
+              const meta = CHAPTERS.find(m => m.order === ch.order)
+              const isActive = ch.id === activeChapterId
+              const Icon = (meta?.icon && ICON_MAP[meta.icon]) || FileText
+              const chColors = meta ? CHAPTER_COLORS[meta.color] : CHAPTER_COLORS.emerald
               return (
                 <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
+                  key={ch.id}
+                  onClick={() => { setActiveChapterId(ch.id); setSidebarOpen(false) }}
                   className={cn(
-                    'w-full p-2.5 md:p-3 flex items-center gap-3 rounded-xl text-left transition-all duration-200 group relative overflow-hidden',
+                    'w-full p-2.5 flex items-start gap-2.5 rounded-xl text-left transition-all duration-200 group relative overflow-hidden',
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-900/80 to-slate-900 text-white border border-emerald-500/40 shadow-[0_0_16px_rgba(16,185,129,0.2)]'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700/50',
+                      ? 'bg-gradient-to-r from-emerald-900/80 to-slate-900 text-white border border-emerald-500/40'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent',
                   )}
                 >
-                  {/* Glow sweep on hover */}
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <div className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                    isActive ? 'bg-emerald-500/20' : 'bg-slate-800 group-hover:bg-slate-700',
+                  <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors',
+                    isActive ? chColors.bg.replace('bg-', 'bg-').replace('/500', '/500/20') : 'bg-slate-800 group-hover:bg-slate-700',
                   )}>
-                    <Icon className={cn('h-4 w-4', isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400')} />
+                    <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400')} />
                   </div>
-                  <div className="hidden md:flex flex-col min-w-0 flex-1">
-                    <span className={cn('text-xs font-semibold leading-tight truncate', isActive && 'text-white')}>
-                      {item.label}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className={cn('text-[10px] font-bold', isActive ? 'text-emerald-400' : 'text-slate-600')}>{ch.number}</span>
+                      <span className={cn('text-[11px] font-semibold leading-tight truncate', isActive && 'text-white')}>{ch.title}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status] || STATUS_COLORS.draft)} />
+                      <span className="text-[9px] text-slate-600">{ch.wordCount.toLocaleString()} mots</span>
+                    </div>
                   </div>
-                  {item.badge && (
-                    <span className={cn('hidden md:block text-[9px] font-medium', item.badgeColor)}>
-                      {item.badge}
-                    </span>
-                  )}
                 </button>
               )
             })}
           </nav>
-        </div>
 
-        {/* User Profile Footer */}
-        <div className="p-3 border-t border-slate-800">
-          <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-xs ring-2 ring-emerald-500/30 shrink-0">
-              DR
-            </div>
-            <div className="hidden md:block overflow-hidden flex-1">
-              <div className="text-xs font-medium text-slate-200 truncate">Doctorant Arch.</div>
-              <div className="text-[10px] text-slate-500 truncate">Constantine 3</div>
-            </div>
+          <Separator className="bg-slate-800" />
+
+          {/* Tools */}
+          <div className="px-3 pt-2 pb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Outils</span>
           </div>
-        </div>
-      </aside>
-
-      {/* ── MAIN AREA ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center gap-4 shrink-0 z-20">
-          {/* Mobile menu button */}
-          {isMobile && (
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
-            >
-              <Menu className="h-5 w-5" />
+          <div className="px-2 pb-3 space-y-0.5">
+            <button onClick={() => setRefsOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <Library className="h-3.5 w-3.5" /><span>Références biblio.</span>
             </button>
-          )}
+            <button onClick={() => setExportOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <Download className="h-3.5 w-3.5" /><span>Export PDF</span>
+            </button>
+          </div>
 
-          {/* Section info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className={cn('p-2 rounded-xl hidden sm:flex items-center justify-center', sectionInfo?.color)}>
-              {createElement(NAV_ITEMS.find(i => i.id === activeView)?.icon || FileText, { className: 'h-4 w-4' })}
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
-                  {sectionInfo?.title}
-                </h2>
-                <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200 hidden sm:inline-block">
-                  Architecture & Urbanisme
-                </span>
+          {/* User */}
+          <div className="p-3 border-t border-slate-800">
+            <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[10px] ring-2 ring-emerald-500/30 shrink-0">DR</div>
+              <div className="overflow-hidden flex-1">
+                <div className="text-[10px] font-medium text-slate-200 truncate">{thesis.author}</div>
+                <div className="text-[9px] text-slate-500 truncate">{thesis.university}</div>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 truncate">
-                {sectionInfo?.desc}
-              </p>
             </div>
           </div>
+        </aside>
 
-          {/* Toolbar */}
-          <div className="flex items-center gap-2">
-            <div className="relative hidden lg:block w-48">
-              <input
-                placeholder="Rechercher"
-                className="pl-8 h-8 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-full"
-              />
+        {/* ═══ MAIN AREA ═══ */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Chapter header bar */}
+          <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 shrink-0 z-20">
+            {isMobile && (
+              <button onClick={() => setSidebarOpen(true)} className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+                <Menu className="h-4 w-4" />
+              </button>
+            )}
+            {chapterMeta && (
+              <>
+                <div className={cn('p-1.5 rounded-lg flex items-center justify-center', colors.light, colors.text)}>
+                  {createElement(ICON_MAP[chapterMeta.icon] || FileText, { className: 'h-3.5 w-3.5' })}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
+                      Chapitre {chapterMeta.number}. {chapterMeta.title}
+                    </h2>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-slate-500 truncate">{chapterMeta.description}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant="outline" className="text-[10px] gap-1">
+                    <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[activeChapter?.status || 'draft'])} />
+                    {activeChapter?.status || 'brouillon'}
+                  </Badge>
+                  <Badge variant="secondary" className="text-[10px] hidden sm:inline-flex">
+                    {activeChapter?.wordCount?.toLocaleString() || 0} mots
+                  </Badge>
+                  {saveStatus === 'saving' && <Loader2 className="h-3 w-3 text-slate-400 animate-spin" />}
+                  {saveStatus === 'saved' && <Check className="h-3 w-3 text-emerald-500" />}
+                </div>
+              </>
+            )}
+            <button
+              onClick={() => setHelpOpen(!helpOpen)}
+              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+              title={helpOpen ? 'Fermer le panneau' : 'Ouvrir l\'aide'}
+            >
+              {helpOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+            </button>
+          </header>
+
+          {/* Editor + Help panel */}
+          <div className="flex flex-1 min-h-0">
+            {/* ── TEXT EDITOR ── */}
+            <div className="flex-1 flex flex-col min-w-0">
+              <div className="flex-1 overflow-hidden bg-white">
+                <textarea
+                  value={activeChapter?.content || ''}
+                  onChange={(e) => handleContentChange(e.target.value)}
+                  className="w-full h-full resize-none border-0 focus:outline-none p-6 sm:p-10 text-[15px] leading-[1.8] font-serif text-slate-800 bg-white placeholder:text-slate-300"
+                  placeholder={`Commencez la rédaction du Chapitre ${chapterMeta?.number || 'I'}. ${chapterMeta?.title || ''}...\n\nCe que vous écrivez ici EST le texte de votre thèse.`}
+                  spellCheck
+                />
+              </div>
             </div>
-            <button className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg relative hidden sm:block" title="Notifications">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white" />
-            </button>
-            <button className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg border border-slate-200">
-              <HelpCircle className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Aide</span>
-            </button>
-          </div>
-        </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-            {activeView === 'articles' && <ArticlesGuideTab />}
-            {activeView === 'ai-writing' && (
-              <div className="space-y-4">
-                <Tabs defaultValue="redaction" className="w-full">
-                  <TabsList className="mb-4 bg-slate-100 rounded-xl p-1 h-auto">
-                    <TabsTrigger value="redaction" className="text-xs sm:text-sm flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Rédaction IA
+            {/* ── RIGHT HELP PANEL ── */}
+            {helpOpen && !isMobile && (
+              <aside className="w-80 border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-hidden">
+                <Tabs value={helpTab} onValueChange={setHelpTab} className="flex flex-col h-full">
+                  <TabsList className="mx-3 mt-3 bg-slate-100 rounded-lg p-0.5 h-auto grid grid-cols-3">
+                    <TabsTrigger value="guide" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+                      <ClipboardList className="h-3 w-3" /> Guide
                     </TabsTrigger>
-                    <TabsTrigger value="directeur" className="text-xs sm:text-sm flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      Directeur de thèse
+                    <TabsTrigger value="ai" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+                      <Sparkles className="h-3 w-3" /> IA
+                    </TabsTrigger>
+                    <TabsTrigger value="director" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
+                      <ShieldCheck className="h-3 w-3" /> Dir.
                     </TabsTrigger>
                   </TabsList>
-                  <TabsContent value="redaction"><AIWritingTab /></TabsContent>
-                  <TabsContent value="directeur"><DirecteurTab /></TabsContent>
-                </Tabs>
-              </div>
-            )}
-            {activeView === 'methodology' && <MethodologyTab />}
-            {activeView === 'references' && <ReferencesTab />}
-            {activeView === 'thesis' && <ThesisPlanTab />}
-            {activeView === 'export-pdf' && <ExportPdfContent />}
-          </div>
-        </main>
 
-        {/* Footer */}
-        <footer className="border-t bg-white/80 backdrop-blur-sm px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <p>{'ThesisFrame © 2025 - Université Constantine 3, Faculté d\'Architecture et d\'Urbanisme'}</p>
-          <p>Basé sur le squelette IMRaD · Guide Ecarnot et al. (2015)</p>
-        </footer>
+                  {/* ── GUIDE TAB ── */}
+                  <TabsContent value="guide" className="flex-1 overflow-y-auto p-3 mt-2 space-y-4">
+                    {chapterMeta && (
+                      <>
+                        <div>
+                          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+                            <ListChecks className="h-3.5 w-3.5 text-emerald-600" />
+                            Ce chapitre doit contenir
+                          </h3>
+                          <ul className="space-y-1.5">
+                            {chapterMeta.expectations.map((exp, i) => (
+                              <li key={i} className="text-[11px] text-slate-600 flex gap-1.5">
+                                <span className="text-emerald-500 mt-0.5">•</span>
+                                <span>{exp}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <Separator />
+                        <div>
+                          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+                            <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                            Structure suggérée
+                          </h3>
+                          <ul className="space-y-1">
+                            {chapterMeta.structure.map((s, i) => (
+                              <li key={i} className="text-[11px] text-slate-500 font-mono bg-slate-50 rounded px-2 py-1">{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
+                    )}
+                  </TabsContent>
+
+                  {/* ── AI TAB ── */}
+                  <TabsContent value="ai" className="flex-1 flex flex-col min-h-0 mt-0">
+                    <div className="px-3 pt-2">
+                      <select
+                        value={aiMode}
+                        onChange={e => setAiMode(e.target.value)}
+                        className="w-full text-[11px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                      >
+                        <option value="scientific-writing">Rédaction scientifique</option>
+                        <option value="literature-review">Revue de littérature</option>
+                        <option value="paraphrase">Paraphrase</option>
+                        <option value="peer-review">Relecture critique</option>
+                        <option value="abstract">Résumé & Abstract</option>
+                        <option value="hypothesis">Génération d'hypothèses</option>
+                        <option value="methodo-positioning">Positionnement méthodo.</option>
+                        <option value="theory-building">Construction théorique</option>
+                      </select>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-0">
+                      {aiMessages.length === 0 && (
+                        <div className="text-center py-8">
+                          <Sparkles className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                          <p className="text-[11px] text-muted-foreground">Posez une question à l&apos;IA pour ce chapitre</p>
+                        </div>
+                      )}
+                      {aiMessages.map((msg, i) => (
+                        <div key={i} className={cn('text-[11px] rounded-lg p-2.5',
+                          msg.role === 'user' ? 'bg-primary text-primary-foreground ml-6' : 'bg-slate-50 text-slate-700 mr-6',
+                        )}>
+                          <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                        </div>
+                      ))}
+                      {aiLoading && <Loader2 className="h-4 w-4 text-emerald-500 animate-spin mx-auto" />}
+                    </div>
+                    <div className="p-2 border-t">
+                      <div className="flex gap-1">
+                        <Textarea
+                          value={aiInput}
+                          onChange={e => setAiInput(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiSend() } }}
+                          placeholder="Votre question..."
+                          className="min-h-[36px] max-h-[80px] text-[11px] resize-none"
+                          rows={1}
+                        />
+                        <Button onClick={handleAiSend} disabled={!aiInput.trim() || aiLoading} size="icon" className="h-9 w-9 shrink-0">
+                          <Send className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* ── DIRECTOR TAB ── */}
+                  <TabsContent value="director" className="flex-1 overflow-y-auto p-3 mt-2 space-y-3">
+                    <div className={cn('rounded-lg border p-3', colors.light, colors.border)}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShieldCheck className={cn('h-4 w-4', colors.text)} />
+                        <span className="text-xs font-bold">Soumettre au directeur</span>
+                      </div>
+                      <p className="text-[10px] text-slate-600">
+                        Le directeur évaluera le chapitre que vous avez rédigé et vous donnera un avis structuré.
+                      </p>
+                      <Button
+                        onClick={handleDirectorSubmit}
+                        disabled={directorLoading || !activeChapter?.content}
+                        size="sm"
+                        className="w-full mt-3 text-xs"
+                      >
+                        {directorLoading ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1.5" />}
+                        {directorLoading ? 'Évaluation en cours...' : 'Soumettre ce chapitre'}
+                      </Button>
+                    </div>
+
+                    {directorFeedback && (
+                      <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />
+                          <span className="text-[11px] font-bold text-amber-800">Avis du directeur</span>
+                        </div>
+                        <div className="text-[11px] text-amber-900 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
+                          {directorFeedback}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeChapter?.directorFeedback && !directorFeedback && (
+                      <div className="rounded-lg border border-sky-200 bg-sky-50/50 p-3">
+                        <span className="text-[10px] font-bold text-sky-700">Dernier avis :</span>
+                        <div className="text-[11px] text-sky-900 whitespace-pre-wrap leading-relaxed mt-1 max-h-48 overflow-y-auto">
+                          {activeChapter.directorFeedback}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </aside>
+            )}
+          </div>
+
+          {/* Footer */}
+          <footer className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+            <p>ThesisFrame © 2025 — {thesis.university}</p>
+            <p>{thesis.field} · {(totalWords / 1000).toFixed(1)}k mots rédigés</p>
+          </footer>
+        </div>
       </div>
+
+      {/* ═══ DIALOGS ═══ */}
+      <Dialog open={refsOpen} onOpenChange={setRefsOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><Library className="h-4 w-4 text-emerald-600" />Références bibliographiques</DialogTitle>
+          </DialogHeader>
+          <ReferencesTab />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-emerald-600" />Export PDF</DialogTitle>
+          </DialogHeader>
+          <ExportPdfContent />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
