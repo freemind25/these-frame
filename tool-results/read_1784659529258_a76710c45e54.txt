@@ -1,0 +1,578 @@
+     1→/**
+     2→ * Guide de méthodologie de recherche
+     3→ * Basé sur le cours IGTU-Cne3 — Gestion Des Techniques Urbaines
+     4→ * Université Constantine 3
+     5→ */
+     6→
+     7→export interface MethodoStep {
+     8→  id: string
+     9→  title: string
+    10→  description: string
+    11→  details: string[]
+    12→}
+    13→
+    14→export interface ResearchType {
+    15→  id: string
+    16→  title: string
+    17→  description: string
+    18→  characteristics: string[]
+    19→  icon: string
+    20→  color: string
+    21→}
+    22→
+    23→export interface ProblématiqueItem {
+    24→  id: string
+    25→  question: string
+    26→  description: string
+    27→  example: string
+    28→}
+    29→
+    30→export interface OperalisationExample {
+    31→  concept: string
+    32→  dimensions: { label: string; indicateurs: string[] }[]
+    33→}
+    34→
+    35→export interface CollectTool {
+    36→  id: string
+    37→  title: string
+    38→  description: string
+    39→  avantages: string[]
+    40→  limites: string[]
+    41→  conseils: string[]
+    42→  icon: string
+    43→}
+    44→
+    45→export interface DocumentSource {
+    46→  id: string
+    47→  name: string
+    48→  type: string
+    49→  url?: string
+    50→  description: string
+    51→}
+    52→
+    53→// ─── Cycle de la recherche ────────────────────────────────────────
+    54→export const researchCycle: MethodoStep[] = [
+    55→  {
+    56→    id: 'question',
+    57→    title: 'Formulation de la question de recherche',
+    58→    description: 'Question claire et précise, justification de l\'importance, identification des lacunes dans les connaissances existantes.',
+    59→    details: [
+    60→      'Identifier un sujet pertinent et original',
+    61→      'Délimiter le cadre spatial et temporel',
+    62→      'Montrer l\'intérêt scientifique et pratique',
+    63→      'Obtenir l\'aval du directeur de recherche',
+    64→    ],
+    65→  },
+    66→  {
+    67→    id: 'hypotheses',
+    68→    title: 'Formulation d\'hypothèses testables',
+    69→    description: 'Propositions testables déduites à partir de théories ou d\'observations préalables.',
+    70→    details: [
+    71→      'L\'hypothèse doit partir d\'une observation empirique',
+    72→      'Elle doit être vérifiable dans la réalité',
+    73→      'Elle doit être cohérente avec les connaissances existantes',
+    74→    ],
+    75→  },
+    76→  {
+    77→    id: 'bibliography',
+    78→    title: 'Recherche approfondie des travaux existants',
+    79→    description: 'Synthèse des connaissances actuelles et identification des théories et concepts.',
+    80→    details: [
+    81→      'Consultation des bases de données (ScienceDirect, JSTOR, HAL, Persée…)',
+    82→      'Recherche dans les catalogues (SUDOC, WorldCat, BNF, SNDL)',
+    83→      'Utilisation de Google Scholar et Theses.fr',
+    84→      'Constitution du corpus d\'étude',
+    85→    ],
+    86→  },
+    87→  {
+    88→    id: 'methodology',
+    89→    title: 'Choix de la méthodologie',
+    90→    description: 'Définition de l\'échantillon, choix des outils d\'analyse, sélection des méthodes de collecte.',
+    91→    details: [
+    92→      'Définir la population étudiée et l\'échantillon',
+    93→      'Choisir entre approche quantitative, qualitative ou mixte',
+    94→      'Sélectionner les outils de collecte (questionnaire, entretien, observation…)',
+    95→      'Assurer la fiabilité et la validité des données',
+    96→    ],
+    97→  },
+    98→  {
+    99→    id: 'collect',
+   100→    title: 'Collecte des données',
+   101→    description: 'Mise en œuvre des méthodes de collecte sur le terrain.',
+   102→    details: [
+   103→      'Préparer les instruments de collecte',
+   104→      'Réaliser les entretiens ou administrer les questionnaires',
+   105→      'Effectuer les observations de terrain',
+   106→      'Organiser et stocker les données collectées',
+   107→    ],
+   108→  },
+   109→  {
+   110→    id: 'analyse',
+   111→    title: 'Analyse des données',
+   112→    description: 'Traitement et organisation des données, utilisation d\'outils statistiques ou autres techniques d\'analyse.',
+   113→    details: [
+   114→      'Coder et nettoyer les données',
+   115→      'Appliquer les outils d\'analyse appropriés',
+   116→      'Interpréter les résultats',
+   117→      'Comparer les résultats avec les hypothèses',
+   118→    ],
+   119→  },
+   120→  {
+   121→    id: 'discussion',
+   122→    title: 'Discussion et interprétation',
+   123→    description: 'Discussion des implications des résultats, identification des limites de l\'étude.',
+   124→    details: [
+   125→      'Mettre en relation les résultats avec la littérature',
+   126→      'Discuter des implications théoriques et pratiques',
+   127→      'Identifier les limites de l\'étude',
+   128→      'Proposer des recommandations',
+   129→    ],
+   130→  },
+   131→  {
+   132→    id: 'publication',
+   133→    title: 'Publication des résultats',
+   134→    description: 'Rédaction, présentation lors de conférences, synthèse des principaux résultats.',
+   135→    details: [
+   136→      'Rédiger selon les normes scientifiques (IMRaD)',
+   137→      'Présenter lors de conférences ou séminaires',
+   138→      'Formuler des conclusions claires et concises',
+   139→      'Suggérer des pistes pour de futures recherches',
+   140→    ],
+   141→  },
+   142→]
+   143→
+   144→// ─── Types de recherche ──────────────────────────────────────────
+   145→export const researchTypes: ResearchType[] = [
+   146→  {
+   147→    id: 'quantitative',
+   148→    title: 'Recherche quantitative',
+   149→    description: 'Mesure et quantification des phénomènes à l\'aide d\'outils statistiques. Vise l\'objectivité et la reproductibilité.',
+   150→    characteristics: [
+   151→      'Données chiffrées et mesurables',
+   152→      'Échantillons représentatifs de grande taille',
+   153→      'Questionnaires à questions fermées',
+   154→      'Analyses statistiques (descriptive, inférentielle)',
+   155→      'Hypothèses testées par des méthodes formelles',
+   156→      'Objectivité et reproductibilité',
+   157→    ],
+   158→    icon: 'BarChart3',
+   159→    color: 'sky',
+   160→  },
+   161→  {
+   162→    id: 'qualitative',
+   163→    title: 'Recherche qualitative',
+   164→    description: 'Compréhension en profondeur des phénomènes à travers les expériences vécues et les significations.',
+   165→    characteristics: [
+   166→      'Données textuelles, narratives ou visuelles',
+   167→      'Échantillons restreints et ciblés',
+   168→      'Entretiens semi-directifs, observations participantes',
+   169→      'Analyses thématiques et de contenu',
+   170→      'Émergence de catégories et de théories',
+   171→      'Subjectivité assumée comme richesse',
+   172→    ],
+   173→    icon: 'MessageSquare',
+   174→    color: 'amber',
+   175→  },
+   176→  {
+   177→    id: 'mixte',
+   178→    title: 'Recherche mixte (mixte)',
+   179→    description: 'Combinaison des approches quantitative et qualitative pour une compréhension complète du phénomène.',
+   180→    characteristics: [
+   181→      'Triangulation des données (quantitatives + qualitatives)',
+   182→      'Design séquentiel ou concurrent',
+   183→      'Complémentarité des résultats',
+   184→      'Validation croisée des findings',
+   185→      'Richesse et profondeur de l\'analyse',
+   186→      'Adaptée aux problématiques complexes',
+   187→    ],
+   188→    icon: 'FlaskConical',
+   189→    color: 'emerald',
+   190→  },
+   191→]
+   192→
+   193→// ─── Démarches inductive / déductive ──────────────────────────────
+   194→export const reasoningApproaches = {
+   195→  inductive: {
+   196→    title: 'Démarche inductive',
+   197→    subtitle: 'Du particulier au général',
+   198→    description: 'À partir d\'observations empiriques répétées, le chercheur formule une règle générale ou une théorie.',
+   199→    example: 'Adam est mortel + Socrate est mortel + … = Tous les hommes sont mortels.',
+   200→    steps: ['Observation de cas particuliers', 'Identification de régularités', 'Formulation d\'une généralisation', 'Élaboration d\'une théorie'],
+   201→  },
+   202→  deductive: {
+   203→    title: 'Démarche déductive',
+   204→    subtitle: 'Du général au particulier',
+   205→    description: 'À partir d\'une théorie ou d\'un énoncé général, le chercheur déduit des conséquences applicables à des cas spécifiques.',
+   206→    example: 'SI condition (théorie) ALORS conclusion (prédiction testable)',
+   207→    steps: ['Partir d\'une théorie établie', 'Formuler une hypothèse dérivable', 'Observer ou expérimenter', 'Confirmer ou infirmer la prédiction'],
+   208→  },
+   209→}
+   210→
+   211→// ─── Types de disciplinarité ──────────────────────────────────────
+   212→export const disciplinarities = [
+   213→  { term: 'Pluridisciplinarité', definition: 'Juxtaposition de disciplines sans intégration.', color: 'slate' },
+   214→  { term: 'Multidisciplinarité', definition: 'Utilisation de plusieurs disciplines en parallèle.', color: 'slate' },
+   215→  { term: 'Interdisciplinarité', definition: 'Mettre en relation des disciplines pour créer des représentations originales.', color: 'sky' },
+   216→  { term: 'Transdisciplinarité', definition: 'Application d\'une méthode commune à travers les disciplines.', color: 'emerald' },
+   217→]
+   218→
+   219→// ─── Problématique ────────────────────────────────────────────────
+   220→export const problematiqueGuide: ProblématiqueItem[] = [
+   221→  {
+   222→    id: 'quoi',
+   223→    question: 'QUOI ?',
+   224→    description: 'Définition de l\'objet — De quoi s\'agit-il exactement ? Quels sont les concepts clés ?',
+   225→    example: 'Identifier et définir les variables X et Y du sujet de recherche.',
+   226→  },
+   227→  {
+   228→    id: 'comment',
+   229→    question: 'COMMENT ?',
+   230→    description: 'Explication du processus — Par quels mécanismes X influence-t-il Y ?',
+   231→    example: 'Décrire les liens causaux et les relations entre les variables étudiées.',
+   232→  },
+   233→  {
+   234→    id: 'pourquoi',
+   235→    question: 'POURQUOI ?',
+   236→    description: 'Exposé de la finalité — Quel est l\'intérêt scientifique et pratique de cette recherche ?',
+   237→    example: 'Justifier la pertinence et l\'originalité de la démarche dans le contexte actuel.',
+   238→  },
+   239→]
+   240→
+   241→export const problematiqueConseils = [
+   242→  'La problématique doit être centrale par rapport au sujet — pas un point secondaire.',
+   243→  'Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS.',
+   244→  'Elle doit annoncer une idée directrice pour la suite du travail.',
+   245→  'Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction.',
+   246→  'Elle doit recevoir l\'aval du directeur de recherche.',
+   247→  'Le titre de recherche prend généralement la forme d\'une AFFIRMATION (X influence Y chez Z), et non d\'une question.',
+   248→]
+   249→
+   250→// ─── Opérationnalisation ──────────────────────────────────────────
+   251→export const operationalisationConcept: {
+   252→  title: string
+   253→  description: string
+   254→  steps: string[]
+   255→} = {
+   256→  title: 'L\'opérationnalisation',
+   257→  description: 'Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé.',
+   258→  steps: [
+   259→    'Identifier les CONCEPTS clés de la recherche (ex : "utilisation des médias sociaux", "dépression")',
+   260→    'Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)',
+   261→    'Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)',
+   262→    'Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)',
+   263→    'Construire les instruments de mesure adaptés',
+   264→  ],
+   265→}
+   266→
+   267→export const operationalisationExample: OperalisationExample = {
+   268→  concept: 'Ressources d\'une ville',
+   269→  dimensions: [
+   270→    { label: 'Ressources financières', indicateurs: ['Budget communal', 'Dotations de l\'État', 'Recettes fiscales', 'Investissements privés'] },
+   271→    { label: 'Ressources patrimoniales', indicateurs: ['Patrimoine immobilier', 'Patrimoine mobilier', 'Espaces publics', 'Infrastructures'] },
+   272→    { label: 'Ressources sociales', indicateurs: ['Niveau d\'emploi', 'Taux d\'activité', 'Diplômés supérieurs', 'Associations'] },
+   273→    { label: 'Ressources d\'équipement', indicateurs: ['Services publics', 'Équipements sportifs', 'Établissements scolaires', 'Infrastructures de transport'] },
+   274→  ],
+   275→}
+   276→
+   277→// ─── Hypothèses ───────────────────────────────────────────────────
+   278→export const hypothesesConditions = [
+   279→  'L\'hypothèse doit se faire à partir d\'une observation empirique ou d\'une étude préalable.',
+   280→  'L\'hypothèse doit pouvoir être vérifiable dans la réalité.',
+   281→  'L\'hypothèse doit être cohérente avec les connaissances existantes.',
+   282→]
+   283→
+   284→export const hypothesesVerification = [
+   285→  'Par l\'expérience : vérification empirique directe sur le terrain.',
+   286→  'Par l\'enquête : collecte de données auprès de la population étudiée.',
+   287→  'Par la contre-épreuve : apporter un exemple ou fait qui contredise l\'hypothèse (un seul contre-exemple suffit à invalider).',
+   288→  'Par la variation de la preuve : vérifier l\'hypothèse sur des parties différentes d\'un même ensemble.',
+   289→]
+   290→
+   291→// ─── Outils de collecte ───────────────────────────────────────────
+   292→export const collectTools: CollectTool[] = [
+   293→  {
+   294→    id: 'entretien',
+   295→    title: 'L\'entretien de recherche (semi-directif)',
+   296→    description: 'Technique d\'investigation scientifique utilisée auprès d\'individus, permettant de les interroger de façon semi-directive pour connaître en profondeur les informations.',
+   297→    avantages: [
+   298→      'Permet d\'explorer en profondeur les représentations et les expériences',
+   299→      'Flexibilité : adaptation aux réponses de l\'interviewé',
+   300→      'Fait émerger des éléments imprévus et de nouvelles hypothèses',
+   301→      'Recueil de données riches et nuancées',
+   302→    ],
+   303→    limites: [
+   304→      'Temps de réalisation long',
+   305→      'Difficulté d\'analyse et de codage',
+   306→      'Subjectivité de l\'enquêteur',
+   307→      'Échantillons restreints (≤ 100)',
+   308→    ],
+   309→    conseils: [
+   310→      'Préparer les questions, thèmes et hypothèses en amont',
+   311→      'Poser des questions courtes, directes et ciblées',
+   312→      'Se focaliser sur la compréhension d\'un phénomène précis, sans divaguer',
+   313→      'Poser de nouvelles questions pour faire émerger de nouvelles hypothèses',
+   314→      'Entretiens à réponses libres : questions générales sur le sujet au sens large',
+   315→      'Entretiens centrés/ciblés : interrogations sur un aspect spécifique',
+   316→    ],
+   317→    icon: 'MessageSquare',
+   318→  },
+   319→  {
+   320→    id: 'questionnaire',
+   321→    title: 'Le questionnaire',
+   322→    description: 'Outil de collecte structuré touchant plusieurs sujets, administré à une population restreinte (≤ 100 personnes). Peut comporter des questions fermées ou ouvertes.',
+   323→    avantages: [
+   324→      'Processus rapide de passation',
+   325→      'Facilité de traitement et d\'analyse statistique',
+   326→      'Standardisation des réponses',
+   327→      'Possibilité de questions fermées et ouvertes',
+   328→    ],
+   329→    limites: [
+   330→      'Profondeur limitée des réponses',
+   331→      'Risque de réponses peu réfléchies',
+   332→      'Difficulté à capter les nuances',
+   333→      'Taux de non-réponse possible',
+   334→    ],
+   335→    conseils: [
+   336→      'Prévoir des questions fermées (gamme de réponses préétablies) ET ouvertes',
+   337→      'Tester le questionnaire au préalable (pré-enquête)',
+   338→      'Limiter le nombre de questions pour éviter la fatigue',
+   339→      'Assurer l\'anonymat pour encourager la sincérité',
+   340→    ],
+   341→    icon: 'ClipboardList',
+   342→  },
+   343→  {
+   344→    id: 'sondage',
+   345→    title: 'Le sondage',
+   346→    description: 'Enquête d\'opinion menée sur une large population (des milliers). Processus plus prenant de temps que le questionnaire.',
+   347→    avantages: [
+   348→      'Représentativité statistique',
+   349→      'Généralisation des résultats',
+   350→      'Mesure quantitative fiable',
+   351→      'Comparaison possible entre groupes',
+   352→    ],
+   353→    limites: [
+   354→      'Mise en œuvre lourde et coûteuse',
+   355→      'Réduit la complexité à des chiffres',
+   356→      'Ne capte pas les explications profondes',
+   357→      'Processus prenant du temps',
+   358→    ],
+   359→    conseils: [
+   360→      'Définir un échantillon représentatif',
+   361→      'Utiliser des méthodes d\'échantillonnage rigoureuses',
+   362→      'Privilégier les questions fermées à réponse unique',
+   363→      'Assurer la fiabilité statistique des résultats',
+   364→    ],
+   365→    icon: 'BarChart3',
+   366→  },
+   367→  {
+   368→    id: 'observation',
+   369→    title: 'L\'observation de terrain',
+   370→    description: 'Observation systématique et structurée d\'un phénomène dans son contexte naturel. Utilise une grille d\'observation avec thèmes, sous-thèmes et notes.',
+   371→    avantages: [
+   372→      'Accès direct au contexte réel',
+   373→      'Capture de comportements spontanés',
+   374→      'Complémentarité avec les autres outils',
+   375→      'Richesse des données contextuelles',
+   376→    ],
+   377→    limites: [
+   378→      'Subjectivité de l\'observateur',
+   379→      'Effet d\'observation (modification du comportement)',
+   380→      'Difficulté de reproduction',
+   381→      'Temps d\'immersion important',
+   382→    ],
+   383→    conseils: [
+   384→      'Préparer une grille d\'observation structurée (thèmes, sous-thèmes, notes)',
+   385→      'Observer l\'ambiance, les éléments temporels, l\'architecture, le mobilier',
+   386→      'Notez les horaires, la météo, les conditions d\'observation',
+   387→      'Répéter les observations à différents moments pour valider',
+   388→    ],
+   389→    icon: 'Eye',
+   390→  },
+   391→]
+   392→
+   393→// ─── Recherche documentaire ───────────────────────────────────────
+   394→export const documentTypes = [
+   395→  { type: 'Dictionnaires & Encyclopédies', usage: 'Comprendre le sujet et le préciser, surtout pour les concepts nouveaux' },
+   396→  { type: 'Livres / Monographies', usage: 'Approfondir la recherche sur un thème donné' },
+   397→  { type: 'Manuels', usage: 'Faire le point sur une question' },
+   398→  { type: 'Mémentos', usage: 'Se faire une idée rapide sur un sujet' },
+   399→  { type: 'Précis', usage: 'Approfondir un aspect spécifique de la question' },
+   400→  { type: 'Actes de colloques', usage: 'Comptes-rendus de congrès et de journées scientifiques' },
+   401→  { type: 'Périodiques', usage: 'Articles de revues scientifiques récents' },
+   402→  { type: 'Thèses & Mémoires', usage: 'Littérature grise, travaux de recherche universitaires' },
+   403→  { type: 'Documents spécifiques', usage: 'Cartes, brevets, images, données statistiques' },
+   404→  { type: 'Documentation officielle', usage: 'Lois, règlements, plans, rapports institutionnels' },
+   405→]
+   406→
+   407→export const databases: DocumentSource[] = [
+   408→  { id: 'sd', name: 'ScienceDirect', type: 'Base pluridisciplinaire', url: 'https://www.sciencedirect.com', description: 'Accès à des milliers de revues scientifiques et d\'articles en texte intégral.' },
+   409→  { id: 'jstor', name: 'JSTOR', type: 'Base pluridisciplinaire', url: 'https://www.jstor.org', description: 'Archives de revues académiques, livres et sources primaires.' },
+   410→  { id: 'hal', name: 'HAL', type: 'Archive ouverte française', url: 'https://hal.science', description: 'Archive ouverte pluridisciplinaire française — accès gratuit aux publications.' },
+   411→  { id: 'persee', name: 'Persée', type: 'Base francophone', url: 'https://www.persee.fr', description: 'Portail de revues scientifiques en sciences humaines et sociales.' },
+   412→  { id: 'doaj', name: 'DOAJ', type: 'Base pluridisciplinaire', url: 'https://doaj.org', description: 'Directory of Open Access Journals — revues en accès libre.' },
+   413→  { id: 'wok', name: 'Web of Knowledge', type: 'Base pluridisciplinaire', url: 'https://www.webofknowledge.com', description: 'Indexation et citation des publications scientifiques mondiales.' },
+   414→  { id: 'cairn', name: 'Cairn', type: 'Bouquet de revues', url: 'https://www.cairn.info', description: 'Revues et ouvrages en sciences humaines et sociales en français.' },
+   415→]
+   416→
+   417→export const catalogs: DocumentSource[] = [
+   418→  { id: 'sudoc', name: 'SUDOC', type: 'Catalogue collectif', url: 'http://www.sudoc.abes.fr', description: 'Catalogue collectif des universités françaises.' },
+   419→  { id: 'worldcat', name: 'WorldCat', type: 'Catalogue mondial', url: 'http://www.worldcat.org', description: 'Catalogue mondial des bibliothèques — trouver des ouvrages partout.' },
+   420→  { id: 'bnf', name: 'BnF', type: 'Catalogue national', url: 'http://catalogue.bnf.fr', description: 'Catalogue de la Bibliothèque nationale de France.' },
+   421→  { id: 'sndl', name: 'SNDL', type: 'Documentation algérienne', url: 'https://www.sndl.cerist.dz', description: 'Système National de Documentation en Ligne — Algérie.' },
+   422→]
+   423→
+   424→export const webResources: DocumentSource[] = [
+   425→  { id: 'scholar', name: 'Google Scholar', type: 'Moteur de recherche', url: 'http://scholar.google.fr', description: 'Moteur de recherche spécialisé en littérature académique.' },
+   426→  { id: 'books', name: 'Google Books', type: 'Moteur de recherche', url: 'http://books.google.fr', description: 'Recherche dans le contenu des livres numérisés.' },
+   427→  { id: 'theses', name: 'Theses.fr', type: 'Portail', url: 'http://www.theses.fr', description: 'Annuaire des thèses soutenues en France.' },
+   428→  { id: 'worldwidescience', name: 'WorldWideScience', type: 'Portail scientifique', url: 'http://worldwidescience.org', description: 'Portail mondial de la science ouverte.' },
+   429→  { id: 'cirs', name: 'CIRS', type: 'Centre de recherche', url: 'http://www.cirs.fr', description: 'Centre international de recherche scientifique.' },
+   430→]
+   431→
+   432→// ─── Structure de l'introduction ──────────────────────────────────
+   433→export const introductionStructure = [
+   434→  { step: 'Amener le sujet (Y)', detail: 'Présenter le contexte général, amener progressivement le lecteur vers le sujet.' },
+   435→  { step: 'Poser le sujet (X → Y : Z)', detail: 'Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire).' },
+   436→  { step: 'Diviser le sujet', detail: 'Délimiter le cadre de l\'étude et l\'optique dans laquelle sera traitée la question.' },
+   437→  { step: 'Problématique', detail: 'Reformulation interrogative de l\'intitulé initial (QUOI ? COMMENT ? POURQUOI ?).' },
+   438→  { step: 'État de la question', detail: 'Synthétiser "ce que l\'on sait" sur le sujet ou la question choisie.' },
+   439→  { step: 'Corpus d\'étude', detail: 'Présenter le support de l\'étude et justifier son choix.' },
+   440→  { step: 'Objectifs & Hypothèses', detail: 'Annoncer les grandes lignes du travail et les axes d\'analyse retenus.' },
+   441→]
+   442→
+   443→// ─── Le titre ─────────────────────────────────────────────────────
+   444→export const titreConseils = [
+   445→  'Un bon titre doit contenir la ou les variable(s) à l\'étude (X et Y) ou CONCEPTS.',
+   446→  'Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y).',
+   447→  'Il doit mentionner le territoire et/ou la population Z à l\'étude (X influence Y chez Z).',
+   448→  'Le titre doit être à la fois BREF et PRÉCIS.',
+   449→  'Il prend généralement la forme d\'une AFFIRMATION, et non d\'une QUESTION.',
+   450→  'La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche.',
+   451→]
+   452→
+   453→// ─── Questionnaire vs Sondage ─────────────────────────────────────
+   454→export const questionnaireVsSondage = {
+   455→  questionnaire: {
+   456→    title: 'Questionnaire',
+   457→    criteres: [
+   458→      { label: 'Sujet', value: 'Touche plusieurs sujets' },
+   459→      { label: 'Population visée', value: 'Population restreinte (≤ 100)' },
+   460→      { label: 'Nombre de questions', value: 'Des dizaines de questions' },
+   461→      { label: 'Temps', value: 'Processus rapide' },
+   462→      { label: 'Types de questions', value: 'Questions fermées ou ouvertes' },
+   463→    ],
+   464→    avantage: 'Permet une analyse approfondie sur un petit groupe',
+   465→    limite: 'Non représentatif à grande échelle',
+   466→  },
+   467→  sondage: {
+   468→    title: 'Sondage',
+   469→    criteres: [
+   470→      { label: 'Sujet', value: 'Enquête d\'opinion (souvent un seul sujet)' },
+   471→      { label: 'Population visée', value: 'Large population (des milliers)' },
+   472→      { label: 'Nombre de questions', value: 'Court (quelques questions)' },
+   473→      { label: 'Temps', value: 'Processus prenant du temps' },
+   474→      { label: 'Types de questions', value: 'Questions fermées offrant une gamme de réponses préétablies' },
+   475→    ],
+   476→    avantage: 'Représentativité statistique',
+   477→    limite: 'Profondeur limitée des réponses',
+   478→  },
+   479→}
+   480→
+   481→// ─── Grille d'observation — Exemple ────────────────────────────────
+   482→export const observationGridExample = [
+   483→  {
+   484→    theme: 'Ambiance',
+   485→    sousThemes: ['Est-ce une ambiance conviviale ?', 'Est-ce une ambiance de travail ?', 'Éléments temporels : horaires, date, météo'],
+   486→  },
+   487→  {
+   488→    theme: 'Architecture / Mobilier',
+   489→    sousThemes: ['Comment est faite l\'architecture des bâtiments ?', 'Voies d\'accès ?', 'Le mobilier est-il en bon état ?', 'Le mobilier est-il suffisant en nombre ?', 'L\'utilisation de ce mobilier ?'],
+   490→  },
+   491→  {
+   492→    theme: 'Usagers',
+   493→    sousThemes: ['Profil des personnes présentes', 'Activités observées', 'Interactions sociales'],
+   494→  },
+   495→  {
+   496→    theme: 'Environnement',
+   497→    sousThemes: ['Propreté', 'Bruit', 'Éclairage', 'Végétation'],
+   498→  },
+   499→]
+   500→
+   501→// ─── Définition de concept — Triangle d'Ogden et Richards ──────────
+   502→export const conceptDefinitionGuide = {
+   503→  title: 'La définition de concept — Triangle d\'Ogden et Richards (1923)',
+   504→  description: 'Pour chaque concept choisi, il faut écrire une définition qui permet de le comprendre, expliciter ses attributs et les savoirs associés.',
+   505→  steps: [
+   506→    'Écrire une DÉFINITION à partir du texte de l\'auteur ou des recherches effectuées',
+   507→    'Expliciter les ATTRIBUTS du concept et les savoirs associés',
+   508→    'Identifier la DÉNOMINATION (le nom du concept)',
+   509→    'Déterminer l\'EXTENSION (le champ d\'application du concept)',
+   510→    'Préciser la COMPRÉHENSION (la définition proprement dite)',
+   511→  ],
+   512→  example: {
+   513→    concept: 'Ressources d\'une ville',
+   514→    dimensions: [
+   515→      { label: 'Fiscale', indicateurs: ['Dotations', 'Impôts locaux', 'Subventions'] },
+   516→      { label: 'Financière', indicateurs: ['Budget municipal', 'Investissements', 'Endettement'] },
+   517→      { label: 'Patrimoniale', indicateurs: ['Matériel', 'Immobilier', 'Infrastructure'] },
+   518→      { label: 'Sociale', indicateurs: ['Emploi', 'Niveau d\'équipement', 'Services'] },
+   519→    ],
+   520→  },
+   521→  formalisation: {
+   522→    title: 'La formalisation',
+   523→    description: 'La formalisation est l\'action de réduire un ensemble de connaissances à ses caractères et structures formels.',
+   524→    buts: [
+   525→      'Son utilisation comme outil de lecture et de compréhension',
+   526→      'Voir ses limites',
+   527→      'Voir si on peut dépasser ces limites',
+   528→      'Voir si on peut ajouter des choses',
+   529→    ],
+   530→  },
+   531→}
+   532→
+   533→// ─── Formule du titre de recherche ────────────────────────────────
+   534→export const titreFormula = {
+   535→  title: 'Formule du titre de recherche',
+   536→  description: 'Un bon titre annonce clairement votre problème de recherche. Il est BREF et PRÉCIS, prend la forme d\'une AFFIRMATION (pas d\'une question).',
+   537→  elements: [
+   538→    { label: 'Variable X', desc: 'La cause possible (variable indépendante)', exemple: 'L\'utilisation des médias sociaux' },
+   539→    { label: 'Relation', desc: 'Effet, incidence ou influence de X sur Y', exemple: 'influence' },
+   540→    { label: 'Variable Y', desc: 'Le thème / sujet étudié (variable dépendante)', exemple: 'la santé mentale' },
+   541→    { label: 'Population Z', desc: 'Le territoire et/ou la population étudiée', exemple: 'des adolescents' },
+   542→  ],
+   543→  examples: [
+   544→    'L\'impact de la végétalisation urbaine sur la qualité de vie des habitants de Constantine',
+   545→    'L\'effet du télétravail sur la productivité des employés du secteur public',
+   546→    'L\'incidence du changement climatique sur les pratiques agricoles dans les Hauts Plateaux',
+   547→  ],
+   548→  conseils: [
+   549→    'La variable Y correspond à votre thème/sujet étudié',
+   550→    'La variable X renvoie à l\'une des causes possibles de Y',
+   551→    'Le titre doit être à la fois BREF et PRÉCIS',
+   552→    'Il prend généralement la forme d\'une AFFIRMATION, et non d\'une QUESTION',
+   553→  ],
+   554→}
+   555→
+   556→// ─── Critères de vérification des hypothèses ──────────────────────
+   557→export const hypothesesCheckCriteria = [
+   558→  {
+   559→    id: 'empirique',
+   560→    title: 'Base empirique',
+   561→    question: 'L\'hypothèse se fait-elle à partir d\'une observation empirique ou d\'une étude préalable ?',
+   562→    description: 'Le chercheur peut émettre une hypothèse à partir d\'une observation partielle en s\'interrogeant sur la règle qui régit le phénomène.',
+   563→    exemple: 'À partir de l\'observation de la chute d\'un objet, Newton a pu émettre une hypothèse sur la loi de la gravité.',
+   564→  },
+   565→  {
+   566→    id: 'verifiable',
+   567→    title: 'Vérifiabilité',
+   568→    question: 'L\'hypothèse peut-elle être vérifiée dans la réalité ?',
+   569→    description: 'L\'hypothèse doit pouvoir être testée par l\'expérience, l\'enquête, la contre-épreuve ou la variation de la preuve.',
+   570→    methodes: ['Par l\'expérience ou l\'enquête', 'Par la contre-épreuve (un contre-exemple suffit)', 'Par la variation de la preuve sur des parties différentes'],
+   571→  },
+   572→  {
+   573→    id: 'coherent',
+   574→    title: 'Cohérence',
+   575→    question: 'L\'hypothèse est-elle cohérente avec les connaissances existantes ?',
+   576→    description: 'L\'hypothèse doit être en accord avec les théories et résultats déjà établis dans le domaine.',
+   577→  },
+   578→]

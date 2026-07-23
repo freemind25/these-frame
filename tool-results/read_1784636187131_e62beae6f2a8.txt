@@ -1,0 +1,2002 @@
+     1→'use client'
+     2→
+     3→import { createElement, useCallback, useEffect, useState } from 'react'
+     4→import {
+     5→  BookOpen,
+     6→  FileText,
+     7→  GraduationCap,
+     8→  HelpCircle,
+     9→  CheckCircle2,
+    10→  ChevronRight,
+    11→  AlertTriangle,
+    12→  Lightbulb,
+    13→  BookMarked,
+    14→  ClipboardList,
+    15→  Database,
+    16→  Send,
+    17→  FlaskConical,
+    18→  BarChart3,
+    19→  MessageSquare,
+    20→  Layout,
+    21→  Type,
+    22→  ArrowRight,
+    23→  XCircle,
+    24→  ShieldCheck,
+    25→  Download,
+    26→  FileCode2,
+    27→  Link2,
+    28→  ExternalLink,
+    29→  Search,
+    30→  Plus,
+    31→  Trash2,
+    32→  RefreshCw,
+    33→  Unplug,
+    34→  Upload,
+    35→  Library,
+    36→  Copy,
+    37→  Eye,
+    38→  Sparkles,
+    39→  Loader2,
+    40→  RotateCcw,
+    41→  PenTool,
+    42→  BookOpenText,
+    43→  ScanSearch,
+    44→  Languages,
+    45→  ScrollText,
+    46→  User,
+    47→  Wand2,
+    48→  Brain,
+    49→  Key,
+    50→  Table2,
+    51→  Target,
+    52→  GitBranch,
+    53→  type LucideIcon,
+    54→} from 'lucide-react'
+    55→import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+    56→import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+    57→import { Badge } from '@/components/ui/badge'
+    58→import { Progress } from '@/components/ui/progress'
+    59→import { Checkbox } from '@/components/ui/checkbox'
+    60→import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+    61→import { ScrollArea } from '@/components/ui/scroll-area'
+    62→import { Separator } from '@/components/ui/separator'
+    63→import { Button } from '@/components/ui/button'
+    64→import { Input } from '@/components/ui/input'
+    65→import { Label } from '@/components/ui/label'
+    66→import { Textarea } from '@/components/ui/textarea'
+    67→import {
+    68→  Dialog,
+    69→  DialogContent,
+    70→  DialogDescription,
+    71→  DialogFooter,
+    72→  DialogHeader,
+    73→  DialogTitle,
+    74→  DialogTrigger,
+    75→} from '@/components/ui/dialog'
+    76→import {
+    77→  Select,
+    78→  SelectContent,
+    79→  SelectItem,
+    80→  SelectTrigger,
+    81→  SelectValue,
+    82→} from '@/components/ui/select'
+    83→import { DEFAULT_THESIS_DATA, type ThesisData } from '@/data/latex-template'
+    84→import {
+    85→  writingSteps,
+    86→  sectionGuides,
+    87→  referenceArticles,
+    88→  submissionChecklist,
+    89→  commonMistakes,
+    90→} from '@/data/articles-guide'
+    91→import {
+    92→  researchCycle,
+    93→  researchTypes,
+    94→  reasoningApproaches,
+    95→  disciplinarities,
+    96→  problematiqueGuide,
+    97→  problematiqueConseils,
+    98→  operationalisationConcept,
+    99→  operationalisationExample,
+   100→  hypothesesConditions,
+   101→  hypothesesVerification,
+   102→  collectTools,
+   103→  documentTypes,
+   104→  databases,
+   105→  catalogs,
+   106→  webResources,
+   107→  introductionStructure,
+   108→  titreConseils,
+   109→  questionnaireVsSondage,
+   110→  observationGridExample,
+   111→  conceptDefinitionGuide,
+   112→  titreFormula,
+   113→  hypothesesCheckCriteria,
+   114→} from '@/data/methodology-guide'
+   115→
+   116→// ─── Icon map ─────────────────────────────────────────────────────
+   117→const iconMap: Record<string, LucideIcon> = {
+   118→  ClipboardList,
+   119→  Layout,
+   120→  Type,
+   121→  BookOpen,
+   122→  FlaskConical,
+   123→  BarChart3,
+   124→  MessageSquare,
+   125→  CheckCircle2,
+   126→  BookMarked,
+   127→  Send,
+   128→  FileText,
+   129→  GraduationCap,
+   130→  PenTool,
+   131→  BookOpenText,
+   132→  ScanSearch,
+   133→  Languages,
+   134→  ScrollText,
+   135→  Lightbulb,
+   136→  Sparkles,
+   137→  Loader2,
+   138→  RotateCcw,
+   139→  Wand2,
+   140→  Brain,
+   141→  Key,
+   142→  Table2: Table2,
+   143→  Target: Target,
+   144→  GitBranch: GitBranch,
+   145→}
+   146→
+   147→function getIcon(name: string): LucideIcon {
+   148→  return iconMap[name] || FileText
+   149→}
+   150→
+   151→// ─── Reference type ──────────────────────────────────────────────
+   152→interface RefItem {
+   153→  id: string
+   154→  type: string
+   155→  citationKey: string | null
+   156→  title: string
+   157→  authors: string
+   158→  year: string | null
+   159→  journal: string | null
+   160→  volume: string | null
+   161→  number: string | null
+   162→  pages: string | null
+   163→  doi: string | null
+   164→  abstract: string | null
+   165→  tags: string | null
+   166→  notes: string | null
+   167→  source: string
+   168→  mendeleyId: string | null
+   169→  createdAt: string
+   170→}
+   171→
+   172→// ─── MendeleyConnectionCard ──────────────────────────────────────
+   173→function MendeleyConnectionCard({
+   174→  connected,
+   175→  onRefresh,
+   176→  onDisconnect,
+   177→  onConfigure,
+   178→  onConnectOAuth,
+   179→  hasClientId,
+   180→}: {
+   181→  connected: boolean
+   182→  onRefresh: () => void
+   183→  onDisconnect: () => void
+   184→  onConfigure: (clientId: string, clientSecret: string, accessToken?: string) => void
+   185→  onConnectOAuth: () => void
+   186→  hasClientId: boolean
+   187→}) {
+   188→  const [showConfig, setShowConfig] = useState(false)
+   189→  const [clientId, setClientId] = useState('')
+   190→  const [clientSecret, setClientSecret] = useState('')
+   191→  const [manualToken, setManualToken] = useState('')
+   192→  const [useManualToken, setUseManualToken] = useState(false)
+   193→
+   194→  if (connected) {
+   195→    return (
+   196→      <Card className="border-emerald-200 bg-emerald-50/30">
+   197→        <CardHeader className="pb-3">
+   198→          <div className="flex items-center justify-between">
+   199→            <div className="flex items-center gap-3">
+   200→              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+   201→                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+   202→              </div>
+   203→              <div>
+   204→                <CardTitle className="text-base">Mendeley connecté</CardTitle>
+   205→                <CardDescription className="text-sm">
+   206→                  Votre bibliothèque Mendeley est synchronisée
+   207→                </CardDescription>
+   208→              </div>
+   209→            </div>
+   210→            <div className="flex items-center gap-2">
+   211→              <Button variant="outline" size="sm" onClick={onRefresh} className="gap-1.5">
+   212→                <RefreshCw className="h-3.5 w-3.5" />
+   213→                Rafraîchir
+   214→              </Button>
+   215→              <Button variant="outline" size="sm" onClick={onDisconnect} className="gap-1.5 text-red-600 hover:text-red-700">
+   216→                <Unplug className="h-3.5 w-3.5" />
+   217→                Déconnecter
+   218→              </Button>
+   219→            </div>
+   220→          </div>
+   221→        </CardHeader>
+   222→      </Card>
+   223→    )
+   224→  }
+   225→
+   226→  return (
+   227→    <Card className="border-amber-200 bg-amber-50/30">
+   228→      <CardHeader className="pb-3">
+   229→        <div className="flex items-center gap-3">
+   230→          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-100 shrink-0">
+   231→            <Link2 className="h-5 w-5 text-amber-700" />
+   232→          </div>
+   233→          <div className="flex-1">
+   234→            <CardTitle className="text-base">Connexion Mendeley</CardTitle>
+   235→            <CardDescription className="text-sm">
+   236→              Connectez votre compte pour importer vos références bibliographiques
+   237→            </CardDescription>
+   238→          </div>
+   239→          {!showConfig && (
+   240→            <Button size="sm" onClick={() => setShowConfig(true)} className="gap-1.5">
+   241→              <Plus className="h-3.5 w-3.5" />
+   242→              Configurer
+   243→            </Button>
+   244→          )}
+   245→        </div>
+   246→      </CardHeader>
+   247→      {showConfig && (
+   248→        <CardContent className="space-y-4 border-t pt-4">
+   249→          <div className="flex items-center gap-2 p-2 rounded-md bg-sky-50 border border-sky-200 text-sm text-sky-800">
+   250→            <ExternalLink className="h-4 w-4 shrink-0" />
+   251→            <span>
+   252→              Créez votre app sur{' '}
+   253→              <a href="https://dev.mendeley.com/myapps.html" target="_blank" rel="noopener noreferrer" className="underline font-medium">
+   254→                dev.mendeley.com/myapps
+   255→              </a>{' '}
+   256→              pour obtenir un Client ID et Secret.
+   257→            </span>
+   258→          </div>
+   259→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   260→            <div className="grid gap-1.5">
+   261→              <Label htmlFor="clientId" className="text-xs">Client ID</Label>
+   262→              <Input id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={clientId} onChange={e => setClientId(e.target.value)} className="text-sm" />
+   263→            </div>
+   264→            <div className="grid gap-1.5">
+   265→              <Label htmlFor="clientSecret" className="text-xs">Client Secret</Label>
+   266→              <Input id="clientSecret" type="password" placeholder="Votre client secret" value={clientSecret} onChange={e => setClientSecret(e.target.value)} className="text-sm" />
+   267→            </div>
+   268→          </div>
+   269→
+   270→          <div className="flex items-center gap-2">
+   271→            <Checkbox
+   272→              id="manualTokenCheck"
+   273→              checked={useManualToken}
+   274→              onCheckedChange={(v) => setUseManualToken(v === true)}
+   275→            />
+   276→            <Label htmlFor="manualTokenCheck" className="text-xs text-muted-foreground">
+   277→              Utiliser un token d&apos;accès manuel (si vous avez déjà un Access Token)
+   278→            </Label>
+   279→          </div>
+   280→
+   281→          {useManualToken && (
+   282→            <div className="grid gap-1.5">
+   283→              <Label htmlFor="manualToken" className="text-xs">Access Token Mendeley</Label>
+   284→              <Input id="manualToken" placeholder="Bearer token..." value={manualToken} onChange={e => setManualToken(e.target.value)} className="text-sm" />
+   285→            </div>
+   286→          )}
+   287→
+   288→          <div className="flex items-center gap-2 justify-end">
+   289→            <Button variant="ghost" size="sm" onClick={() => setShowConfig(false)}>Annuler</Button>
+   290→            {useManualToken ? (
+   291→              <Button size="sm" onClick={() => {
+   292→                onConfigure(clientId, clientSecret, manualToken)
+   293→                setShowConfig(false)
+   294→              }} disabled={!manualToken} className="gap-1.5">
+   295→                <Link2 className="h-3.5 w-3.5" />
+   296→                Connecter avec token
+   297→              </Button>
+   298→            ) : (
+   299→              <Button size="sm" onClick={() => {
+   300→                onConfigure(clientId, clientSecret)
+   301→                if (clientId) onConnectOAuth()
+   302→              }} disabled={!clientId || !clientSecret} className="gap-1.5">
+   303→                <ExternalLink className="h-3.5 w-3.5" />
+   304→                Autoriser via Mendeley
+   305→              </Button>
+   306→            )}
+   307→          </div>
+   308→        </CardContent>
+   309→      )}
+   310→    </Card>
+   311→  )
+   312→}
+   313→
+   314→// ─── AddReferenceDialog ──────────────────────────────────────────
+   315→function AddReferenceDialog({ onAdd }: { onAdd: (data: Record<string, string>) => void }) {
+   316→  const [open, setOpen] = useState(false)
+   317→  const [form, setForm] = useState({
+   318→    type: 'article',
+   319→    title: '',
+   320→    authors: '',
+   321→    year: '',
+   322→    journal: '',
+   323→    volume: '',
+   324→    number: '',
+   325→    pages: '',
+   326→    doi: '',
+   327→    tags: '',
+   328→    notes: '',
+   329→  })
+   330→
+   331→  const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
+   332→
+   333→  const handleSubmit = () => {
+   334→    if (!form.title.trim()) return
+   335→    onAdd(form)
+   336→    setOpen(false)
+   337→    setForm({ type: 'article', title: '', authors: '', year: '', journal: '', volume: '', number: '', pages: '', doi: '', tags: '', notes: '' })
+   338→  }
+   339→
+   340→  return (
+   341→    <Dialog open={open} onOpenChange={setOpen}>
+   342→      <DialogTrigger asChild>
+   343→        <Button size="sm" className="gap-1.5">
+   344→          <Plus className="h-3.5 w-3.5" />
+   345→          Ajouter
+   346→        </Button>
+   347→      </DialogTrigger>
+   348→      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+   349→        <DialogHeader>
+   350→          <DialogTitle className="flex items-center gap-2">
+   351→            <Plus className="h-5 w-5" />
+   352→            Ajouter une référence
+   353→          </DialogTitle>
+   354→          <DialogDescription>Entrez les métadonnées de la référence bibliographique.</DialogDescription>
+   355→        </DialogHeader>
+   356→        <div className="grid gap-3 py-2">
+   357→          <div className="grid grid-cols-2 gap-3">
+   358→            <div className="grid gap-1.5">
+   359→              <Label className="text-xs">Type</Label>
+   360→              <Select value={form.type} onValueChange={v => update('type', v)}>
+   361→                <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+   362→                <SelectContent>
+   363→                  <SelectItem value="article">Article</SelectItem>
+   364→                  <SelectItem value="book">Livre</SelectItem>
+   365→                  <SelectItem value="inproceedings">Conférence</SelectItem>
+   366→                  <SelectItem value="thesis">Thèse</SelectItem>
+   367→                  <SelectItem value="incollection">Chapitre d&apos;ouvrage</SelectItem>
+   368→                  <SelectItem value="web">Site web</SelectItem>
+   369→                </SelectContent>
+   370→              </Select>
+   371→            </div>
+   372→            <div className="grid gap-1.5">
+   373→              <Label className="text-xs">Année</Label>
+   374→              <Input placeholder="2025" value={form.year} onChange={e => update('year', e.target.value)} className="text-sm" />
+   375→            </div>
+   376→          </div>
+   377→          <div className="grid gap-1.5">
+   378→            <Label className="text-xs">Titre *</Label>
+   379→            <Input placeholder="Titre de la publication" value={form.title} onChange={e => update('title', e.target.value)} className="text-sm" />
+   380→          </div>
+   381→          <div className="grid gap-1.5">
+   382→            <Label className="text-xs">Auteurs (séparés par ; )</Label>
+   383→            <Input placeholder="Nom Prénom; Nom2 Prénom2" value={form.authors} onChange={e => update('authors', e.target.value)} className="text-sm" />
+   384→          </div>
+   385→          <div className="grid gap-1.5">
+   386→            <Label className="text-xs">
+   387→              {form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Établissement' : form.type === 'web' ? 'URL / Site' : 'Journal / Revue'}
+   388→            </Label>
+   389→            <Input placeholder={form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Université...' : 'Nom du journal'} value={form.journal} onChange={e => update('journal', e.target.value)} className="text-sm" />
+   390→          </div>
+   391→          <div className="grid grid-cols-3 gap-3">
+   392→            <div className="grid gap-1.5">
+   393→              <Label className="text-xs">Volume</Label>
+   394→              <Input placeholder="Vol." value={form.volume} onChange={e => update('volume', e.target.value)} className="text-sm" />
+   395→            </div>
+   396→            <div className="grid gap-1.5">
+   397→              <Label className="text-xs">Numéro</Label>
+   398→              <Input placeholder="N°" value={form.number} onChange={e => update('number', e.target.value)} className="text-sm" />
+   399→            </div>
+   400→            <div className="grid gap-1.5">
+   401→              <Label className="text-xs">Pages</Label>
+   402→              <Input placeholder="1-15" value={form.pages} onChange={e => update('pages', e.target.value)} className="text-sm" />
+   403→            </div>
+   404→          </div>
+   405→          <div className="grid gap-1.5">
+   406→            <Label className="text-xs">DOI / URL</Label>
+   407→            <Input placeholder="10.xxxx/xxxxx" value={form.doi} onChange={e => update('doi', e.target.value)} className="text-sm" />
+   408→          </div>
+   409→          <div className="grid gap-1.5">
+   410→            <Label className="text-xs">Tags (séparés par , )</Label>
+   411→            <Input placeholder="architecture, urbanisme, réhabilitation" value={form.tags} onChange={e => update('tags', e.target.value)} className="text-sm" />
+   412→          </div>
+   413→          <div className="grid gap-1.5">
+   414→            <Label className="text-xs">Notes</Label>
+   415→            <Textarea placeholder="Remarques, contexte..." value={form.notes} onChange={e => update('notes', e.target.value)} className="text-sm" rows={2} />
+   416→          </div>
+   417→        </div>
+   418→        <DialogFooter>
+   419→          <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+   420→          <Button onClick={handleSubmit} disabled={!form.title.trim()} className="gap-1.5">
+   421→            <Plus className="h-4 w-4" />
+   422→            Ajouter
+   423→          </Button>
+   424→        </DialogFooter>
+   425→      </DialogContent>
+   426→    </Dialog>
+   427→  )
+   428→}
+   429→
+   430→// ─── ReferenceRow ────────────────────────────────────────────────
+   431→function ReferenceRow({ item, onDelete }: { item: RefItem; onDelete: (id: string) => void }) {
+   432→  const [expanded, setExpanded] = useState(false)
+   433→  const [copied, setCopied] = useState(false)
+   434→
+   435→  const copyBib = () => {
+   436→    const key = item.citationKey || `ref_${item.id.slice(0, 6)}`
+   437→    const authorList = item.authors ? item.authors.split(';').map(a => a.trim()).join(' and ') : 'Unknown'
+   438→    let bib = ''
+   439→    if (item.type === 'book') {
+   440→      bib = `@book{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  year = {${item.year || ''}},\n  publisher = {${item.journal || ''}}\n}`
+   441→    } else {
+   442→      bib = `@article{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  journal = {${item.journal || ''}},\n  year = {${item.year || ''}},\n  volume = {${item.volume || ''}},\n  pages = {${item.pages || ''}},\n  doi = {${item.doi || ''}}\n}`
+   443→    }
+   444→    navigator.clipboard.writeText(bib)
+   445→    setCopied(true)
+   446→    setTimeout(() => setCopied(false), 2000)
+   447→  }
+   448→
+   449→  const typeLabels: Record<string, string> = {
+   450→    article: 'Article',
+   451→    book: 'Livre',
+   452→    inproceedings: 'Conférence',
+   453→    thesis: 'Thèse',
+   454→    incollection: 'Chapitre',
+   455→    web: 'Web',
+   456→  }
+   457→
+   458→  return (
+   459→    <div className="rounded-lg border hover:bg-muted/30 transition-colors">
+   460→      <div
+   461→        className="flex items-start gap-3 p-3 cursor-pointer select-none"
+   462→        onClick={() => setExpanded(!expanded)}
+   463→      >
+   464→        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 mt-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+   465→        <div className="flex-1 min-w-0">
+   466→          <div className="flex items-center gap-2 flex-wrap">
+   467→            <span className="text-sm font-medium truncate">{item.title}</span>
+   468→            <Badge variant="secondary" className="text-xs shrink-0">{typeLabels[item.type] || item.type}</Badge>
+   469→            {item.source === 'mendeley' && (
+   470→              <Badge variant="outline" className="text-xs shrink-0 text-amber-600 border-amber-300 bg-amber-50">Mendeley</Badge>
+   471→            )}
+   472→          </div>
+   473→          <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.authors} ({item.year || '—'})</p>
+   474→          {item.journal && <p className="text-xs text-muted-foreground truncate">{item.journal}{item.volume ? `, ${item.volume}` : ''}{item.pages ? `, pp. ${item.pages}` : ''}</p>}
+   475→        </div>
+   476→        <div className="flex items-center gap-1 shrink-0">
+   477→          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); copyBib() }} title="Copier BibTeX">
+   478→            <Copy className="h-3.5 w-3.5" />
+   479→          </Button>
+   480→          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(item.id) }} title="Supprimer">
+   481→            <Trash2 className="h-3.5 w-3.5" />
+   482→          </Button>
+   483→        </div>
+   484→      </div>
+   485→      {expanded && (
+   486→        <div className="px-3 pb-3 pl-10 space-y-2 border-t pt-2 ml-7">
+   487→          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+   488→            <div><span className="text-muted-foreground">Clé :</span> <span className="font-mono">{item.citationKey || '—'}</span></div>
+   489→            <div><span className="text-muted-foreground">DOI :</span> {item.doi || '—'}</div>
+   490→            <div><span className="text-muted-foreground">Volume :</span> {item.volume || '—'}</div>
+   491→            <div><span className="text-muted-foreground">N° :</span> {item.number || '—'}</div>
+   492→          </div>
+   493→          {item.abstract && (
+   494→            <div>
+   495→              <span className="text-xs font-semibold text-muted-foreground">Résumé</span>
+   496→              <p className="text-xs text-muted-foreground mt-1 bg-muted/50 rounded p-2 max-h-32 overflow-y-auto">{item.abstract}</p>
+   497→            </div>
+   498→          )}
+   499→          {item.notes && (
+   500→            <div>
+   501→              <span className="text-xs font-semibold text-muted-foreground">Notes</span>
+   502→              <p className="text-xs mt-1 italic">{item.notes}</p>
+   503→            </div>
+   504→          )}
+   505→          {item.tags && (
+   506→            <div className="flex items-center gap-1.5 flex-wrap">
+   507→              {item.tags.split(',').map((tag, i) => (
+   508→                <Badge key={i} variant="outline" className="text-xs">{tag.trim()}</Badge>
+   509→              ))}
+   510→            </div>
+   511→          )}
+   512→          {copied && (
+   513→            <p className="text-xs text-emerald-600 flex items-center gap-1">
+   514→              <CheckCircle2 className="h-3 w-3" /> BibTeX copié dans le presse-papier
+   515→            </p>
+   516→          )}
+   517→        </div>
+   518→      )}
+   519→    </div>
+   520→  )
+   521→}
+   522→
+   523→// ─── MendeleyImportPanel ─────────────────────────────────────────
+   524→function MendeleyImportPanel({ connected, onImport }: { connected: boolean; onImport: (docs: unknown[]) => void }) {
+   525→  const [documents, setDocuments] = useState<unknown[]>([])
+   526→  const [loading, setLoading] = useState(false)
+   527→  const [selected, setSelected] = useState<Set<string>>(new Set())
+   528→  const [search, setSearch] = useState('')
+   529→
+   530→  const fetchDocs = useCallback(async () => {
+   531→    if (!connected) return
+   532→    setLoading(true)
+   533→    try {
+   534→      const res = await fetch('/api/mendeley/documents?limit=50')
+   535→      if (res.ok) {
+   536→        const data = await res.json()
+   537→        setDocuments(Array.isArray(data) ? data : [])
+   538→      }
+   539→    } catch { /* ignore */ }
+   540→    setLoading(false)
+   541→  }, [connected])
+   542→
+   543→  // eslint-disable-next-line react-hooks/set-state-in-effect
+   544→  useEffect(() => { if (connected) { fetchDocs(); } }, [connected, fetchDocs])
+   545→
+   546→  const toggleSelect = (id: string) => {
+   547→    setSelected(prev => {
+   548→      const next = new Set(prev)
+   549→      if (next.has(id)) next.delete(id)
+   550→      else next.add(id)
+   551→      return next
+   552→    })
+   553→  }
+   554→
+   555→  const selectAll = () => {
+   556→    if (selected.size === documents.length) {
+   557→      setSelected(new Set())
+   558→    } else {
+   559→      setSelected(new Set((documents as { id: string }[]).map(d => d.id)))
+   560→    }
+   561→  }
+   562→
+   563→  const filtered = search
+   564→    ? documents.filter((d: Record<string, unknown>) =>
+   565→        String(d.title || '').toLowerCase().includes(search.toLowerCase()) ||
+   566→        String((d.authors as Array<Record<string, string>> || []).map(a => `${a.first_name || ''} ${a.last_name || ''}`).join(' ')).toLowerCase().includes(search.toLowerCase())
+   567→      )
+   568→    : documents
+   569→
+   570→  if (!connected) {
+   571→    return (
+   572→      <Card>
+   573→        <CardContent className="py-8 text-center">
+   574→          <Library className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+   575→          <p className="text-sm text-muted-foreground">Connectez votre compte Mendeley pour voir vos documents</p>
+   576→        </CardContent>
+   577→      </Card>
+   578→    )
+   579→  }
+   580→
+   581→  return (
+   582→    <Card>
+   583→      <CardHeader className="pb-3">
+   584→        <div className="flex items-center justify-between gap-3">
+   585→          <div>
+   586→            <CardTitle className="text-base">Bibliothèque Mendeley</CardTitle>
+   587→            <CardDescription className="text-sm">
+   588→              {documents.length} document{documents.length !== 1 ? 's' : ''} trouvé{documents.length !== 1 ? 's' : ''}
+   589→              {selected.size > 0 && ` · ${selected.size} sélectionné${selected.size > 1 ? 's' : ''}`}
+   590→            </CardDescription>
+   591→          </div>
+   592→          <div className="flex items-center gap-2">
+   593→            <Button variant="outline" size="sm" onClick={fetchDocs} disabled={loading} className="gap-1.5">
+   594→              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+   595→              Rafraîchir
+   596→            </Button>
+   597→            <Button
+   598→              size="sm"
+   599→              onClick={() => {
+   600→                const toImport = documents.filter(d => selected.has((d as { id: string }).id))
+   601→                onImport(toImport)
+   602→                setSelected(new Set())
+   603→              }}
+   604→              disabled={selected.size === 0}
+   605→              className="gap-1.5"
+   606→            >
+   607→              <Upload className="h-3.5 w-3.5" />
+   608→              Importer ({selected.size})
+   609→            </Button>
+   610→          </div>
+   611→        </div>
+   612→      </CardHeader>
+   613→      <CardContent>
+   614→        <div className="flex items-center gap-2 mb-3">
+   615→          <div className="relative flex-1">
+   616→            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   617→            <Input
+   618→              placeholder="Chercher dans vos documents Mendeley..."
+   619→              value={search}
+   620→              onChange={e => setSearch(e.target.value)}
+   621→              className="pl-8 text-sm"
+   622→            />
+   623→          </div>
+   624→          <Button variant="outline" size="sm" onClick={selectAll} className="shrink-0 text-xs">
+   625→            {selected.size === documents.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+   626→          </Button>
+   627→        </div>
+   628→        <ScrollArea className="max-h-64">
+   629→          <div className="space-y-1.5 pr-2">
+   630→            {loading ? (
+   631→              <div className="py-8 text-center text-sm text-muted-foreground">Chargement des documents…</div>
+   632→            ) : filtered.length === 0 ? (
+   633→              <div className="py-8 text-center text-sm text-muted-foreground">Aucun document trouvé</div>
+   634→            ) : (
+   635→              filtered.map((doc: Record<string, unknown>) => {
+   636→                const id = doc.id as string
+   637→                const title = String(doc.title || 'Sans titre')
+   638→                const authors = (doc.authors as Array<Record<string, string>> || []).map(a => `${a.last_name || ''} ${a.first_name || ''}`).join(', ')
+   639→                const year = doc.year || ''
+   640→                const source = (doc.source as string) || (doc.journal as string) || ''
+   641→                const isSelected = selected.has(id)
+   642→                return (
+   643→                  <div
+   644→                    key={id}
+   645→                    className={`flex items-start gap-2.5 p-2.5 rounded-md border cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50 border-emerald-300' : 'hover:bg-muted/50'}`}
+   646→                    onClick={() => toggleSelect(id)}
+   647→                  >
+   648→                    <Checkbox
+   649→                      checked={isSelected}
+   650→                      onCheckedChange={() => toggleSelect(id)}
+   651→                      className="mt-0.5"
+   652→                    />
+   653→                    <div className="flex-1 min-w-0">
+   654→                      <p className="text-sm font-medium truncate">{title}</p>
+   655→                      <p className="text-xs text-muted-foreground truncate">{authors} ({year}){source ? ` — ${source}` : ''}</p>
+   656→                    </div>
+   657→                  </div>
+   658→                )
+   659→              })
+   660→            )}
+   661→          </div>
+   662→        </ScrollArea>
+   663→      </CardContent>
+   664→    </Card>
+   665→  )
+   666→}
+   667→
+   668→// ─── ReferencesTab ───────────────────────────────────────────────
+   669→function ReferencesTab() {
+   670→  const [references, setReferences] = useState<RefItem[]>([])
+   671→  const [loading, setLoading] = useState(true)
+   672→  const [mendeleyConnected, setMendeleyConnected] = useState(false)
+   673→  const [mendeleyHasClientId, setMendeleyHasClientId] = useState(false)
+   674→  const [searchQuery, setSearchQuery] = useState('')
+   675→  const [filterType, setFilterType] = useState('all')
+   676→  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null)
+   677→
+   678→  // Load references + Mendeley status
+   679→  const loadReferences = useCallback(async () => {
+   680→    setLoading(true)
+   681→    try {
+   682→      const params = new URLSearchParams()
+   683→      if (searchQuery) params.set('search', searchQuery)
+   684→      if (filterType !== 'all') params.set('type', filterType)
+   685→      const res = await fetch(`/api/references?${params}`)
+   686→      if (res.ok) setReferences(await res.json())
+   687→    } catch { /* ignore */ }
+   688→    setLoading(false)
+   689→  }, [searchQuery, filterType])
+   690→
+   691→  useEffect(() => {
+   692→    let cancelled = false
+   693→    const params = new URLSearchParams()
+   694→    if (searchQuery) params.set('search', searchQuery)
+   695→    if (filterType !== 'all') params.set('type', filterType)
+   696→    fetch(`/api/references?${params}`)
+   697→      .then(r => r.ok ? r.json() : [])
+   698→      .then(data => { if (!cancelled) setReferences(data) })
+   699→      .catch(() => { if (!cancelled) setLoading(false) })
+   700→      .finally(() => { if (!cancelled) setLoading(false) })
+   701→    return () => { cancelled = true }
+   702→  }, [searchQuery, filterType])
+   703→
+   704→  useEffect(() => {
+   705→    // Check Mendeley status
+   706→    fetch('/api/mendeley/auth')
+   707→      .then(r => r.json())
+   708→      .then(data => {
+   709→        setMendeleyConnected(data.connected || false)
+   710→        setMendeleyHasClientId(data.hasClientId || false)
+   711→      })
+   712→      .catch(() => {})
+   713→  }, [])
+   714→
+   715→  const handleConfigure = async (clientId: string, clientSecret: string, accessToken?: string) => {
+   716→    await fetch('/api/mendeley/auth', {
+   717→      method: 'POST',
+   718→      headers: { 'Content-Type': 'application/json' },
+   719→      body: JSON.stringify({ clientId, clientSecret, accessToken }),
+   720→    })
+   721→    setMendeleyHasClientId(!!clientId)
+   722→    if (accessToken) {
+   723→      setMendeleyConnected(true)
+   724→    }
+   725→  }
+   726→
+   727→  const handleConnectOAuth = async () => {
+   728→    try {
+   729→      const res = await fetch('/api/mendeley/auth')
+   730→      const data = await res.json()
+   731→      if (data.authUrl) {
+   732→        window.location.href = data.authUrl
+   733→      }
+   734→    } catch { /* ignore */ }
+   735→  }
+   736→
+   737→  const handleDisconnect = async () => {
+   738→    await fetch('/api/mendeley/disconnect', { method: 'POST' })
+   739→    setMendeleyConnected(false)
+   740→  }
+   741→
+   742→  const handleAddReference = async (data: Record<string, string>) => {
+   743→    await fetch('/api/references', {
+   744→      method: 'POST',
+   745→      headers: { 'Content-Type': 'application/json' },
+   746→      body: JSON.stringify(data),
+   747→    })
+   748→    loadReferences()
+   749→  }
+   750→
+   751→  const handleDeleteReference = async (id: string) => {
+   752→    await fetch(`/api/references?id=${id}`, { method: 'DELETE' })
+   753→    loadReferences()
+   754→  }
+   755→
+   756→  const handleImport = async (docs: unknown[]) => {
+   757→    try {
+   758→      const res = await fetch('/api/references/import-bibtex', {
+   759→        method: 'POST',
+   760→        headers: { 'Content-Type': 'application/json' },
+   761→        body: JSON.stringify({ documents: docs }),
+   762→      })
+   763→      if (res.ok) {
+   764→        const result = await res.json()
+   765→        setImportResult(result)
+   766→        setTimeout(() => setImportResult(null), 5000)
+   767→        loadReferences()
+   768→      }
+   769→    } catch { /* ignore */ }
+   770→  }
+   771→
+   772→  const handleExportBib = () => {
+   773→    fetch('/api/references/bibtex')
+   774→      .then(r => r.blob())
+   775→      .then(blob => {
+   776→        const url = URL.createObjectURL(blob)
+   777→        const a = document.createElement('a')
+   778→        a.href = url
+   779→        a.download = 'references.bib'
+   780→        a.click()
+   781→        URL.revokeObjectURL(url)
+   782→      })
+   783→  }
+   784→
+   785→  const uniqueTypes = ['all', ...Array.from(new Set(references.map(r => r.type)))]
+   786→
+   787→  return (
+   788→    <div className="space-y-6">
+   789→      {/* Mendeley Connection */}
+   790→      <MendeleyConnectionCard
+   791→        connected={mendeleyConnected}
+   792→        onRefresh={loadReferences}
+   793→        onDisconnect={handleDisconnect}
+   794→        onConfigure={handleConfigure}
+   795→        onConnectOAuth={handleConnectOAuth}
+   796→        hasClientId={mendeleyHasClientId}
+   797→      />
+   798→
+   799→      {/* Import result toast */}
+   800→      {importResult && (
+   801→        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-800">
+   802→          <CheckCircle2 className="h-4 w-4 shrink-0" />
+   803→          <span>{importResult.imported} référence{importResult.imported > 1 ? 's' : ''} importée{importResult.imported > 1 ? 's' : ''} depuis Mendeley</span>
+   804→          {importResult.skipped > 0 && (
+   805→            <span className="text-muted-foreground">({importResult.skipped} déjà présente{importResult.skipped > 1 ? 's' : ''})</span>
+   806→          )}
+   807→        </div>
+   808→      )}
+   809→
+   810→      {/* Mendeley Import Panel */}
+   811→      <MendeleyImportPanel connected={mendeleyConnected} onImport={handleImport} />
+   812→
+   813→      <Separator />
+   814→
+   815→      {/* Local References */}
+   816→      <Card>
+   817→        <CardHeader>
+   818→          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+   819→            <div>
+   820→              <CardTitle className="text-base flex items-center gap-2">
+   821→                <Library className="h-5 w-5" />
+   822→                Mes références
+   823→                <Badge variant="secondary" className="text-xs">{references.length}</Badge>
+   824→              </CardTitle>
+   825→              <CardDescription className="text-sm mt-1">
+   826→                Gérez vos références et exportez-les en BibTeX pour LaTeX
+   827→              </CardDescription>
+   828→            </div>
+   829→            <div className="flex items-center gap-2 flex-wrap">
+   830→              <AddReferenceDialog onAdd={handleAddReference} />
+   831→              <Button variant="outline" size="sm" onClick={handleExportBib} disabled={references.length === 0} className="gap-1.5">
+   832→                <Download className="h-3.5 w-3.5" />
+   833→                Exporter .bib
+   834→              </Button>
+   835→            </div>
+   836→          </div>
+   837→        </CardHeader>
+   838→        <CardContent>
+   839→          {/* Filters */}
+   840→          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
+   841→            <div className="relative flex-1">
+   842→              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   843→              <Input
+   844→                placeholder="Rechercher par titre, auteur, journal…"
+   845→                value={searchQuery}
+   846→                onChange={e => setSearchQuery(e.target.value)}
+   847→                className="pl-8 text-sm"
+   848→              />
+   849→            </div>
+   850→            <Select value={filterType} onValueChange={setFilterType}>
+   851→              <SelectTrigger className="w-full sm:w-40 text-sm">
+   852→                <SelectValue placeholder="Type" />
+   853→              </SelectTrigger>
+   854→              <SelectContent>
+   855→                {uniqueTypes.map(t => (
+   856→                  <SelectItem key={t} value={t}>
+   857→                    {t === 'all' ? 'Tous les types' : t.charAt(0).toUpperCase() + t.slice(1)}
+   858→                  </SelectItem>
+   859→                ))}
+   860→              </SelectContent>
+   861→            </Select>
+   862→          </div>
+   863→
+   864→          {/* Reference list */}
+   865→          <ScrollArea className="max-h-96">
+   866→            <div className="space-y-2 pr-2">
+   867→              {loading ? (
+   868→                <div className="py-12 text-center text-sm text-muted-foreground">Chargement…</div>
+   869→              ) : references.length === 0 ? (
+   870→                <div className="py-12 text-center space-y-2">
+   871→                  <BookMarked className="h-10 w-10 text-muted-foreground mx-auto" />
+   872→                  <p className="text-sm text-muted-foreground">Aucune référence pour le moment</p>
+   873→                  <p className="text-xs text-muted-foreground">
+   874→                    Ajoutez-en manuellement ou importez depuis Mendeley
+   875→                  </p>
+   876→                </div>
+   877→              ) : (
+   878→                references.map(item => (
+   879→                  <ReferenceRow key={item.id} item={item} onDelete={handleDeleteReference} />
+   880→                ))
+   881→              )}
+   882→            </div>
+   883→          </ScrollArea>
+   884→        </CardContent>
+   885→      </Card>
+   886→
+   887→      {/* BibTeX preview info */}
+   888→      <Card className="bg-muted/30">
+   889→        <CardContent className="py-4">
+   890→          <div className="flex items-start gap-3">
+   891→            <FileCode2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+   892→            <div>
+   893→              <p className="text-sm font-medium">Intégration LaTeX</p>
+   894→              <p className="text-xs text-muted-foreground mt-1">
+   895→                Exportez vos références en fichier <code className="bg-muted px-1 rounded text-xs">.bib</code> et
+   896→                placez-le à côté de votre fichier <code className="bg-muted px-1 rounded text-xs">.tex</code>.
+   897→                Le template LaTeX généré utilise déjà <code className="bg-muted px-1 rounded text-xs">\\addbibresource{references.bib}</code> pour
+   898→                inclure automatiquement ces références.
+   899→              </p>
+   900→            </div>
+   901→          </div>
+   902→        </CardContent>
+   903→      </Card>
+   904→    </div>
+   905→  )
+   906→}
+   907→
+   908→// ─── ThesisPlanTab ────────────────────────────────────────────────
+   909→interface Chapter {
+   910→  id: string
+   911→  title: string
+   912→  words: number
+   913→  pages: number
+   914→  notes: string
+   915→  expanded: boolean
+   916→}
+   917→
+   918→const DEFAULT_CHAPTERS: Chapter[] = [
+   919→  { id: 'cover', title: 'Page de couverture', words: 0, pages: 1, notes: '', expanded: false },
+   920→  { id: 'ack', title: 'Remerciements', words: 0, pages: 1, notes: '', expanded: false },
+   921→  { id: 'abstract', title: 'Résumé (Français / Anglais)', words: 0, pages: 2, notes: '', expanded: false },
+   922→  { id: 'intro', title: 'Introduction générale', words: 0, pages: 0, notes: '', expanded: false },
+   923→  { id: 'lit', title: 'Revue de la littérature (Chapitre I)', words: 0, pages: 0, notes: '', expanded: false },
+   924→  { id: 'context', title: 'Contexte et cadre méthodologique (Chapitre II)', words: 0, pages: 0, notes: '', expanded: false },
+   925→  { id: 'results', title: 'Résultats et analyse (Chapitre III)', words: 0, pages: 0, notes: '', expanded: false },
+   926→  { id: 'discussion', title: 'Discussion (Chapitre IV)', words: 0, pages: 0, notes: '', expanded: false },
+   927→  { id: 'conclusion', title: 'Conclusion générale', words: 0, pages: 0, notes: '', expanded: false },
+   928→  { id: 'biblio', title: 'Références bibliographiques', words: 0, pages: 0, notes: '', expanded: false },
+   929→  { id: 'annexes', title: 'Annexes', words: 0, pages: 0, notes: '', expanded: false },
+   930→]
+   931→
+   932→function ThesisPlanTab() {
+   933→  const [chapters, setChapters] = useState<Chapter[]>(DEFAULT_CHAPTERS)
+   934→  const [editingId, setEditingId] = useState<string | null>(null)
+   935→  const [editingField, setEditingField] = useState<'words' | 'pages' | 'title' | 'notes' | null>(null)
+   936→  const [editValue, setEditValue] = useState('')
+   937→
+   938→  const totalWords = chapters.reduce((a, c) => a + c.words, 0)
+   939→  const totalPages = chapters.reduce((a, c) => a + c.pages, 0)
+   940→  const startedCount = chapters.filter(c => c.words > 0 || c.pages > 0).length
+   941→
+   942→  function startEdit(id: string, field: 'words' | 'pages' | 'title' | 'notes', currentValue: string | number) {
+   943→    setEditingId(id)
+   944→    setEditingField(field)
+   945→    setEditValue(String(currentValue))
+   946→  }
+   947→
+   948→  function commitEdit() {
+   949→    if (!editingId || !editingField) return
+   950→    setChapters(prev =>
+   951→      prev.map(ch => {
+   952→        if (ch.id !== editingId) return ch
+   953→        const val = editingField === 'title' || editingField === 'notes'
+   954→          ? editValue
+   955→          : Math.max(0, parseInt(editValue) || 0)
+   956→        return { ...ch, [editingField]: val }
+   957→      })
+   958→    )
+   959→    setEditingId(null)
+   960→    setEditingField(null)
+   961→    setEditValue('')
+   962→  }
+   963→
+   964→  function cancelEdit() {
+   965→    setEditingId(null)
+   966→    setEditingField(null)
+   967→    setEditValue('')
+   968→  }
+   969→
+   970→  function toggleExpand(id: string) {
+   971→    setChapters(prev => prev.map(ch => ch.id === id ? { ...ch, expanded: !ch.expanded } : ch))
+   972→  }
+   973→
+   974→  return (
+   975→    <div className="space-y-6">
+   976→      {/* Header stats */}
+   977→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+   978→        <Card>
+   979→          <CardHeader className="pb-2">
+   980→            <CardDescription>Mots rédigés</CardDescription>
+   981→            <CardTitle className="text-3xl font-bold tabular-nums">
+   982→              {totalWords.toLocaleString()}
+   983→            </CardTitle>
+   984→          </CardHeader>
+   985→          <CardContent>
+   986→            <p className="text-xs text-muted-foreground mt-1">
+   987→              {startedCount} / {chapters.length} chapitres commencés
+   988→            </p>
+   989→          </CardContent>
+   990→        </Card>
+   991→        <Card>
+   992→          <CardHeader className="pb-2">
+   993→            <CardDescription>Pages estimées</CardDescription>
+   994→            <CardTitle className="text-3xl font-bold tabular-nums">
+   995→              {totalPages}
+   996→            </CardTitle>
+   997→          </CardHeader>
+   998→          <CardContent>
+   999→            <p className="text-xs text-muted-foreground mt-1">
+  1000→              ≈ {totalWords > 0 ? Math.round(totalWords / 250) : '—'} pages (base 250 mots/page)
+  1001→            </p>
+  1002→          </CardContent>
+  1003→        </Card>
+  1004→        <Card>
+  1005→          <CardHeader className="pb-2">
+  1006→            <CardDescription>Structure IMRaD</CardDescription>
+  1007→            <CardTitle className="text-3xl font-bold flex items-center gap-2">
+  1008→              <GraduationCap className="h-8 w-8 text-emerald-600" />
+  1009→              11 chapitres
+  1010→            </CardTitle>
+  1011→          </CardHeader>
+  1012→          <CardContent>
+  1013→            <p className="text-xs text-muted-foreground">
+  1014→              Squelette IMRaD — Université Constantine 3
+  1015→            </p>
+  1016→          </CardContent>
+  1017→        </Card>
+  1018→      </div>
+  1019→
+  1020→      {/* Chapter list */}
+  1021→      <Card>
+  1022→        <CardHeader>
+  1023→          <div className="flex items-start justify-between gap-4">
+  1024→            <div>
+  1025→              <CardTitle>Chapitres de la thèse</CardTitle>
+  1026→              <CardDescription className="mt-1">
+  1027→                Cliquez sur les valeurs pour les modifier — la longueur est libre
+  1028→              </CardDescription>
+  1029→            </div>
+  1030→            <p className="text-xs text-muted-foreground shrink-0 text-right leading-relaxed">
+  1031→              Cliquez sur <strong>titre</strong>, <strong>mots</strong> ou <strong>pages</strong> pour éditer.&#10;
+  1032→              Entrée pour valider, Échap pour annuler.
+  1033→            </p>
+  1034→          </div>
+  1035→        </CardHeader>
+  1036→        <CardContent>
+  1037→          <div className="space-y-2">
+  1038→            {chapters.map((ch) => {
+  1039→              const isEditingThis = editingId === ch.id
+  1040→              const isStarted = ch.words > 0 || ch.pages > 0
+  1041→              return (
+  1042→                <div key={ch.id} className={`rounded-lg border transition-colors ${isStarted ? 'border-emerald-200 bg-emerald-50/30' : 'hover:bg-muted/50'}`}>
+  1043→                  {/* Main row */}
+  1044→                  <div
+  1045→                    className="flex items-center gap-3 p-3 cursor-pointer select-none"
+  1046→                    onClick={() => toggleExpand(ch.id)}
+  1047→                    onKeyDown={(e) => e.key === 'Enter' && toggleExpand(ch.id)}
+  1048→                    role="button"
+  1049→                    tabIndex={0}
+  1050→                  >
+  1051→                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${ch.expanded ? 'rotate-90' : ''}`} />
+  1052→                    <div className="flex-1 min-w-0">
+  1053→                      <div className="flex items-center gap-2">
+  1054→                        {isEditingThis && editingField === 'title' ? (
+  1055→                          <input
+  1056→                            className="font-medium text-sm bg-white border rounded px-2 py-0.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+  1057→                            value={editValue}
+  1058→                            onChange={(e) => setEditValue(e.target.value)}
+  1059→                            onBlur={commitEdit}
+  1060→                            onKeyDown={(e) => {
+  1061→                              if (e.key === 'Enter') commitEdit()
+  1062→                              if (e.key === 'Escape') cancelEdit()
+  1063→                              e.stopPropagation()
+  1064→                            }}
+  1065→                            autoFocus
+  1066→                            onClick={(e) => e.stopPropagation()}
+  1067→                          />
+  1068→                        ) : (
+  1069→                          <span className="font-medium text-sm truncate">{ch.title}</span>
+  1070→                        )}
+  1071→                        {isStarted && (
+  1072→                          <Badge variant="secondary" className="text-xs shrink-0 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+  1073→                            En cours
+  1074→                          </Badge>
+  1075→                        )}
+  1076→                      </div>
+  1077→                    </div>
+  1078→                    {/* Words */}
+  1079→                    <div
+  1080→                      className="shrink-0 text-right min-w-[90px]"
+  1081→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'words', ch.words) }}
+  1082→                    >
+  1083→                      {isEditingThis && editingField === 'words' ? (
+  1084→                        <input
+  1085→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1086→                          value={editValue}
+  1087→                          onChange={(e) => setEditValue(e.target.value)}
+  1088→                          onBlur={commitEdit}
+  1089→                          onKeyDown={(e) => {
+  1090→                            if (e.key === 'Enter') commitEdit()
+  1091→                            if (e.key === 'Escape') cancelEdit()
+  1092→                            e.stopPropagation()
+  1093→                          }}
+  1094→                          autoFocus
+  1095→                        />
+  1096→                      ) : (
+  1097→                        <span className={`text-xs tabular-nums ${ch.words > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+  1098→                          {ch.words > 0 ? `${ch.words.toLocaleString()} mots` : '— mots'}
+  1099→                        </span>
+  1100→                      )}
+  1101→                    </div>
+  1102→                    {/* Pages */}
+  1103→                    <div
+  1104→                      className="shrink-0 text-right min-w-[70px]"
+  1105→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'pages', ch.pages) }}
+  1106→                    >
+  1107→                      {isEditingThis && editingField === 'pages' ? (
+  1108→                        <input
+  1109→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1110→                          value={editValue}
+  1111→                          onChange={(e) => setEditValue(e.target.value)}
+  1112→                          onBlur={commitEdit}
+  1113→                          onKeyDown={(e) => {
+  1114→                            if (e.key === 'Enter') commitEdit()
+  1115→                            if (e.key === 'Escape') cancelEdit()
+  1116→                            e.stopPropagation()
+  1117→                          }}
+  1118→                          autoFocus
+  1119→                        />
+  1120→                      ) : (
+  1121→                        <span className={`text-xs tabular-nums ${ch.pages > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+  1122→                          {ch.pages > 0 ? `${ch.pages} p.` : '— p.'}
+  1123→                        </span>
+  1124→                      )}
+  1125→                    </div>
+  1126→                  </div>
+  1127→
+  1128→                  {/* Expanded section */}
+  1129→                  {ch.expanded && (
+  1130→                    <div className="px-3 pb-3 pl-10 space-y-3">
+  1131→                      <div className="h-px bg-border" />
+  1132→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  1133→                        {/* Edit words */}
+  1134→                        <div
+  1135→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+  1136→                          onClick={() => startEdit(ch.id, 'words', ch.words)}
+  1137→                        >
+  1138→                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+  1139→                          <span className="text-xs text-muted-foreground">Mots :</span>
+  1140→                          {isEditingThis && editingField === 'words' ? (
+  1141→                            <input
+  1142→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1143→                              value={editValue}
+  1144→                              onChange={(e) => setEditValue(e.target.value)}
+  1145→                              onBlur={commitEdit}
+  1146→                              onKeyDown={(e) => {
+  1147→                                if (e.key === 'Enter') commitEdit()
+  1148→                                if (e.key === 'Escape') cancelEdit()
+  1149→                              }}
+  1150→                              autoFocus
+  1151→                            />
+  1152→                          ) : (
+  1153→                            <span className="text-sm font-medium tabular-nums">
+  1154→                              {ch.words > 0 ? ch.words.toLocaleString() : 'Non défini'}
+  1155→                            </span>
+  1156→                          )}
+  1157→                        </div>
+  1158→                        {/* Edit pages */}
+  1159→                        <div
+  1160→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+  1161→                          onClick={() => startEdit(ch.id, 'pages', ch.pages)}
+  1162→                        >
+  1163→                          <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+  1164→                          <span className="text-xs text-muted-foreground">Pages :</span>
+  1165→                          {isEditingThis && editingField === 'pages' ? (
+  1166→                            <input
+  1167→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1168→                              value={editValue}
+  1169→                              onChange={(e) => setEditValue(e.target.value)}
+  1170→                              onBlur={commitEdit}
+  1171→                              onKeyDown={(e) => {
+  1172→                                if (e.key === 'Enter') commitEdit()
+  1173→                                if (e.key === 'Escape') cancelEdit()
+  1174→                              }}
+  1175→                              autoFocus
+  1176→                            />
+  1177→                          ) : (
+  1178→                            <span className="text-sm font-medium tabular-nums">
+  1179→                              {ch.pages > 0 ? ch.pages : 'Non défini'}
+  1180→                            </span>
+  1181→                          )}
+  1182→                        </div>
+  1183→                      </div>
+  1184→                      {/* Notes */}
+  1185→                      <div className="flex items-start gap-2">
+  1186→                        <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+  1187→                        <span className="text-xs text-muted-foreground shrink-0 mt-0.5">Notes :</span>
+  1188→                        {isEditingThis && editingField === 'notes' ? (
+  1189→                          <textarea
+  1190→                            className="text-xs bg-white border rounded px-2 py-1 flex-1 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[60px]"
+  1191→                            value={editValue}
+  1192→                            onChange={(e) => setEditValue(e.target.value)}
+  1193→                            onBlur={commitEdit}
+  1194→                            onKeyDown={(e) => {
+  1195→                              if (e.key === 'Escape') cancelEdit()
+  1196→                              if (e.key === 'Enter' && e.metaKey) commitEdit()
+  1197→                            }}
+  1198→                            autoFocus
+  1199→                            rows={2}
+  1200→                          />
+  1201→                        ) : (
+  1202→                          <div
+  1203→                            className="flex-1 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 min-h-[32px] border border-dashed border-border"
+  1204→                            onClick={() => startEdit(ch.id, 'notes', ch.notes)}
+  1205→                          >
+  1206→                            {ch.notes ? (
+  1207→                              <span className="text-sm text-foreground">{ch.notes}</span>
+  1208→                            ) : (
+  1209→                              <span className="text-xs text-muted-foreground italic">
+  1210→                                Cliquer pour ajouter des remarques…
+  1211→                              </span>
+  1212→                            )}
+  1213→                          </div>
+  1214→                        )}
+  1215→                      </div>
+  1216→                    </div>
+  1217→                  )}
+  1218→                </div>
+  1219→              )
+  1220→            })}
+  1221→          </div>
+  1222→        </CardContent>
+  1223→      </Card>
+  1224→
+  1225→      <LatexExportSection chapters={chapters} />
+  1226→    </div>
+  1227→  )
+  1228→}
+  1229→
+  1230→// ─── LatexExportSection ───────────────────────────────────────────
+  1231→function LatexExportSection({ chapters }: { chapters: { id: string; title: string; words: number; pages: number; notes: string }[] }) {
+  1232→  const [open, setOpen] = useState(false)
+  1233→  const [generating, setGenerating] = useState(false)
+  1234→  const [meta, setMeta] = useState<ThesisData>(DEFAULT_THESIS_DATA)
+  1235→  const [exportDone, setExportDone] = useState(false)
+  1236→
+  1237→  function handleExport() {
+  1238→    setGenerating(true)
+  1239→    const payload: ThesisData = {
+  1240→      ...meta,
+  1241→      chapters: chapters.map(ch => ({
+  1242→        title: ch.title,
+  1243→        content: `\\TODO{Rédiger ${ch.title}}`,
+  1244→      })),
+  1245→    }
+  1246→
+  1247→    fetch('/api/generate-latex', {
+  1248→      method: 'POST',
+  1249→      headers: { 'Content-Type': 'application/json' },
+  1250→      body: JSON.stringify(payload),
+  1251→    })
+  1252→      .then(res => res.blob())
+  1253→      .then(blob => {
+  1254→        const url = URL.createObjectURL(blob)
+  1255→        const a = document.createElement('a')
+  1256→        a.href = url
+  1257→        a.download = 'these.tex'
+  1258→        a.click()
+  1259→        URL.revokeObjectURL(url)
+  1260→        setExportDone(true)
+  1261→        setTimeout(() => setExportDone(false), 3000)
+  1262→      })
+  1263→      .catch(() => alert('Erreur lors de la génération du fichier LaTeX.'))
+  1264→      .finally(() => setGenerating(false))
+  1265→  }
+  1266→
+  1267→  return (
+  1268→    <Card className="border-emerald-200">
+  1269→      <CardHeader className="pb-3">
+  1270→        <div className="flex items-center justify-between">
+  1271→          <div className="flex items-center gap-3">
+  1272→            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+  1273→              <FileCode2 className="h-5 w-5 text-emerald-700" />
+  1274→            </div>
+  1275→            <div>
+  1276→              <CardTitle className="text-base">Exporter en LaTeX</CardTitle>
+  1277→              <CardDescription className="text-sm">
+  1278→                Générez un fichier .tex prêt à compiler (Overleaf, Texmaker…)
+  1279→              </CardDescription>
+  1280→            </div>
+  1281→          </div>
+  1282→          <Dialog open={open} onOpenChange={setOpen}>
+  1283→            <DialogTrigger asChild>
+  1284→              <Button className="shrink-0 gap-2">
+  1285→                {exportDone ? <CheckCircle2 className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+  1286→                {exportDone ? 'Téléchargé !' : 'Générer .tex'}
+  1287→              </Button>
+  1288→            </DialogTrigger>
+  1289→            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+  1290→              <DialogHeader>
+  1291→                <DialogTitle className="flex items-center gap-2">
+  1292→                  <FileCode2 className="h-5 w-5 text-emerald-600" />
+  1293→                  Métadonnées de la thèse
+  1294→                </DialogTitle>
+  1295→                <DialogDescription>
+  1296→                  Ces informations apparaîtront sur la page de garde et dans les métadonnées PDF.
+  1297→                </DialogDescription>
+  1298→              </DialogHeader>
+  1299→              <div className="grid gap-4 py-4">
+  1300→                <div className="grid gap-2">
+  1301→                  <Label htmlFor="title">Titre de la thèse</Label>
+  1302→                  <Input id="title" value={meta.title} onChange={e => setMeta(p => ({ ...p, title: e.target.value }))} />
+  1303→                </div>
+  1304→                <div className="grid grid-cols-2 gap-4">
+  1305→                  <div className="grid gap-2">
+  1306→                    <Label htmlFor="author">Nom du doctorant</Label>
+  1307→                    <Input id="author" value={meta.author} onChange={e => setMeta(p => ({ ...p, author: e.target.value }))} />
+  1308→                  </div>
+  1309→                  <div className="grid gap-2">
+  1310→                    <Label htmlFor="date">Année de soutenance</Label>
+  1311→                    <Input id="date" value={meta.date} onChange={e => setMeta(p => ({ ...p, date: e.target.value }))} />
+  1312→                  </div>
+  1313→                </div>
+  1314→                <div className="grid grid-cols-2 gap-4">
+  1315→                  <div className="grid gap-2">
+  1316→                    <Label htmlFor="supervisor">Directeur de thèse</Label>
+  1317→                    <Input id="supervisor" value={meta.supervisor} onChange={e => setMeta(p => ({ ...p, supervisor: e.target.value }))} />
+  1318→                  </div>
+  1319→                  <div className="grid gap-2">
+  1320→                    <Label htmlFor="coSupervisor">Co-directeur (optionnel)</Label>
+  1321→                    <Input id="coSupervisor" value={meta.coSupervisor || ''} onChange={e => setMeta(p => ({ ...p, coSupervisor: e.target.value }))} />
+  1322→                  </div>
+  1323→                </div>
+  1324→                <div className="grid gap-2">
+  1325→                  <Label htmlFor="speciality">Spécialité</Label>
+  1326→                  <Input id="speciality" value={meta.speciality} onChange={e => setMeta(p => ({ ...p, speciality: e.target.value }))} />
+  1327→                </div>
+  1328→                <div className="grid gap-2">
+  1329→                  <Label htmlFor="laboratory">Laboratoire de recherche</Label>
+  1330→                  <Input id="laboratory" value={meta.laboratory} onChange={e => setMeta(p => ({ ...p, laboratory: e.target.value }))} />
+  1331→                </div>
+  1332→                <Separator />
+  1333→                <div className="grid gap-2">
+  1334→                  <Label htmlFor="abstractFr">Résumé (français)</Label>
+  1335→                  <Textarea id="abstractFr" rows={4} value={meta.abstractFr} onChange={e => setMeta(p => ({ ...p, abstractFr: e.target.value }))} />
+  1336→                </div>
+  1337→                <div className="grid gap-2">
+  1338→                  <Label htmlFor="keywordsFr">Mots-clés (français, séparés par des virgules)</Label>
+  1339→                  <Input id="keywordsFr" value={meta.keywordsFr} onChange={e => setMeta(p => ({ ...p, keywordsFr: e.target.value }))} />
+  1340→                </div>
+  1341→                <div className="grid gap-2">
+  1342→                  <Label htmlFor="abstractEn">Abstract (anglais)</Label>
+  1343→                  <Textarea id="abstractEn" rows={4} value={meta.abstractEn} onChange={e => setMeta(p => ({ ...p, abstractEn: e.target.value }))} />
+  1344→                </div>
+  1345→                <div className="grid gap-2">
+  1346→                  <Label htmlFor="keywordsEn">Keywords (anglais, séparés par des virgules)</Label>
+  1347→                  <Input id="keywordsEn" value={meta.keywordsEn} onChange={e => setMeta(p => ({ ...p, keywordsEn: e.target.value }))} />
+  1348→                </div>
+  1349→                <div className="grid gap-2">
+  1350→                  <Label htmlFor="dedication">Dédicace (optionnel)</Label>
+  1351→                  <Textarea id="dedication" rows={2} value={meta.dedication || ''} onChange={e => setMeta(p => ({ ...p, dedication: e.target.value }))} />
+  1352→                </div>
+  1353→                <div className="grid gap-2">
+  1354→                  <Label htmlFor="ack">Remerciements</Label>
+  1355→                  <Textarea id="ack" rows={3} value={meta.acknowledgements || ''} onChange={e => setMeta(p => ({ ...p, acknowledgements: e.target.value }))} />
+  1356→                </div>
+  1357→              </div>
+  1358→              <DialogFooter className="gap-2 sm:gap-0">
+  1359→                <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+  1360→                <Button onClick={handleExport} disabled={generating} className="gap-2">
+  1361→                  {generating ? 'Génération…' : <><Download className="h-4 w-4" /> Télécharger these.tex</>}
+  1362→                </Button>
+  1363→              </DialogFooter>
+  1364→            </DialogContent>
+  1365→          </Dialog>
+  1366→        </div>
+  1367→      </CardHeader>
+  1368→      <CardContent className="pt-0">
+  1369→        <p className="text-xs text-muted-foreground">
+  1370→          Le fichier généré inclut : page de garde, table des matières, chapitres structurés (IMRaD),
+  1371→          zones TODO rouges à compléter, bibliographie BibLaTeX, et annexes.
+  1372→          Compilez avec <strong>xelatex → biber → xelatex × 2</strong>.
+  1373→        </p>
+  1374→      </CardContent>
+  1375→    </Card>
+  1376→  )
+  1377→}
+  1378→
+  1379→// ─── Sub-components for ArticlesTab ───────────────────────────────
+  1380→
+  1381→function StepIcon({ name, className }: { name: string; className?: string }) {
+  1382→  return createElement(getIcon(name), { className })
+  1383→}
+  1384→
+  1385→function StepCard({ step, index }: { step: typeof writingSteps[0]; index: number }) {
+  1386→  return (
+  1387→    <Card className="overflow-hidden">
+  1388→      <CardHeader className="pb-3">
+  1389→        <div className="flex items-start gap-3">
+  1390→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
+  1391→            <StepIcon name={step.icon} className="h-5 w-5" />
+  1392→          </div>
+  1393→          <div className="flex-1 min-w-0">
+  1394→            <div className="flex items-center gap-2">
+  1395→              <Badge variant="outline" className="text-xs shrink-0">Étape {index + 1}</Badge>
+  1396→            </div>
+  1397→            <CardTitle className="text-base mt-1">{step.title}</CardTitle>
+  1398→            <CardDescription className="text-sm mt-1">{step.shortDesc}</CardDescription>
+  1399→          </div>
+  1400→        </div>
+  1401→      </CardHeader>
+  1402→      <CardContent className="pt-0 space-y-4">
+  1403→        {/* Tips */}
+  1404→        <div>
+  1405→          <div className="flex items-center gap-2 mb-2">
+  1406→            <Lightbulb className="h-4 w-4 text-amber-500" />
+  1407→            <span className="text-sm font-semibold text-amber-700">Conseils</span>
+  1408→          </div>
+  1409→          <ul className="space-y-1.5">
+  1410→            {step.tips.map((tip, i) => (
+  1411→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1412→                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+  1413→                <span>{tip}</span>
+  1414→              </li>
+  1415→            ))}
+  1416→          </ul>
+  1417→        </div>
+  1418→        {/* Pitfalls */}
+  1419→        <div>
+  1420→          <div className="flex items-center gap-2 mb-2">
+  1421→            <AlertTriangle className="h-4 w-4 text-red-500" />
+  1422→            <span className="text-sm font-semibold text-red-600">Pièges à éviter</span>
+  1423→          </div>
+  1424→          <ul className="space-y-1.5">
+  1425→            {step.pitfalls.map((p, i) => (
+  1426→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1427→                <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+  1428→                <span>{p}</span>
+  1429→              </li>
+  1430→            ))}
+  1431→          </ul>
+  1432→        </div>
+  1433→      </CardContent>
+  1434→    </Card>
+  1435→  )
+  1436→}
+  1437→
+  1438→function SectionGuideCard({ guide }: { guide: typeof sectionGuides[0] }) {
+  1439→  return (
+  1440→    <Card>
+  1441→      <CardHeader className="pb-3">
+  1442→        <div className="flex items-center gap-3">
+  1443→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-sky-100 text-sky-700 shrink-0">
+  1444→            <StepIcon name={guide.icon} className="h-5 w-5" />
+  1445→          </div>
+  1446→          <div className="flex-1">
+  1447→            <CardTitle className="text-base">{guide.label}</CardTitle>
+  1448→            {guide.wordCount && (
+  1449→              <Badge variant="secondary" className="mt-1 text-xs">{guide.wordCount}</Badge>
+  1450→            )}
+  1451→          </div>
+  1452→        </div>
+  1453→        <CardDescription className="mt-2 text-sm">{guide.description}</CardDescription>
+  1454→      </CardHeader>
+  1455→      <CardContent className="pt-0 space-y-3">
+  1456→        <div>
+  1457→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Structure attendue</span>
+  1458→          <ol className="mt-2 space-y-1">
+  1459→            {guide.structure.map((s, i) => (
+  1460→              <li key={i} className="flex items-start gap-2 text-sm">
+  1461→                <span className="flex items-center justify-center h-5 w-5 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0 mt-0.5">
+  1462→                  {i + 1}
+  1463→                </span>
+  1464→                <span className="text-muted-foreground">{s}</span>
+  1465→              </li>
+  1466→            ))}
+  1467→          </ol>
+  1468→        </div>
+  1469→        <Separator />
+  1470→        <div>
+  1471→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Conseils</span>
+  1472→          <ul className="mt-2 space-y-1">
+  1473→            {guide.tips.map((t, i) => (
+  1474→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1475→                <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sky-500" />
+  1476→                <span>{t}</span>
+  1477→              </li>
+  1478→            ))}
+  1479→          </ul>
+  1480→        </div>
+  1481→        {guide.example && (
+  1482→          <>
+  1483→            <Separator />
+  1484→            <div>
+  1485→              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Exemple</span>
+  1486→              <p className="mt-2 text-sm italic text-muted-foreground bg-muted/50 rounded-md p-3">
+  1487→                {guide.example}
+  1488→              </p>
+  1489→            </div>
+  1490→          </>
+  1491→        )}
+  1492→      </CardContent>
+  1493→    </Card>
+  1494→  )
+  1495→}
+  1496→
+  1497→function ChecklistSection() {
+  1498→  const [checked, setChecked] = useState<Record<string, boolean>>({})
+  1499→
+  1500→  const toggle = (key: string) => {
+  1501→    setChecked(prev => ({ ...prev, [key]: !prev[key] }))
+  1502→  }
+  1503→
+  1504→  const totalItems = submissionChecklist.reduce((a, c) => a + c.items.length, 0)
+  1505→  const checkedCount = Object.values(checked).filter(Boolean).length
+  1506→
+  1507→  return (
+  1508→    <Card>
+  1509→      <CardHeader>
+  1510→        <div className="flex items-center justify-between">
+  1511→          <div>
+  1512→            <CardTitle className="text-base">Checklist de soumission</CardTitle>
+  1513→            <CardDescription className="text-sm mt-1">
+  1514→              {checkedCount} / {totalItems} étapes complétées
+  1515→            </CardDescription>
+  1516→          </div>
+  1517→          <Badge variant={checkedCount === totalItems ? 'default' : 'secondary'} className="shrink-0">
+  1518→            {Math.round((checkedCount / totalItems) * 100)}%
+  1519→          </Badge>
+  1520→        </div>
+  1521→        <Progress value={(checkedCount / totalItems) * 100} className="h-1.5" />
+  1522→      </CardHeader>
+  1523→      <CardContent>
+  1524→        <Accordion type="multiple" className="w-full">
+  1525→          {submissionChecklist.map((section) => (
+  1526→            <AccordionItem key={section.category} value={section.category}>
+  1527→              <AccordionTrigger className="text-sm font-semibold">
+  1528→                {section.category}
+  1529→              </AccordionTrigger>
+  1530→              <AccordionContent>
+  1531→                <div className="space-y-2 pt-1">
+  1532→                  {section.items.map((item) => {
+  1533→                    const key = `${section.category}-${item}`
+  1534→                    return (
+  1535→                      <label
+  1536→                        key={key}
+  1537→                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+  1538→                      >
+  1539→                        <Checkbox
+  1540→                          checked={checked[key] || false}
+  1541→                          onCheckedChange={() => toggle(key)}
+  1542→                        />
+  1543→                        <span className={`text-sm ${checked[key] ? 'line-through text-muted-foreground' : ''}`}>
+  1544→                          {item}
+  1545→                        </span>
+  1546→                      </label>
+  1547→                    )
+  1548→                  })}
+  1549→                </div>
+  1550→              </AccordionContent>
+  1551→            </AccordionItem>
+  1552→          ))}
+  1553→        </Accordion>
+  1554→      </CardContent>
+  1555→    </Card>
+  1556→  )
+  1557→}
+  1558→
+  1559→function MistakesSection() {
+  1560→  return (
+  1561→    <Card>
+  1562→      <CardHeader>
+  1563→        <CardTitle className="text-base flex items-center gap-2">
+  1564→          <AlertTriangle className="h-5 w-5 text-red-500" />
+  1565→          Erreurs fréquentes
+  1566→        </CardTitle>
+  1567→        <CardDescription className="text-sm">Les pièges les plus courants et comment les éviter</CardDescription>
+  1568→      </CardHeader>
+  1569→      <CardContent>
+  1570→        <div className="space-y-4">
+  1571→          {commonMistakes.map((m, i) => (
+  1572→            <div key={i} className="border rounded-lg p-4 space-y-2">
+  1573→              <div className="flex items-start gap-2">
+  1574→                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+  1575→                <span className="text-sm font-medium">{m.mistake}</span>
+  1576→              </div>
+  1577→              <p className="text-xs text-red-600 bg-red-50 rounded px-3 py-1.5 ml-6">
+  1578→                ⚠️ {m.consequence}
+  1579→              </p>
+  1580→              <div className="flex items-start gap-2 ml-6">
+  1581→                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+  1582→                <p className="text-sm text-emerald-700">{m.fix}</p>
+  1583→              </div>
+  1584→            </div>
+  1585→          ))}
+  1586→        </div>
+  1587→      </CardContent>
+  1588→    </Card>
+  1589→  )
+  1590→}
+  1591→
+  1592→// ─── ArticlesGuideTab ─────────────────────────────────────────────
+  1593→function ArticlesGuideTab() {
+  1594→  return (
+  1595→    <div className="space-y-6">
+  1596→      {/* Intro banner */}
+  1597→      <Card className="border-emerald-200 bg-emerald-50/50">
+  1598→        <CardContent className="py-4">
+  1599→          <div className="flex items-start gap-3">
+  1600→            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 shrink-0">
+  1601→              <BookOpen className="h-5 w-5 text-emerald-700" />
+  1602→            </div>
+  1603→            <div>
+  1604→              <h3 className="font-semibold text-emerald-900">Guide de rédaction d&apos;articles scientifiques</h3>
+  1605→              <p className="text-sm text-emerald-700 mt-1">
+  1606→                Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas
+  1607→                d&apos;Ecarnot et al. (2015). Il est conçu pour les doctorants en architecture et urbanisme
+  1608→                de l&apos;Université Constantine 3.
+  1609→              </p>
+  1610→            </div>
+  1611→          </div>
+  1612→        </CardContent>
+  1613→      </Card>
+  1614→
+  1615→      {/* Sub-tabs for the articles guide */}
+  1616→      <Tabs defaultValue="steps" className="w-full">
+  1617→        <TabsList className="w-full grid grid-cols-4">
+  1618→          <TabsTrigger value="steps" className="text-xs sm:text-sm">Étapes de rédaction</TabsTrigger>
+  1619→          <TabsTrigger value="sections" className="text-xs sm:text-sm">Sections IMRaD</TabsTrigger>
+  1620→          <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Erreurs fréquentes</TabsTrigger>
+  1621→          <TabsTrigger value="checklist" className="text-xs sm:text-sm">Checklist</TabsTrigger>
+  1622→        </TabsList>
+  1623→
+  1624→        <TabsContent value="steps" className="mt-4">
+  1625→          <ScrollArea className="max-h-[70vh]">
+  1626→            <div className="space-y-4 pr-4">
+  1627→              {writingSteps.map((step, i) => (
+  1628→                <StepCard key={step.id} step={step} index={i} />
+  1629→              ))}
+  1630→            </div>
+  1631→          </ScrollArea>
+  1632→        </TabsContent>
+  1633→
+  1634→        <TabsContent value="sections" className="mt-4">
+  1635→          <ScrollArea className="max-h-[70vh]">
+  1636→            <div className="space-y-4 pr-4">
+  1637→              {sectionGuides.map((guide) => (
+  1638→                <SectionGuideCard key={guide.id} guide={guide} />
+  1639→              ))}
+  1640→            </div>
+  1641→          </ScrollArea>
+  1642→        </TabsContent>
+  1643→
+  1644→        <TabsContent value="mistakes" className="mt-4">
+  1645→          <ScrollArea className="max-h-[70vh]">
+  1646→            <div className="pr-4">
+  1647→              <MistakesSection />
+  1648→            </div>
+  1649→          </ScrollArea>
+  1650→        </TabsContent>
+  1651→
+  1652→        <TabsContent value="checklist" className="mt-4">
+  1653→          <ScrollArea className="max-h-[70vh]">
+  1654→            <div className="space-y-4 pr-4">
+  1655→              <ChecklistSection />
+  1656→              {/* Reference article */}
+  1657→              <Card>
+  1658→                <CardHeader>
+  1659→                  <CardTitle className="text-base flex items-center gap-2">
+  1660→                    <BookMarked className="h-5 w-5 text-amber-600" />
+  1661→                    Source de référence
+  1662→                  </CardTitle>
+  1663→                </CardHeader>
+  1664→                <CardContent className="space-y-3">
+  1665→                  {referenceArticles.map((art) => (
+  1666→                    <div key={art.id} className="border rounded-lg p-4 space-y-2">
+  1667→                      <p className="text-sm font-medium">{art.title}</p>
+  1668→                      <p className="text-xs text-muted-foreground">{art.authors}</p>
+  1669→                      <div className="flex flex-wrap gap-2">
+  1670→                        <Badge variant="secondary" className="text-xs">{art.source}</Badge>
+  1671→                        <Badge variant="outline" className="text-xs">{art.year}</Badge>
+  1672→                        {art.doi && (
+  1673→                          <Badge variant="outline" className="text-xs">DOI: {art.doi}</Badge>
+  1674→                        )}
+  1675→                      </div>
+  1676→                      <Separator className="my-2" />
+  1677→                      <div>
+  1678→                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Points clés</span>
+  1679→                        <ul className="mt-1 space-y-1">
+  1680→                          {art.keyPoints.map((kp, i) => (
+  1681→                            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1682→                              <ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+  1683→                              <span>{kp}</span>
+  1684→                            </li>
+  1685→                          ))}
+  1686→                        </ul>
+  1687→                      </div>
+  1688→                    </div>
+  1689→                  ))}
+  1690→                </CardContent>
+  1691→              </Card>
+  1692→            </div>
+  1693→          </ScrollArea>
+  1694→        </TabsContent>
+  1695→      </Tabs>
+  1696→    </div>
+  1697→  )
+  1698→}
+  1699→
+  1700→// ─── AI Writing Modes ────────────────────────────────────────────
+  1701→const WRITING_MODES = [
+  1702→  { id: 'scientific-writing', label: 'Rédaction scientifique', description: 'Rédiger ou améliorer une section de thèse selon les normes IMRaD', icon: 'PenTool', color: 'emerald' },
+  1703→  { id: 'literature-review', label: 'Revue de littérature', description: 'Synthétiser des travaux, identifier les lacunes et structurer une revue', icon: 'BookOpenText', color: 'sky' },
+  1704→  { id: 'peer-review', label: 'Relecture critique', description: 'Évaluer la rigueur, la clarté et la cohérence de votre texte', icon: 'ScanSearch', color: 'amber' },
+  1705→  { id: 'paraphrase', label: 'Paraphrase & Amélioration', description: 'Reformuler, enrichir le vocabulaire et corriger le style', icon: 'Languages', color: 'violet' },
+  1706→  { id: 'abstract', label: 'Résumé & Abstract', description: 'Générer un résumé structuré ou un abstract en français/anglais', icon: 'ScrollText', color: 'rose' },
+  1707→  { id: 'hypothesis', label: "Génération d'hypothèses", description: 'Formuler des hypothèses de recherche testables et pertinentes', icon: 'Lightbulb', color: 'orange' },
+  1708→] as const
+  1709→
+  1710→const MODE_COLORS: Record<string, string> = {
+  1711→  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  1712→  sky: 'border-sky-200 bg-sky-50 text-sky-700',
+  1713→  amber: 'border-amber-200 bg-amber-50 text-amber-700',
+  1714→  violet: 'border-violet-200 bg-violet-50 text-violet-700',
+  1715→  rose: 'border-rose-200 bg-rose-50 text-rose-700',
+  1716→  orange: 'border-orange-200 bg-orange-50 text-orange-700',
+  1717→}
+  1718→
+  1719→const MODE_ACCENT: Record<string, string> = {
+  1720→  emerald: 'bg-emerald-500',
+  1721→  sky: 'bg-sky-500',
+  1722→  amber: 'bg-amber-500',
+  1723→  violet: 'bg-violet-500',
+  1724→  rose: 'bg-rose-500',
+  1725→  orange: 'bg-orange-500',
+  1726→}
+  1727→
+  1728→interface ChatMessage {
+  1729→  role: 'user' | 'assistant'
+  1730→  content: string
+  1731→}
+  1732→
+  1733→// ─── AIWritingTab ───────────────────────────────────────────────
+  1734→function AIWritingTab() {
+  1735→  const [selectedMode, setSelectedMode] = useState<string>('scientific-writing')
+  1736→  const [input, setInput] = useState('')
+  1737→  const [messages, setMessages] = useState<ChatMessage[]>([])
+  1738→  const [isLoading, setIsLoading] = useState(false)
+  1739→  const [sessionId, setSessionId] = useState('')
+  1740→  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  1741→  const [error, setError] = useState('')
+  1742→  const chatEndRef = useCallback((node: HTMLDivElement | null) => {
+  1743→    if (node) node.scrollIntoView({ behavior: 'smooth' })
+  1744→  }, [])
+  1745→
+  1746→  const activeMode = WRITING_MODES.find(m => m.id === selectedMode)
+  1747→
+  1748→  async function handleSend() {
+  1749→    if (!input.trim() || isLoading) return
+  1750→    setError('')
+  1751→    const userMsg = input.trim()
+  1752→    setInput('')
+  1753→
+  1754→    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: userMsg }]
+  1755→    setMessages(newMessages)
+  1756→    setIsLoading(true)
+  1757→
+  1758→    try {
+  1759→      const res = await fetch('/api/ai-writing', {
+  1760→        method: 'POST',
+  1761→        headers: { 'Content-Type': 'application/json' },
+  1762→        body: JSON.stringify({
+  1763→          mode: selectedMode,
+  1764→          message: userMsg,
+  1765→          sessionId: sessionId || undefined,
+  1766→        }),
+  1767→      })
+  1768→      const data = await res.json()
+  1769→      if (!res.ok) throw new Error(data.error || 'Erreur serveur')
+  1770→      if (data.sessionId && !sessionId) setSessionId(data.sessionId)
+  1771→      setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+  1772→    } catch (err) {
+  1773→      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+  1774→    } finally {
+  1775→      setIsLoading(false)
+  1776→    }
+  1777→  }
+  1778→
+  1779→  async function handleClear() {
+  1780→    if (sessionId) {
+  1781→      await fetch(`/api/ai-writing?sessionId=${sessionId}`, { method: 'DELETE' })
+  1782→    }
+  1783→    setMessages([])
+  1784→    setSessionId('')
+  1785→    setError('')
+  1786→  }
+  1787→
+  1788→  function handleCopy(text: string, idx: number) {
+  1789→    navigator.clipboard.writeText(text)
+  1790→    setCopiedIdx(idx)
+  1791→    setTimeout(() => setCopiedIdx(null), 2000)
+  1792→  }
+  1793→
+  1794→  function handleKeyDown(e: React.KeyboardEvent) {
+  1795→    if (e.key === 'Enter' && !e.shiftKey) {
+  1796→      e.preventDefault()
+  1797→      handleSend()
+  1798→    }
+  1799→  }
+  1800→
+  1801→  return (
+  1802→    <div className="space-y-4">
+  1803→      {/* Header */}
+  1804→      <div>
+  1805→        <h2 className="text-xl font-bold flex items-center gap-2">
+  1806→          <Sparkles className="h-5 w-5 text-emerald-600" />
+  1807→          Assistant IA de rédaction
+  1808→        </h2>
+  1809→        <p className="text-sm text-muted-foreground mt-1">
+  1810→          Inspire des compétences scientifiques (K-Dense Scientific Agent Skills) — Rédigez, améliorez et structurez votre texte académique avec l&apos;aide de l&apos;IA.
+  1811→        </p>
+  1812→      </div>
+  1813→
+  1814→      {/* Mode selector */}
+  1815→      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+  1816→        {WRITING_MODES.map(mode => {
+  1817→          const isActive = selectedMode === mode.id
+  1818→          return (
+  1819→            <button
+  1820→              key={mode.id}
+  1821→              onClick={() => { setSelectedMode(mode.id); setError('') }}
+  1822→              className={`rounded-lg border p-3 text-left transition-all hover:shadow-sm ${
+  1823→                isActive
+  1824→                  ? `${MODE_COLORS[mode.color]} ring-2 ring-offset-1 ring-current`
+  1825→                  : 'border-border bg-background hover:bg-muted/50'
+  1826→              }`}
+  1827→            >
+  1828→              <div className="flex items-center gap-2 mb-1">
+  1829→                <div className={`h-6 w-6 rounded-md flex items-center justify-center ${isActive ? MODE_ACCENT[mode.color] : 'bg-muted'}`}>
+  1830→                  {createElement(iconMap[mode.icon] || PenTool, { className: 'h-3.5 w-3.5 text-white' })}
+  1831→                </div>
+  1832→                <span className={`text-xs font-semibold ${isActive ? '' : 'text-foreground'}`}>{mode.label}</span>
+  1833→              </div>
+  1834→              <p className={`text-xs leading-tight ${isActive ? 'text-current/80' : 'text-muted-foreground'}`}>{mode.description}</p>
+  1835→            </button>
+  1836→          )
+  1837→        })}
+  1838→      </div>
+  1839→
+  1840→      {/* Active mode description */}
+  1841→      {activeMode && (
+  1842→        <Card className="border-dashed">
+  1843→          <CardContent className="py-3 px-4 flex items-center gap-3">
+  1844→            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${MODE_ACCENT[activeMode.color]}`}>
+  1845→              {createElement(iconMap[activeMode.icon] || PenTool, { className: 'h-4 w-4 text-white' })}
+  1846→            </div>
+  1847→            <div className="flex-1 min-w-0">
+  1848→              <p className="text-sm font-medium">{activeMode.label}</p>
+  1849→              <p className="text-xs text-muted-foreground truncate">{activeMode.description}</p>
+  1850→            </div>
+  1851→            <Badge variant="secondary" className="text-xs shrink-0">Mode actif</Badge>
+  1852→          </CardContent>
+  1853→        </Card>
+  1854→      )}
+  1855→
+  1856→      {/* Chat area */}
+  1857→      <Card className="flex flex-col" style={{ minHeight: '400px', maxHeight: '65vh' }}>
+  1858→        {/* Messages */}
+  1859→        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ minHeight: '300px' }}>
+  1860→          {messages.length === 0 && !isLoading && (
+  1861→            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+  1862→              <div className="h-16 w-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-4">
+  1863→                {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: 'h-8 w-8 text-emerald-600' })}
+  1864→              </div>
+  1865→              <h3 className="text-lg font-semibold">{activeMode?.label}</h3>
+  1866→              <p className="text-sm text-muted-foreground mt-1 max-w-md">
+  1867→                {activeMode?.description}. Collez votre texte ou décrivez ce que vous souhaitez rédiger.
+  1868→              </p>
+  1869→              <div className="flex flex-wrap gap-2 mt-4 justify-center">
+  1870→                <Badge variant="outline" className="text-xs">Entrée + Envoyer</Badge>
+  1871→                <Badge variant="outline" className="text-xs">Shift+Entrée = nouvelle ligne</Badge>
+  1872→              </div>
+  1873→            </div>
+  1874→          )}
+  1875→
+  1876→          {messages.map((msg, idx) => (
+  1877→            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+  1878→              {msg.role === 'assistant' && (
+  1879→                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+  1880→                  {createElement(iconMap[activeMode?.icon || 'PenTool'] || PenTool, { className: 'h-4 w-4 text-white' })}
+  1881→                </div>
+  1882→              )}
+  1883→              <div className={`relative max-w-[85%] rounded-xl px-4 py-3 ${
+  1884→                msg.role === 'user'
+  1885→                  ? 'bg-primary text-primary-foreground'
+  1886→                  : 'bg-muted'
+  1887→              }`}>
+  1888→                <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+  1889→                {msg.role === 'assistant' && (
+  1890→                  <button
+  1891→                    onClick={() => handleCopy(msg.content, idx)}
+  1892→                    className="absolute top-2 right-2 p-1 rounded-md hover:bg-background/80 transition-colors"
+  1893→                    title="Copier"
+  1894→                  >
+  1895→                    {copiedIdx === idx ? (
+  1896→                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+  1897→                    ) : (
+  1898→                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+  1899→                    )}
+  1900→                  </button>
+  1901→                )}
+  1902→              </div>
+  1903→            </div>
+  1904→          ))}
+  1905→
+  1906→          {isLoading && (
+  1907→            <div className="flex gap-3 justify-start">
+  1908→              <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${MODE_ACCENT[activeMode?.color || 'emerald']}`}>
+  1909→                <Loader2 className="h-4 w-4 text-white animate-spin" />
+  1910→              </div>
+  1911→              <div className="bg-muted rounded-xl px-4 py-3">
+  1912→                <div className="flex items-center gap-2">
+  1913→                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+  1914→                  <span className="text-sm text-muted-foreground">Génération en cours...</span>
+  1915→                </div>
+  1916→              </div>
+  1917→            </div>
+  1918→          )}
+  1919→
+  1920→          <div ref={chatEndRef} />
+  1921→        </div>
+  1922→
+  1923→        {/* Error */}
+  1924→        {error && (
+  1925→          <div className="px-4 pb-2">
+  1926→            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2">
+  1927→              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+  1928→              <p className="text-xs text-red-700">{error}</p>
+  1929→            </div>
+  1930→          </div>
+  1931→        )}
+  1932→
+  1933→        {/* Input area */}
+  1934→        <div className="border-t p-3">
+  1935→          <div className="flex gap-2 items-end">
+  1936→            <Textarea
+  1937→              value={input}
+  1938→              onChange={e => setInput(e.target.value)}
+  1939→              onKeyDown={handleKeyDown}
+  1940→              placeholder={`Décrivez votre demande en ${activeMode?.label.toLowerCase() || 'rédaction'}...`}
+  1941→              className="min-h-[60px] max-h-[160px] resize-none text-sm"
+  1942→              disabled={isLoading}
+  1943→              rows={2}
+  1944→            />
+  1945→            <div className="flex flex-col gap-1 shrink-0">
+  1946→              <Button
+  1947→                onClick={handleSend}
+  1948→                disabled={!input.trim() || isLoading}
+  1949→                size="icon"
+  1950→                className="h-9 w-9"
+  1951→                title="Envoyer"
+  1952→              >
+  1953→                <Send className="h-4 w-4" />
+  1954→              </Button>
+  1955→              {messages.length > 0 && (
+  1956→                <Button
+  1957→                  onClick={handleClear}
+  1958→                  variant="ghost"
+  1959→                  size="icon"
+  1960→                  className="h-9 w-9"
+  1961→                  title="Nouvelle conversation"
+  1962→                >
+  1963→                  <RotateCcw className="h-4 w-4" />
+  1964→                </Button>
+  1965→              )}
+  1966→            </div>
+  1967→          </div>
+  1968→          <p className="text-xs text-muted-foreground mt-1.5">
+  1969→            L&apos;IA peut générer du contenu inexact. Vérifiez toujours les informations et adaptez le texte à votre contexte.
+  1970→          </p>
+  1971→        </div>
+  1972→      </Card>
+  1973→    </div>
+  1974→  )
+  1975→}
+  1976→
+  1977→// ─── Titre Generator (self-contained) ─────────────────────────────
+  1978→function TitreGenerator() {
+  1979→  const [x, setX] = useState('')
+  1980→  const [y, setY] = useState('')
+  1981→  const [relation, setRelation] = useState('')
+  1982→  const [z, setZ] = useState('')
+  1983→
+  1984→  const generatedTitle = [x, relation, y, z ? `chez ${z}` : ''].filter(Boolean).join(' ')
+  1985→
+  1986→  return (
+  1987→    <>
+  1988→      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+  1989→        <div className="space-y-1.5">
+  1990→          <Label className="text-xs font-medium">Variable X (cause)</Label>
+  1991→          <Input value={x} onChange={(e) => setX(e.target.value)} placeholder="ex: La végétalisation urbaine" className="text-sm" />
+  1992→        </div>
+  1993→        <div className="space-y-1.5">
+  1994→          <Label className="text-xs font-medium">Variable Y (effet)</Label>
+  1995→          <Input value={y} onChange={(e) => setY(e.target.value)} placeholder="ex: La qualité de vie" className="text-sm" />
+  1996→        </div>
+  1997→        <div className="space-y-1.5">
+  1998→          <Label className="text-xs font-medium">Relation</Label>
+  1999→          <Select value={relation} onValueChange={setRelation}>
+  2000→            <SelectTrigger className="text-sm"><SelectValue placeholder="Choisir..." /></SelectTrigger>
+
+[showing lines 1-2000 of 3785; use offset=2001 with limit to continue reading]

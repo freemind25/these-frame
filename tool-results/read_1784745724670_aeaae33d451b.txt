@@ -1,0 +1,777 @@
+    60→  pages: string | null
+    61→  doi: string | null
+    62→  abstract: string | null
+    63→  tags: string | null
+    64→  notes: string | null
+    65→  source: string
+    66→  mendeleyId: string | null
+    67→  createdAt: string
+    68→}
+    69→
+    70→// ─── MendeleyConnectionCard ──────────────────────────────────────
+    71→function MendeleyConnectionCard({
+    72→  connected,
+    73→  onRefresh,
+    74→  onDisconnect,
+    75→  onConfigure,
+    76→  onConnectOAuth,
+    77→  hasClientId,
+    78→}: {
+    79→  connected: boolean
+    80→  onRefresh: () => void
+    81→  onDisconnect: () => void
+    82→  onConfigure: (clientId: string, clientSecret: string, accessToken?: string) => void
+    83→  onConnectOAuth: () => void
+    84→  hasClientId: boolean
+    85→}) {
+    86→  const [showConfig, setShowConfig] = useState(false)
+    87→  const [clientId, setClientId] = useState('')
+    88→  const [clientSecret, setClientSecret] = useState('')
+    89→  const [manualToken, setManualToken] = useState('')
+    90→  const [useManualToken, setUseManualToken] = useState(false)
+    91→
+    92→  if (connected) {
+    93→    return (
+    94→      <Card className="border-emerald-200 bg-emerald-50/30">
+    95→        <CardHeader className="pb-3">
+    96→          <div className="flex items-center justify-between">
+    97→            <div className="flex items-center gap-3">
+    98→              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+    99→                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+   100→              </div>
+   101→              <div>
+   102→                <CardTitle className="text-base">Mendeley connecté</CardTitle>
+   103→                <CardDescription className="text-sm">
+   104→                  Votre bibliothèque Mendeley est synchronisée
+   105→                </CardDescription>
+   106→              </div>
+   107→            </div>
+   108→            <div className="flex items-center gap-2">
+   109→              <Button variant="outline" size="sm" onClick={onRefresh} className="gap-1.5">
+   110→                <RefreshCw className="h-3.5 w-3.5" />
+   111→                Rafraîchir
+   112→              </Button>
+   113→              <Button variant="outline" size="sm" onClick={onDisconnect} className="gap-1.5 text-red-600 hover:text-red-700">
+   114→                <Unplug className="h-3.5 w-3.5" />
+   115→                Déconnecter
+   116→              </Button>
+   117→            </div>
+   118→          </div>
+   119→        </CardHeader>
+   120→      </Card>
+   121→    )
+   122→  }
+   123→
+   124→  return (
+   125→    <Card className="border-amber-200 bg-amber-50/30">
+   126→      <CardHeader className="pb-3">
+   127→        <div className="flex items-center gap-3">
+   128→          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-100 shrink-0">
+   129→            <Link2 className="h-5 w-5 text-amber-700" />
+   130→          </div>
+   131→          <div className="flex-1">
+   132→            <CardTitle className="text-base">Connexion Mendeley</CardTitle>
+   133→            <CardDescription className="text-sm">
+   134→              Connectez votre compte pour importer vos références bibliographiques
+   135→            </CardDescription>
+   136→          </div>
+   137→          {!showConfig && (
+   138→            <Button size="sm" onClick={() => setShowConfig(true)} className="gap-1.5">
+   139→              <Plus className="h-3.5 w-3.5" />
+   140→              Configurer
+   141→            </Button>
+   142→          )}
+   143→        </div>
+   144→      </CardHeader>
+   145→      {showConfig && (
+   146→        <CardContent className="space-y-4 border-t pt-4">
+   147→          <div className="flex items-center gap-2 p-2 rounded-md bg-sky-50 border border-sky-200 text-sm text-sky-800">
+   148→            <ExternalLink className="h-4 w-4 shrink-0" />
+   149→            <span>
+   150→              Créez votre app sur{' '}
+   151→              <a href="https://dev.mendeley.com/myapps.html" target="_blank" rel="noopener noreferrer" className="underline font-medium">
+   152→                dev.mendeley.com/myapps
+   153→              </a>{' '}
+   154→              pour obtenir un Client ID et Secret.
+   155→            </span>
+   156→          </div>
+   157→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   158→            <div className="grid gap-1.5">
+   159→              <Label htmlFor="clientId" className="text-xs">Client ID</Label>
+   160→              <Input id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={clientId} onChange={e => setClientId(e.target.value)} className="text-sm" />
+   161→            </div>
+   162→            <div className="grid gap-1.5">
+   163→              <Label htmlFor="clientSecret" className="text-xs">Client Secret</Label>
+   164→              <Input id="clientSecret" type="password" placeholder="Votre client secret" value={clientSecret} onChange={e => setClientSecret(e.target.value)} className="text-sm" />
+   165→            </div>
+   166→          </div>
+   167→
+   168→          <div className="flex items-center gap-2">
+   169→            <Checkbox
+   170→              id="manualTokenCheck"
+   171→              checked={useManualToken}
+   172→              onCheckedChange={(v) => setUseManualToken(v === true)}
+   173→            />
+   174→            <Label htmlFor="manualTokenCheck" className="text-xs text-muted-foreground">
+   175→              Utiliser un token d&apos;accès manuel (si vous avez déjà un Access Token)
+   176→            </Label>
+   177→          </div>
+   178→
+   179→          {useManualToken && (
+   180→            <div className="grid gap-1.5">
+   181→              <Label htmlFor="manualToken" className="text-xs">Access Token Mendeley</Label>
+   182→              <Input id="manualToken" placeholder="Bearer token..." value={manualToken} onChange={e => setManualToken(e.target.value)} className="text-sm" />
+   183→            </div>
+   184→          )}
+   185→
+   186→          <div className="flex items-center gap-2 justify-end">
+   187→            <Button variant="ghost" size="sm" onClick={() => setShowConfig(false)}>Annuler</Button>
+   188→            {useManualToken ? (
+   189→              <Button size="sm" onClick={() => {
+   190→                onConfigure(clientId, clientSecret, manualToken)
+   191→                setShowConfig(false)
+   192→              }} disabled={!manualToken} className="gap-1.5">
+   193→                <Link2 className="h-3.5 w-3.5" />
+   194→                Connecter avec token
+   195→              </Button>
+   196→            ) : (
+   197→              <Button size="sm" onClick={() => {
+   198→                onConfigure(clientId, clientSecret)
+   199→                if (clientId) onConnectOAuth()
+   200→              }} disabled={!clientId || !clientSecret} className="gap-1.5">
+   201→                <ExternalLink className="h-3.5 w-3.5" />
+   202→                Autoriser via Mendeley
+   203→              </Button>
+   204→            )}
+   205→          </div>
+   206→        </CardContent>
+   207→      )}
+   208→    </Card>
+   209→  )
+   210→}
+   211→
+   212→// ─── AddReferenceDialog ──────────────────────────────────────────
+   213→function AddReferenceDialog({ onAdd }: { onAdd: (data: Record<string, string>) => void }) {
+   214→  const [open, setOpen] = useState(false)
+   215→  const [form, setForm] = useState({
+   216→    type: 'article',
+   217→    title: '',
+   218→    authors: '',
+   219→    year: '',
+   220→    journal: '',
+   221→    volume: '',
+   222→    number: '',
+   223→    pages: '',
+   224→    doi: '',
+   225→    tags: '',
+   226→    notes: '',
+   227→  })
+   228→
+   229→  const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
+   230→
+   231→  const handleSubmit = () => {
+   232→    if (!form.title.trim()) return
+   233→    onAdd(form)
+   234→    setOpen(false)
+   235→    setForm({ type: 'article', title: '', authors: '', year: '', journal: '', volume: '', number: '', pages: '', doi: '', tags: '', notes: '' })
+   236→  }
+   237→
+   238→  return (
+   239→    <Dialog open={open} onOpenChange={setOpen}>
+   240→      <DialogTrigger asChild>
+   241→        <Button size="sm" className="gap-1.5">
+   242→          <Plus className="h-3.5 w-3.5" />
+   243→          Ajouter
+   244→        </Button>
+   245→      </DialogTrigger>
+   246→      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+   247→        <DialogHeader>
+   248→          <DialogTitle className="flex items-center gap-2">
+   249→            <Plus className="h-5 w-5" />
+   250→            Ajouter une référence
+   251→          </DialogTitle>
+   252→          <DialogDescription>Entrez les métadonnées de la référence bibliographique.</DialogDescription>
+   253→        </DialogHeader>
+   254→        <div className="grid gap-3 py-2">
+   255→          <div className="grid grid-cols-2 gap-3">
+   256→            <div className="grid gap-1.5">
+   257→              <Label className="text-xs">Type</Label>
+   258→              <Select value={form.type} onValueChange={v => update('type', v)}>
+   259→                <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+   260→                <SelectContent>
+   261→                  <SelectItem value="article">Article</SelectItem>
+   262→                  <SelectItem value="book">Livre</SelectItem>
+   263→                  <SelectItem value="inproceedings">Conférence</SelectItem>
+   264→                  <SelectItem value="thesis">Thèse</SelectItem>
+   265→                  <SelectItem value="incollection">Chapitre d&apos;ouvrage</SelectItem>
+   266→                  <SelectItem value="web">Site web</SelectItem>
+   267→                </SelectContent>
+   268→              </Select>
+   269→            </div>
+   270→            <div className="grid gap-1.5">
+   271→              <Label className="text-xs">Année</Label>
+   272→              <Input placeholder="2025" value={form.year} onChange={e => update('year', e.target.value)} className="text-sm" />
+   273→            </div>
+   274→          </div>
+   275→          <div className="grid gap-1.5">
+   276→            <Label className="text-xs">Titre *</Label>
+   277→            <Input placeholder="Titre de la publication" value={form.title} onChange={e => update('title', e.target.value)} className="text-sm" />
+   278→          </div>
+   279→          <div className="grid gap-1.5">
+   280→            <Label className="text-xs">Auteurs (séparés par ; )</Label>
+   281→            <Input placeholder="Nom Prénom; Nom2 Prénom2" value={form.authors} onChange={e => update('authors', e.target.value)} className="text-sm" />
+   282→          </div>
+   283→          <div className="grid gap-1.5">
+   284→            <Label className="text-xs">
+   285→              {form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Établissement' : form.type === 'web' ? 'URL / Site' : 'Journal / Revue'}
+   286→            </Label>
+   287→            <Input placeholder={form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Université...' : 'Nom du journal'} value={form.journal} onChange={e => update('journal', e.target.value)} className="text-sm" />
+   288→          </div>
+   289→          <div className="grid grid-cols-3 gap-3">
+   290→            <div className="grid gap-1.5">
+   291→              <Label className="text-xs">Volume</Label>
+   292→              <Input placeholder="Vol." value={form.volume} onChange={e => update('volume', e.target.value)} className="text-sm" />
+   293→            </div>
+   294→            <div className="grid gap-1.5">
+   295→              <Label className="text-xs">Numéro</Label>
+   296→              <Input placeholder="N°" value={form.number} onChange={e => update('number', e.target.value)} className="text-sm" />
+   297→            </div>
+   298→            <div className="grid gap-1.5">
+   299→              <Label className="text-xs">Pages</Label>
+   300→              <Input placeholder="1-15" value={form.pages} onChange={e => update('pages', e.target.value)} className="text-sm" />
+   301→            </div>
+   302→          </div>
+   303→          <div className="grid gap-1.5">
+   304→            <Label className="text-xs">DOI / URL</Label>
+   305→            <Input placeholder="10.xxxx/xxxxx" value={form.doi} onChange={e => update('doi', e.target.value)} className="text-sm" />
+   306→          </div>
+   307→          <div className="grid gap-1.5">
+   308→            <Label className="text-xs">Tags (séparés par , )</Label>
+   309→            <Input placeholder="architecture, urbanisme, réhabilitation" value={form.tags} onChange={e => update('tags', e.target.value)} className="text-sm" />
+   310→          </div>
+   311→          <div className="grid gap-1.5">
+   312→            <Label className="text-xs">Notes</Label>
+   313→            <Textarea placeholder="Remarques, contexte..." value={form.notes} onChange={e => update('notes', e.target.value)} className="text-sm" rows={2} />
+   314→          </div>
+   315→        </div>
+   316→        <DialogFooter>
+   317→          <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+   318→          <Button onClick={handleSubmit} disabled={!form.title.trim()} className="gap-1.5">
+   319→            <Plus className="h-4 w-4" />
+   320→            Ajouter
+   321→          </Button>
+   322→        </DialogFooter>
+   323→      </DialogContent>
+   324→    </Dialog>
+   325→  )
+   326→}
+   327→
+   328→// ─── ReferenceRow ────────────────────────────────────────────────
+   329→function ReferenceRow({ item, onDelete }: { item: RefItem; onDelete: (id: string) => void }) {
+   330→  const [expanded, setExpanded] = useState(false)
+   331→  const [copied, setCopied] = useState(false)
+   332→
+   333→  const copyBib = () => {
+   334→    const key = item.citationKey || `ref_${item.id.slice(0, 6)}`
+   335→    const authorList = item.authors ? item.authors.split(';').map(a => a.trim()).join(' and ') : 'Unknown'
+   336→    let bib = ''
+   337→    if (item.type === 'book') {
+   338→      bib = `@book{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  year = {${item.year || ''}},\n  publisher = {${item.journal || ''}}\n}`
+   339→    } else {
+   340→      bib = `@article{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  journal = {${item.journal || ''}},\n  year = {${item.year || ''}},\n  volume = {${item.volume || ''}},\n  pages = {${item.pages || ''}},\n  doi = {${item.doi || ''}}\n}`
+   341→    }
+   342→    navigator.clipboard.writeText(bib)
+   343→    setCopied(true)
+   344→    setTimeout(() => setCopied(false), 2000)
+   345→  }
+   346→
+   347→  const typeLabels: Record<string, string> = {
+   348→    article: 'Article',
+   349→    book: 'Livre',
+   350→    inproceedings: 'Conférence',
+   351→    thesis: 'Thèse',
+   352→    incollection: 'Chapitre',
+   353→    web: 'Web',
+   354→  }
+   355→
+   356→  return (
+   357→    <div className="rounded-lg border hover:bg-muted/30 transition-colors">
+   358→      <div
+   359→        className="flex items-start gap-3 p-3 cursor-pointer select-none"
+   360→        onClick={() => setExpanded(!expanded)}
+   361→      >
+   362→        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 mt-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+   363→        <div className="flex-1 min-w-0">
+   364→          <div className="flex items-center gap-2 flex-wrap">
+   365→            <span className="text-sm font-medium truncate">{item.title}</span>
+   366→            <Badge variant="secondary" className="text-xs shrink-0">{typeLabels[item.type] || item.type}</Badge>
+   367→            {item.source === 'mendeley' && (
+   368→              <Badge variant="outline" className="text-xs shrink-0 text-amber-600 border-amber-300 bg-amber-50">Mendeley</Badge>
+   369→            )}
+   370→          </div>
+   371→          <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.authors} ({item.year || '—'})</p>
+   372→          {item.journal && <p className="text-xs text-muted-foreground truncate">{item.journal}{item.volume ? `, ${item.volume}` : ''}{item.pages ? `, pp. ${item.pages}` : ''}</p>}
+   373→        </div>
+   374→        <div className="flex items-center gap-1 shrink-0">
+   375→          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); copyBib() }} title="Copier BibTeX">
+   376→            <Copy className="h-3.5 w-3.5" />
+   377→          </Button>
+   378→          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(item.id) }} title="Supprimer">
+   379→            <Trash2 className="h-3.5 w-3.5" />
+   380→          </Button>
+   381→        </div>
+   382→      </div>
+   383→      {expanded && (
+   384→        <div className="px-3 pb-3 pl-10 space-y-2 border-t pt-2 ml-7">
+   385→          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+   386→            <div><span className="text-muted-foreground">Clé :</span> <span className="font-mono">{item.citationKey || '—'}</span></div>
+   387→            <div><span className="text-muted-foreground">DOI :</span> {item.doi || '—'}</div>
+   388→            <div><span className="text-muted-foreground">Volume :</span> {item.volume || '—'}</div>
+   389→            <div><span className="text-muted-foreground">N° :</span> {item.number || '—'}</div>
+   390→          </div>
+   391→          {item.abstract && (
+   392→            <div>
+   393→              <span className="text-xs font-semibold text-muted-foreground">Résumé</span>
+   394→              <p className="text-xs text-muted-foreground mt-1 bg-muted/50 rounded p-2 max-h-32 overflow-y-auto">{item.abstract}</p>
+   395→            </div>
+   396→          )}
+   397→          {item.notes && (
+   398→            <div>
+   399→              <span className="text-xs font-semibold text-muted-foreground">Notes</span>
+   400→              <p className="text-xs mt-1 italic">{item.notes}</p>
+   401→            </div>
+   402→          )}
+   403→          {item.tags && (
+   404→            <div className="flex items-center gap-1.5 flex-wrap">
+   405→              {item.tags.split(',').map((tag, i) => (
+   406→                <Badge key={i} variant="outline" className="text-xs">{tag.trim()}</Badge>
+   407→              ))}
+   408→            </div>
+   409→          )}
+   410→          {copied && (
+   411→            <p className="text-xs text-emerald-600 flex items-center gap-1">
+   412→              <CheckCircle2 className="h-3 w-3" /> BibTeX copié dans le presse-papier
+   413→            </p>
+   414→          )}
+   415→        </div>
+   416→      )}
+   417→    </div>
+   418→  )
+   419→}
+   420→
+   421→// ─── MendeleyImportPanel ─────────────────────────────────────────
+   422→function MendeleyImportPanel({ connected, onImport }: { connected: boolean; onImport: (docs: unknown[]) => void }) {
+   423→  const [documents, setDocuments] = useState<unknown[]>([])
+   424→  const [loading, setLoading] = useState(false)
+   425→  const [selected, setSelected] = useState<Set<string>>(new Set())
+   426→  const [search, setSearch] = useState('')
+   427→
+   428→  const fetchDocs = useCallback(async () => {
+   429→    if (!connected) return
+   430→    setLoading(true)
+   431→    try {
+   432→      const res = await fetch('/api/mendeley/documents?limit=50')
+   433→      if (res.ok) {
+   434→        const data = await res.json()
+   435→        setDocuments(Array.isArray(data) ? data : [])
+   436→      }
+   437→    } catch { /* ignore */ }
+   438→    setLoading(false)
+   439→  }, [connected])
+   440→
+   441→  // eslint-disable-next-line react-hooks/set-state-in-effect
+   442→  useEffect(() => { if (connected) { fetchDocs(); } }, [connected, fetchDocs])
+   443→
+   444→  const toggleSelect = (id: string) => {
+   445→    setSelected(prev => {
+   446→      const next = new Set(prev)
+   447→      if (next.has(id)) next.delete(id)
+   448→      else next.add(id)
+   449→      return next
+   450→    })
+   451→  }
+   452→
+   453→  const selectAll = () => {
+   454→    if (selected.size === documents.length) {
+   455→      setSelected(new Set())
+   456→    } else {
+   457→      setSelected(new Set((documents as { id: string }[]).map(d => d.id)))
+   458→    }
+   459→  }
+   460→
+   461→  const filtered = search
+   462→    ? documents.filter((d: Record<string, unknown>) =>
+   463→        String(d.title || '').toLowerCase().includes(search.toLowerCase()) ||
+   464→        String((d.authors as Array<Record<string, string>> || []).map(a => `${a.first_name || ''} ${a.last_name || ''}`).join(' ')).toLowerCase().includes(search.toLowerCase())
+   465→      )
+   466→    : documents
+   467→
+   468→  if (!connected) {
+   469→    return (
+   470→      <Card>
+   471→        <CardContent className="py-8 text-center">
+   472→          <Library className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+   473→          <p className="text-sm text-muted-foreground">Connectez votre compte Mendeley pour voir vos documents</p>
+   474→        </CardContent>
+   475→      </Card>
+   476→    )
+   477→  }
+   478→
+   479→  return (
+   480→    <Card>
+   481→      <CardHeader className="pb-3">
+   482→        <div className="flex items-center justify-between gap-3">
+   483→          <div>
+   484→            <CardTitle className="text-base">Bibliothèque Mendeley</CardTitle>
+   485→            <CardDescription className="text-sm">
+   486→              {documents.length} document{documents.length !== 1 ? 's' : ''} trouvé{documents.length !== 1 ? 's' : ''}
+   487→              {selected.size > 0 && ` · ${selected.size} sélectionné${selected.size > 1 ? 's' : ''}`}
+   488→            </CardDescription>
+   489→          </div>
+   490→          <div className="flex items-center gap-2">
+   491→            <Button variant="outline" size="sm" onClick={fetchDocs} disabled={loading} className="gap-1.5">
+   492→              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+   493→              Rafraîchir
+   494→            </Button>
+   495→            <Button
+   496→              size="sm"
+   497→              onClick={() => {
+   498→                const toImport = documents.filter(d => selected.has((d as { id: string }).id))
+   499→                onImport(toImport)
+   500→                setSelected(new Set())
+   501→              }}
+   502→              disabled={selected.size === 0}
+   503→              className="gap-1.5"
+   504→            >
+   505→              <Upload className="h-3.5 w-3.5" />
+   506→              Importer ({selected.size})
+   507→            </Button>
+   508→          </div>
+   509→        </div>
+   510→      </CardHeader>
+   511→      <CardContent>
+   512→        <div className="flex items-center gap-2 mb-3">
+   513→          <div className="relative flex-1">
+   514→            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   515→            <Input
+   516→              placeholder="Chercher dans vos documents Mendeley..."
+   517→              value={search}
+   518→              onChange={e => setSearch(e.target.value)}
+   519→              className="pl-8 text-sm"
+   520→            />
+   521→          </div>
+   522→          <Button variant="outline" size="sm" onClick={selectAll} className="shrink-0 text-xs">
+   523→            {selected.size === documents.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+   524→          </Button>
+   525→        </div>
+   526→        <ScrollArea className="max-h-64">
+   527→          <div className="space-y-1.5 pr-2">
+   528→            {loading ? (
+   529→              <div className="py-8 text-center text-sm text-muted-foreground">Chargement des documents…</div>
+   530→            ) : filtered.length === 0 ? (
+   531→              <div className="py-8 text-center text-sm text-muted-foreground">Aucun document trouvé</div>
+   532→            ) : (
+   533→              filtered.map((doc: Record<string, unknown>) => {
+   534→                const id = doc.id as string
+   535→                const title = String(doc.title || 'Sans titre')
+   536→                const authors = (doc.authors as Array<Record<string, string>> || []).map(a => `${a.last_name || ''} ${a.first_name || ''}`).join(', ')
+   537→                const year = doc.year || ''
+   538→                const source = (doc.source as string) || (doc.journal as string) || ''
+   539→                const isSelected = selected.has(id)
+   540→                return (
+   541→                  <div
+   542→                    key={id}
+   543→                    className={`flex items-start gap-2.5 p-2.5 rounded-md border cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50 border-emerald-300' : 'hover:bg-muted/50'}`}
+   544→                    onClick={() => toggleSelect(id)}
+   545→                  >
+   546→                    <Checkbox
+   547→                      checked={isSelected}
+   548→                      onCheckedChange={() => toggleSelect(id)}
+   549→                      className="mt-0.5"
+   550→                    />
+   551→                    <div className="flex-1 min-w-0">
+   552→                      <p className="text-sm font-medium truncate">{title}</p>
+   553→                      <p className="text-xs text-muted-foreground truncate">{authors} ({year}){source ? ` — ${source}` : ''}</p>
+   554→                    </div>
+   555→                  </div>
+   556→                )
+   557→              })
+   558→            )}
+   559→          </div>
+   560→        </ScrollArea>
+   561→      </CardContent>
+   562→    </Card>
+   563→  )
+   564→}
+   565→
+   566→// ─── ReferencesTab ───────────────────────────────────────────────
+   567→export default function ReferencesTab() {
+   568→  const [references, setReferences] = useState<RefItem[]>([])
+   569→  const [loading, setLoading] = useState(true)
+   570→  const [mendeleyConnected, setMendeleyConnected] = useState(false)
+   571→  const [mendeleyHasClientId, setMendeleyHasClientId] = useState(false)
+   572→  const [searchQuery, setSearchQuery] = useState('')
+   573→  const [filterType, setFilterType] = useState('all')
+   574→  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null)
+   575→
+   576→  // Load references + Mendeley status
+   577→  const loadReferences = useCallback(async () => {
+   578→    setLoading(true)
+   579→    try {
+   580→      const params = new URLSearchParams()
+   581→      if (searchQuery) params.set('search', searchQuery)
+   582→      if (filterType !== 'all') params.set('type', filterType)
+   583→      const res = await fetch(`/api/references?${params}`)
+   584→      if (res.ok) setReferences(await res.json())
+   585→    } catch { /* ignore */ }
+   586→    setLoading(false)
+   587→  }, [searchQuery, filterType])
+   588→
+   589→  useEffect(() => {
+   590→    let cancelled = false
+   591→    const params = new URLSearchParams()
+   592→    if (searchQuery) params.set('search', searchQuery)
+   593→    if (filterType !== 'all') params.set('type', filterType)
+   594→    fetch(`/api/references?${params}`)
+   595→      .then(r => r.ok ? r.json() : [])
+   596→      .then(data => { if (!cancelled) setReferences(data) })
+   597→      .catch(() => { if (!cancelled) setLoading(false) })
+   598→      .finally(() => { if (!cancelled) setLoading(false) })
+   599→    return () => { cancelled = true }
+   600→  }, [searchQuery, filterType])
+   601→
+   602→  useEffect(() => {
+   603→    // Check Mendeley status
+   604→    fetch('/api/mendeley/auth')
+   605→      .then(r => r.json())
+   606→      .then(data => {
+   607→        setMendeleyConnected(data.connected || false)
+   608→        setMendeleyHasClientId(data.hasClientId || false)
+   609→      })
+   610→      .catch(() => {})
+   611→  }, [])
+   612→
+   613→  const handleConfigure = async (clientId: string, clientSecret: string, accessToken?: string) => {
+   614→    await fetch('/api/mendeley/auth', {
+   615→      method: 'POST',
+   616→      headers: { 'Content-Type': 'application/json' },
+   617→      body: JSON.stringify({ clientId, clientSecret, accessToken }),
+   618→    })
+   619→    setMendeleyHasClientId(!!clientId)
+   620→    if (accessToken) {
+   621→      setMendeleyConnected(true)
+   622→    }
+   623→  }
+   624→
+   625→  const handleConnectOAuth = async () => {
+   626→    try {
+   627→      const res = await fetch('/api/mendeley/auth')
+   628→      const data = await res.json()
+   629→      if (data.authUrl) {
+   630→        window.location.href = data.authUrl
+   631→      }
+   632→    } catch { /* ignore */ }
+   633→  }
+   634→
+   635→  const handleDisconnect = async () => {
+   636→    await fetch('/api/mendeley/disconnect', { method: 'POST' })
+   637→    setMendeleyConnected(false)
+   638→  }
+   639→
+   640→  const handleAddReference = async (data: Record<string, string>) => {
+   641→    await fetch('/api/references', {
+   642→      method: 'POST',
+   643→      headers: { 'Content-Type': 'application/json' },
+   644→      body: JSON.stringify(data),
+   645→    })
+   646→    loadReferences()
+   647→  }
+   648→
+   649→  const handleDeleteReference = async (id: string) => {
+   650→    await fetch(`/api/references?id=${id}`, { method: 'DELETE' })
+   651→    loadReferences()
+   652→  }
+   653→
+   654→  const handleImport = async (docs: unknown[]) => {
+   655→    try {
+   656→      const res = await fetch('/api/references/import-bibtex', {
+   657→        method: 'POST',
+   658→        headers: { 'Content-Type': 'application/json' },
+   659→        body: JSON.stringify({ documents: docs }),
+   660→      })
+   661→      if (res.ok) {
+   662→        const result = await res.json()
+   663→        setImportResult(result)
+   664→        setTimeout(() => setImportResult(null), 5000)
+   665→        loadReferences()
+   666→      }
+   667→    } catch { /* ignore */ }
+   668→  }
+   669→
+   670→  const handleExportBib = () => {
+   671→    fetch('/api/references/bibtex')
+   672→      .then(r => r.blob())
+   673→      .then(blob => {
+   674→        const url = URL.createObjectURL(blob)
+   675→        const a = document.createElement('a')
+   676→        a.href = url
+   677→        a.download = 'references.bib'
+   678→        a.click()
+   679→        URL.revokeObjectURL(url)
+   680→      })
+   681→  }
+   682→
+   683→  const uniqueTypes = ['all', ...Array.from(new Set(references.map(r => r.type)))]
+   684→
+   685→  return (
+   686→    <div className="space-y-6">
+   687→      {/* Mendeley Connection */}
+   688→      <MendeleyConnectionCard
+   689→        connected={mendeleyConnected}
+   690→        onRefresh={loadReferences}
+   691→        onDisconnect={handleDisconnect}
+   692→        onConfigure={handleConfigure}
+   693→        onConnectOAuth={handleConnectOAuth}
+   694→        hasClientId={mendeleyHasClientId}
+   695→      />
+   696→
+   697→      {/* Import result toast */}
+   698→      {importResult && (
+   699→        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-800">
+   700→          <CheckCircle2 className="h-4 w-4 shrink-0" />
+   701→          <span>{importResult.imported} référence{importResult.imported > 1 ? 's' : ''} importée{importResult.imported > 1 ? 's' : ''} depuis Mendeley</span>
+   702→          {importResult.skipped > 0 && (
+   703→            <span className="text-muted-foreground">({importResult.skipped} déjà présente{importResult.skipped > 1 ? 's' : ''})</span>
+   704→          )}
+   705→        </div>
+   706→      )}
+   707→
+   708→      {/* Mendeley Import Panel */}
+   709→      <MendeleyImportPanel connected={mendeleyConnected} onImport={handleImport} />
+   710→
+   711→      <Separator />
+   712→
+   713→      {/* Local References */}
+   714→      <Card>
+   715→        <CardHeader>
+   716→          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+   717→            <div>
+   718→              <CardTitle className="text-base flex items-center gap-2">
+   719→                <Library className="h-5 w-5" />
+   720→                Mes références
+   721→                <Badge variant="secondary" className="text-xs">{references.length}</Badge>
+   722→              </CardTitle>
+   723→              <CardDescription className="text-sm mt-1">
+   724→                Gérez vos références et exportez-les en BibTeX pour LaTeX
+   725→              </CardDescription>
+   726→            </div>
+   727→            <div className="flex items-center gap-2 flex-wrap">
+   728→              <AddReferenceDialog onAdd={handleAddReference} />
+   729→              <Button variant="outline" size="sm" onClick={handleExportBib} disabled={references.length === 0} className="gap-1.5">
+   730→                <Download className="h-3.5 w-3.5" />
+   731→                Exporter .bib
+   732→              </Button>
+   733→            </div>
+   734→          </div>
+   735→        </CardHeader>
+   736→        <CardContent>
+   737→          {/* Filters */}
+   738→          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
+   739→            <div className="relative flex-1">
+   740→              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   741→              <Input
+   742→                placeholder="Rechercher par titre, auteur, journal…"
+   743→                value={searchQuery}
+   744→                onChange={e => setSearchQuery(e.target.value)}
+   745→                className="pl-8 text-sm"
+   746→              />
+   747→            </div>
+   748→            <Select value={filterType} onValueChange={setFilterType}>
+   749→              <SelectTrigger className="w-full sm:w-40 text-sm">
+   750→                <SelectValue placeholder="Type" />
+   751→              </SelectTrigger>
+   752→              <SelectContent>
+   753→                {uniqueTypes.map(t => (
+   754→                  <SelectItem key={t} value={t}>
+   755→                    {t === 'all' ? 'Tous les types' : t.charAt(0).toUpperCase() + t.slice(1)}
+   756→                  </SelectItem>
+   757→                ))}
+   758→              </SelectContent>
+   759→            </Select>
+   760→          </div>
+   761→
+   762→          {/* Reference list */}
+   763→          <ScrollArea className="max-h-96">
+   764→            <div className="space-y-2 pr-2">
+   765→              {loading ? (
+   766→                <div className="py-12 text-center text-sm text-muted-foreground">Chargement…</div>
+   767→              ) : references.length === 0 ? (
+   768→                <div className="py-12 text-center space-y-2">
+   769→                  <BookMarked className="h-10 w-10 text-muted-foreground mx-auto" />
+   770→                  <p className="text-sm text-muted-foreground">Aucune référence pour le moment</p>
+   771→                  <p className="text-xs text-muted-foreground">
+   772→                    Ajoutez-en manuellement ou importez depuis Mendeley
+   773→                  </p>
+   774→                </div>
+   775→              ) : (
+   776→                references.map(item => (
+   777→                  <ReferenceRow key={item.id} item={item} onDelete={handleDeleteReference} />
+   778→                ))
+   779→              )}
+   780→            </div>
+   781→          </ScrollArea>
+   782→        </CardContent>
+   783→      </Card>
+   784→
+   785→      {/* BibTeX preview info */}
+   786→      <Card className="bg-muted/30">
+   787→        <CardContent className="py-4">
+   788→          <div className="flex items-start gap-3">
+   789→            <FileCode2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+   790→            <div>
+   791→              <p className="text-sm font-medium">Intégration LaTeX</p>
+   792→              <p className="text-xs text-muted-foreground mt-1">
+   793→                Exportez vos références en fichier <code className="bg-muted px-1 rounded text-xs">.bib</code> et
+   794→                placez-le à côté de votre fichier <code className="bg-muted px-1 rounded text-xs">.tex</code>.
+   795→                Le template LaTeX généré utilise déjà <code className="bg-muted px-1 rounded text-xs">{'\\addbibresource{references.bib}'}</code> pour
+   796→                inclure automatiquement ces références.
+   797→              </p>
+   798→            </div>
+   799→          </div>
+   800→        </CardContent>
+   801→      </Card>
+   802→
+   803→      {/* Ressources en ligne pour thèses */}
+   804→      <Card className="border-amber-200">
+   805→        <CardHeader>
+   806→          <CardTitle className="text-base flex items-center gap-2">
+   807→            <Globe className="h-5 w-5 text-amber-600" />
+   808→            15 sites gratuits pour télécharger des thèses
+   809→          </CardTitle>
+   810→          <CardDescription>Boostez votre recherche. Accédez à des milliers de thèses en accès libre.</CardDescription>
+   811→        </CardHeader>
+   812→        <CardContent>
+   813→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+   814→            {thesisWebsites.map((site) => (
+   815→              <a
+   816→                key={site.id}
+   817→                href={site.url}
+   818→                target="_blank"
+   819→                rel="noopener noreferrer"
+   820→                className="rounded-lg border p-3 space-y-1 hover:bg-muted/50 transition-colors group"
+   821→              >
+   822→                <div className="flex items-center gap-2">
+   823→                  <p className="text-sm font-medium group-hover:text-sky-700 transition-colors">{site.name}</p>
+   824→                  <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+   825→                </div>
+   826→                <p className="text-xs text-muted-foreground">{site.description}</p>
+   827→                <Badge variant="outline" className="text-[10px]">{site.type}</Badge>
+   828→              </a>
+   829→            ))}
+   830→          </div>
+   831→        </CardContent>
+   832→      </Card>
+   833→    </div>
+   834→  )
+   835→}
+   836→

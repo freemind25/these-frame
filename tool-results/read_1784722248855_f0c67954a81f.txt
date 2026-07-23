@@ -1,0 +1,2002 @@
+     1→'use client'
+     2→
+     3→import { createElement, useCallback, useEffect, useState } from 'react'
+     4→import {
+     5→  BookOpen,
+     6→  FileText,
+     7→  GraduationCap,
+     8→  HelpCircle,
+     9→  CheckCircle2,
+    10→  ChevronRight,
+    11→  AlertTriangle,
+    12→  Lightbulb,
+    13→  BookMarked,
+    14→  ClipboardList,
+    15→  Database,
+    16→  Send,
+    17→  FlaskConical,
+    18→  BarChart3,
+    19→  MessageSquare,
+    20→  Layout,
+    21→  Type,
+    22→  ArrowRight,
+    23→  XCircle,
+    24→  ShieldCheck,
+    25→  Download,
+    26→  FileCode2,
+    27→  Link2,
+    28→  ExternalLink,
+    29→  Search,
+    30→  Plus,
+    31→  Trash2,
+    32→  RefreshCw,
+    33→  Unplug,
+    34→  Upload,
+    35→  Library,
+    36→  Copy,
+    37→  Eye,
+    38→  Sparkles,
+    39→  Loader2,
+    40→  RotateCcw,
+    41→  PenTool,
+    42→  BookOpenText,
+    43→  ScanSearch,
+    44→  Languages,
+    45→  ScrollText,
+    46→  Target,
+    47→  TrendingUp,
+    48→  Globe,
+    49→  type LucideIcon,
+    50→} from 'lucide-react'
+    51→import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+    52→import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+    53→import { Badge } from '@/components/ui/badge'
+    54→import { Progress } from '@/components/ui/progress'
+    55→import { Checkbox } from '@/components/ui/checkbox'
+    56→import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+    57→import { ScrollArea } from '@/components/ui/scroll-area'
+    58→import { Separator } from '@/components/ui/separator'
+    59→import { Button } from '@/components/ui/button'
+    60→import { Input } from '@/components/ui/input'
+    61→import { Label } from '@/components/ui/label'
+    62→import { Textarea } from '@/components/ui/textarea'
+    63→import {
+    64→  Dialog,
+    65→  DialogContent,
+    66→  DialogDescription,
+    67→  DialogFooter,
+    68→  DialogHeader,
+    69→  DialogTitle,
+    70→  DialogTrigger,
+    71→} from '@/components/ui/dialog'
+    72→import {
+    73→  Select,
+    74→  SelectContent,
+    75→  SelectItem,
+    76→  SelectTrigger,
+    77→  SelectValue,
+    78→} from '@/components/ui/select'
+    79→import { DEFAULT_THESIS_DATA, type ThesisData } from '@/data/latex-template'
+    80→import {
+    81→  writingSteps,
+    82→  sectionGuides,
+    83→  referenceArticles,
+    84→  submissionChecklist,
+    85→  commonMistakes,
+    86→} from '@/data/articles-guide'
+    87→import {
+    88→  researchCycle,
+    89→  researchTypes,
+    90→  reasoningApproaches,
+    91→  disciplinarities,
+    92→  problematiqueGuide,
+    93→  problematiqueConseils,
+    94→  operationalisationConcept,
+    95→  operationalisationExample,
+    96→  hypothesesConditions,
+    97→  hypothesesVerification,
+    98→  collectTools,
+    99→  documentTypes,
+   100→  databases,
+   101→  catalogs,
+   102→  webResources,
+   103→  introductionStructure,
+   104→  titreConseils,
+   105→  researchVariables,
+   106→  variableCategories,
+   107→  biblioFeatures,
+   108→  biblioPurposes,
+   109→  biblioMethods,
+   110→  biblioMetrics,
+   111→  biblioTools,
+   112→  biblioProcess,
+   113→  literatureReviewStages,
+   114→  literatureReviewSource,
+   115→  researchGaps,
+   116→  researchGapsSource,
+   117→  problemStatementQuestions,
+   118→  problemStatementSource,
+   119→  introductionWritingTips,
+   120→  introductionWritingAdvice,
+   121→  abstractStructure,
+   122→  abstractSource,
+   123→  thesisWebsites,
+   124→  operationalisationBaripedia,
+   125→  guidereGuide,
+   126→} from '@/data/methodology-guide'
+   127→
+   128→// ─── Icon map ─────────────────────────────────────────────────────
+   129→const iconMap: Record<string, LucideIcon> = {
+   130→  ClipboardList,
+   131→  Layout,
+   132→  Type,
+   133→  BookOpen,
+   134→  FlaskConical,
+   135→  BarChart3,
+   136→  MessageSquare,
+   137→  CheckCircle2,
+   138→  BookMarked,
+   139→  Send,
+   140→  FileText,
+   141→  GraduationCap,
+   142→  PenTool,
+   143→  BookOpenText,
+   144→  ScanSearch,
+   145→  Languages,
+   146→  ScrollText,
+   147→  Lightbulb,
+   148→  Sparkles,
+   149→  Loader2,
+   150→  RotateCcw,
+   151→}
+   152→
+   153→function getIcon(name: string): LucideIcon {
+   154→  return iconMap[name] || FileText
+   155→}
+   156→
+   157→// ─── Reference type ──────────────────────────────────────────────
+   158→interface RefItem {
+   159→  id: string
+   160→  type: string
+   161→  citationKey: string | null
+   162→  title: string
+   163→  authors: string
+   164→  year: string | null
+   165→  journal: string | null
+   166→  volume: string | null
+   167→  number: string | null
+   168→  pages: string | null
+   169→  doi: string | null
+   170→  abstract: string | null
+   171→  tags: string | null
+   172→  notes: string | null
+   173→  source: string
+   174→  mendeleyId: string | null
+   175→  createdAt: string
+   176→}
+   177→
+   178→// ─── MendeleyConnectionCard ──────────────────────────────────────
+   179→function MendeleyConnectionCard({
+   180→  connected,
+   181→  onRefresh,
+   182→  onDisconnect,
+   183→  onConfigure,
+   184→  onConnectOAuth,
+   185→  hasClientId,
+   186→}: {
+   187→  connected: boolean
+   188→  onRefresh: () => void
+   189→  onDisconnect: () => void
+   190→  onConfigure: (clientId: string, clientSecret: string, accessToken?: string) => void
+   191→  onConnectOAuth: () => void
+   192→  hasClientId: boolean
+   193→}) {
+   194→  const [showConfig, setShowConfig] = useState(false)
+   195→  const [clientId, setClientId] = useState('')
+   196→  const [clientSecret, setClientSecret] = useState('')
+   197→  const [manualToken, setManualToken] = useState('')
+   198→  const [useManualToken, setUseManualToken] = useState(false)
+   199→
+   200→  if (connected) {
+   201→    return (
+   202→      <Card className="border-emerald-200 bg-emerald-50/30">
+   203→        <CardHeader className="pb-3">
+   204→          <div className="flex items-center justify-between">
+   205→            <div className="flex items-center gap-3">
+   206→              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+   207→                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+   208→              </div>
+   209→              <div>
+   210→                <CardTitle className="text-base">Mendeley connecté</CardTitle>
+   211→                <CardDescription className="text-sm">
+   212→                  Votre bibliothèque Mendeley est synchronisée
+   213→                </CardDescription>
+   214→              </div>
+   215→            </div>
+   216→            <div className="flex items-center gap-2">
+   217→              <Button variant="outline" size="sm" onClick={onRefresh} className="gap-1.5">
+   218→                <RefreshCw className="h-3.5 w-3.5" />
+   219→                Rafraîchir
+   220→              </Button>
+   221→              <Button variant="outline" size="sm" onClick={onDisconnect} className="gap-1.5 text-red-600 hover:text-red-700">
+   222→                <Unplug className="h-3.5 w-3.5" />
+   223→                Déconnecter
+   224→              </Button>
+   225→            </div>
+   226→          </div>
+   227→        </CardHeader>
+   228→      </Card>
+   229→    )
+   230→  }
+   231→
+   232→  return (
+   233→    <Card className="border-amber-200 bg-amber-50/30">
+   234→      <CardHeader className="pb-3">
+   235→        <div className="flex items-center gap-3">
+   236→          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-100 shrink-0">
+   237→            <Link2 className="h-5 w-5 text-amber-700" />
+   238→          </div>
+   239→          <div className="flex-1">
+   240→            <CardTitle className="text-base">Connexion Mendeley</CardTitle>
+   241→            <CardDescription className="text-sm">
+   242→              Connectez votre compte pour importer vos références bibliographiques
+   243→            </CardDescription>
+   244→          </div>
+   245→          {!showConfig && (
+   246→            <Button size="sm" onClick={() => setShowConfig(true)} className="gap-1.5">
+   247→              <Plus className="h-3.5 w-3.5" />
+   248→              Configurer
+   249→            </Button>
+   250→          )}
+   251→        </div>
+   252→      </CardHeader>
+   253→      {showConfig && (
+   254→        <CardContent className="space-y-4 border-t pt-4">
+   255→          <div className="flex items-center gap-2 p-2 rounded-md bg-sky-50 border border-sky-200 text-sm text-sky-800">
+   256→            <ExternalLink className="h-4 w-4 shrink-0" />
+   257→            <span>
+   258→              Créez votre app sur{' '}
+   259→              <a href="https://dev.mendeley.com/myapps.html" target="_blank" rel="noopener noreferrer" className="underline font-medium">
+   260→                dev.mendeley.com/myapps
+   261→              </a>{' '}
+   262→              pour obtenir un Client ID et Secret.
+   263→            </span>
+   264→          </div>
+   265→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   266→            <div className="grid gap-1.5">
+   267→              <Label htmlFor="clientId" className="text-xs">Client ID</Label>
+   268→              <Input id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={clientId} onChange={e => setClientId(e.target.value)} className="text-sm" />
+   269→            </div>
+   270→            <div className="grid gap-1.5">
+   271→              <Label htmlFor="clientSecret" className="text-xs">Client Secret</Label>
+   272→              <Input id="clientSecret" type="password" placeholder="Votre client secret" value={clientSecret} onChange={e => setClientSecret(e.target.value)} className="text-sm" />
+   273→            </div>
+   274→          </div>
+   275→
+   276→          <div className="flex items-center gap-2">
+   277→            <Checkbox
+   278→              id="manualTokenCheck"
+   279→              checked={useManualToken}
+   280→              onCheckedChange={(v) => setUseManualToken(v === true)}
+   281→            />
+   282→            <Label htmlFor="manualTokenCheck" className="text-xs text-muted-foreground">
+   283→              Utiliser un token d&apos;accès manuel (si vous avez déjà un Access Token)
+   284→            </Label>
+   285→          </div>
+   286→
+   287→          {useManualToken && (
+   288→            <div className="grid gap-1.5">
+   289→              <Label htmlFor="manualToken" className="text-xs">Access Token Mendeley</Label>
+   290→              <Input id="manualToken" placeholder="Bearer token..." value={manualToken} onChange={e => setManualToken(e.target.value)} className="text-sm" />
+   291→            </div>
+   292→          )}
+   293→
+   294→          <div className="flex items-center gap-2 justify-end">
+   295→            <Button variant="ghost" size="sm" onClick={() => setShowConfig(false)}>Annuler</Button>
+   296→            {useManualToken ? (
+   297→              <Button size="sm" onClick={() => {
+   298→                onConfigure(clientId, clientSecret, manualToken)
+   299→                setShowConfig(false)
+   300→              }} disabled={!manualToken} className="gap-1.5">
+   301→                <Link2 className="h-3.5 w-3.5" />
+   302→                Connecter avec token
+   303→              </Button>
+   304→            ) : (
+   305→              <Button size="sm" onClick={() => {
+   306→                onConfigure(clientId, clientSecret)
+   307→                if (clientId) onConnectOAuth()
+   308→              }} disabled={!clientId || !clientSecret} className="gap-1.5">
+   309→                <ExternalLink className="h-3.5 w-3.5" />
+   310→                Autoriser via Mendeley
+   311→              </Button>
+   312→            )}
+   313→          </div>
+   314→        </CardContent>
+   315→      )}
+   316→    </Card>
+   317→  )
+   318→}
+   319→
+   320→// ─── AddReferenceDialog ──────────────────────────────────────────
+   321→function AddReferenceDialog({ onAdd }: { onAdd: (data: Record<string, string>) => void }) {
+   322→  const [open, setOpen] = useState(false)
+   323→  const [form, setForm] = useState({
+   324→    type: 'article',
+   325→    title: '',
+   326→    authors: '',
+   327→    year: '',
+   328→    journal: '',
+   329→    volume: '',
+   330→    number: '',
+   331→    pages: '',
+   332→    doi: '',
+   333→    tags: '',
+   334→    notes: '',
+   335→  })
+   336→
+   337→  const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
+   338→
+   339→  const handleSubmit = () => {
+   340→    if (!form.title.trim()) return
+   341→    onAdd(form)
+   342→    setOpen(false)
+   343→    setForm({ type: 'article', title: '', authors: '', year: '', journal: '', volume: '', number: '', pages: '', doi: '', tags: '', notes: '' })
+   344→  }
+   345→
+   346→  return (
+   347→    <Dialog open={open} onOpenChange={setOpen}>
+   348→      <DialogTrigger asChild>
+   349→        <Button size="sm" className="gap-1.5">
+   350→          <Plus className="h-3.5 w-3.5" />
+   351→          Ajouter
+   352→        </Button>
+   353→      </DialogTrigger>
+   354→      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+   355→        <DialogHeader>
+   356→          <DialogTitle className="flex items-center gap-2">
+   357→            <Plus className="h-5 w-5" />
+   358→            Ajouter une référence
+   359→          </DialogTitle>
+   360→          <DialogDescription>Entrez les métadonnées de la référence bibliographique.</DialogDescription>
+   361→        </DialogHeader>
+   362→        <div className="grid gap-3 py-2">
+   363→          <div className="grid grid-cols-2 gap-3">
+   364→            <div className="grid gap-1.5">
+   365→              <Label className="text-xs">Type</Label>
+   366→              <Select value={form.type} onValueChange={v => update('type', v)}>
+   367→                <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+   368→                <SelectContent>
+   369→                  <SelectItem value="article">Article</SelectItem>
+   370→                  <SelectItem value="book">Livre</SelectItem>
+   371→                  <SelectItem value="inproceedings">Conférence</SelectItem>
+   372→                  <SelectItem value="thesis">Thèse</SelectItem>
+   373→                  <SelectItem value="incollection">Chapitre d&apos;ouvrage</SelectItem>
+   374→                  <SelectItem value="web">Site web</SelectItem>
+   375→                </SelectContent>
+   376→              </Select>
+   377→            </div>
+   378→            <div className="grid gap-1.5">
+   379→              <Label className="text-xs">Année</Label>
+   380→              <Input placeholder="2025" value={form.year} onChange={e => update('year', e.target.value)} className="text-sm" />
+   381→            </div>
+   382→          </div>
+   383→          <div className="grid gap-1.5">
+   384→            <Label className="text-xs">Titre *</Label>
+   385→            <Input placeholder="Titre de la publication" value={form.title} onChange={e => update('title', e.target.value)} className="text-sm" />
+   386→          </div>
+   387→          <div className="grid gap-1.5">
+   388→            <Label className="text-xs">Auteurs (séparés par ; )</Label>
+   389→            <Input placeholder="Nom Prénom; Nom2 Prénom2" value={form.authors} onChange={e => update('authors', e.target.value)} className="text-sm" />
+   390→          </div>
+   391→          <div className="grid gap-1.5">
+   392→            <Label className="text-xs">
+   393→              {form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Établissement' : form.type === 'web' ? 'URL / Site' : 'Journal / Revue'}
+   394→            </Label>
+   395→            <Input placeholder={form.type === 'book' ? 'Éditeur' : form.type === 'thesis' ? 'Université...' : 'Nom du journal'} value={form.journal} onChange={e => update('journal', e.target.value)} className="text-sm" />
+   396→          </div>
+   397→          <div className="grid grid-cols-3 gap-3">
+   398→            <div className="grid gap-1.5">
+   399→              <Label className="text-xs">Volume</Label>
+   400→              <Input placeholder="Vol." value={form.volume} onChange={e => update('volume', e.target.value)} className="text-sm" />
+   401→            </div>
+   402→            <div className="grid gap-1.5">
+   403→              <Label className="text-xs">Numéro</Label>
+   404→              <Input placeholder="N°" value={form.number} onChange={e => update('number', e.target.value)} className="text-sm" />
+   405→            </div>
+   406→            <div className="grid gap-1.5">
+   407→              <Label className="text-xs">Pages</Label>
+   408→              <Input placeholder="1-15" value={form.pages} onChange={e => update('pages', e.target.value)} className="text-sm" />
+   409→            </div>
+   410→          </div>
+   411→          <div className="grid gap-1.5">
+   412→            <Label className="text-xs">DOI / URL</Label>
+   413→            <Input placeholder="10.xxxx/xxxxx" value={form.doi} onChange={e => update('doi', e.target.value)} className="text-sm" />
+   414→          </div>
+   415→          <div className="grid gap-1.5">
+   416→            <Label className="text-xs">Tags (séparés par , )</Label>
+   417→            <Input placeholder="architecture, urbanisme, réhabilitation" value={form.tags} onChange={e => update('tags', e.target.value)} className="text-sm" />
+   418→          </div>
+   419→          <div className="grid gap-1.5">
+   420→            <Label className="text-xs">Notes</Label>
+   421→            <Textarea placeholder="Remarques, contexte..." value={form.notes} onChange={e => update('notes', e.target.value)} className="text-sm" rows={2} />
+   422→          </div>
+   423→        </div>
+   424→        <DialogFooter>
+   425→          <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+   426→          <Button onClick={handleSubmit} disabled={!form.title.trim()} className="gap-1.5">
+   427→            <Plus className="h-4 w-4" />
+   428→            Ajouter
+   429→          </Button>
+   430→        </DialogFooter>
+   431→      </DialogContent>
+   432→    </Dialog>
+   433→  )
+   434→}
+   435→
+   436→// ─── ReferenceRow ────────────────────────────────────────────────
+   437→function ReferenceRow({ item, onDelete }: { item: RefItem; onDelete: (id: string) => void }) {
+   438→  const [expanded, setExpanded] = useState(false)
+   439→  const [copied, setCopied] = useState(false)
+   440→
+   441→  const copyBib = () => {
+   442→    const key = item.citationKey || `ref_${item.id.slice(0, 6)}`
+   443→    const authorList = item.authors ? item.authors.split(';').map(a => a.trim()).join(' and ') : 'Unknown'
+   444→    let bib = ''
+   445→    if (item.type === 'book') {
+   446→      bib = `@book{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  year = {${item.year || ''}},\n  publisher = {${item.journal || ''}}\n}`
+   447→    } else {
+   448→      bib = `@article{${key},\n  author = {${authorList}},\n  title = {${item.title}},\n  journal = {${item.journal || ''}},\n  year = {${item.year || ''}},\n  volume = {${item.volume || ''}},\n  pages = {${item.pages || ''}},\n  doi = {${item.doi || ''}}\n}`
+   449→    }
+   450→    navigator.clipboard.writeText(bib)
+   451→    setCopied(true)
+   452→    setTimeout(() => setCopied(false), 2000)
+   453→  }
+   454→
+   455→  const typeLabels: Record<string, string> = {
+   456→    article: 'Article',
+   457→    book: 'Livre',
+   458→    inproceedings: 'Conférence',
+   459→    thesis: 'Thèse',
+   460→    incollection: 'Chapitre',
+   461→    web: 'Web',
+   462→  }
+   463→
+   464→  return (
+   465→    <div className="rounded-lg border hover:bg-muted/30 transition-colors">
+   466→      <div
+   467→        className="flex items-start gap-3 p-3 cursor-pointer select-none"
+   468→        onClick={() => setExpanded(!expanded)}
+   469→      >
+   470→        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 mt-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+   471→        <div className="flex-1 min-w-0">
+   472→          <div className="flex items-center gap-2 flex-wrap">
+   473→            <span className="text-sm font-medium truncate">{item.title}</span>
+   474→            <Badge variant="secondary" className="text-xs shrink-0">{typeLabels[item.type] || item.type}</Badge>
+   475→            {item.source === 'mendeley' && (
+   476→              <Badge variant="outline" className="text-xs shrink-0 text-amber-600 border-amber-300 bg-amber-50">Mendeley</Badge>
+   477→            )}
+   478→          </div>
+   479→          <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.authors} ({item.year || '—'})</p>
+   480→          {item.journal && <p className="text-xs text-muted-foreground truncate">{item.journal}{item.volume ? `, ${item.volume}` : ''}{item.pages ? `, pp. ${item.pages}` : ''}</p>}
+   481→        </div>
+   482→        <div className="flex items-center gap-1 shrink-0">
+   483→          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); copyBib() }} title="Copier BibTeX">
+   484→            <Copy className="h-3.5 w-3.5" />
+   485→          </Button>
+   486→          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(item.id) }} title="Supprimer">
+   487→            <Trash2 className="h-3.5 w-3.5" />
+   488→          </Button>
+   489→        </div>
+   490→      </div>
+   491→      {expanded && (
+   492→        <div className="px-3 pb-3 pl-10 space-y-2 border-t pt-2 ml-7">
+   493→          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+   494→            <div><span className="text-muted-foreground">Clé :</span> <span className="font-mono">{item.citationKey || '—'}</span></div>
+   495→            <div><span className="text-muted-foreground">DOI :</span> {item.doi || '—'}</div>
+   496→            <div><span className="text-muted-foreground">Volume :</span> {item.volume || '—'}</div>
+   497→            <div><span className="text-muted-foreground">N° :</span> {item.number || '—'}</div>
+   498→          </div>
+   499→          {item.abstract && (
+   500→            <div>
+   501→              <span className="text-xs font-semibold text-muted-foreground">Résumé</span>
+   502→              <p className="text-xs text-muted-foreground mt-1 bg-muted/50 rounded p-2 max-h-32 overflow-y-auto">{item.abstract}</p>
+   503→            </div>
+   504→          )}
+   505→          {item.notes && (
+   506→            <div>
+   507→              <span className="text-xs font-semibold text-muted-foreground">Notes</span>
+   508→              <p className="text-xs mt-1 italic">{item.notes}</p>
+   509→            </div>
+   510→          )}
+   511→          {item.tags && (
+   512→            <div className="flex items-center gap-1.5 flex-wrap">
+   513→              {item.tags.split(',').map((tag, i) => (
+   514→                <Badge key={i} variant="outline" className="text-xs">{tag.trim()}</Badge>
+   515→              ))}
+   516→            </div>
+   517→          )}
+   518→          {copied && (
+   519→            <p className="text-xs text-emerald-600 flex items-center gap-1">
+   520→              <CheckCircle2 className="h-3 w-3" /> BibTeX copié dans le presse-papier
+   521→            </p>
+   522→          )}
+   523→        </div>
+   524→      )}
+   525→    </div>
+   526→  )
+   527→}
+   528→
+   529→// ─── MendeleyImportPanel ─────────────────────────────────────────
+   530→function MendeleyImportPanel({ connected, onImport }: { connected: boolean; onImport: (docs: unknown[]) => void }) {
+   531→  const [documents, setDocuments] = useState<unknown[]>([])
+   532→  const [loading, setLoading] = useState(false)
+   533→  const [selected, setSelected] = useState<Set<string>>(new Set())
+   534→  const [search, setSearch] = useState('')
+   535→
+   536→  const fetchDocs = useCallback(async () => {
+   537→    if (!connected) return
+   538→    setLoading(true)
+   539→    try {
+   540→      const res = await fetch('/api/mendeley/documents?limit=50')
+   541→      if (res.ok) {
+   542→        const data = await res.json()
+   543→        setDocuments(Array.isArray(data) ? data : [])
+   544→      }
+   545→    } catch { /* ignore */ }
+   546→    setLoading(false)
+   547→  }, [connected])
+   548→
+   549→  // eslint-disable-next-line react-hooks/set-state-in-effect
+   550→  useEffect(() => { if (connected) { fetchDocs(); } }, [connected, fetchDocs])
+   551→
+   552→  const toggleSelect = (id: string) => {
+   553→    setSelected(prev => {
+   554→      const next = new Set(prev)
+   555→      if (next.has(id)) next.delete(id)
+   556→      else next.add(id)
+   557→      return next
+   558→    })
+   559→  }
+   560→
+   561→  const selectAll = () => {
+   562→    if (selected.size === documents.length) {
+   563→      setSelected(new Set())
+   564→    } else {
+   565→      setSelected(new Set((documents as { id: string }[]).map(d => d.id)))
+   566→    }
+   567→  }
+   568→
+   569→  const filtered = search
+   570→    ? documents.filter((d: Record<string, unknown>) =>
+   571→        String(d.title || '').toLowerCase().includes(search.toLowerCase()) ||
+   572→        String((d.authors as Array<Record<string, string>> || []).map(a => `${a.first_name || ''} ${a.last_name || ''}`).join(' ')).toLowerCase().includes(search.toLowerCase())
+   573→      )
+   574→    : documents
+   575→
+   576→  if (!connected) {
+   577→    return (
+   578→      <Card>
+   579→        <CardContent className="py-8 text-center">
+   580→          <Library className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+   581→          <p className="text-sm text-muted-foreground">Connectez votre compte Mendeley pour voir vos documents</p>
+   582→        </CardContent>
+   583→      </Card>
+   584→    )
+   585→  }
+   586→
+   587→  return (
+   588→    <Card>
+   589→      <CardHeader className="pb-3">
+   590→        <div className="flex items-center justify-between gap-3">
+   591→          <div>
+   592→            <CardTitle className="text-base">Bibliothèque Mendeley</CardTitle>
+   593→            <CardDescription className="text-sm">
+   594→              {documents.length} document{documents.length !== 1 ? 's' : ''} trouvé{documents.length !== 1 ? 's' : ''}
+   595→              {selected.size > 0 && ` · ${selected.size} sélectionné${selected.size > 1 ? 's' : ''}`}
+   596→            </CardDescription>
+   597→          </div>
+   598→          <div className="flex items-center gap-2">
+   599→            <Button variant="outline" size="sm" onClick={fetchDocs} disabled={loading} className="gap-1.5">
+   600→              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+   601→              Rafraîchir
+   602→            </Button>
+   603→            <Button
+   604→              size="sm"
+   605→              onClick={() => {
+   606→                const toImport = documents.filter(d => selected.has((d as { id: string }).id))
+   607→                onImport(toImport)
+   608→                setSelected(new Set())
+   609→              }}
+   610→              disabled={selected.size === 0}
+   611→              className="gap-1.5"
+   612→            >
+   613→              <Upload className="h-3.5 w-3.5" />
+   614→              Importer ({selected.size})
+   615→            </Button>
+   616→          </div>
+   617→        </div>
+   618→      </CardHeader>
+   619→      <CardContent>
+   620→        <div className="flex items-center gap-2 mb-3">
+   621→          <div className="relative flex-1">
+   622→            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   623→            <Input
+   624→              placeholder="Chercher dans vos documents Mendeley..."
+   625→              value={search}
+   626→              onChange={e => setSearch(e.target.value)}
+   627→              className="pl-8 text-sm"
+   628→            />
+   629→          </div>
+   630→          <Button variant="outline" size="sm" onClick={selectAll} className="shrink-0 text-xs">
+   631→            {selected.size === documents.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+   632→          </Button>
+   633→        </div>
+   634→        <ScrollArea className="max-h-64">
+   635→          <div className="space-y-1.5 pr-2">
+   636→            {loading ? (
+   637→              <div className="py-8 text-center text-sm text-muted-foreground">Chargement des documents…</div>
+   638→            ) : filtered.length === 0 ? (
+   639→              <div className="py-8 text-center text-sm text-muted-foreground">Aucun document trouvé</div>
+   640→            ) : (
+   641→              filtered.map((doc: Record<string, unknown>) => {
+   642→                const id = doc.id as string
+   643→                const title = String(doc.title || 'Sans titre')
+   644→                const authors = (doc.authors as Array<Record<string, string>> || []).map(a => `${a.last_name || ''} ${a.first_name || ''}`).join(', ')
+   645→                const year = doc.year || ''
+   646→                const source = (doc.source as string) || (doc.journal as string) || ''
+   647→                const isSelected = selected.has(id)
+   648→                return (
+   649→                  <div
+   650→                    key={id}
+   651→                    className={`flex items-start gap-2.5 p-2.5 rounded-md border cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50 border-emerald-300' : 'hover:bg-muted/50'}`}
+   652→                    onClick={() => toggleSelect(id)}
+   653→                  >
+   654→                    <Checkbox
+   655→                      checked={isSelected}
+   656→                      onCheckedChange={() => toggleSelect(id)}
+   657→                      className="mt-0.5"
+   658→                    />
+   659→                    <div className="flex-1 min-w-0">
+   660→                      <p className="text-sm font-medium truncate">{title}</p>
+   661→                      <p className="text-xs text-muted-foreground truncate">{authors} ({year}){source ? ` — ${source}` : ''}</p>
+   662→                    </div>
+   663→                  </div>
+   664→                )
+   665→              })
+   666→            )}
+   667→          </div>
+   668→        </ScrollArea>
+   669→      </CardContent>
+   670→    </Card>
+   671→  )
+   672→}
+   673→
+   674→// ─── ReferencesTab ───────────────────────────────────────────────
+   675→function ReferencesTab() {
+   676→  const [references, setReferences] = useState<RefItem[]>([])
+   677→  const [loading, setLoading] = useState(true)
+   678→  const [mendeleyConnected, setMendeleyConnected] = useState(false)
+   679→  const [mendeleyHasClientId, setMendeleyHasClientId] = useState(false)
+   680→  const [searchQuery, setSearchQuery] = useState('')
+   681→  const [filterType, setFilterType] = useState('all')
+   682→  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null)
+   683→
+   684→  // Load references + Mendeley status
+   685→  const loadReferences = useCallback(async () => {
+   686→    setLoading(true)
+   687→    try {
+   688→      const params = new URLSearchParams()
+   689→      if (searchQuery) params.set('search', searchQuery)
+   690→      if (filterType !== 'all') params.set('type', filterType)
+   691→      const res = await fetch(`/api/references?${params}`)
+   692→      if (res.ok) setReferences(await res.json())
+   693→    } catch { /* ignore */ }
+   694→    setLoading(false)
+   695→  }, [searchQuery, filterType])
+   696→
+   697→  useEffect(() => {
+   698→    let cancelled = false
+   699→    const params = new URLSearchParams()
+   700→    if (searchQuery) params.set('search', searchQuery)
+   701→    if (filterType !== 'all') params.set('type', filterType)
+   702→    fetch(`/api/references?${params}`)
+   703→      .then(r => r.ok ? r.json() : [])
+   704→      .then(data => { if (!cancelled) setReferences(data) })
+   705→      .catch(() => { if (!cancelled) setLoading(false) })
+   706→      .finally(() => { if (!cancelled) setLoading(false) })
+   707→    return () => { cancelled = true }
+   708→  }, [searchQuery, filterType])
+   709→
+   710→  useEffect(() => {
+   711→    // Check Mendeley status
+   712→    fetch('/api/mendeley/auth')
+   713→      .then(r => r.json())
+   714→      .then(data => {
+   715→        setMendeleyConnected(data.connected || false)
+   716→        setMendeleyHasClientId(data.hasClientId || false)
+   717→      })
+   718→      .catch(() => {})
+   719→  }, [])
+   720→
+   721→  const handleConfigure = async (clientId: string, clientSecret: string, accessToken?: string) => {
+   722→    await fetch('/api/mendeley/auth', {
+   723→      method: 'POST',
+   724→      headers: { 'Content-Type': 'application/json' },
+   725→      body: JSON.stringify({ clientId, clientSecret, accessToken }),
+   726→    })
+   727→    setMendeleyHasClientId(!!clientId)
+   728→    if (accessToken) {
+   729→      setMendeleyConnected(true)
+   730→    }
+   731→  }
+   732→
+   733→  const handleConnectOAuth = async () => {
+   734→    try {
+   735→      const res = await fetch('/api/mendeley/auth')
+   736→      const data = await res.json()
+   737→      if (data.authUrl) {
+   738→        window.location.href = data.authUrl
+   739→      }
+   740→    } catch { /* ignore */ }
+   741→  }
+   742→
+   743→  const handleDisconnect = async () => {
+   744→    await fetch('/api/mendeley/disconnect', { method: 'POST' })
+   745→    setMendeleyConnected(false)
+   746→  }
+   747→
+   748→  const handleAddReference = async (data: Record<string, string>) => {
+   749→    await fetch('/api/references', {
+   750→      method: 'POST',
+   751→      headers: { 'Content-Type': 'application/json' },
+   752→      body: JSON.stringify(data),
+   753→    })
+   754→    loadReferences()
+   755→  }
+   756→
+   757→  const handleDeleteReference = async (id: string) => {
+   758→    await fetch(`/api/references?id=${id}`, { method: 'DELETE' })
+   759→    loadReferences()
+   760→  }
+   761→
+   762→  const handleImport = async (docs: unknown[]) => {
+   763→    try {
+   764→      const res = await fetch('/api/references/import-bibtex', {
+   765→        method: 'POST',
+   766→        headers: { 'Content-Type': 'application/json' },
+   767→        body: JSON.stringify({ documents: docs }),
+   768→      })
+   769→      if (res.ok) {
+   770→        const result = await res.json()
+   771→        setImportResult(result)
+   772→        setTimeout(() => setImportResult(null), 5000)
+   773→        loadReferences()
+   774→      }
+   775→    } catch { /* ignore */ }
+   776→  }
+   777→
+   778→  const handleExportBib = () => {
+   779→    fetch('/api/references/bibtex')
+   780→      .then(r => r.blob())
+   781→      .then(blob => {
+   782→        const url = URL.createObjectURL(blob)
+   783→        const a = document.createElement('a')
+   784→        a.href = url
+   785→        a.download = 'references.bib'
+   786→        a.click()
+   787→        URL.revokeObjectURL(url)
+   788→      })
+   789→  }
+   790→
+   791→  const uniqueTypes = ['all', ...Array.from(new Set(references.map(r => r.type)))]
+   792→
+   793→  return (
+   794→    <div className="space-y-6">
+   795→      {/* Mendeley Connection */}
+   796→      <MendeleyConnectionCard
+   797→        connected={mendeleyConnected}
+   798→        onRefresh={loadReferences}
+   799→        onDisconnect={handleDisconnect}
+   800→        onConfigure={handleConfigure}
+   801→        onConnectOAuth={handleConnectOAuth}
+   802→        hasClientId={mendeleyHasClientId}
+   803→      />
+   804→
+   805→      {/* Import result toast */}
+   806→      {importResult && (
+   807→        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-800">
+   808→          <CheckCircle2 className="h-4 w-4 shrink-0" />
+   809→          <span>{importResult.imported} référence{importResult.imported > 1 ? 's' : ''} importée{importResult.imported > 1 ? 's' : ''} depuis Mendeley</span>
+   810→          {importResult.skipped > 0 && (
+   811→            <span className="text-muted-foreground">({importResult.skipped} déjà présente{importResult.skipped > 1 ? 's' : ''})</span>
+   812→          )}
+   813→        </div>
+   814→      )}
+   815→
+   816→      {/* Mendeley Import Panel */}
+   817→      <MendeleyImportPanel connected={mendeleyConnected} onImport={handleImport} />
+   818→
+   819→      <Separator />
+   820→
+   821→      {/* Local References */}
+   822→      <Card>
+   823→        <CardHeader>
+   824→          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+   825→            <div>
+   826→              <CardTitle className="text-base flex items-center gap-2">
+   827→                <Library className="h-5 w-5" />
+   828→                Mes références
+   829→                <Badge variant="secondary" className="text-xs">{references.length}</Badge>
+   830→              </CardTitle>
+   831→              <CardDescription className="text-sm mt-1">
+   832→                Gérez vos références et exportez-les en BibTeX pour LaTeX
+   833→              </CardDescription>
+   834→            </div>
+   835→            <div className="flex items-center gap-2 flex-wrap">
+   836→              <AddReferenceDialog onAdd={handleAddReference} />
+   837→              <Button variant="outline" size="sm" onClick={handleExportBib} disabled={references.length === 0} className="gap-1.5">
+   838→                <Download className="h-3.5 w-3.5" />
+   839→                Exporter .bib
+   840→              </Button>
+   841→            </div>
+   842→          </div>
+   843→        </CardHeader>
+   844→        <CardContent>
+   845→          {/* Filters */}
+   846→          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
+   847→            <div className="relative flex-1">
+   848→              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+   849→              <Input
+   850→                placeholder="Rechercher par titre, auteur, journal…"
+   851→                value={searchQuery}
+   852→                onChange={e => setSearchQuery(e.target.value)}
+   853→                className="pl-8 text-sm"
+   854→              />
+   855→            </div>
+   856→            <Select value={filterType} onValueChange={setFilterType}>
+   857→              <SelectTrigger className="w-full sm:w-40 text-sm">
+   858→                <SelectValue placeholder="Type" />
+   859→              </SelectTrigger>
+   860→              <SelectContent>
+   861→                {uniqueTypes.map(t => (
+   862→                  <SelectItem key={t} value={t}>
+   863→                    {t === 'all' ? 'Tous les types' : t.charAt(0).toUpperCase() + t.slice(1)}
+   864→                  </SelectItem>
+   865→                ))}
+   866→              </SelectContent>
+   867→            </Select>
+   868→          </div>
+   869→
+   870→          {/* Reference list */}
+   871→          <ScrollArea className="max-h-96">
+   872→            <div className="space-y-2 pr-2">
+   873→              {loading ? (
+   874→                <div className="py-12 text-center text-sm text-muted-foreground">Chargement…</div>
+   875→              ) : references.length === 0 ? (
+   876→                <div className="py-12 text-center space-y-2">
+   877→                  <BookMarked className="h-10 w-10 text-muted-foreground mx-auto" />
+   878→                  <p className="text-sm text-muted-foreground">Aucune référence pour le moment</p>
+   879→                  <p className="text-xs text-muted-foreground">
+   880→                    Ajoutez-en manuellement ou importez depuis Mendeley
+   881→                  </p>
+   882→                </div>
+   883→              ) : (
+   884→                references.map(item => (
+   885→                  <ReferenceRow key={item.id} item={item} onDelete={handleDeleteReference} />
+   886→                ))
+   887→              )}
+   888→            </div>
+   889→          </ScrollArea>
+   890→        </CardContent>
+   891→      </Card>
+   892→
+   893→      {/* BibTeX preview info */}
+   894→      <Card className="bg-muted/30">
+   895→        <CardContent className="py-4">
+   896→          <div className="flex items-start gap-3">
+   897→            <FileCode2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+   898→            <div>
+   899→              <p className="text-sm font-medium">Intégration LaTeX</p>
+   900→              <p className="text-xs text-muted-foreground mt-1">
+   901→                Exportez vos références en fichier <code className="bg-muted px-1 rounded text-xs">.bib</code> et
+   902→                placez-le à côté de votre fichier <code className="bg-muted px-1 rounded text-xs">.tex</code>.
+   903→                Le template LaTeX généré utilise déjà <code className="bg-muted px-1 rounded text-xs">\\addbibresource{references.bib}</code> pour
+   904→                inclure automatiquement ces références.
+   905→              </p>
+   906→            </div>
+   907→          </div>
+   908→        </CardContent>
+   909→      </Card>
+   910→
+   911→      {/* Ressources en ligne pour thèses */}
+   912→      <Card className="border-amber-200">
+   913→        <CardHeader>
+   914→          <CardTitle className="text-base flex items-center gap-2">
+   915→            <Globe className="h-5 w-5 text-amber-600" />
+   916→            15 sites gratuits pour télécharger des thèses
+   917→          </CardTitle>
+   918→          <CardDescription>Boostez votre recherche. Accédez à des milliers de thèses en accès libre.</CardDescription>
+   919→        </CardHeader>
+   920→        <CardContent>
+   921→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+   922→            {thesisWebsites.map((site) => (
+   923→              <a
+   924→                key={site.id}
+   925→                href={site.url}
+   926→                target="_blank"
+   927→                rel="noopener noreferrer"
+   928→                className="rounded-lg border p-3 space-y-1 hover:bg-muted/50 transition-colors group"
+   929→              >
+   930→                <div className="flex items-center gap-2">
+   931→                  <p className="text-sm font-medium group-hover:text-sky-700 transition-colors">{site.name}</p>
+   932→                  <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+   933→                </div>
+   934→                <p className="text-xs text-muted-foreground">{site.description}</p>
+   935→                <Badge variant="outline" className="text-[10px]">{site.type}</Badge>
+   936→              </a>
+   937→            ))}
+   938→          </div>
+   939→        </CardContent>
+   940→      </Card>
+   941→    </div>
+   942→  )
+   943→}
+   944→
+   945→// ─── ThesisPlanTab ────────────────────────────────────────────────
+   946→interface Chapter {
+   947→  id: string
+   948→  title: string
+   949→  words: number
+   950→  pages: number
+   951→  notes: string
+   952→  expanded: boolean
+   953→}
+   954→
+   955→const DEFAULT_CHAPTERS: Chapter[] = [
+   956→  { id: 'cover', title: 'Page de couverture', words: 0, pages: 1, notes: '', expanded: false },
+   957→  { id: 'ack', title: 'Remerciements', words: 0, pages: 1, notes: '', expanded: false },
+   958→  { id: 'abstract', title: 'Résumé (Français / Anglais)', words: 0, pages: 2, notes: '', expanded: false },
+   959→  { id: 'intro', title: 'Introduction générale', words: 0, pages: 0, notes: '', expanded: false },
+   960→  { id: 'lit', title: 'Revue de la littérature (Chapitre I)', words: 0, pages: 0, notes: '', expanded: false },
+   961→  { id: 'context', title: 'Contexte et cadre méthodologique (Chapitre II)', words: 0, pages: 0, notes: '', expanded: false },
+   962→  { id: 'results', title: 'Résultats et analyse (Chapitre III)', words: 0, pages: 0, notes: '', expanded: false },
+   963→  { id: 'discussion', title: 'Discussion (Chapitre IV)', words: 0, pages: 0, notes: '', expanded: false },
+   964→  { id: 'conclusion', title: 'Conclusion générale', words: 0, pages: 0, notes: '', expanded: false },
+   965→  { id: 'biblio', title: 'Références bibliographiques', words: 0, pages: 0, notes: '', expanded: false },
+   966→  { id: 'annexes', title: 'Annexes', words: 0, pages: 0, notes: '', expanded: false },
+   967→]
+   968→
+   969→function ThesisPlanTab() {
+   970→  const [chapters, setChapters] = useState<Chapter[]>(DEFAULT_CHAPTERS)
+   971→  const [editingId, setEditingId] = useState<string | null>(null)
+   972→  const [editingField, setEditingField] = useState<'words' | 'pages' | 'title' | 'notes' | null>(null)
+   973→  const [editValue, setEditValue] = useState('')
+   974→
+   975→  const totalWords = chapters.reduce((a, c) => a + c.words, 0)
+   976→  const totalPages = chapters.reduce((a, c) => a + c.pages, 0)
+   977→  const startedCount = chapters.filter(c => c.words > 0 || c.pages > 0).length
+   978→
+   979→  function startEdit(id: string, field: 'words' | 'pages' | 'title' | 'notes', currentValue: string | number) {
+   980→    setEditingId(id)
+   981→    setEditingField(field)
+   982→    setEditValue(String(currentValue))
+   983→  }
+   984→
+   985→  function commitEdit() {
+   986→    if (!editingId || !editingField) return
+   987→    setChapters(prev =>
+   988→      prev.map(ch => {
+   989→        if (ch.id !== editingId) return ch
+   990→        const val = editingField === 'title' || editingField === 'notes'
+   991→          ? editValue
+   992→          : Math.max(0, parseInt(editValue) || 0)
+   993→        return { ...ch, [editingField]: val }
+   994→      })
+   995→    )
+   996→    setEditingId(null)
+   997→    setEditingField(null)
+   998→    setEditValue('')
+   999→  }
+  1000→
+  1001→  function cancelEdit() {
+  1002→    setEditingId(null)
+  1003→    setEditingField(null)
+  1004→    setEditValue('')
+  1005→  }
+  1006→
+  1007→  function toggleExpand(id: string) {
+  1008→    setChapters(prev => prev.map(ch => ch.id === id ? { ...ch, expanded: !ch.expanded } : ch))
+  1009→  }
+  1010→
+  1011→  return (
+  1012→    <div className="space-y-6">
+  1013→      {/* Header stats */}
+  1014→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  1015→        <Card>
+  1016→          <CardHeader className="pb-2">
+  1017→            <CardDescription>Mots rédigés</CardDescription>
+  1018→            <CardTitle className="text-3xl font-bold tabular-nums">
+  1019→              {totalWords.toLocaleString()}
+  1020→            </CardTitle>
+  1021→          </CardHeader>
+  1022→          <CardContent>
+  1023→            <p className="text-xs text-muted-foreground mt-1">
+  1024→              {startedCount} / {chapters.length} chapitres commencés
+  1025→            </p>
+  1026→          </CardContent>
+  1027→        </Card>
+  1028→        <Card>
+  1029→          <CardHeader className="pb-2">
+  1030→            <CardDescription>Pages estimées</CardDescription>
+  1031→            <CardTitle className="text-3xl font-bold tabular-nums">
+  1032→              {totalPages}
+  1033→            </CardTitle>
+  1034→          </CardHeader>
+  1035→          <CardContent>
+  1036→            <p className="text-xs text-muted-foreground mt-1">
+  1037→              ≈ {totalWords > 0 ? Math.round(totalWords / 250) : '—'} pages (base 250 mots/page)
+  1038→            </p>
+  1039→          </CardContent>
+  1040→        </Card>
+  1041→        <Card>
+  1042→          <CardHeader className="pb-2">
+  1043→            <CardDescription>Structure IMRaD</CardDescription>
+  1044→            <CardTitle className="text-3xl font-bold flex items-center gap-2">
+  1045→              <GraduationCap className="h-8 w-8 text-emerald-600" />
+  1046→              11 chapitres
+  1047→            </CardTitle>
+  1048→          </CardHeader>
+  1049→          <CardContent>
+  1050→            <p className="text-xs text-muted-foreground">
+  1051→              Squelette IMRaD — Université Constantine 3
+  1052→            </p>
+  1053→          </CardContent>
+  1054→        </Card>
+  1055→      </div>
+  1056→
+  1057→      {/* Chapter list */}
+  1058→      <Card>
+  1059→        <CardHeader>
+  1060→          <div className="flex items-start justify-between gap-4">
+  1061→            <div>
+  1062→              <CardTitle>Chapitres de la thèse</CardTitle>
+  1063→              <CardDescription className="mt-1">
+  1064→                Cliquez sur les valeurs pour les modifier — la longueur est libre
+  1065→              </CardDescription>
+  1066→            </div>
+  1067→            <p className="text-xs text-muted-foreground shrink-0 text-right leading-relaxed">
+  1068→              Cliquez sur <strong>titre</strong>, <strong>mots</strong> ou <strong>pages</strong> pour éditer.&#10;
+  1069→              Entrée pour valider, Échap pour annuler.
+  1070→            </p>
+  1071→          </div>
+  1072→        </CardHeader>
+  1073→        <CardContent>
+  1074→          <div className="space-y-2">
+  1075→            {chapters.map((ch) => {
+  1076→              const isEditingThis = editingId === ch.id
+  1077→              const isStarted = ch.words > 0 || ch.pages > 0
+  1078→              return (
+  1079→                <div key={ch.id} className={`rounded-lg border transition-colors ${isStarted ? 'border-emerald-200 bg-emerald-50/30' : 'hover:bg-muted/50'}`}>
+  1080→                  {/* Main row */}
+  1081→                  <div
+  1082→                    className="flex items-center gap-3 p-3 cursor-pointer select-none"
+  1083→                    onClick={() => toggleExpand(ch.id)}
+  1084→                    onKeyDown={(e) => e.key === 'Enter' && toggleExpand(ch.id)}
+  1085→                    role="button"
+  1086→                    tabIndex={0}
+  1087→                  >
+  1088→                    <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${ch.expanded ? 'rotate-90' : ''}`} />
+  1089→                    <div className="flex-1 min-w-0">
+  1090→                      <div className="flex items-center gap-2">
+  1091→                        {isEditingThis && editingField === 'title' ? (
+  1092→                          <input
+  1093→                            className="font-medium text-sm bg-white border rounded px-2 py-0.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+  1094→                            value={editValue}
+  1095→                            onChange={(e) => setEditValue(e.target.value)}
+  1096→                            onBlur={commitEdit}
+  1097→                            onKeyDown={(e) => {
+  1098→                              if (e.key === 'Enter') commitEdit()
+  1099→                              if (e.key === 'Escape') cancelEdit()
+  1100→                              e.stopPropagation()
+  1101→                            }}
+  1102→                            autoFocus
+  1103→                            onClick={(e) => e.stopPropagation()}
+  1104→                          />
+  1105→                        ) : (
+  1106→                          <span className="font-medium text-sm truncate">{ch.title}</span>
+  1107→                        )}
+  1108→                        {isStarted && (
+  1109→                          <Badge variant="secondary" className="text-xs shrink-0 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+  1110→                            En cours
+  1111→                          </Badge>
+  1112→                        )}
+  1113→                      </div>
+  1114→                    </div>
+  1115→                    {/* Words */}
+  1116→                    <div
+  1117→                      className="shrink-0 text-right min-w-[90px]"
+  1118→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'words', ch.words) }}
+  1119→                    >
+  1120→                      {isEditingThis && editingField === 'words' ? (
+  1121→                        <input
+  1122→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1123→                          value={editValue}
+  1124→                          onChange={(e) => setEditValue(e.target.value)}
+  1125→                          onBlur={commitEdit}
+  1126→                          onKeyDown={(e) => {
+  1127→                            if (e.key === 'Enter') commitEdit()
+  1128→                            if (e.key === 'Escape') cancelEdit()
+  1129→                            e.stopPropagation()
+  1130→                          }}
+  1131→                          autoFocus
+  1132→                        />
+  1133→                      ) : (
+  1134→                        <span className={`text-xs tabular-nums ${ch.words > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+  1135→                          {ch.words > 0 ? `${ch.words.toLocaleString()} mots` : '— mots'}
+  1136→                        </span>
+  1137→                      )}
+  1138→                    </div>
+  1139→                    {/* Pages */}
+  1140→                    <div
+  1141→                      className="shrink-0 text-right min-w-[70px]"
+  1142→                      onClick={(e) => { e.stopPropagation(); startEdit(ch.id, 'pages', ch.pages) }}
+  1143→                    >
+  1144→                      {isEditingThis && editingField === 'pages' ? (
+  1145→                        <input
+  1146→                          className="text-xs bg-white border rounded px-1.5 py-0.5 w-full text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1147→                          value={editValue}
+  1148→                          onChange={(e) => setEditValue(e.target.value)}
+  1149→                          onBlur={commitEdit}
+  1150→                          onKeyDown={(e) => {
+  1151→                            if (e.key === 'Enter') commitEdit()
+  1152→                            if (e.key === 'Escape') cancelEdit()
+  1153→                            e.stopPropagation()
+  1154→                          }}
+  1155→                          autoFocus
+  1156→                        />
+  1157→                      ) : (
+  1158→                        <span className={`text-xs tabular-nums ${ch.pages > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+  1159→                          {ch.pages > 0 ? `${ch.pages} p.` : '— p.'}
+  1160→                        </span>
+  1161→                      )}
+  1162→                    </div>
+  1163→                  </div>
+  1164→
+  1165→                  {/* Expanded section */}
+  1166→                  {ch.expanded && (
+  1167→                    <div className="px-3 pb-3 pl-10 space-y-3">
+  1168→                      <div className="h-px bg-border" />
+  1169→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  1170→                        {/* Edit words */}
+  1171→                        <div
+  1172→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+  1173→                          onClick={() => startEdit(ch.id, 'words', ch.words)}
+  1174→                        >
+  1175→                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+  1176→                          <span className="text-xs text-muted-foreground">Mots :</span>
+  1177→                          {isEditingThis && editingField === 'words' ? (
+  1178→                            <input
+  1179→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1180→                              value={editValue}
+  1181→                              onChange={(e) => setEditValue(e.target.value)}
+  1182→                              onBlur={commitEdit}
+  1183→                              onKeyDown={(e) => {
+  1184→                                if (e.key === 'Enter') commitEdit()
+  1185→                                if (e.key === 'Escape') cancelEdit()
+  1186→                              }}
+  1187→                              autoFocus
+  1188→                            />
+  1189→                          ) : (
+  1190→                            <span className="text-sm font-medium tabular-nums">
+  1191→                              {ch.words > 0 ? ch.words.toLocaleString() : 'Non défini'}
+  1192→                            </span>
+  1193→                          )}
+  1194→                        </div>
+  1195→                        {/* Edit pages */}
+  1196→                        <div
+  1197→                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
+  1198→                          onClick={() => startEdit(ch.id, 'pages', ch.pages)}
+  1199→                        >
+  1200→                          <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+  1201→                          <span className="text-xs text-muted-foreground">Pages :</span>
+  1202→                          {isEditingThis && editingField === 'pages' ? (
+  1203→                            <input
+  1204→                              className="text-sm bg-white border rounded px-2 py-0.5 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 tabular-nums"
+  1205→                              value={editValue}
+  1206→                              onChange={(e) => setEditValue(e.target.value)}
+  1207→                              onBlur={commitEdit}
+  1208→                              onKeyDown={(e) => {
+  1209→                                if (e.key === 'Enter') commitEdit()
+  1210→                                if (e.key === 'Escape') cancelEdit()
+  1211→                              }}
+  1212→                              autoFocus
+  1213→                            />
+  1214→                          ) : (
+  1215→                            <span className="text-sm font-medium tabular-nums">
+  1216→                              {ch.pages > 0 ? ch.pages : 'Non défini'}
+  1217→                            </span>
+  1218→                          )}
+  1219→                        </div>
+  1220→                      </div>
+  1221→                      {/* Notes */}
+  1222→                      <div className="flex items-start gap-2">
+  1223→                        <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+  1224→                        <span className="text-xs text-muted-foreground shrink-0 mt-0.5">Notes :</span>
+  1225→                        {isEditingThis && editingField === 'notes' ? (
+  1226→                          <textarea
+  1227→                            className="text-xs bg-white border rounded px-2 py-1 flex-1 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[60px]"
+  1228→                            value={editValue}
+  1229→                            onChange={(e) => setEditValue(e.target.value)}
+  1230→                            onBlur={commitEdit}
+  1231→                            onKeyDown={(e) => {
+  1232→                              if (e.key === 'Escape') cancelEdit()
+  1233→                              if (e.key === 'Enter' && e.metaKey) commitEdit()
+  1234→                            }}
+  1235→                            autoFocus
+  1236→                            rows={2}
+  1237→                          />
+  1238→                        ) : (
+  1239→                          <div
+  1240→                            className="flex-1 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 min-h-[32px] border border-dashed border-border"
+  1241→                            onClick={() => startEdit(ch.id, 'notes', ch.notes)}
+  1242→                          >
+  1243→                            {ch.notes ? (
+  1244→                              <span className="text-sm text-foreground">{ch.notes}</span>
+  1245→                            ) : (
+  1246→                              <span className="text-xs text-muted-foreground italic">
+  1247→                                Cliquer pour ajouter des remarques…
+  1248→                              </span>
+  1249→                            )}
+  1250→                          </div>
+  1251→                        )}
+  1252→                      </div>
+  1253→                    </div>
+  1254→                  )}
+  1255→                </div>
+  1256→              )
+  1257→            })}
+  1258→          </div>
+  1259→        </CardContent>
+  1260→      </Card>
+  1261→
+  1262→      <LatexExportSection chapters={chapters} />
+  1263→    </div>
+  1264→  )
+  1265→}
+  1266→
+  1267→// ─── LatexExportSection ───────────────────────────────────────────
+  1268→function LatexExportSection({ chapters }: { chapters: { id: string; title: string; words: number; pages: number; notes: string }[] }) {
+  1269→  const [open, setOpen] = useState(false)
+  1270→  const [generating, setGenerating] = useState(false)
+  1271→  const [meta, setMeta] = useState<ThesisData>(DEFAULT_THESIS_DATA)
+  1272→  const [exportDone, setExportDone] = useState(false)
+  1273→
+  1274→  function handleExport() {
+  1275→    setGenerating(true)
+  1276→    const payload: ThesisData = {
+  1277→      ...meta,
+  1278→      chapters: chapters.map(ch => ({
+  1279→        title: ch.title,
+  1280→        content: `\\TODO{Rédiger ${ch.title}}`,
+  1281→      })),
+  1282→    }
+  1283→
+  1284→    fetch('/api/generate-latex', {
+  1285→      method: 'POST',
+  1286→      headers: { 'Content-Type': 'application/json' },
+  1287→      body: JSON.stringify(payload),
+  1288→    })
+  1289→      .then(res => res.blob())
+  1290→      .then(blob => {
+  1291→        const url = URL.createObjectURL(blob)
+  1292→        const a = document.createElement('a')
+  1293→        a.href = url
+  1294→        a.download = 'these.tex'
+  1295→        a.click()
+  1296→        URL.revokeObjectURL(url)
+  1297→        setExportDone(true)
+  1298→        setTimeout(() => setExportDone(false), 3000)
+  1299→      })
+  1300→      .catch(() => alert('Erreur lors de la génération du fichier LaTeX.'))
+  1301→      .finally(() => setGenerating(false))
+  1302→  }
+  1303→
+  1304→  return (
+  1305→    <Card className="border-emerald-200">
+  1306→      <CardHeader className="pb-3">
+  1307→        <div className="flex items-center justify-between">
+  1308→          <div className="flex items-center gap-3">
+  1309→            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 shrink-0">
+  1310→              <FileCode2 className="h-5 w-5 text-emerald-700" />
+  1311→            </div>
+  1312→            <div>
+  1313→              <CardTitle className="text-base">Exporter en LaTeX</CardTitle>
+  1314→              <CardDescription className="text-sm">
+  1315→                Générez un fichier .tex prêt à compiler (Overleaf, Texmaker…)
+  1316→              </CardDescription>
+  1317→            </div>
+  1318→          </div>
+  1319→          <Dialog open={open} onOpenChange={setOpen}>
+  1320→            <DialogTrigger asChild>
+  1321→              <Button className="shrink-0 gap-2">
+  1322→                {exportDone ? <CheckCircle2 className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+  1323→                {exportDone ? 'Téléchargé !' : 'Générer .tex'}
+  1324→              </Button>
+  1325→            </DialogTrigger>
+  1326→            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+  1327→              <DialogHeader>
+  1328→                <DialogTitle className="flex items-center gap-2">
+  1329→                  <FileCode2 className="h-5 w-5 text-emerald-600" />
+  1330→                  Métadonnées de la thèse
+  1331→                </DialogTitle>
+  1332→                <DialogDescription>
+  1333→                  Ces informations apparaîtront sur la page de garde et dans les métadonnées PDF.
+  1334→                </DialogDescription>
+  1335→              </DialogHeader>
+  1336→              <div className="grid gap-4 py-4">
+  1337→                <div className="grid gap-2">
+  1338→                  <Label htmlFor="title">Titre de la thèse</Label>
+  1339→                  <Input id="title" value={meta.title} onChange={e => setMeta(p => ({ ...p, title: e.target.value }))} />
+  1340→                </div>
+  1341→                <div className="grid grid-cols-2 gap-4">
+  1342→                  <div className="grid gap-2">
+  1343→                    <Label htmlFor="author">Nom du doctorant</Label>
+  1344→                    <Input id="author" value={meta.author} onChange={e => setMeta(p => ({ ...p, author: e.target.value }))} />
+  1345→                  </div>
+  1346→                  <div className="grid gap-2">
+  1347→                    <Label htmlFor="date">Année de soutenance</Label>
+  1348→                    <Input id="date" value={meta.date} onChange={e => setMeta(p => ({ ...p, date: e.target.value }))} />
+  1349→                  </div>
+  1350→                </div>
+  1351→                <div className="grid grid-cols-2 gap-4">
+  1352→                  <div className="grid gap-2">
+  1353→                    <Label htmlFor="supervisor">Directeur de thèse</Label>
+  1354→                    <Input id="supervisor" value={meta.supervisor} onChange={e => setMeta(p => ({ ...p, supervisor: e.target.value }))} />
+  1355→                  </div>
+  1356→                  <div className="grid gap-2">
+  1357→                    <Label htmlFor="coSupervisor">Co-directeur (optionnel)</Label>
+  1358→                    <Input id="coSupervisor" value={meta.coSupervisor || ''} onChange={e => setMeta(p => ({ ...p, coSupervisor: e.target.value }))} />
+  1359→                  </div>
+  1360→                </div>
+  1361→                <div className="grid gap-2">
+  1362→                  <Label htmlFor="speciality">Spécialité</Label>
+  1363→                  <Input id="speciality" value={meta.speciality} onChange={e => setMeta(p => ({ ...p, speciality: e.target.value }))} />
+  1364→                </div>
+  1365→                <div className="grid gap-2">
+  1366→                  <Label htmlFor="laboratory">Laboratoire de recherche</Label>
+  1367→                  <Input id="laboratory" value={meta.laboratory} onChange={e => setMeta(p => ({ ...p, laboratory: e.target.value }))} />
+  1368→                </div>
+  1369→                <Separator />
+  1370→                <div className="grid gap-2">
+  1371→                  <Label htmlFor="abstractFr">Résumé (français)</Label>
+  1372→                  <Textarea id="abstractFr" rows={4} value={meta.abstractFr} onChange={e => setMeta(p => ({ ...p, abstractFr: e.target.value }))} />
+  1373→                </div>
+  1374→                <div className="grid gap-2">
+  1375→                  <Label htmlFor="keywordsFr">Mots-clés (français, séparés par des virgules)</Label>
+  1376→                  <Input id="keywordsFr" value={meta.keywordsFr} onChange={e => setMeta(p => ({ ...p, keywordsFr: e.target.value }))} />
+  1377→                </div>
+  1378→                <div className="grid gap-2">
+  1379→                  <Label htmlFor="abstractEn">Abstract (anglais)</Label>
+  1380→                  <Textarea id="abstractEn" rows={4} value={meta.abstractEn} onChange={e => setMeta(p => ({ ...p, abstractEn: e.target.value }))} />
+  1381→                </div>
+  1382→                <div className="grid gap-2">
+  1383→                  <Label htmlFor="keywordsEn">Keywords (anglais, séparés par des virgules)</Label>
+  1384→                  <Input id="keywordsEn" value={meta.keywordsEn} onChange={e => setMeta(p => ({ ...p, keywordsEn: e.target.value }))} />
+  1385→                </div>
+  1386→                <div className="grid gap-2">
+  1387→                  <Label htmlFor="dedication">Dédicace (optionnel)</Label>
+  1388→                  <Textarea id="dedication" rows={2} value={meta.dedication || ''} onChange={e => setMeta(p => ({ ...p, dedication: e.target.value }))} />
+  1389→                </div>
+  1390→                <div className="grid gap-2">
+  1391→                  <Label htmlFor="ack">Remerciements</Label>
+  1392→                  <Textarea id="ack" rows={3} value={meta.acknowledgements || ''} onChange={e => setMeta(p => ({ ...p, acknowledgements: e.target.value }))} />
+  1393→                </div>
+  1394→              </div>
+  1395→              <DialogFooter className="gap-2 sm:gap-0">
+  1396→                <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+  1397→                <Button onClick={handleExport} disabled={generating} className="gap-2">
+  1398→                  {generating ? 'Génération…' : <><Download className="h-4 w-4" /> Télécharger these.tex</>}
+  1399→                </Button>
+  1400→              </DialogFooter>
+  1401→            </DialogContent>
+  1402→          </Dialog>
+  1403→        </div>
+  1404→      </CardHeader>
+  1405→      <CardContent className="pt-0">
+  1406→        <p className="text-xs text-muted-foreground">
+  1407→          Le fichier généré inclut : page de garde, table des matières, chapitres structurés (IMRaD),
+  1408→          zones TODO rouges à compléter, bibliographie BibLaTeX, et annexes.
+  1409→          Compilez avec <strong>xelatex → biber → xelatex × 2</strong>.
+  1410→        </p>
+  1411→      </CardContent>
+  1412→    </Card>
+  1413→  )
+  1414→}
+  1415→
+  1416→// ─── Sub-components for ArticlesTab ───────────────────────────────
+  1417→
+  1418→function StepIcon({ name, className }: { name: string; className?: string }) {
+  1419→  return createElement(getIcon(name), { className })
+  1420→}
+  1421→
+  1422→function StepCard({ step, index }: { step: typeof writingSteps[0]; index: number }) {
+  1423→  return (
+  1424→    <Card className="overflow-hidden">
+  1425→      <CardHeader className="pb-3">
+  1426→        <div className="flex items-start gap-3">
+  1427→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
+  1428→            <StepIcon name={step.icon} className="h-5 w-5" />
+  1429→          </div>
+  1430→          <div className="flex-1 min-w-0">
+  1431→            <div className="flex items-center gap-2">
+  1432→              <Badge variant="outline" className="text-xs shrink-0">Étape {index + 1}</Badge>
+  1433→            </div>
+  1434→            <CardTitle className="text-base mt-1">{step.title}</CardTitle>
+  1435→            <CardDescription className="text-sm mt-1">{step.shortDesc}</CardDescription>
+  1436→          </div>
+  1437→        </div>
+  1438→      </CardHeader>
+  1439→      <CardContent className="pt-0 space-y-4">
+  1440→        {/* Tips */}
+  1441→        <div>
+  1442→          <div className="flex items-center gap-2 mb-2">
+  1443→            <Lightbulb className="h-4 w-4 text-amber-500" />
+  1444→            <span className="text-sm font-semibold text-amber-700">Conseils</span>
+  1445→          </div>
+  1446→          <ul className="space-y-1.5">
+  1447→            {step.tips.map((tip, i) => (
+  1448→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1449→                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+  1450→                <span>{tip}</span>
+  1451→              </li>
+  1452→            ))}
+  1453→          </ul>
+  1454→        </div>
+  1455→        {/* Pitfalls */}
+  1456→        <div>
+  1457→          <div className="flex items-center gap-2 mb-2">
+  1458→            <AlertTriangle className="h-4 w-4 text-red-500" />
+  1459→            <span className="text-sm font-semibold text-red-600">Pièges à éviter</span>
+  1460→          </div>
+  1461→          <ul className="space-y-1.5">
+  1462→            {step.pitfalls.map((p, i) => (
+  1463→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1464→                <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+  1465→                <span>{p}</span>
+  1466→              </li>
+  1467→            ))}
+  1468→          </ul>
+  1469→        </div>
+  1470→      </CardContent>
+  1471→    </Card>
+  1472→  )
+  1473→}
+  1474→
+  1475→function SectionGuideCard({ guide }: { guide: typeof sectionGuides[0] }) {
+  1476→  return (
+  1477→    <Card>
+  1478→      <CardHeader className="pb-3">
+  1479→        <div className="flex items-center gap-3">
+  1480→          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-sky-100 text-sky-700 shrink-0">
+  1481→            <StepIcon name={guide.icon} className="h-5 w-5" />
+  1482→          </div>
+  1483→          <div className="flex-1">
+  1484→            <CardTitle className="text-base">{guide.label}</CardTitle>
+  1485→            {guide.wordCount && (
+  1486→              <Badge variant="secondary" className="mt-1 text-xs">{guide.wordCount}</Badge>
+  1487→            )}
+  1488→          </div>
+  1489→        </div>
+  1490→        <CardDescription className="mt-2 text-sm">{guide.description}</CardDescription>
+  1491→      </CardHeader>
+  1492→      <CardContent className="pt-0 space-y-3">
+  1493→        <div>
+  1494→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Structure attendue</span>
+  1495→          <ol className="mt-2 space-y-1">
+  1496→            {guide.structure.map((s, i) => (
+  1497→              <li key={i} className="flex items-start gap-2 text-sm">
+  1498→                <span className="flex items-center justify-center h-5 w-5 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0 mt-0.5">
+  1499→                  {i + 1}
+  1500→                </span>
+  1501→                <span className="text-muted-foreground">{s}</span>
+  1502→              </li>
+  1503→            ))}
+  1504→          </ol>
+  1505→        </div>
+  1506→        <Separator />
+  1507→        <div>
+  1508→          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Conseils</span>
+  1509→          <ul className="mt-2 space-y-1">
+  1510→            {guide.tips.map((t, i) => (
+  1511→              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1512→                <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sky-500" />
+  1513→                <span>{t}</span>
+  1514→              </li>
+  1515→            ))}
+  1516→          </ul>
+  1517→        </div>
+  1518→        {guide.example && (
+  1519→          <>
+  1520→            <Separator />
+  1521→            <div>
+  1522→              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Exemple</span>
+  1523→              <p className="mt-2 text-sm italic text-muted-foreground bg-muted/50 rounded-md p-3">
+  1524→                {guide.example}
+  1525→              </p>
+  1526→            </div>
+  1527→          </>
+  1528→        )}
+  1529→      </CardContent>
+  1530→    </Card>
+  1531→  )
+  1532→}
+  1533→
+  1534→function ChecklistSection() {
+  1535→  const [checked, setChecked] = useState<Record<string, boolean>>({})
+  1536→
+  1537→  const toggle = (key: string) => {
+  1538→    setChecked(prev => ({ ...prev, [key]: !prev[key] }))
+  1539→  }
+  1540→
+  1541→  const totalItems = submissionChecklist.reduce((a, c) => a + c.items.length, 0)
+  1542→  const checkedCount = Object.values(checked).filter(Boolean).length
+  1543→
+  1544→  return (
+  1545→    <Card>
+  1546→      <CardHeader>
+  1547→        <div className="flex items-center justify-between">
+  1548→          <div>
+  1549→            <CardTitle className="text-base">Checklist de soumission</CardTitle>
+  1550→            <CardDescription className="text-sm mt-1">
+  1551→              {checkedCount} / {totalItems} étapes complétées
+  1552→            </CardDescription>
+  1553→          </div>
+  1554→          <Badge variant={checkedCount === totalItems ? 'default' : 'secondary'} className="shrink-0">
+  1555→            {Math.round((checkedCount / totalItems) * 100)}%
+  1556→          </Badge>
+  1557→        </div>
+  1558→        <Progress value={(checkedCount / totalItems) * 100} className="h-1.5" />
+  1559→      </CardHeader>
+  1560→      <CardContent>
+  1561→        <Accordion type="multiple" className="w-full">
+  1562→          {submissionChecklist.map((section) => (
+  1563→            <AccordionItem key={section.category} value={section.category}>
+  1564→              <AccordionTrigger className="text-sm font-semibold">
+  1565→                {section.category}
+  1566→              </AccordionTrigger>
+  1567→              <AccordionContent>
+  1568→                <div className="space-y-2 pt-1">
+  1569→                  {section.items.map((item) => {
+  1570→                    const key = `${section.category}-${item}`
+  1571→                    return (
+  1572→                      <label
+  1573→                        key={key}
+  1574→                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+  1575→                      >
+  1576→                        <Checkbox
+  1577→                          checked={checked[key] || false}
+  1578→                          onCheckedChange={() => toggle(key)}
+  1579→                        />
+  1580→                        <span className={`text-sm ${checked[key] ? 'line-through text-muted-foreground' : ''}`}>
+  1581→                          {item}
+  1582→                        </span>
+  1583→                      </label>
+  1584→                    )
+  1585→                  })}
+  1586→                </div>
+  1587→              </AccordionContent>
+  1588→            </AccordionItem>
+  1589→          ))}
+  1590→        </Accordion>
+  1591→      </CardContent>
+  1592→    </Card>
+  1593→  )
+  1594→}
+  1595→
+  1596→function MistakesSection() {
+  1597→  return (
+  1598→    <Card>
+  1599→      <CardHeader>
+  1600→        <CardTitle className="text-base flex items-center gap-2">
+  1601→          <AlertTriangle className="h-5 w-5 text-red-500" />
+  1602→          Erreurs fréquentes
+  1603→        </CardTitle>
+  1604→        <CardDescription className="text-sm">Les pièges les plus courants et comment les éviter</CardDescription>
+  1605→      </CardHeader>
+  1606→      <CardContent>
+  1607→        <div className="space-y-4">
+  1608→          {commonMistakes.map((m, i) => (
+  1609→            <div key={i} className="border rounded-lg p-4 space-y-2">
+  1610→              <div className="flex items-start gap-2">
+  1611→                <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+  1612→                <span className="text-sm font-medium">{m.mistake}</span>
+  1613→              </div>
+  1614→              <p className="text-xs text-red-600 bg-red-50 rounded px-3 py-1.5 ml-6">
+  1615→                ⚠️ {m.consequence}
+  1616→              </p>
+  1617→              <div className="flex items-start gap-2 ml-6">
+  1618→                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+  1619→                <p className="text-sm text-emerald-700">{m.fix}</p>
+  1620→              </div>
+  1621→            </div>
+  1622→          ))}
+  1623→        </div>
+  1624→      </CardContent>
+  1625→    </Card>
+  1626→  )
+  1627→}
+  1628→
+  1629→// ─── ArticlesGuideTab ─────────────────────────────────────────────
+  1630→function ArticlesGuideTab() {
+  1631→  return (
+  1632→    <div className="space-y-6">
+  1633→      {/* Intro banner */}
+  1634→      <Card className="border-emerald-200 bg-emerald-50/50">
+  1635→        <CardContent className="py-4">
+  1636→          <div className="flex items-start gap-3">
+  1637→            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 shrink-0">
+  1638→              <BookOpen className="h-5 w-5 text-emerald-700" />
+  1639→            </div>
+  1640→            <div>
+  1641→              <h3 className="font-semibold text-emerald-900">Guide de rédaction d&apos;articles scientifiques</h3>
+  1642→              <p className="text-sm text-emerald-700 mt-1">
+  1643→                Ce guide est basé sur les articles de référence fournis, notamment le guide pas-à-pas
+  1644→                d&apos;Ecarnot et al. (2015). Il est conçu pour les doctorants en architecture et urbanisme
+  1645→                de l&apos;Université Constantine 3.
+  1646→              </p>
+  1647→            </div>
+  1648→          </div>
+  1649→        </CardContent>
+  1650→      </Card>
+  1651→
+  1652→      {/* Sub-tabs for the articles guide */}
+  1653→      <Tabs defaultValue="steps" className="w-full">
+  1654→        <TabsList className="w-full grid grid-cols-7">
+  1655→          <TabsTrigger value="steps" className="text-xs sm:text-sm">Étapes</TabsTrigger>
+  1656→          <TabsTrigger value="sections" className="text-xs sm:text-sm">IMRaD</TabsTrigger>
+  1657→          <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Erreurs</TabsTrigger>
+  1658→          <TabsTrigger value="checklist" className="text-xs sm:text-sm">Checklist</TabsTrigger>
+  1659→          <TabsTrigger value="bibliometrie" className="text-xs sm:text-sm">Bibliométrie</TabsTrigger>
+  1660→          <TabsTrigger value="revue" className="text-xs sm:text-sm">Revue de litt.</TabsTrigger>
+  1661→          <TabsTrigger value="abstract" className="text-xs sm:text-sm">Abstract</TabsTrigger>
+  1662→        </TabsList>
+  1663→
+  1664→        <TabsContent value="steps" className="mt-4">
+  1665→          <ScrollArea className="max-h-[70vh]">
+  1666→            <div className="space-y-4 pr-4">
+  1667→              {writingSteps.map((step, i) => (
+  1668→                <StepCard key={step.id} step={step} index={i} />
+  1669→              ))}
+  1670→            </div>
+  1671→          </ScrollArea>
+  1672→        </TabsContent>
+  1673→
+  1674→        <TabsContent value="sections" className="mt-4">
+  1675→          <ScrollArea className="max-h-[70vh]">
+  1676→            <div className="space-y-4 pr-4">
+  1677→              {sectionGuides.map((guide) => (
+  1678→                <SectionGuideCard key={guide.id} guide={guide} />
+  1679→              ))}
+  1680→            </div>
+  1681→          </ScrollArea>
+  1682→        </TabsContent>
+  1683→
+  1684→        <TabsContent value="mistakes" className="mt-4">
+  1685→          <ScrollArea className="max-h-[70vh]">
+  1686→            <div className="pr-4">
+  1687→              <MistakesSection />
+  1688→            </div>
+  1689→          </ScrollArea>
+  1690→        </TabsContent>
+  1691→
+  1692→        <TabsContent value="checklist" className="mt-4">
+  1693→          <ScrollArea className="max-h-[70vh]">
+  1694→            <div className="space-y-4 pr-4">
+  1695→              <ChecklistSection />
+  1696→              {/* Reference article */}
+  1697→              <Card>
+  1698→                <CardHeader>
+  1699→                  <CardTitle className="text-base flex items-center gap-2">
+  1700→                    <BookMarked className="h-5 w-5 text-amber-600" />
+  1701→                    Source de référence
+  1702→                  </CardTitle>
+  1703→                </CardHeader>
+  1704→                <CardContent className="space-y-3">
+  1705→                  {referenceArticles.map((art) => (
+  1706→                    <div key={art.id} className="border rounded-lg p-4 space-y-2">
+  1707→                      <p className="text-sm font-medium">{art.title}</p>
+  1708→                      <p className="text-xs text-muted-foreground">{art.authors}</p>
+  1709→                      <div className="flex flex-wrap gap-2">
+  1710→                        <Badge variant="secondary" className="text-xs">{art.source}</Badge>
+  1711→                        <Badge variant="outline" className="text-xs">{art.year}</Badge>
+  1712→                        {art.doi && (
+  1713→                          <Badge variant="outline" className="text-xs">DOI: {art.doi}</Badge>
+  1714→                        )}
+  1715→                      </div>
+  1716→                      <Separator className="my-2" />
+  1717→                      <div>
+  1718→                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Points clés</span>
+  1719→                        <ul className="mt-1 space-y-1">
+  1720→                          {art.keyPoints.map((kp, i) => (
+  1721→                            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+  1722→                              <ChevronRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+  1723→                              <span>{kp}</span>
+  1724→                            </li>
+  1725→                          ))}
+  1726→                        </ul>
+  1727→                      </div>
+  1728→                    </div>
+  1729→                  ))}
+  1730→                </CardContent>
+  1731→              </Card>
+  1732→            </div>
+  1733→          </ScrollArea>
+  1734→        </TabsContent>
+  1735→
+  1736→        {/* ── Bibliométrie ── */}
+  1737→        <TabsContent value="bibliometrie" className="mt-4">
+  1738→          <ScrollArea className="max-h-[70vh]">
+  1739→            <div className="space-y-4 pr-4">
+  1740→              <Card className="border-indigo-200 bg-indigo-50/30">
+  1741→                <CardHeader className="pb-2">
+  1742→                  <CardTitle className="text-sm flex items-center gap-2">
+  1743→                    <BarChart3 className="h-4 w-4 text-indigo-600" />
+  1744→                    Analyse Bibliométrique
+  1745→                  </CardTitle>
+  1746→                </CardHeader>
+  1747→                <CardContent>
+  1748→                  <p className="text-xs text-muted-foreground">
+  1749→                    Mesurer la recherche. Cartographier les connaissances. Façonner l'avenir.
+  1750→                    Méthode quantitative d'analyse des publications académiques pour identifier les tendances, auteurs influents et lacunes de recherche.
+  1751→                  </p>
+  1752→                </CardContent>
+  1753→              </Card>
+  1754→
+  1755→              {/* Caractéristiques clés */}
+  1756→              <Card>
+  1757→                <CardHeader className="pb-2">
+  1758→                  <CardTitle className="text-xs font-semibold text-indigo-700">Caractéristiques clés</CardTitle>
+  1759→                </CardHeader>
+  1760→                <CardContent>
+  1761→                  <ul className="space-y-1.5">
+  1762→                    {biblioFeatures.map((f, i) => (
+  1763→                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+  1764→                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+  1765→                        <span>{f}</span>
+  1766→                      </li>
+  1767→                    ))}
+  1768→                  </ul>
+  1769→                </CardContent>
+  1770→              </Card>
+  1771→
+  1772→              {/* Pourquoi l'utiliser ? */}
+  1773→              <Card>
+  1774→                <CardHeader className="pb-2">
+  1775→                  <CardTitle className="text-xs font-semibold text-indigo-700">Pourquoi l'utiliser ?</CardTitle>
+  1776→                </CardHeader>
+  1777→                <CardContent>
+  1778→                  <ul className="space-y-1.5">
+  1779→                    {biblioPurposes.map((p, i) => (
+  1780→                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+  1781→                        <ArrowRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+  1782→                        <span>{p}</span>
+  1783→                      </li>
+  1784→                    ))}
+  1785→                  </ul>
+  1786→                </CardContent>
+  1787→              </Card>
+  1788→
+  1789→              {/* Méthodes & Outils côte à côte */}
+  1790→              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  1791→                <Card>
+  1792→                  <CardHeader className="pb-2">
+  1793→                    <CardTitle className="text-xs font-semibold text-indigo-700">Méthodes courantes</CardTitle>
+  1794→                  </CardHeader>
+  1795→                  <CardContent className="space-y-2">
+  1796→                    {biblioMethods.map((m, i) => (
+  1797→                      <div key={i} className="border rounded-lg p-2.5">
+  1798→                        <p className="text-xs font-medium">{m.name}</p>
+  1799→                        <p className="text-[11px] text-muted-foreground">{m.description}</p>
+  1800→                      </div>
+  1801→                    ))}
+  1802→                  </CardContent>
+  1803→                </Card>
+  1804→                <Card>
+  1805→                  <CardHeader className="pb-2">
+  1806→                    <CardTitle className="text-xs font-semibold text-indigo-700">Outils populaires</CardTitle>
+  1807→                  </CardHeader>
+  1808→                  <CardContent className="space-y-2">
+  1809→                    {biblioTools.map((t, i) => (
+  1810→                      <div key={i} className={`rounded-lg p-2.5 ${t.color}`}>
+  1811→                        <p className="text-xs font-medium">{t.name}</p>
+  1812→                        <p className="text-[11px] opacity-80">{t.description}</p>
+  1813→                      </div>
+  1814→                    ))}
+  1815→                  </CardContent>
+  1816→                </Card>
+  1817→              </div>
+  1818→
+  1819→              {/* Métriques importantes */}
+  1820→              <Card>
+  1821→                <CardHeader className="pb-2">
+  1822→                  <CardTitle className="text-xs font-semibold text-indigo-700">Métriques bibliométriques importantes</CardTitle>
+  1823→                </CardHeader>
+  1824→                <CardContent>
+  1825→                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+  1826→                    {biblioMetrics.map((m, i) => (
+  1827→                      <div key={i} className="flex items-start gap-2 border rounded-lg p-2.5">
+  1828→                        <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500" />
+  1829→                        <div>
+  1830→                          <p className="text-xs font-medium">{m.name}</p>
+  1831→                          <p className="text-[11px] text-muted-foreground">{m.description}</p>
+  1832→                        </div>
+  1833→                      </div>
+  1834→                    ))}
+  1835→                  </div>
+  1836→                </CardContent>
+  1837→              </Card>
+  1838→
+  1839→              {/* Processus */}
+  1840→              <Card>
+  1841→                <CardHeader className="pb-2">
+  1842→                  <CardTitle className="text-xs font-semibold text-indigo-700">Processus type d'analyse bibliométrique</CardTitle>
+  1843→                </CardHeader>
+  1844→                <CardContent>
+  1845→                  <div className="space-y-3">
+  1846→                    {biblioProcess.map((s) => (
+  1847→                      <div key={s.step} className="flex items-start gap-3">
+  1848→                        <div className="flex items-center justify-center h-7 w-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold shrink-0">
+  1849→                          {s.step}
+  1850→                        </div>
+  1851→                        <div>
+  1852→                          <p className="text-xs font-medium">{s.title}</p>
+  1853→                          <p className="text-[11px] text-muted-foreground">{s.detail}</p>
+  1854→                        </div>
+  1855→                      </div>
+  1856→                    ))}
+  1857→                  </div>
+  1858→                </CardContent>
+  1859→              </Card>
+  1860→
+  1861→              <Card className="border-indigo-200 bg-indigo-50/30">
+  1862→                <CardContent className="p-3">
+  1863→                  <p className="text-[11px] text-indigo-700">
+  1864→                    💡 <strong>À retenir :</strong> L'analyse bibliométrique transforme de grands volumes de données académiques en informations exploitables, aidant les chercheurs, institutions et décideurs à faire des choix éclairés et à faire avancer les connaissances.
+  1865→                  </p>
+  1866→                </CardContent>
+  1867→              </Card>
+  1868→            </div>
+  1869→          </ScrollArea>
+  1870→        </TabsContent>
+  1871→        {/* ── Revue de littérature ── */}
+  1872→        <TabsContent value="revue" className="mt-4">
+  1873→          <ScrollArea className="max-h-[70vh]">
+  1874→            <div className="space-y-4 pr-4">
+  1875→              <Card className="border-sky-200 bg-sky-50/30">
+  1876→                <CardHeader className="pb-2">
+  1877→                  <CardTitle className="text-sm flex items-center gap-2">
+  1878→                    <BookOpenText className="h-4 w-4 text-sky-600" />
+  1879→                    Les 5 étapes de la revue de littérature
+  1880→                  </CardTitle>
+  1881→                  <CardDescription className="text-xs">D'après Randolph (2009) — Comment mener une revue de littérature systématique et intégrative</CardDescription>
+  1882→                </CardHeader>
+  1883→                <CardContent>
+  1884→                  <p className="text-xs text-muted-foreground">
+  1885→                    Chaque étape comporte des questions guides, une fonction principale, des différences procédurales et des sources potentielles d'invalidité des conclusions.
+  1886→                  </p>
+  1887→                </CardContent>
+  1888→              </Card>
+  1889→
+  1890→              {literatureReviewStages.map((s, i) => (
+  1891→                <Card key={s.id}>
+  1892→                  <CardHeader className="pb-2">
+  1893→                    <div className="flex items-center gap-2">
+  1894→                      <div className="flex items-center justify-center h-7 w-7 rounded-full bg-sky-100 text-sky-700 text-xs font-bold shrink-0">
+  1895→                        {i + 1}
+  1896→                      </div>
+  1897→                      <CardTitle className="text-sm">{s.stage}</CardTitle>
+  1898→                    </div>
+  1899→                  </CardHeader>
+  1900→                  <CardContent className="space-y-3">
+  1901→                    <div className="bg-sky-50 rounded-lg p-3">
+  1902→                      <p className="text-xs font-semibold text-sky-700 mb-1">Question guide :</p>
+  1903→                      <p className="text-sm text-sky-900">{s.question}</p>
+  1904→                    </div>
+  1905→                    <div>
+  1906→                      <p className="text-xs font-semibold text-muted-foreground mb-1">Fonction principale :</p>
+  1907→                      <p className="text-sm text-foreground">{s.func}</p>
+  1908→                    </div>
+  1909→                    <div>
+  1910→                      <p className="text-xs font-semibold text-amber-600 mb-1">Sources d'invalidité potentielles :</p>
+  1911→                      <ul className="space-y-1">
+  1912→                        {s.sourcesOfInvalidity.map((v, j) => (
+  1913→                          <li key={j} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+  1914→                            <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+  1915→                            <span>{v}</span>
+  1916→                          </li>
+  1917→                        ))}
+  1918→                      </ul>
+  1919→                    </div>
+  1920→                  </CardContent>
+  1921→                </Card>
+  1922→              ))}
+  1923→
+  1924→              <Card className="bg-muted/30">
+  1925→                <CardContent className="p-3">
+  1926→                  <p className="text-[11px] text-muted-foreground italic">
+  1927→                    Source : {literatureReviewSource}
+  1928→                  </p>
+  1929→                </CardContent>
+  1930→              </Card>
+  1931→            </div>
+  1932→          </ScrollArea>
+  1933→        </TabsContent>
+  1934→
+  1935→        {/* ── Abstract ── */}
+  1936→        <TabsContent value="abstract" className="mt-4">
+  1937→          <ScrollArea className="max-h-[70vh]">
+  1938→            <div className="space-y-4 pr-4">
+  1939→              <Card className="border-rose-200 bg-rose-50/30">
+  1940→                <CardHeader className="pb-2">
+  1941→                  <CardTitle className="text-sm flex items-center gap-2">
+  1942→                    <ScrollText className="h-4 w-4 text-rose-600" />
+  1943→                    Rédiger un abstract fort
+  1944→                  </CardTitle>
+  1945→                  <CardDescription className="text-xs">Structure en 6 étapes annotée — Exemple tiré d'un article publié dans Nature</CardDescription>
+  1946→                </CardHeader>
+  1947→                <CardContent>
+  1948→                  <p className="text-xs text-muted-foreground">
+  1949→                    Un bon abstract suit un enchaînement logique : du contexte général vers les résultats spécifiques, en passant par la lacune identifiée et la contribution de l'étude.
+  1950→                  </p>
+  1951→                </CardContent>
+  1952→              </Card>
+  1953→
+  1954→              {abstractStructure.map((step, i) => (
+  1955→                <Card key={step.id}>
+  1956→                  <CardHeader className="pb-2">
+  1957→                    <div className="flex items-center gap-2">
+  1958→                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold shrink-0 text-white bg-gray-400">
+  1959→                        {i + 1}
+  1960→                      </div>
+  1961→                      <div className="flex-1">
+  1962→                        <CardTitle className="text-sm">{step.label}</CardTitle>
+  1963→                        <CardDescription className="text-[11px]">{step.labelEn}</CardDescription>
+  1964→                      </div>
+  1965→                      <Badge className={`text-[10px] ${step.color}`} variant="secondary">
+  1966→                        {step.labelEn}
+  1967→                      </Badge>
+  1968→                    </div>
+  1969→                  </CardHeader>
+  1970→                  <CardContent className="space-y-2">
+  1971→                    <p className="text-xs text-muted-foreground">{step.description}</p>
+  1972→                    <div className="bg-muted/50 rounded-lg p-3">
+  1973→                      <p className="text-xs font-semibold text-muted-foreground mb-1">Exemple :</p>
+  1974→                      <p className="text-sm italic text-foreground/80">{step.example}</p>
+  1975→                    </div>
+  1976→                  </CardContent>
+  1977→                </Card>
+  1978→              ))}
+  1979→
+  1980→              <Card className="bg-muted/30">
+  1981→                <CardContent className="p-3">
+  1982→                  <p className="text-[11px] text-muted-foreground italic">
+  1983→                    {abstractSource}
+  1984→                  </p>
+  1985→                </CardContent>
+  1986→              </Card>
+  1987→            </div>
+  1988→          </ScrollArea>
+  1989→        </TabsContent>
+  1990→      </Tabs>
+  1991→    </div>
+  1992→  )
+  1993→}
+  1994→
+  1995→// ─── AI Writing Modes ────────────────────────────────────────────
+  1996→const WRITING_MODES = [
+  1997→  { id: 'scientific-writing', label: 'Rédaction scientifique', description: 'Rédiger ou améliorer une section de thèse selon les normes IMRaD', icon: 'PenTool', color: 'emerald' },
+  1998→  { id: 'literature-review', label: 'Revue de littérature', description: 'Synthétiser des travaux, identifier les lacunes et structurer une revue', icon: 'BookOpenText', color: 'sky' },
+  1999→  { id: 'peer-review', label: 'Relecture critique', description: 'Évaluer la rigueur, la clarté et la cohérence de votre texte', icon: 'ScanSearch', color: 'amber' },
+  2000→  { id: 'paraphrase', label: 'Paraphrase & Amélioration', description: 'Reformuler, enrichir le vocabulaire et corriger le style', icon: 'Languages', color: 'violet' },
+
+[showing lines 1-2000 of 3203; use offset=2001 with limit to continue reading]
