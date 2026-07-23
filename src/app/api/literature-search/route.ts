@@ -114,6 +114,106 @@ async function searchArxiv(query: string, limit: number): Promise<SearchResult[]
   return results
 }
 
+// ─── PubMed E-utils (no API key needed, 3 req/sec) ──────────
+async function searchPubmed(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    // Step 1: Search for PMIDs
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=${limit}&term=${encodeURIComponent(query)}`
+    const searchRes = await fetch(searchUrl, { headers: { 'User-Agent': 'ThesisFrame/1.0' } })
+    if (!searchRes.ok) return []
+    const searchData = await searchRes.json()
+    const idList: string[] = searchData?.esearchresult?.idlist || []
+    if (idList.length === 0) return []
+
+    // Step 2: Fetch summaries
+    const summaryUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=${idList.join(',')}`
+    const summaryRes = await fetch(summaryUrl, { headers: { 'User-Agent': 'ThesisFrame/1.0' } })
+    if (!summaryRes.ok) return []
+    const summaryData = await summaryRes.json()
+    const uidMap = summaryData?.result?.uids || []
+
+    const results: SearchResult[] = []
+    for (const uid of uidMap) {
+      const item = summaryData?.result?.[uid] as Record<string, unknown> | undefined
+      if (!item || !item.title) continue
+
+      const authorsList = (item.authors as Record<string, string>[]) || []
+      const authorNames = authorsList.map(a => a.name).join(', ')
+
+      // Extract year from pubdate or sortpubdate
+      const pubdate = (item.pubdate as string) || (item.sortpubdate as string) || ''
+      const yearMatch = pubdate.match(/\d{4}/)
+      const year = yearMatch ? yearMatch[0] : ''
+
+      // Extract DOI from articleids array
+      const articleIds = (item.articleids as Record<string, string>[]) || []
+      const doiEntry = articleIds.find(a => a.idtype === 'doi')
+      const doi = doiEntry?.value || undefined
+
+      // Get PMC link for full text
+      const pmcEntry = articleIds.find(a => a.idtype === 'pmc')
+      const url = pmcEntry ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcEntry.value}/` : undefined
+
+      // Extract journal from source or fulljournalname
+      const journal = (item.fulljournalname as string) || (item.source as string) || undefined
+
+      results.push({
+        title: (item.title as string) || '',
+        authors: authorNames,
+        year,
+        abstract: undefined, // PubMed esummary doesn't return abstracts
+        source: 'PubMed',
+        doi,
+        url,
+        journal,
+      })
+    }
+    return results
+  } catch {
+    return []
+  }
+}
+
+// ─── Deduplication helpers ──────────────────────────────────
+function normalizeTitle(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+function resultScore(r: SearchResult): number {
+  let score = 0
+  if (r.abstract) score += 10
+  if (r.citationCount !== undefined && r.citationCount > 0) score += 5
+  if (r.doi) score += 3
+  if (r.journal) score += 2
+  if (r.authors) score += 1
+  return score
+}
+
+function deduplicateResults(results: SearchResult[]): SearchResult[] {
+  const seen: Map<string, SearchResult> = new Map()
+  const titleSeen: Map<string, SearchResult> = new Map()
+
+  for (const r of results) {
+    if (r.doi) {
+      const key = r.doi.toLowerCase()
+      const existing = seen.get(key)
+      if (!existing || resultScore(r) > resultScore(existing)) {
+        seen.set(key, r)
+      }
+    } else {
+      // No DOI — deduplicate by normalized title
+      const normalized = normalizeTitle(r.title)
+      if (!normalized) continue
+      const existing = titleSeen.get(normalized)
+      if (!existing || resultScore(r) > resultScore(existing)) {
+        titleSeen.set(normalized, r)
+      }
+    }
+  }
+
+  return [...seen.values(), ...titleSeen.values()]
+}
+
 // ─── Main Route ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
@@ -140,10 +240,15 @@ export async function POST(request: NextRequest) {
     if (sources.includes('arxiv')) {
       searches.push(searchArxiv(query, safeLimit))
     }
+    if (sources.includes('pubmed')) {
+      searches.push(searchPubmed(query, safeLimit))
+    }
 
-    const results = (await Promise.allSettled(searches)).flatMap(r =>
+    const rawResults = (await Promise.allSettled(searches)).flatMap(r =>
       r.status === 'fulfilled' ? r.value : []
     )
+
+    const results = deduplicateResults(rawResults)
 
     return NextResponse.json({
       query,
