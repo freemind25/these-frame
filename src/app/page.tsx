@@ -24,6 +24,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { CHAPTERS, CHAPTER_COLORS, type ChapterStructure } from '@/data/chapters-structure'
 import ReferencesTab from '@/components/thesis/references-tab'
 import ExportPdfContent from '@/components/thesis/export-pdf-tab'
+import ArticlesGuideContent from '@/components/thesis/articles-tab'
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ChapterData {
@@ -76,6 +77,7 @@ export default function Home() {
   const [helpTab, setHelpTab] = useState('guide')
   const [refsOpen, setRefsOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
   const isMobile = useIsMobile()
 
   // AI chat state (in help panel)
@@ -387,6 +389,9 @@ export default function Home() {
             <button onClick={() => setRefsOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Library className="h-3.5 w-3.5" /><span>Références biblio.</span>
             </button>
+            <button onClick={() => setResourcesOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <BookOpen className="h-3.5 w-3.5" /><span>Guide rédaction</span>
+            </button>
             <button onClick={() => setExportOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Download className="h-3.5 w-3.5" /><span>Export PDF</span>
             </button>
@@ -654,6 +659,15 @@ export default function Home() {
             <DialogTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-emerald-600" />Export PDF</DialogTitle>
           </DialogHeader>
           <ExportPdfContent />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resourcesOpen} onOpenChange={setResourcesOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de rédaction scientifique</DialogTitle>
+          </DialogHeader>
+          <ArticlesGuideContent />
         </DialogContent>
       </Dialog>
 

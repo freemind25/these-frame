@@ -1,0 +1,1053 @@
+     1→/**
+     2→ * Guide de méthodologie de recherche
+     3→ * Guide général de méthodologie scientifique
+     4→ */
+     5→
+     6→export interface MethodoStep {
+     7→  id: string
+     8→  title: string
+     9→  description: string
+    10→  details: string[]
+    11→}
+    12→
+    13→export interface ResearchType {
+    14→  id: string
+    15→  title: string
+    16→  description: string
+    17→  characteristics: string[]
+    18→  icon: string
+    19→  color: string
+    20→}
+    21→
+    22→export interface ProblématiqueItem {
+    23→  id: string
+    24→  question: string
+    25→  description: string
+    26→  example: string
+    27→}
+    28→
+    29→export interface OperalisationExample {
+    30→  concept: string
+    31→  dimensions: { label: string; indicateurs: string[] }[]
+    32→}
+    33→
+    34→export interface CollectTool {
+    35→  id: string
+    36→  title: string
+    37→  description: string
+    38→  avantages: string[]
+    39→  limites: string[]
+    40→  conseils: string[]
+    41→  icon: string
+    42→}
+    43→
+    44→export interface DocumentSource {
+    45→  id: string
+    46→  name: string
+    47→  type: string
+    48→  url?: string
+    49→  description: string
+    50→}
+    51→
+    52→// ─── Cycle de la recherche ────────────────────────────────────────
+    53→export const researchCycle: MethodoStep[] = [
+    54→  {
+    55→    id: 'question',
+    56→    title: 'Formulation de la question de recherche',
+    57→    description: 'Question claire et précise, justification de l\'importance, identification des lacunes dans les connaissances existantes.',
+    58→    details: [
+    59→      'Identifier un sujet pertinent et original',
+    60→      'Délimiter le cadre spatial et temporel',
+    61→      'Montrer l\'intérêt scientifique et pratique',
+    62→      'Obtenir l\'aval du directeur de recherche',
+    63→    ],
+    64→  },
+    65→  {
+    66→    id: 'hypotheses',
+    67→    title: 'Formulation d\'hypothèses testables',
+    68→    description: 'Propositions testables déduites à partir de théories ou d\'observations préalables.',
+    69→    details: [
+    70→      'L\'hypothèse doit partir d\'une observation empirique',
+    71→      'Elle doit être vérifiable dans la réalité',
+    72→      'Elle doit être cohérente avec les connaissances existantes',
+    73→    ],
+    74→  },
+    75→  {
+    76→    id: 'bibliography',
+    77→    title: 'Recherche approfondie des travaux existants',
+    78→    description: 'Synthèse des connaissances actuelles et identification des théories et concepts.',
+    79→    details: [
+    80→      'Consultation des bases de données (ScienceDirect, JSTOR, HAL, Persée…)',
+    81→      'Recherche dans les catalogues (SUDOC, WorldCat, BNF, SNDL)',
+    82→      'Utilisation de Google Scholar et Theses.fr',
+    83→      'Constitution du corpus d\'étude',
+    84→    ],
+    85→  },
+    86→  {
+    87→    id: 'methodology',
+    88→    title: 'Choix de la méthodologie',
+    89→    description: 'Définition de l\'échantillon, choix des outils d\'analyse, sélection des méthodes de collecte.',
+    90→    details: [
+    91→      'Définir la population étudiée et l\'échantillon',
+    92→      'Choisir entre approche quantitative, qualitative ou mixte',
+    93→      'Sélectionner les outils de collecte (questionnaire, entretien, observation…)',
+    94→      'Assurer la fiabilité et la validité des données',
+    95→    ],
+    96→  },
+    97→  {
+    98→    id: 'collect',
+    99→    title: 'Collecte des données',
+   100→    description: 'Mise en œuvre des méthodes de collecte sur le terrain.',
+   101→    details: [
+   102→      'Préparer les instruments de collecte',
+   103→      'Réaliser les entretiens ou administrer les questionnaires',
+   104→      'Effectuer les observations de terrain',
+   105→      'Organiser et stocker les données collectées',
+   106→    ],
+   107→  },
+   108→  {
+   109→    id: 'analyse',
+   110→    title: 'Analyse des données',
+   111→    description: 'Traitement et organisation des données, utilisation d\'outils statistiques ou autres techniques d\'analyse.',
+   112→    details: [
+   113→      'Coder et nettoyer les données',
+   114→      'Appliquer les outils d\'analyse appropriés',
+   115→      'Interpréter les résultats',
+   116→      'Comparer les résultats avec les hypothèses',
+   117→    ],
+   118→  },
+   119→  {
+   120→    id: 'discussion',
+   121→    title: 'Discussion et interprétation',
+   122→    description: 'Discussion des implications des résultats, identification des limites de l\'étude.',
+   123→    details: [
+   124→      'Mettre en relation les résultats avec la littérature',
+   125→      'Discuter des implications théoriques et pratiques',
+   126→      'Identifier les limites de l\'étude',
+   127→      'Proposer des recommandations',
+   128→    ],
+   129→  },
+   130→  {
+   131→    id: 'publication',
+   132→    title: 'Publication des résultats',
+   133→    description: 'Rédaction, présentation lors de conférences, synthèse des principaux résultats.',
+   134→    details: [
+   135→      'Rédiger selon les normes scientifiques (IMRaD)',
+   136→      'Présenter lors de conférences ou séminaires',
+   137→      'Formuler des conclusions claires et concises',
+   138→      'Suggérer des pistes pour de futures recherches',
+   139→    ],
+   140→  },
+   141→]
+   142→
+   143→// ─── Types de recherche ──────────────────────────────────────────
+   144→export const researchTypes: ResearchType[] = [
+   145→  {
+   146→    id: 'quantitative',
+   147→    title: 'Recherche quantitative',
+   148→    description: 'Mesure et quantification des phénomènes à l\'aide d\'outils statistiques. Vise l\'objectivité et la reproductibilité.',
+   149→    characteristics: [
+   150→      'Données chiffrées et mesurables',
+   151→      'Échantillons représentatifs de grande taille',
+   152→      'Questionnaires à questions fermées',
+   153→      'Analyses statistiques (descriptive, inférentielle)',
+   154→      'Hypothèses testées par des méthodes formelles',
+   155→      'Objectivité et reproductibilité',
+   156→    ],
+   157→    icon: 'BarChart3',
+   158→    color: 'sky',
+   159→  },
+   160→  {
+   161→    id: 'qualitative',
+   162→    title: 'Recherche qualitative',
+   163→    description: 'Compréhension en profondeur des phénomènes à travers les expériences vécues et les significations.',
+   164→    characteristics: [
+   165→      'Données textuelles, narratives ou visuelles',
+   166→      'Échantillons restreints et ciblés',
+   167→      'Entretiens semi-directifs, observations participantes',
+   168→      'Analyses thématiques et de contenu',
+   169→      'Émergence de catégories et de théories',
+   170→      'Subjectivité assumée comme richesse',
+   171→    ],
+   172→    icon: 'MessageSquare',
+   173→    color: 'amber',
+   174→  },
+   175→  {
+   176→    id: 'mixte',
+   177→    title: 'Recherche mixte (mixte)',
+   178→    description: 'Combinaison des approches quantitative et qualitative pour une compréhension complète du phénomène.',
+   179→    characteristics: [
+   180→      'Triangulation des données (quantitatives + qualitatives)',
+   181→      'Design séquentiel ou concurrent',
+   182→      'Complémentarité des résultats',
+   183→      'Validation croisée des findings',
+   184→      'Richesse et profondeur de l\'analyse',
+   185→      'Adaptée aux problématiques complexes',
+   186→    ],
+   187→    icon: 'FlaskConical',
+   188→    color: 'emerald',
+   189→  },
+   190→]
+   191→
+   192→// ─── Démarches inductive / déductive ──────────────────────────────
+   193→export const reasoningApproaches = {
+   194→  inductive: {
+   195→    title: 'Démarche inductive',
+   196→    subtitle: 'Du particulier au général',
+   197→    description: 'À partir d\'observations empiriques répétées, le chercheur formule une règle générale ou une théorie.',
+   198→    example: 'Adam est mortel + Socrate est mortel + … = Tous les hommes sont mortels.',
+   199→    steps: ['Observation de cas particuliers', 'Identification de régularités', 'Formulation d\'une généralisation', 'Élaboration d\'une théorie'],
+   200→  },
+   201→  deductive: {
+   202→    title: 'Démarche déductive',
+   203→    subtitle: 'Du général au particulier',
+   204→    description: 'À partir d\'une théorie ou d\'un énoncé général, le chercheur déduit des conséquences applicables à des cas spécifiques.',
+   205→    example: 'SI condition (théorie) ALORS conclusion (prédiction testable)',
+   206→    steps: ['Partir d\'une théorie établie', 'Formuler une hypothèse dérivable', 'Observer ou expérimenter', 'Confirmer ou infirmer la prédiction'],
+   207→  },
+   208→}
+   209→
+   210→// ─── Types de disciplinarité ──────────────────────────────────────
+   211→export const disciplinarities = [
+   212→  { term: 'Pluridisciplinarité', definition: 'Juxtaposition de disciplines sans intégration.', color: 'slate' },
+   213→  { term: 'Multidisciplinarité', definition: 'Utilisation de plusieurs disciplines en parallèle.', color: 'slate' },
+   214→  { term: 'Interdisciplinarité', definition: 'Mettre en relation des disciplines pour créer des représentations originales.', color: 'sky' },
+   215→  { term: 'Transdisciplinarité', definition: 'Application d\'une méthode commune à travers les disciplines.', color: 'emerald' },
+   216→]
+   217→
+   218→// ─── Problématique ────────────────────────────────────────────────
+   219→export const problematiqueGuide: ProblématiqueItem[] = [
+   220→  {
+   221→    id: 'quoi',
+   222→    question: 'QUOI ?',
+   223→    description: 'Définition de l\'objet — De quoi s\'agit-il exactement ? Quels sont les concepts clés ?',
+   224→    example: 'Identifier et définir les variables X et Y du sujet de recherche.',
+   225→  },
+   226→  {
+   227→    id: 'comment',
+   228→    question: 'COMMENT ?',
+   229→    description: 'Explication du processus — Par quels mécanismes X influence-t-il Y ?',
+   230→    example: 'Décrire les liens causaux et les relations entre les variables étudiées.',
+   231→  },
+   232→  {
+   233→    id: 'pourquoi',
+   234→    question: 'POURQUOI ?',
+   235→    description: 'Exposé de la finalité — Quel est l\'intérêt scientifique et pratique de cette recherche ?',
+   236→    example: 'Justifier la pertinence et l\'originalité de la démarche dans le contexte actuel.',
+   237→  },
+   238→]
+   239→
+   240→export const problematiqueConseils = [
+   241→  'La problématique doit être centrale par rapport au sujet — pas un point secondaire.',
+   242→  'Elle doit tenir compte du facteur TEMPS, ESPACE et de la nature des INTERVENANTS.',
+   243→  'Elle doit annoncer une idée directrice pour la suite du travail.',
+   244→  'Elle doit esquisser une démarche démonstrative suivie tout au long de la rédaction.',
+   245→  'Elle doit recevoir l\'aval du directeur de recherche.',
+   246→  'Le titre de recherche prend généralement la forme d\'une AFFIRMATION (X influence Y chez Z), et non d\'une question.',
+   247→]
+   248→
+   249→// ─── Opérationnalisation ──────────────────────────────────────────
+   250→export const operationalisationConcept: {
+   251→  title: string
+   252→  description: string
+   253→  steps: string[]
+   254→} = {
+   255→  title: 'L\'opérationnalisation',
+   256→  description: 'Processus de transformation de concepts abstraits en observations mesurables. Définir comment un concept peut être mesuré, observé ou manipulé.',
+   257→  steps: [
+   258→    'Identifier les CONCEPTS clés de la recherche (ex : "utilisation des médias sociaux", "dépression")',
+   259→    'Définir les VARIABLES : variable indépendante (X = cause) et variable dépendante (Y = effet)',
+   260→    'Sélectionner les DIMENSIONS de chaque concept (ex : fréquence, type, durée…)',
+   261→    'Choisir des INDICATEURS mesurables pour chaque dimension (ex : nombre de connexions/jour)',
+   262→    'Construire les instruments de mesure adaptés',
+   263→  ],
+   264→}
+   265→
+   266→export const operationalisationExample: OperalisationExample = {
+   267→  concept: 'Ressources d\'une ville',
+   268→  dimensions: [
+   269→    { label: 'Ressources financières', indicateurs: ['Budget communal', 'Dotations de l\'État', 'Recettes fiscales', 'Investissements privés'] },
+   270→    { label: 'Ressources patrimoniales', indicateurs: ['Patrimoine immobilier', 'Patrimoine mobilier', 'Espaces publics', 'Infrastructures'] },
+   271→    { label: 'Ressources sociales', indicateurs: ['Niveau d\'emploi', 'Taux d\'activité', 'Diplômés supérieurs', 'Associations'] },
+   272→    { label: 'Ressources d\'équipement', indicateurs: ['Services publics', 'Équipements sportifs', 'Établissements scolaires', 'Infrastructures de transport'] },
+   273→  ],
+   274→}
+   275→
+   276→// ─── Hypothèses ───────────────────────────────────────────────────
+   277→export const hypothesesConditions = [
+   278→  'L\'hypothèse doit se faire à partir d\'une observation empirique ou d\'une étude préalable.',
+   279→  'L\'hypothèse doit pouvoir être vérifiable dans la réalité.',
+   280→  'L\'hypothèse doit être cohérente avec les connaissances existantes.',
+   281→]
+   282→
+   283→export const hypothesesVerification = [
+   284→  'Par l\'expérience : vérification empirique directe sur le terrain.',
+   285→  'Par l\'enquête : collecte de données auprès de la population étudiée.',
+   286→  'Par la contre-épreuve : apporter un exemple ou fait qui contredise l\'hypothèse (un seul contre-exemple suffit à invalider).',
+   287→  'Par la variation de la preuve : vérifier l\'hypothèse sur des parties différentes d\'un même ensemble.',
+   288→]
+   289→
+   290→// ─── Outils de collecte ───────────────────────────────────────────
+   291→export const collectTools: CollectTool[] = [
+   292→  {
+   293→    id: 'entretien',
+   294→    title: 'L\'entretien de recherche (semi-directif)',
+   295→    description: 'Technique d\'investigation scientifique utilisée auprès d\'individus, permettant de les interroger de façon semi-directive pour connaître en profondeur les informations.',
+   296→    avantages: [
+   297→      'Permet d\'explorer en profondeur les représentations et les expériences',
+   298→      'Flexibilité : adaptation aux réponses de l\'interviewé',
+   299→      'Fait émerger des éléments imprévus et de nouvelles hypothèses',
+   300→      'Recueil de données riches et nuancées',
+   301→    ],
+   302→    limites: [
+   303→      'Temps de réalisation long',
+   304→      'Difficulté d\'analyse et de codage',
+   305→      'Subjectivité de l\'enquêteur',
+   306→      'Échantillons restreints (≤ 100)',
+   307→    ],
+   308→    conseils: [
+   309→      'Préparer les questions, thèmes et hypothèses en amont',
+   310→      'Poser des questions courtes, directes et ciblées',
+   311→      'Se focaliser sur la compréhension d\'un phénomène précis, sans divaguer',
+   312→      'Poser de nouvelles questions pour faire émerger de nouvelles hypothèses',
+   313→      'Entretiens à réponses libres : questions générales sur le sujet au sens large',
+   314→      'Entretiens centrés/ciblés : interrogations sur un aspect spécifique',
+   315→    ],
+   316→    icon: 'MessageSquare',
+   317→  },
+   318→  {
+   319→    id: 'questionnaire',
+   320→    title: 'Le questionnaire',
+   321→    description: 'Outil de collecte structuré touchant plusieurs sujets, administré à une population restreinte (≤ 100 personnes). Peut comporter des questions fermées ou ouvertes.',
+   322→    avantages: [
+   323→      'Processus rapide de passation',
+   324→      'Facilité de traitement et d\'analyse statistique',
+   325→      'Standardisation des réponses',
+   326→      'Possibilité de questions fermées et ouvertes',
+   327→    ],
+   328→    limites: [
+   329→      'Profondeur limitée des réponses',
+   330→      'Risque de réponses peu réfléchies',
+   331→      'Difficulté à capter les nuances',
+   332→      'Taux de non-réponse possible',
+   333→    ],
+   334→    conseils: [
+   335→      'Prévoir des questions fermées (gamme de réponses préétablies) ET ouvertes',
+   336→      'Tester le questionnaire au préalable (pré-enquête)',
+   337→      'Limiter le nombre de questions pour éviter la fatigue',
+   338→      'Assurer l\'anonymat pour encourager la sincérité',
+   339→    ],
+   340→    icon: 'ClipboardList',
+   341→  },
+   342→  {
+   343→    id: 'sondage',
+   344→    title: 'Le sondage',
+   345→    description: 'Enquête d\'opinion menée sur une large population (des milliers). Processus plus prenant de temps que le questionnaire.',
+   346→    avantages: [
+   347→      'Représentativité statistique',
+   348→      'Généralisation des résultats',
+   349→      'Mesure quantitative fiable',
+   350→      'Comparaison possible entre groupes',
+   351→    ],
+   352→    limites: [
+   353→      'Mise en œuvre lourde et coûteuse',
+   354→      'Réduit la complexité à des chiffres',
+   355→      'Ne capte pas les explications profondes',
+   356→      'Processus prenant du temps',
+   357→    ],
+   358→    conseils: [
+   359→      'Définir un échantillon représentatif',
+   360→      'Utiliser des méthodes d\'échantillonnage rigoureuses',
+   361→      'Privilégier les questions fermées à réponse unique',
+   362→      'Assurer la fiabilité statistique des résultats',
+   363→    ],
+   364→    icon: 'BarChart3',
+   365→  },
+   366→  {
+   367→    id: 'observation',
+   368→    title: 'L\'observation de terrain',
+   369→    description: 'Observation systématique et structurée d\'un phénomène dans son contexte naturel. Utilise une grille d\'observation avec thèmes, sous-thèmes et notes.',
+   370→    avantages: [
+   371→      'Accès direct au contexte réel',
+   372→      'Capture de comportements spontanés',
+   373→      'Complémentarité avec les autres outils',
+   374→      'Richesse des données contextuelles',
+   375→    ],
+   376→    limites: [
+   377→      'Subjectivité de l\'observateur',
+   378→      'Effet d\'observation (modification du comportement)',
+   379→      'Difficulté de reproduction',
+   380→      'Temps d\'immersion important',
+   381→    ],
+   382→    conseils: [
+   383→      'Préparer une grille d\'observation structurée (thèmes, sous-thèmes, notes)',
+   384→      'Observer l\'ambiance, les éléments temporels, l\'espace, le mobilier',
+   385→      'Notez les horaires, la météo, les conditions d\'observation',
+   386→      'Répéter les observations à différents moments pour valider',
+   387→    ],
+   388→    icon: 'Eye',
+   389→  },
+   390→]
+   391→
+   392→// ─── Recherche documentaire ───────────────────────────────────────
+   393→export const documentTypes = [
+   394→  { type: 'Dictionnaires & Encyclopédies', usage: 'Comprendre le sujet et le préciser, surtout pour les concepts nouveaux' },
+   395→  { type: 'Livres / Monographies', usage: 'Approfondir la recherche sur un thème donné' },
+   396→  { type: 'Manuels', usage: 'Faire le point sur une question' },
+   397→  { type: 'Mémentos', usage: 'Se faire une idée rapide sur un sujet' },
+   398→  { type: 'Précis', usage: 'Approfondir un aspect spécifique de la question' },
+   399→  { type: 'Actes de colloques', usage: 'Comptes-rendus de congrès et de journées scientifiques' },
+   400→  { type: 'Périodiques', usage: 'Articles de revues scientifiques récents' },
+   401→  { type: 'Thèses & Mémoires', usage: 'Littérature grise, travaux de recherche universitaires' },
+   402→  { type: 'Documents spécifiques', usage: 'Cartes, brevets, images, données statistiques' },
+   403→  { type: 'Documentation officielle', usage: 'Lois, règlements, plans, rapports institutionnels' },
+   404→]
+   405→
+   406→export const databases: DocumentSource[] = [
+   407→  { id: 'sd', name: 'ScienceDirect', type: 'Base pluridisciplinaire', url: 'https://www.sciencedirect.com', description: 'Accès à des milliers de revues scientifiques et d\'articles en texte intégral.' },
+   408→  { id: 'jstor', name: 'JSTOR', type: 'Base pluridisciplinaire', url: 'https://www.jstor.org', description: 'Archives de revues académiques, livres et sources primaires.' },
+   409→  { id: 'hal', name: 'HAL', type: 'Archive ouverte française', url: 'https://hal.science', description: 'Archive ouverte pluridisciplinaire française — accès gratuit aux publications.' },
+   410→  { id: 'persee', name: 'Persée', type: 'Base francophone', url: 'https://www.persee.fr', description: 'Portail de revues scientifiques en sciences humaines et sociales.' },
+   411→  { id: 'doaj', name: 'DOAJ', type: 'Base pluridisciplinaire', url: 'https://doaj.org', description: 'Directory of Open Access Journals — revues en accès libre.' },
+   412→  { id: 'wok', name: 'Web of Knowledge', type: 'Base pluridisciplinaire', url: 'https://www.webofknowledge.com', description: 'Indexation et citation des publications scientifiques mondiales.' },
+   413→  { id: 'cairn', name: 'Cairn', type: 'Bouquet de revues', url: 'https://www.cairn.info', description: 'Revues et ouvrages en sciences humaines et sociales en français.' },
+   414→]
+   415→
+   416→export const catalogs: DocumentSource[] = [
+   417→  { id: 'sudoc', name: 'SUDOC', type: 'Catalogue collectif', url: 'http://www.sudoc.abes.fr', description: 'Catalogue collectif des universités françaises.' },
+   418→  { id: 'worldcat', name: 'WorldCat', type: 'Catalogue mondial', url: 'http://www.worldcat.org', description: 'Catalogue mondial des bibliothèques — trouver des ouvrages partout.' },
+   419→  { id: 'bnf', name: 'BnF', type: 'Catalogue national', url: 'http://catalogue.bnf.fr', description: 'Catalogue de la Bibliothèque nationale de France.' },
+   420→  { id: 'sndl', name: 'SNDL', type: 'Documentation algérienne', url: 'https://www.sndl.cerist.dz', description: 'Système National de Documentation en Ligne — Algérie.' },
+   421→]
+   422→
+   423→export const webResources: DocumentSource[] = [
+   424→  { id: 'scholar', name: 'Google Scholar', type: 'Moteur de recherche', url: 'http://scholar.google.fr', description: 'Moteur de recherche spécialisé en littérature académique.' },
+   425→  { id: 'books', name: 'Google Books', type: 'Moteur de recherche', url: 'http://books.google.fr', description: 'Recherche dans le contenu des livres numérisés.' },
+   426→  { id: 'theses', name: 'Theses.fr', type: 'Portail', url: 'http://www.theses.fr', description: 'Annuaire des thèses soutenues en France.' },
+   427→  { id: 'worldwidescience', name: 'WorldWideScience', type: 'Portail scientifique', url: 'http://worldwidescience.org', description: 'Portail mondial de la science ouverte.' },
+   428→  { id: 'cirs', name: 'CIRS', type: 'Centre de recherche', url: 'http://www.cirs.fr', description: 'Centre international de recherche scientifique.' },
+   429→]
+   430→
+   431→// ─── Structure de l'introduction ──────────────────────────────────
+   432→export const introductionStructure = [
+   433→  { step: 'Amener le sujet (Y)', detail: 'Présenter le contexte général, amener progressivement le lecteur vers le sujet.' },
+   434→  { step: 'Poser le sujet (X → Y : Z)', detail: 'Formuler la relation entre les variables : X (cause) influence Y (effet) chez Z (population/territoire).' },
+   435→  { step: 'Diviser le sujet', detail: 'Délimiter le cadre de l\'étude et l\'optique dans laquelle sera traitée la question.' },
+   436→  { step: 'Problématique', detail: 'Reformulation interrogative de l\'intitulé initial (QUOI ? COMMENT ? POURQUOI ?).' },
+   437→  { step: 'État de la question', detail: 'Synthétiser "ce que l\'on sait" sur le sujet ou la question choisie.' },
+   438→  { step: 'Corpus d\'étude', detail: 'Présenter le support de l\'étude et justifier son choix.' },
+   439→  { step: 'Objectifs & Hypothèses', detail: 'Annoncer les grandes lignes du travail et les axes d\'analyse retenus.' },
+   440→]
+   441→
+   442→// ─── Le titre ─────────────────────────────────────────────────────
+   443→export const titreConseils = [
+   444→  'Un bon titre doit contenir la ou les variable(s) à l\'étude (X et Y) ou CONCEPTS.',
+   445→  'Il doit indiquer la nature de la relation qui unit ces variables (effet, incidence, influence de X sur Y).',
+   446→  'Il doit mentionner le territoire et/ou la population Z à l\'étude (X influence Y chez Z).',
+   447→  'Le titre doit être à la fois BREF et PRÉCIS.',
+   448→  'Il prend généralement la forme d\'une AFFIRMATION, et non d\'une QUESTION.',
+   449→  'La variable Y = thème/sujet étudié ; la variable X = cause possible = problème de recherche.',
+   450→]
+   451→
+   452→// ─── Types de variables en recherche ─────────────────────────────────────
+   453→export interface VariableType {
+   454→  name: string
+   455→  definition: string
+   456→  example: string
+   457→  category: 'cause-effet' | 'contrôle' | 'relation' | 'mesure' | 'modèle'
+   458→  color: string
+   459→}
+   460→
+   461→export const researchVariables: VariableType[] = [
+   462→  {
+   463→    name: 'Variable Indépendante (VI)',
+   464→    definition: 'La variable manipulée ou modifiée par le chercheur pour observer son effet sur la variable dépendante.',
+   465→    example: 'Méthode d\'enseignement (Conventionnelle, En ligne, Hybride)',
+   466→    category: 'cause-effet',
+   467→    color: 'bg-blue-100 text-blue-800 border-blue-200',
+   468→  },
+   469→  {
+   470→    name: 'Variable Dépendante (VD)',
+   471→    definition: 'La variable mesurée ou observée pour déterminer l\'effet de la variable indépendante.',
+   472→    example: 'Performance des étudiants (Score à l\'examen)',
+   473→    category: 'cause-effet',
+   474→    color: 'bg-blue-100 text-blue-800 border-blue-200',
+   475→  },
+   476→  {
+   477→    name: 'Variable de Contrôle',
+   478→    definition: 'Variables maintenues constantes pour empêcher qu\'elles n\'affectent les résultats.',
+   479→    example: 'Durée du cours, Même enseignant, Température de la salle',
+   480→    category: 'contrôle',
+   481→    color: 'bg-gray-100 text-gray-800 border-gray-200',
+   482→  },
+   483→  {
+   484→    name: 'Variable Parasite',
+   485→    definition: 'Variables autres que la VI qui peuvent influencer la VD. Il faut les identifier et les contrôler.',
+   486→    example: 'Motivation de l\'étudiant, Environnement familial',
+   487→    category: 'contrôle',
+   488→    color: 'bg-gray-100 text-gray-800 border-gray-200',
+   489→  },
+   490→  {
+   491→    name: 'Variable Confondante',
+   492→    definition: 'Variable parasite corrélée à la fois avec la VI et la VD, créant une fausse relation de causalité.',
+   493→    example: "L'intelligence affectant à la fois le temps d'étude et la performance à l'examen",
+   494→    category: 'contrôle',
+   495→    color: 'bg-red-100 text-red-800 border-red-200',
+   496→  },
+   497→  {
+   498→    name: 'Variable Modératrice',
+   499→    definition: "Variable qui affecte la force ou la direction de la relation entre la VI et la VD.",
+   500→    example: "Le genre modérant l'effet de la méthode d'enseignement sur la performance",
+   501→    category: 'relation',
+   502→    color: 'bg-purple-100 text-purple-800 border-purple-200',
+   503→  },
+   504→  {
+   505→    name: 'Variable Médiatrice',
+   506→    definition: "Variable qui explique le mécanisme par lequel la VI affecte la VD. C'est le « pourquoi » de la relation.",
+   507→    example: "La motivation médiatisant l'effet de la méthode d'enseignement sur la performance",
+   508→    category: 'relation',
+   509→    color: 'bg-purple-100 text-purple-800 border-purple-200',
+   510→  },
+   511→  {
+   512→    name: 'Variable Intermédiaire',
+   513→    definition: "Variable qui se situe entre la VI et la VD mais n'est pas sur le chemin causal direct.",
+   514→    example: "Le stress entre la pression au travail (VI) et la satisfaction au travail (VD)",
+   515→    category: 'relation',
+   516→    color: 'bg-purple-100 text-purple-800 border-purple-200',
+   517→  },
+   518→  {
+   519→    name: 'Variable Dichotomique',
+   520→    definition: 'Variable avec seulement deux catégories ou résultats possibles.',
+   521→    example: 'Genre (Homme/Femme), Réussite (Oui/Non)',
+   522→    category: 'mesure',
+   523→    color: 'bg-green-100 text-green-800 border-green-200',
+   524→  },
+   525→  {
+   526→    name: 'Variable Polythomique',
+   527→    definition: 'Variable avec plus de deux catégories sans ordre inhérent.',
+   528→    example: 'Groupe sanguin (A, B, AB, O), Statut marital (Célibataire, Marié, Divorcé)',
+   529→    category: 'mesure',
+   530→    color: 'bg-green-100 text-green-800 border-green-200',
+   531→  },
+   532→  {
+   533→    name: 'Variable Continue',
+   534→    definition: 'Variable quantitative pouvant prendre toute valeur dans un intervalle (y compris les décimales).',
+   535→    example: 'Taille, Poids, Temps, Température',
+   536→    category: 'mesure',
+   537→    color: 'bg-green-100 text-green-800 border-green-200',
+   538→  },
+   539→  {
+   540→    name: 'Variable Discrète',
+   541→    definition: 'Variable quantitative prenant des valeurs dénombrables, séparées (généralement des entiers).',
+   542→    example: "Nombre d'étudiants, Nombre d'erreurs, Nombre de visites",
+   543→    category: 'mesure',
+   544→    color: 'bg-green-100 text-green-800 border-green-200',
+   545→  },
+   546→  {
+   547→    name: 'Variable Observée',
+   548→    definition: 'Variable pouvant être mesurée ou observée directement.',
+   549→    example: 'Âge, Salaire, Score au test',
+   550→    category: 'mesure',
+   551→    color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+   552→  },
+   553→  {
+   554→    name: 'Variable Latente',
+   555→    definition: 'Variable non observable directement, déduite à partir d\'autres variables indicatrices.',
+   556→    example: 'Intelligence, Attitude, Satisfaction, Image de marque',
+   557→    category: 'mesure',
+   558→    color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+   559→  },
+   560→  {
+   561→    name: 'Variable Exogène',
+   562→    definition: 'Variable qui n\'est influencée par aucune autre variable dans le modèle. Elle agit comme cause.',
+   563→    example: "Méthode d'enseignement dans un modèle prédisant la performance",
+   564→    category: 'modèle',
+   565→    color: 'bg-orange-100 text-orange-800 border-orange-200',
+   566→  },
+   567→  {
+   568→    name: 'Variable Endogène',
+   569→    definition: "Variable qui est expliquée ou influencée par une ou plusieurs autres variables du modèle.",
+   570→    example: "Performance de l'étudiant influencée par la motivation, le temps d'étude, la méthode",
+   571→    category: 'modèle',
+   572→    color: 'bg-orange-100 text-orange-800 border-orange-200',
+   573→  },
+   574→]
+   575→
+   576→export const variableCategories = [
+   577→  { id: 'cause-effet', label: 'Cause & Effet', color: 'text-blue-700' },
+   578→  { id: 'contrôle', label: 'Contrôle & Biais', color: 'text-gray-700' },
+   579→  { id: 'relation', label: 'Relations', color: 'text-purple-700' },
+   580→  { id: 'mesure', label: 'Types de mesure', color: 'text-green-700' },
+   581→  { id: 'modèle', label: 'Modèle causal', color: 'text-orange-700' },
+   582→]
+   583→
+   584→// ─── Analyse bibliométrique ─────────────────────────────────────────────
+   585→export interface BiblioMethod {
+   586→  name: string
+   587→  description: string
+   588→}
+   589→
+   590→export interface BiblioMetric {
+   591→  name: string
+   592→  description: string
+   593→}
+   594→
+   595→export interface BiblioTool {
+   596→  name: string
+   597→  description: string
+   598→  color: string
+   599→}
+   600→
+   601→export const biblioFeatures = [
+   602→  'Approche quantitative et statistique',
+   603→  'Utilise les données de publications et de citations',
+   604→  'Identifie les motifs et les relations',
+   605→  'Soutient la prise de décision et la stratégie',
+   606→  'Visualise la structure des connaissances',
+   607→]
+   608→
+   609→export const biblioPurposes = [
+   610→  'Comprendre la croissance et le développement d\'un champ de recherche',
+   611→  'Identifier les auteurs, articles, revues et institutions influents',
+   612→  'Découvrir les lacunes de recherche et les tendances émergentes',
+   613→  'Évaluer la performance et l\'impact de la recherche',
+   614→  'Soutenir les revues de littérature et la planification de recherche',
+   615→]
+   616→
+   617→export const biblioMethods: BiblioMethod[] = [
+   618→  { name: 'Analyse de performance', description: 'Auteurs, revues, pays, institutions' },
+   619→  { name: 'Cartographie scientifique (Science Mapping)', description: 'Co-citation, couplage bibliographique, co-auteur' },
+   620→  { name: 'Analyse de citations', description: 'Nombre de citations, h-index, facteur d\'impact' },
+   621→  { name: 'Analyse de co-mots', description: 'Co-occurrence de mots-clés, cartographie thématique' },
+   622→]
+   623→
+   624→export const biblioMetrics: BiblioMetric[] = [
+   625→  { name: 'Publications totales', description: 'Nombre total de publications dans un champ ou par un auteur/institution.' },
+   626→  { name: 'Citations totales', description: 'Nombre total de fois que les publications ont été citées.' },
+   627→  { name: 'h-index', description: 'Métrique qui mesure à la fois la productivité et l\'impact des citations.' },
+   628→  { name: 'Citations par article', description: 'Nombre moyen de citations reçues par publication.' },
+   629→  { name: 'Facteur d\'impact (Impact Factor)', description: 'Mesure les citations moyennes des articles d\'une revue.' },
+   630→  { name: 'Co-auteur', description: 'Indique les motifs de collaboration entre auteurs/pays.' },
+   631→  { name: 'Co-citation', description: 'Mesure la fréquence à laquelle deux documents sont cités ensemble.' },
+   632→]
+   633→
+   634→export const biblioTools: BiblioTool[] = [
+   635→  { name: 'VOSviewer', description: 'Création et visualisation de réseaux bibliométriques', color: 'bg-blue-100 text-blue-800' },
+   636→  { name: 'Bibliometrix (R)', description: 'Analyse bibliométrique complète en R', color: 'bg-cyan-100 text-cyan-800' },
+   637→  { name: 'CiteSpace', description: 'Détection des tendances émergentes et des sujets en éruption', color: 'bg-amber-100 text-amber-800' },
+   638→  { name: 'Scopus / Web of Science', description: 'Extraction de données bibliographiques de haute qualité', color: 'bg-emerald-100 text-emerald-800' },
+   639→]
+   640→
+   641→export const biblioProcess = [
+   642→  { step: 1, title: 'Collecte des données', detail: 'Récupérer les données depuis les bases (Scopus, Web of Science, Dimensions, etc.)' },
+   643→  { step: 2, title: 'Traitement des données', detail: 'Nettoyer et exporter les données dans des formats adaptés (CSV, RIS, BibTeX)' },
+   644→  { step: 3, title: 'Analyse', detail: 'Appliquer les méthodes et métriques bibliométriques pour analyser les données.' },
+   645→  { step: 4, title: 'Visualisation', detail: 'Créer des cartes, graphiques et réseaux pour visualiser les motifs et tendances.' },
+   646→  { step: 5, title: 'Interprétation', detail: 'Interpréter les résultats, tirer des enseignements et identifier les implications.' },
+   647→]
+   648→// ─── Ressources PDF (pages 1-6) ──────────────────────────────────
+   649→
+   650→export interface LitReviewStage {
+   651→  id: string
+   652→  stage: string
+   653→  question: string
+   654→  func: string
+   655→  proceduralDifferences: string[]
+   656→  sourcesOfInvalidity: string[]
+   657→}
+   658→
+   659→export const literatureReviewStages: LitReviewStage[] = [
+   660→  {
+   661→    id: 'formation',
+   662→    stage: 'Formation du problème',
+   663→    question: 'Quelles preuves doivent être incluses dans la revue ?',
+   664→    func: 'Construire des définitions qui distinguent les études pertinentes des non pertinentes.',
+   665→    proceduralDifferences: [
+   666→      'Différences dans les définitions opérationnelles incluses.',
+   667→      'Différences dans le détail opérationnel.',
+   668→    ],
+   669→    sourcesOfInvalidity: [
+   670→      'Des concepts étroits peuvent rendre les conclusions moins définitives et robustes.',
+   671→      'Un détail opérationnel superficiel peut masquer les variables d\'interaction.',
+   672→    ],
+   673→  },
+   674→  {
+   675→    id: 'collection',
+   676→    stage: 'Collecte des données',
+   677→    question: 'Quelles procédures doivent être utilisées pour trouver les preuves pertinentes ?',
+   678→    func: 'Déterminer quelles sources de preuves potentiellement pertinentes examiner.',
+   679→    proceduralDifferences: [
+   680→      'Différences dans la recherche contenue dans les sources d\'information.',
+   681→    ],
+   682→    sourcesOfInvalidity: [
+   683→      'Les études accessibles peuvent être qualitativement différentes de la population cible.',
+   684→      'Les personnes échantillonnées dans les études accessibles peuvent différer de la population cible.',
+   685→    ],
+   686→  },
+   687→  {
+   688→    id: 'evaluation',
+   689→    stage: 'Évaluation des données',
+   690→    question: 'Quelles preuves récupérées doivent être incluses dans la revue ?',
+   691→    func: 'Appliquer des critères pour séparer les études « valides » des « invalides ».',
+   692→    proceduralDifferences: [
+   693→      'Différences dans les critères de qualité.',
+   694→      'Différences dans l\'influence des critères non-qualitatifs.',
+   695→    ],
+   696→    sourcesOfInvalidity: [
+   697→      'Des facteurs non-qualitatifs peuvent causer une pondération inappropriée.',
+   698→      'Des omissions dans les rapports d\'étude peuvent rendre les conclusions non fiables.',
+   699→    ],
+   700→  },
+   701→  {
+   702→    id: 'analysis',
+   703→    stage: 'Analyse et interprétation',
+   704→    question: 'Quelles procédures pour faire des inférences sur la littérature dans son ensemble ?',
+   705→    func: 'Synthétiser les études valides récupérées.',
+   706→    proceduralDifferences: [
+   707→      'Différences dans les règles d\'inférence.',
+   708→    ],
+   709→    sourcesOfInvalidity: [
+   710→      'Les règles pour distinguer les motifs du bruit peuvent être inappropriées.',
+   711→      'Les preuves basées sur la revue peuvent être utilisées pour inférer la causalité.',
+   712→    ],
+   713→  },
+   714→  {
+   715→    id: 'presentation',
+   716→    stage: 'Présentation publique',
+   717→    question: 'Quelles informations doivent être incluses dans le rapport de revue ?',
+   718→    func: 'Appliquer des critères éditoriaux pour séparer les informations importantes des non importantes.',
+   719→    proceduralDifferences: [
+   720→      'Différences dans les lignes directrices pour le jugement éditorial.',
+   721→    ],
+   722→    sourcesOfInvalidity: [
+   723→      'L\'omission des procédures de revue peut rendre les conclusions non reproductibles.',
+   724→      'L\'omission des résultats de revue et des procédures d\'étude peut rendre les conclusions obsolètes.',
+   725→    ],
+   726→  },
+   727→]
+   728→
+   729→export const literatureReviewSource = 'Randolph, J. (2009). A Guide to Writing the Dissertation Literature Review. Practical Assessment, Research & Evaluation, 14(13), 1-13.'
+   730→
+   731→export interface ResearchGap {
+   732→  id: string
+   733→  name: string
+   734→  nameEn: string
+   735→  description: string
+   736→  strategies: string[]
+   737→  color: string
+   738→}
+   739→
+   740→export const researchGaps: ResearchGap[] = [
+   741→  { id: 'methodological', name: 'Lacune méthodologique', nameEn: 'Methodological Gap', description: 'Inadéquation ou absence de méthodes de recherche adaptées.', strategies: ['Développer de nouvelles méthodologies', 'Adapter des méthodes d\'autres champs disciplinaires', 'Combiner des méthodes existantes de manière innovante'], color: 'border-red-200 bg-red-50/50' },
+   742→  { id: 'data', name: 'Lacune de données', nameEn: 'Data Gap', description: 'Données insuffisantes pour répondre à la question de recherche.', strategies: ['Mener une collecte de données primaires', 'Accéder à des bases de données existantes', 'Collaborer avec d\'autres chercheurs ou institutions'], color: 'border-amber-200 bg-amber-50/50' },
+   743→  { id: 'empirical', name: 'Lacune empirique', nameEn: 'Empirical Gap', description: 'Absence de données ou d\'études sur un sujet particulier.', strategies: ['Mener des études exploratoires', 'Effectuer des revues de littérature systématiques', 'Identifier les aspects sous-étudiés du sujet'], color: 'border-orange-200 bg-orange-50/50' },
+   744→  { id: 'contextual', name: 'Lacune contextuelle', nameEn: 'Contextual Gap', description: 'Impossibilité de généraliser les résultats en raison de différences de contextes.', strategies: ['Mener des études comparatives', 'Explorer les implications interculturelles', 'Identifier les facteurs contextuels influençant les résultats'], color: 'border-sky-200 bg-sky-50/50' },
+   745→  { id: 'implementation', name: 'Lacune de mise en œuvre', nameEn: 'Implementation Gap', description: 'Déconnexion entre les résultats de recherche et l\'application pratique.', strategies: ['S\'engager avec les praticiens', 'Développer des projets de recherche-action', 'Créer des lignes directrices ou cadres pratiques'], color: 'border-emerald-200 bg-emerald-50/50' },
+   746→  { id: 'population', name: 'Lacune populationnelle', nameEn: 'Population Gap', description: 'Sous-représentation ou exclusion de certains groupes dans la recherche.', strategies: ['Diversifier les échantillons d\'étude', 'Mener des recherches ciblées sur les groupes sous-représentés', 'Analyser les données existantes en ciblant les populations exclues'], color: 'border-violet-200 bg-violet-50/50' },
+   747→  { id: 'practical', name: 'Lacune de connaissance pratique', nameEn: 'Practical Knowledge Gap', description: 'Incapacité à appliquer les connaissances théoriques aux problèmes réels.', strategies: ['Mener des études de cas', 'Développer des projets de recherche appliquée', 'Collaborer avec des partenaires industriels'], color: 'border-pink-200 bg-pink-50/50' },
+   748→  { id: 'evidence', name: 'Lacune de preuves', nameEn: 'Evidence Gap', description: 'Preuves insuffisantes ou contradictoires pour étayer une conclusion.', strategies: ['Mener des méta-analyses', 'Effectuer des études de réplication', 'Concevoir des études avec une puissance statistique accrue'], color: 'border-gray-200 bg-gray-50/50' },
+   749→  { id: 'knowledge', name: 'Lacune de connaissances', nameEn: 'Knowledge Gap', description: 'Manque de compréhension ou d\'information sur un sujet spécifique.', strategies: ['Mener des revues de littérature approfondies', 'Identifier les questions de recherche clés', 'Développer des cadres conceptuels'], color: 'border-cyan-200 bg-cyan-50/50' },
+   750→  { id: 'theoretical', name: 'Lacune théorique', nameEn: 'Theoretical Gap', description: 'Cadres théoriques insuffisants pour expliquer un phénomène.', strategies: ['Développer de nouvelles théories', 'Intégrer des théories existantes', 'Appliquer des théories d\'autres disciplines'], color: 'border-indigo-200 bg-indigo-50/50' },
+   751→]
+   752→
+   753→export const researchGapsSource = 'Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke.'
+   754→
+   755→export const problemStatementQuestions = [
+   756→  { question: 'Quoi ?', detail: 'Quel est le problème ?' },
+   757→  { question: 'Où ?', detail: 'Où se situe le problème ?' },
+   758→  { question: 'Comment ?', detail: 'Comment le problème peut-il être résolu ?' },
+   759→  { question: 'Pourquoi ?', detail: 'Pourquoi voulez-vous résoudre le problème ?' },
+   760→  { question: 'Actualité ?', detail: 'Le problème est-il un enjeu actuel ?' },
+   761→  { question: 'Persistance ?', detail: 'Le problème persistera-t-il s\'il n\'est pas résolu ?' },
+   762→  { question: 'Qui ?', detail: 'Qui est affecté négativement par le problème ?' },
+   763→  { question: 'Contribution ?', detail: 'Ce problème prouvera-t-il ou infirmera-t-il les connaissances existantes ?' },
+   764→]
+   765→
+   766→export const problemStatementSource = 'Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545.'
+   767→
+   768→export const introductionWritingTips = [
+   769→  'Énoncez le problème ou le phénomène à étudier.',
+   770→  'Identifiez la partie affectée par le problème.',
+   771→  'Expliquez comment vous comptez résoudre le problème.',
+   772→  'Convainquez le lecteur que vous êtes qualifié et équipé des bonnes méthodes.',
+   773→  'Mettez en évidence les bénéfices de la résolution du problème.',
+   774→  'Indiquez au lecteur les résultats que vous anticipez.',
+   775→]
+   776→
+   777→export const introductionWritingAdvice = [
+   778→  'Commencez par des déclarations générales pertinentes avant de resserrer progressivement vers les questions de recherche.',
+   779→  'Votre introduction est préparée pour des lecteurs ayant des connaissances adéquates de votre discipline.',
+   780→  'Si c\'est votre propre découverte scientifique, expliquez clairement comment les résultats s\'ajouteront aux connaissances existantes.',
+   781→  'Discutez les obstacles rencontrés et les limites de votre recherche, le cas échéant.',
+   782→  'L\'introduction doit être motivante et captivante pour donner envie au lecteur de continuer.',
+   783→]
+   784→
+   785→export interface AbstractStructureStep {
+   786→  id: string
+   787→  label: string
+   788→  labelEn: string
+   789→  description: string
+   790→  example: string
+   791→  color: string
+   792→}
+   793→
+   794→export const abstractStructure: AbstractStructureStep[] = [
+   795→  { id: 'background', label: 'Contexte général', labelEn: 'General background', description: 'Présentez le domaine de recherche de manière large et accessible.', example: 'Le transfert horizontal de gènes (HGT), l\'acquisition de matériel génétique de lignées non parentales, est connu pour être important dans l\'évolution bactérienne.', color: 'bg-sky-100 text-sky-800' },
+   796→  { id: 'specific-bg', label: 'Contexte spécifique', labelEn: 'Specific background', description: 'Resserrez vers votre domaine précis en citant les travaux clés.', example: 'En particulier, le HGT fournit un accès rapide aux innovations génétiques, permettant à des traits tels que la virulence, la résistance aux antibiotiques et le métabolisme des xénobiotiques de se propager.', color: 'bg-cyan-100 text-cyan-800' },
+   797→  { id: 'gap', label: 'Lacune de connaissances', labelEn: 'Knowledge gap', description: 'Identifiez ce qui manque dans la littérature existante.', example: 'Il est nécessaire de déterminer la fréquence de tels transferts récents et les forces qui régissent ces événements.', color: 'bg-amber-100 text-amber-800' },
+   798→  { id: 'here-we-show', label: 'Notre contribution', labelEn: 'Here we show...', description: 'Annoncez clairement ce que votre étude apporte.', example: 'Nous rapportons la découverte et la caractérisation d\'un vaste réseau humain d\'échange de gènes.', color: 'bg-emerald-100 text-emerald-800' },
+   799→  { id: 'results', label: 'Résultats clés', labelEn: 'Results with key values', description: 'Présentez vos résultats avec des valeurs concrètes et statistiquement significatives.', example: 'Ce réseau de 10 770 gènes uniques récemment transférés dans 2 235 génomes bactériens complets est façonné principalement par l\'écologie plutôt que par la géographie ou la phylogénie.', color: 'bg-violet-100 text-violet-800' },
+   800→  { id: 'meaning', label: 'Signification des résultats', labelEn: 'Meaning of results', description: 'Expliquez l\'impact et les implications de vos résultats.', example: 'Cette structure offre une fenêtre sur les traits moléculaires qui définissent les niches écologiques, insight que nous utilisons pour uncover les sources de résistance aux antibiotiques.', color: 'bg-rose-100 text-rose-800' },
+   801→]
+   802→
+   803→export const abstractSource = 'Abstract annoté d\'un article de microbiologie publié dans Nature. Reproduit à des fins éducatives uniquement.'
+   804→
+   805→export interface ThesisWebsite {
+   806→  id: string
+   807→  name: string
+   808→  url: string
+   809→  description: string
+   810→  type: string
+   811→}
+   812→
+   813→export const thesisWebsites: ThesisWebsite[] = [
+   814→  { id: 'oatd', name: 'Open Access Theses and Dissertations', url: 'https://oatd.org/', description: 'Le plus grand index mondial de thèses en accès libre.', type: 'Multidisciplinaire' },
+   815→  { id: 'openthesis', name: 'Open Thesis', url: 'http://www.openthesis.org/', description: 'Base collaborative de thèses et mémoires en libre accès.', type: 'Multidisciplinaire' },
+   816→  { id: 'dart-europe', name: 'DART-Europe E-theses Portal', url: 'https://www.dart-europe.org/', description: 'Portail européen de thèses électroniques.', type: 'Europe' },
+   817→  { id: 'proquest', name: 'ProQuest Dissertations & Theses', url: 'https://www.proquest.com/', description: 'Plus grande base de thèses au monde (accès partiel gratuit).', type: 'Multidisciplinaire' },
+   818→  { id: 'mit', name: 'MIT Theses', url: 'https://dspace.mit.edu/handle/1721.1/7582', description: 'Toutes les thèses du MIT en accès libre.', type: 'Sciences & Ingénierie' },
+   819→  { id: 'ndltd', name: 'NDLTD', url: 'http://www.ndltd.org/', description: 'Réseau international de bibliothèques numériques de thèses.', type: 'Multidisciplinaire' },
+   820→  { id: 'caltech', name: 'Caltech Thesis', url: 'https://thesis.library.caltech.edu/', description: 'Thèses du California Institute of Technology.', type: 'Sciences & Ingénierie' },
+   821→  { id: 'ethos', name: 'British Library EThOS', url: 'https://www.bl.uk/', description: 'Service de thèses de la British Library (Royaume-Uni).', type: 'Europe' },
+   822→  { id: 'harvard', name: 'Harvard DASH', url: 'https://dash.harvard.edu/', description: 'Dépôt d\'accès scholarique de Harvard.', type: 'Multidisciplinaire' },
+   823→  { id: 'canada', name: 'Theses Canada Portal', url: 'https://canadagtd.ca/', description: 'Portail des thèses canadiennes.', type: 'Amérique du Nord' },
+   824→  { id: 'repec', name: 'RePEc', url: 'https://repec.org/', description: 'Papiers de recherche en économie.', type: 'Économie' },
+   825→  { id: 'ssrn', name: 'SSRN eLibrary', url: 'https://www.ssrn.com/', description: 'Réseau de recherche en sciences sociales.', type: 'Sciences Sociales' },
+   826→  { id: 'europe-pmc', name: 'Europe PMC', url: 'https://europepmc.org/', description: 'Archive ouverte de biomedical et sciences de la vie.', type: 'Biomedical' },
+   827→  { id: 'worldcat', name: 'WorldCat Dissertations & Theses', url: 'https://www.worldcat.org/', description: 'Catalogue mondial des bibliothèques, incluant les thèses.', type: 'Multidisciplinaire' },
+   828→  { id: 'etd', name: 'Electronic Theses & Dissertation Centre', url: 'https://etd.ohiolink.edu/', description: 'Centre de thèses électroniques (OhioLink).', type: 'Amérique du Nord' },
+   829→]
+   830→
+   831→// ─── Opérationnalisation (Baripedia) ──────────────────────────────
+   832→
+   833→export interface LazarsfeldStep {
+   834→  id: string
+   835→  title: string
+   836→  description: string
+   837→  details: string[]
+   838→  examples?: string[]
+   839→  warning?: string
+   840→}
+   841→
+   842→export const operationalisationBaripedia = {
+   843→  definition: 'L\'opérationnalisation consiste à rendre les concepts mesurables. Il s\'agit de passer d\'un haut niveau d\'abstraction conceptuelle à des indicateurs concrets adaptés à la recherche empirique. Cette étape constitue le point de relais entre la théorie et l\'empirie.',
+   844→  keyIdea: 'Dans les méthodes quantitatives, il faut toujours faire passer les concepts du statut de mots au statut de chiffres. Les concepts théoriques n\'existent pas dans la réalité sociale — ils doivent être concrétisés pour être mesurés.',
+   845→  quote: {
+   846→    text: 'Les sociologues utilisent souvent des concepts qui sont formulés à un niveau plutôt haut d\'abstraction. Le problème lié au fossé entre la théorie et la recherche est celui de l\'erreur de mesure.',
+   847→    author: 'Blalock',
+   848→  },
+   849→  stakes: [
+   850→    'L\'opérationnalisation doit permettre de tester les hypothèses en descendant dans l\'échelle de l\'abstraction.',
+   851→    'Les choix effectués tout au long de la recherche visent à conférer une validité interne.',
+   852→    'Aucun résultat n\'est accepté unanimement, à cause des choix potentiellement discutables.',
+   853→    'Les données secondaires doivent être utilisées avec précaution — l\'indicateur doit parfaitement convenir à l\'item étudié.',
+   854→  ],
+   855→  lazarsfeldSteps: [
+   856→    {
+   857→      id: 'conceptual',
+   858→      title: '1. Étape conceptuelle',
+   859→      description: 'Partir d\'un concept abstrait, non directement mesurable. Souvent polysémique, le concept doit être défini précisément et de manière univoque.',
+   860→      details: [
+   861→        'S\'aider de la littérature pour combler les lacunes théoriques',
+   862→        'Vérifier qu\'un travail similaire n\'a pas déjà été effectué',
+   863→        'La définition du concept de base est cruciale pour obtenir des mesures fiables',
+   864→      ],
+   865→      examples: [
+   866→        'Compétence politique (Dahl) : autonomie du citoyen autour de la connaissance du champ politique et de la verbalisation de préférences claires',
+   867→        'Compétence politique (Kriessi) : intérêt subjectif et objectif porté à la politique',
+   868→        'Compétence politique (Gaxie) : capacité à se situer dans l\'univers politique',
+   869→      ],
+   870→    },
+   871→    {
+   872→      id: 'dimensions',
+   873→      title: '2. Spécifier les dimensions et sous-dimensions',
+   874→      description: 'Un concept est toujours multidimensionnel. Il s\'agit d\'identifier chaque facette et d\'en extraire le sens. Chaque composante doit être définie de manière univoque.',
+   875→      details: [
+   876→        'Pour les concepts simples : décomposer en dimensions (âge, sexe, lieu de résidence…)',
+   877→        'Pour les concepts complexes : décomposer en dimensions ET sous-dimensions',
+   878→        'Cette étape permet de descendre sur l\'échelle de l\'abstraction',
+   879→      ],
+   880→    },
+   881→    {
+   882→      id: 'indicators',
+   883→      title: '3. Sélection des indicateurs pertinents',
+   884→      description: 'Chaque dimension peut être représentée par un ou plusieurs indicateurs. Un indicateur = une variable = une mesure = une question.',
+   885→      details: [
+   886→        'Un indicateur mesure directement une dimension ou sous-dimension d\'un concept abstrait',
+   887→        'Mesurer un concept avec PLUSIEURS indicateurs pour minimiser les risques d\'erreur',
+   888→        'L\'agencement des indicateurs doit ensemble reconstruire le concept',
+   889→        'Le nombre d\'indicateurs ne doit pas être trop petit pour couvrir tout effet discriminant',
+   890→      ],
+   891→      warning: 'Le chercheur doit sélectionner des indicateurs présentant une bonne discrimination, validité et cohérence interne.',
+   892→    },
+   893→    {
+   894→      id: 'indices',
+   895→      title: '4. Formation des indices (après collecte)',
+   896→      description: 'Reconstruire les dimensions des concepts après la récolte des données. Cette étape fait le chemin inverse des trois précédentes.',
+   897→      details: [
+   898→        'Se déroule APRÈS la récolte des données, au moment de l\'analyse',
+   899→        'Construire une mesure unique à partir de plusieurs informations numériques',
+   900→        'Permet de tester les relations causales entre concepts',
+   901→        'Techniques possibles : additionneur, échelles d\'indices, analyse factorielle',
+   902→      ],
+   903→      warning: 'Si les indicateurs mesurent exactement la même chose, on peut en prendre un seul. Cette étape n\'est pas toujours nécessaire.',
+   904→    },
+   905→  ] as LazarsfeldStep[],
+   906→  indicatorSelection: {
+   907→    title: 'Sélection des indicateurs',
+   908→    rules: [
+   909→      'Processus circulaire (et non linéaire) avec des allers-retours entre étapes',
+   910→      'Si le sens d\'une dimension reste ambigu → retourner à l\'étape 2',
+   911→      'Deux voies : utiliser son inventivité OU reprendre des mesures élaborées par d\'autres chercheurs',
+   912→      'Règle de base : plus d\'indicateurs c\'est mieux, mais pas trop',
+   913→      'Moins il y a d\'indicateurs, plus on a d\'effet discriminant',
+   914→    ],
+   915→    simpleVsComplex: {
+   916→      simple: { label: 'Concepts simples/périphériques', rule: 'Un indicateur suffit', example: 'L\'âge (si ce n\'est pas le concept clé)' },
+   917→      complex: { label: 'Concepts complexes/centraux', rule: 'Plusieurs indicateurs nécessaires', example: 'La compétence politique, l\'islamophobie' },
+   918→    },
+   919→    vdWarning: 'Attention à la variable dépendante ! On prend rarement le risque d\'avoir un seul indicateur pour la VD.',
+   920→    examples: [
+   921→      { concept: 'Islamophobie', indicators: ['Autoriser les pratiques religieuses en Suisse', 'Le port du voile'], problem: 'Concept très complexe saisi par seulement 2 indicateurs. La 2e question tend à graduer l\'influence du répondant masculin.' },
+   922→      { concept: 'Participation conventionnelle', indicators: ['Fréquence de participation aux votations', 'Fréquence de participation aux élections'], problem: 'Bon exemple de mesure valide.' },
+   923→      { concept: 'Bien-être individuel', indicators: ['Salaire de l\'individu'], problem: 'Mauvais exemple : le salaire ne mesure pas le bien-être.' },
+   924→    ],
+   925→  },
+   926→  measurementErrors: {
+   927→    title: 'Validité et fiabilité : deux erreurs de mesure',
+   928→    validity: {
+   929→      title: 'Validité',
+   930→      definition: 'Juge l\'opérationnalisation d\'un point de vue théorique. Une mesure non valide ne mesure pas le concept qu\'on voulait mesurer.',
+   931→      location: 'Au niveau de l\'opérationnalisation (processus qui lie les concepts aux indicateurs)',
+   932→      causes: [
+   933→        'Concepts mal définis',
+   934→        'Indicateurs non pertinents',
+   935→        'Concepts complexes mesurés par trop peu d\'indicateurs',
+   936→      ],
+   937→    },
+   938→    reliability: {
+   939→      title: 'Fiabilité',
+   940→      definition: 'Liée à la formulation et l\'élaboration des questions. Regarde le lien entre les indicateurs et la question.',
+   941→      location: 'Au niveau empirique (formulation des questions, reproductibilité)',
+   942→      causes: [
+   943→        'Double stimuli (inputs) — questions ambiguës',
+   944→        'Imprécision — jamais de question avec un « ou »',
+   945→        'Supposer les pratiques au lieu de les demander directement',
+   946→      ],
+   947→    },
+   948→    relationship: 'Pour avoir une mesure valide, elle doit être fiable. Mais le contraire n\'est pas forcément le cas. La fiabilité est une condition nécessaire mais non suffisante.',
+   949→    biases: 'Les biais systématiques ont une structure et ne sont pas distribués au hasard. Ils ne sont pas intégrés dans les analyses en termes d\'erreur et impliquent souvent un problème de validité.',
+   950→  },
+   951→  source: 'Baripedia — Des concepts aux mesures, un travail d\'opérationnalisation. Consulté le 20/11/2021.',
+   952→}
+   953→
+   954→// ─── Guide du jeune chercheur (Mathieu Guidère) ─────────────────────
+   955→
+   956→export const guidereGuide = {
+   957→  title: 'Méthodologie de la recherche — Guide du jeune chercheur',
+   958→  author: 'Mathieu Guidère',
+   959→  source: 'Guidère, M. Méthodologie de la recherche — Guide du jeune chercheur.',
+   960→  definition: 'La méthode désigne l\'ensemble des démarches que suit l\'esprit humain pour découvrir et démontrer la vérité.',
+   961→  keyQuote: 'La recherche ne peut être une simple compilation d\'informations, une synthèse de l\'existant. Elle se doit d\'être une investigation…',
+   962→  projectPhases: [
+   963→    { title: 'Phase préparatoire', details: ['Circonscrire l\'objet (domaine, sujet, époque)', 'Évaluer la faisabilité', 'Trouver un directeur de recherche'] },
+   964→    { title: 'Phase de réalisation', details: ['Élaboration d\'un plan détaillé', 'Collecte de données', 'Rédaction progressive'] },
+   965→    { title: 'Phase finale', details: ['Relecture et correction', 'Préparation de la soutenance', 'Soutenance devant le jury'] },
+   966→  ],
+   967→  planning: {
+   968→    master: { duration: '6-12 mois', steps: ['Choix du directeur (juin)', 'Recherche documentaire', 'Rédaction du mémoire (50-100 pages)', 'Soutenance (fin juin / septembre)'] },
+   969→    doctorat: { duration: '3-4 ans', steps: ['Choix du sujet / Inscription en 1ère année', 'Réalisation de la recherche en 2ème année', 'Rédaction et finition en 3ème/4ème année', 'Soutenance'] },
+   970→  },
+   971→  researchSteps: [
+   972→    { step: '1. Investigation', desc: 'Recherche documentaire objective', tools: ['Manuels', 'Encyclopédies', 'Ouvrages de référence'] },
+   973→    { step: '2. Exploration', desc: 'Bibliographie générale et spécialisée, définition du champ', tools: ['Bases de données', 'Catalogues', 'Réseaux scientifiques'] },
+   974→    { step: '3. Documentation', desc: 'Collecte et classement des éléments utiles', tools: ['Fiches de lecture', 'Fiches bibliographiques', 'Fiches méthodologiques'] },
+   975→    { step: '4. Rédaction', desc: 'Mise en forme logique et démonstrative', tools: ['Plan détaillé', 'Rédaction progressive', 'Relecture'] },
+   976→  ],
+   977→  researchWeb: {
+   978→    physical: ['Encyclopédies', 'Catalogue général de la BnF', 'Francis', 'Electre', 'MLA Bibliography', 'Historical Abstracts'],
+   979→    digital: ['Google Scholar', 'Persee', 'Erudit', 'Cairn', 'HAL'],
+   980→    goldenRule: 'Toujours recouper les sources web avec des sources papier fiables.',
+   981→  },
+   982→  fiches: [
+   983→    { type: 'Fiche bibliographique', content: ['Référence complète', 'Auteur, Titre, Ville, Éditeur, Date, Pages', 'Format A5 recommandé'] },
+   984→    { type: 'Fiche de lecture', content: ['Résumé de l\'ouvrage', 'Idées clés', 'Citation exacte (avec page)', 'Commentaire critique personnel'] },
+   985→    { type: 'Fiche méthodologique', content: ['Statistiques', 'Définitions', 'Concepts clés', 'Cadres théoriques'] },
+   986→  ],
+   987→  corpus: {
+   988→    definition: 'Ensemble des documents étudiés (textes, images, statistiques).',
+   989→    criteria: ['Pertinent : en lien direct avec le sujet', 'Cohérent : logique interne entre les documents', 'Consistant : taille gérable pour l\'analyse'],
+   990→  },
+   991→  problematique: {
+   992→    definition: 'Question centrale qui oriente tout le travail. Elle transforme un sujet général en une interrogation précise.',
+   993→    formulation: 'Dans quelle mesure / Comment / Pourquoi [Sujet] [Verbe d\'action] [Objet] ?',
+   994→    warning: 'Ne pas confondre le thème (général) avec la problématique (spécifique).',
+   995→    quote: 'C\'est l\'axe autour duquel s\'articule toute la démonstration… C\'est poser une question centrale concernant le sujet traité.',
+   996→  },
+   997→  planTypes: [
+   998→    { type: 'Thématique', desc: 'Parties = thèmes distincts', note: 'Le plus courant en sciences humaines' },
+   999→    { type: 'Chronologique', desc: 'Parties = périodes', note: 'Souvent trop descriptif, déconseillé en SHS pures' },
+  1000→    { type: 'Critique / Dialectique', desc: 'Thèse / Antithèse / Synthèse', note: 'Idéal pour montrer une opposition' },
+  1001→    { type: 'Progressif', desc: 'Observation → Analyse → Interprétation', note: 'Démarche scientifique classique' },
+  1002→  ],
+  1003→  titleRules: ['Doivent être accrocheurs', 'Précis et informatifs', 'Annoncer l\'idée directrice de la partie/chapitre'],
+  1004→  redaction: {
+  1005→    intro: { proportion: '10% du texte', mustInclude: ['Présenter le sujet', 'La problématique', 'L\'état de l\'art', 'Le plan annoncé', 'Les limites de l\'étude'] },
+  1006→    conclusion: { mustInclude: ['Synthèse (pas répétition)', 'Réponse à la problématique', 'Ouverture vers d\'autres perspectives'] },
+  1007→    citations: [
+  1008→      { rule: 'Courtes (< 3 lignes)', format: 'Entre guillemets dans le texte' },
+  1009→      { rule: 'Longues (> 3 lignes)', format: 'Alinéa décalé (retrait), sans guillemets, police plus petite possible' },
+  1010→    ],
+  1011→    citationRule: 'Toujours citer la source (Auteur, Titre, Page).',
+  1012→    footnotes: 'Pour les références, les développements secondaires ou les commentaires personnels qui alourdiraient le texte.',
+  1013→  },
+  1014→  aspectsTechniques: {
+  1015→    typo: ['Police : Times New Roman ou Arial', 'Corps : taille 12', 'Notes : taille 10', 'Interligne : 1,5'],
+  1016→    ponctuation: ['Espaces insécables avant : ; ? !', 'Espaces normales après . ,'],
+  1017→    outils: ['Table des matières automatisée', 'Index alphabétique des noms propres et concepts (optionnel mais valorisant)'],
+  1018→  },
+  1019→  approaches: [
+  1020→    { name: 'Empirique (Inductive)', desc: 'Particulier → Général (observation → loi)', icon: 'TrendingUp' },
+  1021→    { name: 'Déductive', desc: 'Général → Particulier (Théorie → Vérification)', icon: 'ArrowDown' },
+  1022→    { name: 'Analytique', desc: 'Décomposer le sujet en éléments constitutifs', icon: 'ScanSearch' },
+  1023→    { name: 'Synthétique', desc: 'Recomposer les éléments analysés en un tout cohérent', icon: 'Layers' },
+  1024→  ],
+  1025→  procedures: [
+  1026→    { name: 'Déduction', desc: 'Raisonnement du général au particulier' },
+  1027→    { name: 'Induction', desc: 'Raisonnement du particulier au général' },
+  1028→    { name: 'Analogie', desc: 'Comparer deux faits différents pour expliquer l\'un par l\'autre' },
+  1029→    { name: 'Classification', desc: 'Regrouper les faits par catégories (typologie)' },
+  1030→  ],
+  1031→  methods: [
+  1032→    { name: 'Méthode expérimentale', desc: 'Vérifier une hypothèse par l\'expérience ou l\'observation rigoureuse. Nécessite des variables clairement définies (VI vs VD).' },
+  1033→    { name: 'Méthode historique', desc: 'Critique des sources (authenticité, localisation). Critique externe (support matériel) et critique interne (contenu, style, intention). Objectif : reconstruire le passé.' },
+  1034→    { name: 'Méthode sociologique', desc: 'Étude des faits sociaux comme des « choses » (Durkheim). Statistiques, enquêtes de terrain, objectivation du chercheur.' },
+  1035→  ],
+  1036→  institutionnel: {
+  1037→    doctorat: { duree: '3 ans après Master (inscription renouvelable)', encadrement: 'Direction par un professeur HDR', convention: 'Charte des thèses (droits/devoirs du doctorant et du directeur)', soutenance: 'Devant un jury. Manuscrit remis au moins 1 mois avant.' },
+  1038→    master: { finalite: 'Formation à la recherche', volume: '300h de formation + stage/mémoire', memoire: '50-100 pages généralement' },
+  1039→  },
+  1040→  evaluationCriteria: [
+  1041→    { category: 'Forme', items: ['Présentation générale', 'Orthographe et grammaire', 'Clarté du style', 'Qualité des outils (bibliographie, index)'] },
+  1042→    { category: 'Fond', items: ['Originalité du sujet', 'Maîtrise de la littérature (state of the art)', 'Pertinence de la méthode', 'Solidité de l\'argumentation', 'Rigueur scientifique'] },
+  1043→    { category: 'Valeur ajoutée', items: ['Apport nouveau à la discipline', 'Qualités pédagogiques (clarté)'] },
+  1044→  ],
+  1045→  quotes: [
+  1046→    { text: 'La méthode désigne l\'ensemble des démarches que suit l\'esprit humain pour découvrir et démontrer la vérité.', page: 'p. 5' },
+  1047→    { text: 'La recherche ne peut être une simple compilation d\'informations, une synthèse de l\'existant. Elle se doit d\'être une investigation…', page: 'p. 9' },
+  1048→    { text: 'C\'est l\'axe autour duquel s\'articule toute la démonstration… C\'est poser une question centrale concernant le sujet traité.', page: 'p. 19' },
+  1049→    { text: 'Il faut avoir préparé intelligemment un certain nombre de fiches qui vont servir de base à la rédaction.', page: 'p. 25' },
+  1050→  ],
+  1051→}
+  1052→
+  1053→
