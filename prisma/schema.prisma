@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -67,26 +67,26 @@ model Thesis {
   author    String    @default("Doctorant")
   field     String    @default("")
   university String   @default("")
-  status    String    @default("draft") // draft | in_progress | submitted | defended
+  status    String    @default("draft")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   chapters  Chapter[]
 }
 
 model Chapter {
-  id          String   @id @default(cuid())
-  thesisId    String
-  order       Int      // 1-6
-  number      String   // "I", "II", etc.
-  title       String   // "Introduction générale"
-  content     String   @default("") // MDX / rich text content
-  wordCount   Int      @default(0)
-  status      String   @default("draft") // draft | in_progress | submitted | revised
-  directorFeedback String? @default("") // feedback from AI director
+  id               String    @id @default(cuid())
+  thesisId         String
+  order            Int
+  number           String
+  title            String
+  content          String    @default("")
+  wordCount        Int       @default(0)
+  status           String    @default("draft")
+  directorFeedback String?
   directorFeedbackAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  thesis      Thesis   @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  thesis           Thesis    @relation(fields: [thesisId], references: [id], onDelete: Cascade)
 
   @@unique([thesisId, order])
 }
