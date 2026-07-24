@@ -443,3 +443,33 @@ Stage Summary:
 - App Next.js fonctionne correctement avec l'intégration Tauri
 - 2 bugs critiques corrigés : app.title invalide + import notification manquant
 - Build impossible dans le sandbox Linux (pas de sudo pour webkit2gtk) — fonctionnel sur Windows
+---
+Task ID: 1
+Agent: main
+Task: Create GitHub Actions CI/CD workflow for automatic Windows .exe build
+
+Work Log:
+- Analyzed existing Tauri v2 configuration (tauri.conf.json, Cargo.toml, capabilities, lib.rs)
+- Verified all Tauri files are valid JSON/Rust
+- Created .github/workflows/build-windows-exe.yml with:
+  - Trigger: push to main (path-filtered) + manual workflow_dispatch
+  - Windows runner (windows-latest) with Rust stable + Bun + Node.js 20
+  - NSIS installer build via tauri-apps/tauri-action@v0
+  - Artifact upload for .exe and .msi
+  - Optional GitHub Release creation via release_tag input
+  - Build summary in GitHub Actions summary
+- Updated .gitignore with Tauri build artifacts (src-tauri/target/, *.exe, *.msi, *.deb, *.AppImage, src-tauri/gen/)
+- Updated TAURI_README.md with CI/CD instructions (in French):
+  - Quick steps to download .exe from GitHub Actions
+  - Manual trigger instructions
+  - Required GitHub Secrets
+  - Alternative local Windows build instructions
+- Committed and pushed all changes
+
+Stage Summary:
+- Created: .github/workflows/build-windows-exe.yml (CI/CD pipeline)
+- Updated: .gitignore (Tauri artifacts)
+- Updated: TAURI_README.md (CI/CD docs)
+- Commit: "ci: add GitHub Actions workflow for automatic Windows .exe build"
+- The .exe will be built automatically on GitHub's Windows runners when code is pushed to main
+- User can download the .exe from GitHub Actions artifacts page
