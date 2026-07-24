@@ -4,8 +4,8 @@
   "version": "0.2.0",
   "identifier": "com.thesisframe.app",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build",
     "devUrl": "http://localhost:3000"
   },
   "app": {
@@ -20,11 +20,12 @@
         "resizable": true,
         "fullscreen": false,
         "center": true,
-        "url": "http://localhost:3000"
+        "url": "http://localhost:3000",
+        "decorations": true
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.googleapis.com https://*.gstatic.com https://i.imgur.com asset:https://asset.localhost; connect-src 'self' https://api.openalex.org https://doaj.org https://api.crossref.org https://api.semanticscholar.org https://eutils.ncbi.nlm.nih.gov https://export.arxiv.org https://api.openai.com https://api.mistral.ai https://api.anthropic.com https://api.groq.com http://localhost:* https://*.supabase.co; frame-src 'self';"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://i.imgur.com asset:https://asset.localhost; connect-src 'self' https://api.openalex.org https://doaj.org https://api.crossref.org https://api.semanticscholar.org https://eutils.ncbi.nlm.nih.gov https://export.arxiv.org https://api.archives-ouvertes.fr https://api.openai.com https://api.mistral.ai https://api.anthropic.com https://api.groq.com https://generativelanguage.googleapis.com https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com https://drive.google.com http://localhost:* https://*.supabase.co; frame-src 'self';"
     }
   },
   "bundle": {

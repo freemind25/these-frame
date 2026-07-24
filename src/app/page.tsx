@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud, Newspaper,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud, Newspaper, Monitor,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -29,6 +29,7 @@ import LiteratureSearch from '@/components/thesis/literature-search'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import CloudDriveBackup from '@/components/thesis/cloud-drive-backup'
 import JournalFinder from '@/components/thesis/journal-finder'
+import { isDesktop } from '@/lib/tauri'
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ChapterData {
@@ -87,6 +88,12 @@ export default function Home() {
   const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
   const [journalFinderOpen, setJournalFinderOpen] = useState(false)
   const isMobile = useIsMobile()
+  const [desktopMode, setDesktopMode] = useState(false)
+  const desktopBadge = desktopMode ? (
+    <span className="inline-flex items-center gap-0.5 ml-1.5 px-1 py-0 rounded bg-emerald-100 text-emerald-700 font-medium">
+      <Monitor className="h-2.5 w-2.5" />Desktop
+    </span>
+  ) : null
 
   // AI chat state (in help panel)
   const [aiMessages, setAiMessages] = useState<ChatMsg[]>([])
@@ -139,6 +146,9 @@ export default function Home() {
   // Auto-save
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const localContent = useRef<string>('')
+
+  // Detect Tauri desktop environment
+  useEffect(() => { setDesktopMode(isDesktop()) }, [])
 
   // Load thesis on mount
   useEffect(() => {
@@ -663,7 +673,7 @@ export default function Home() {
 
           {/* Footer */}
           <footer className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
-            <p>ThesisFrame © 2025 — {thesis.university}</p>
+            <p>ThesisFrame © 2025 — {thesis.university}{desktopBadge}</p>
             <p>{thesis.field} · {(totalWords / 1000).toFixed(1)}k mots rédigés</p>
           </footer>
         </div>
