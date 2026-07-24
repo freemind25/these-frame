@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { searchCache, fetchWithRetry, cacheSearchResult } from '@/lib/search-cache'
 
 // ─── Types ──────────────────────────────────────────────────
 interface SearchResult {
@@ -13,24 +14,23 @@ interface SearchResult {
   journal?: string
 }
 
+const UA = { 'User-Agent': 'ThesisFrame/1.0 (academic research tool)' }
+
 // ─── Resolve paper ID for Semantic Scholar ──────────────────
 async function resolvePaperId(opts: { doi?: string; arxivId?: string; paperId?: string }): Promise<string | null> {
-  // If paperId is already given, use it directly
   if (opts.paperId) return opts.paperId
 
-  // If DOI is given, resolve to Semantic Scholar paperId
   if (opts.doi) {
     const url = `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(opts.doi)}?fields=paperId`
-    const res = await fetch(url, { headers: { 'User-Agent': 'ThesisFrame/1.0' } })
+    const res = await fetchWithRetry(url, { headers: UA })
     if (!res.ok) return null
     const data = await res.json()
     return data.paperId || null
   }
 
-  // If arXiv ID is given, resolve to Semantic Scholar paperId
   if (opts.arxivId) {
     const url = `https://api.semanticscholar.org/graph/v1/paper/ARXIV:${encodeURIComponent(opts.arxivId)}?fields=paperId`
-    const res = await fetch(url, { headers: { 'User-Agent': 'ThesisFrame/1.0' } })
+    const res = await fetchWithRetry(url, { headers: UA })
     if (!res.ok) return null
     const data = await res.json()
     return data.paperId || null
@@ -50,15 +50,13 @@ export async function POST(request: NextRequest) {
 
     const safeLimit = Math.min(Math.max(limit, 1), 20)
 
-    // Resolve to Semantic Scholar paperId
     const resolvedId = await resolvePaperId({ doi, arxivId, paperId })
     if (!resolvedId) {
       return NextResponse.json({ error: 'Could not resolve paper' }, { status: 404 })
     }
 
-    // Fetch related papers
-    const url = `https://api.semanticscholar.org/graph/v1/paper/${encodeURIComponent(resolvedId)}/related?fields=title,authors,year,abstract,citationCount,externalIds,journal&limit=${safeLimit}`
-    const res = await fetch(url, { headers: { 'User-Agent': 'ThesisFrame/1.0' } })
+    const url = `https://api.semanticscholar.org/graph/v1/paper/${encodeURIComponent(resolvedId)}/related?fields=title,authors,year,abstract,citationCount,externalIds,journal,openAccessPdf&limit=${safeLimit}`
+    const res = await fetchWithRetry(url, { headers: UA })
     if (!res.ok) {
       return NextResponse.json({ error: 'Failed to fetch related papers' }, { status: 502 })
     }
@@ -67,17 +65,20 @@ export async function POST(request: NextRequest) {
     const results: SearchResult[] = (data.data || []).map((p: Record<string, unknown>) => {
       const authors = ((p.authors as Record<string, string>[]) || []).map(a => a.name).join(', ')
       const extIds = (p.externalIds as Record<string, string>) || {}
-      return {
+      const oaPdf = (p.openAccessPdf as Record<string, string>) || {}
+      const r: SearchResult = {
         title: p.title || '',
         authors,
         year: String(p.year || ''),
         abstract: (p.abstract as string) || undefined,
         source: 'Semantic Scholar',
         doi: extIds.DOI || undefined,
-        url: extIds.URL || undefined,
+        url: oaPdf.url || extIds.URL || undefined,
         citationCount: (p.citationCount as number) || 0,
         journal: ((p.journal as Record<string, string>) || {}).name || undefined,
       }
+      cacheSearchResult(r)
+      return r
     })
 
     return NextResponse.json({
