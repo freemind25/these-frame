@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud, Newspaper,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,7 @@ import ArticlesGuideContent from '@/components/thesis/articles-tab'
 import LiteratureSearch from '@/components/thesis/literature-search'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import CloudDriveBackup from '@/components/thesis/cloud-drive-backup'
+import JournalFinder from '@/components/thesis/journal-finder'
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ChapterData {
@@ -84,6 +85,7 @@ export default function Home() {
   const [literatureOpen, setLiteratureOpen] = useState(false)
   const [balanceOpen, setBalanceOpen] = useState(false)
   const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
+  const [journalFinderOpen, setJournalFinderOpen] = useState(false)
   const isMobile = useIsMobile()
 
   // AI chat state (in help panel)
@@ -411,6 +413,9 @@ export default function Home() {
             <button onClick={() => setCloudDriveOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Cloud className="h-3.5 w-3.5" /><span>Sauvegarde cloud</span>
             </button>
+            <button onClick={() => setJournalFinderOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <Newspaper className="h-3.5 w-3.5" /><span>Journaux OA</span>
+            </button>
           </div>
 
           {/* User */}
@@ -719,6 +724,16 @@ export default function Home() {
             <DialogTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4 text-emerald-600" />Recherche de littérature scientifique</DialogTitle>
           </DialogHeader>
           <LiteratureSearch />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ JOURNAL FINDER DIALOG ═══ */}
+      <Dialog open={journalFinderOpen} onOpenChange={setJournalFinderOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><Newspaper className="h-4 w-4 text-emerald-600" />Trouver un journal en accès ouvert</DialogTitle>
+          </DialogHeader>
+          <JournalFinder />
         </DialogContent>
       </Dialog>
 
