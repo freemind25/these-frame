@@ -205,3 +205,17 @@ Stage Summary:
 - Nécessite GOOGLE_DRIVE_CLIENT_ID et GOOGLE_DRIVE_CLIENT_SECRET dans .env/Vercel
 - Composant prêt à intégrer dans un Dialog sidebar
 - Tokens stockés en DB avec refresh automatique
+
+---
+Task ID: 6
+Agent: Main
+Task: Fix syntax error in cloud-drive upload route
+
+Work Log:
+- Fixed missing closing brace in upload/route.ts
+- Verified lint passes
+- Pushed fix
+
+Stage Summary:
+- Upload route now compiles correctly
+- All 6 cloud-drive API routes functional
