@@ -241,3 +241,46 @@ Stage Summary:
 - Correctif code : buildRedirectUri() avec strip automatique du slash, diagnostic endpoint JSON
 - Analyse du dépôt Harper (automattic/harper) : correcteur grammatical WASM, recommandé pour futurs abstracts anglais
 - Analyse du dépôt OmniCloud : pattern adaptateur OAuth réutilisable identifié
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Améliorer la recherche académique de ThesisFrame selon les recommandations de l'article API Pick
+
+Work Log:
+- Analysé l'article apipick.com sur les rate limits des API académiques
+- Identifié que la fonctionnalité existait déjà (5 sources) mais manquait de cache, HAL, retry, DOI lookup
+- Créé `src/lib/search-cache.ts` — cache LRU en mémoire par DOI/arXiv ID (max 2000 entrées, TTL 24h)
+- Créé `fetchWithRetry()` — retry avec backoff exponentiel + jitter pour les 429s
+- Réécrit `src/app/api/literature-search/route.ts` :
+  - Ajouté HAL (Science) comme 6e source académique française
+  - Ajouté extraction des abstracts PubMed via efetch (XML)
+  - Intégré le cache par DOI à chaque résultat
+  - Amélioré le scoring de déduplication (abstracts longs = +10, citations plafonnées à 20)
+  - Tri des résultats par score puis par année
+  - Flag `isPreprint` pour distinguer preprints vs peer-reviewed
+- Créé `src/app/api/literature-search/doi-lookup/route.ts` :
+  - Résolution par DOI, arXiv ID ou URL (extraction automatique)
+  - Requêtes parallèles Crossref + OpenAlex + Semantic Scholar
+  - Fusion intelligente des métadonnées (best-of de chaque source)
+  - Cache mémoire (deuxième appel = `fromCache: true`)
+  - Reconstruction des abstracts OpenAlex depuis l'inverted index
+- Mis à jour `src/app/api/literature-search/related/route.ts` avec cache et retry
+- Réécrit `src/components/thesis/literature-search.tsx` :
+  - Nouveau système d'onglets : Recherche | DOI / URL
+  - DOI lookup : input DOI/arXiv/URL, bouton "Résoudre", résultat avec bouton "Ajouter aux références"
+  - 6 sources avec descriptions (grille 3 colonnes)
+  - HAL comme source par défaut (pertinent pour thèses françaises)
+  - Badge "Preprint" jaune sur les preprints
+  - Badge "cache" sur les résultats depuis le cache
+  - Bouton "Ajouter aux références" fonctionnel même sans DOI
+  - Bannière info mise à jour ("6 bases de données gratuites · Cache par DOI · Retry automatique · Abstracts PubMed")
+
+Stage Summary:
+- 4 fichiers modifiés/créés sur le backend, 1 frontend réécrit
+- Cache mémoire opérationnel : 14 entrées DOI après 2 recherches
+- DOI lookup testé : AlphaFold (10.1038/s41586-021-03819-2) résolu en 1 appel, 2e appel depuis le cache
+- HAL (Science) intégré : 37 971 résultats pour "machine learning"
+- OpenAlex et Semantic Scholar actuellement rate-limited dans le sandbox (confirme le problème de l'article)
+- Crossref et HAL fonctionnent parfaitement comme sources par défaut
+- Lint : 0 erreurs
