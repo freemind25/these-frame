@@ -2,23 +2,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { exchangeCode, getGoogleProfile } from '@/lib/google-drive'
 import { db } from '@/lib/db'
 
+function getBaseUrl(req: NextRequest): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, '')
+  }
+  // Derive from request headers
+  const protocol = req.headers.get('x-forwarded-proto') || 'https'
+  const host = req.headers.get('host') || 'localhost:3000'
+  return `${protocol}://${host}`
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
-  const state = searchParams.get('state')
   const error = searchParams.get('error')
 
+  const baseUrl = getBaseUrl(req)
+
   if (error) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || ''}/?drive_error=${encodeURIComponent(error)}`)
+    return NextResponse.redirect(`${baseUrl}/?drive_error=${encodeURIComponent(error)}`)
   }
 
   if (!code) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || ''}/?drive_error=no_code`)
+    return NextResponse.redirect(`${baseUrl}/?drive_error=no_code`)
   }
 
   try {
-    // Exchange code for tokens
-    const tokens = await exchangeCode(code)
+    // Exchange code for tokens — pass baseUrl so redirect_uri matches exactly
+    const tokens = await exchangeCode(code, baseUrl)
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000)
 
     // Get user profile
@@ -55,10 +66,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Redirect back to app with success
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-    return NextResponse.redirect(`${baseUrl}/?drive_connected=1&drive_email=${encodeURIComponent(profile.email)}`)
+    return NextResponse.redirect(
+      `${baseUrl}/?drive_connected=1&drive_email=${encodeURIComponent(profile.email)}`,
+    )
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Erreur OAuth'
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || ''}/?drive_error=${encodeURIComponent(msg)}`)
+    return NextResponse.redirect(`${baseUrl}/?drive_error=${encodeURIComponent(msg)}`)
   }
 }
