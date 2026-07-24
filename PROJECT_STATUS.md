@@ -5,6 +5,24 @@
 
 ---
 
+## ⚠️ CONSIGNES OBLIGATOIRES
+
+### Git Push systématique
+**APRÈS CHAQUE ACTION RÉUSSIE** (chaque feature, fix, ou modification validée), vous devez **immédiatement** faire un `git push` :
+
+```bash
+git add -A && git commit -m "<message descriptif>" && git push origin main
+```
+
+- **Ne pas attendre** la fin de la session pour pusher.
+- **Ne pas accumuler** les commits non poussés.
+- **Chaque tâche terminée** = un push.
+- Si le push échoue (branche divergée), faire `git pull --rebase origin main` puis re-pusher.
+- Si la branche est trop divergée, utiliser `git push --force-with-lease origin main`.
+- **Vérifier** après chaque push : `git log --oneline -1` doit correspondre au remote.
+
+---
+
 ## 1. Architecture du projet
 
 ### Stack technique
