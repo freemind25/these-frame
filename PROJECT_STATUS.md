@@ -145,7 +145,8 @@ Les boutons Outils et User dans la sidebar doivent avoir `shrink-0` pour ne pas 
 | 6 | References bibliographiques | OK | `references-tab.tsx` + `api/references/` |
 | 7 | Export PDF | OK | `export-pdf-tab.tsx` + `api/export-pdf/` |
 | 8 | Recherche litterature scientifique | OK | `literature-search.tsx` + `api/literature-search/` |
-| 9 | **Bilan equilibre des chapitres** | EN COURS | `page.tsx` Dir. tab |
+| 9 | **Bilan equilibre des chapitres** | OK | `chapter-balance.tsx` + `page.tsx` Dir. tab |
+| 10 | **Sauvegarde Google Drive** | OK | `cloud-drive-backup.tsx` + 6 API routes |
 
 ---
 
@@ -168,3 +169,6 @@ Si tout casse ou le contexte est perdu :
 - [ ] Ajouter `DATABASE_URL` sur le dashboard Vercel
 - [ ] Ajouter les 5 variables ZAI sur Vercel
 - [ ] Integration approfondie de l'article apipick.com (agent sans rate limits)
+- [ ] Configurer GOOGLE_DRIVE_CLIENT_ID et GOOGLE_DRIVE_CLIENT_SECRET
+- [ ] Integrer le composant CloudDriveBackup dans un Dialog sidebar
+- [ ] Etendre aux autres fournisseurs (OneDrive, Dropbox)
