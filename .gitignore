@@ -19,6 +19,7 @@ node_modules
 
 # production
 /build
+/dist/
 
 # misc
 .DS_Store
@@ -36,7 +37,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -46,18 +46,26 @@ local-*
 *.log
 dev.log
 dev.out.log
+server.log
 test
 prompt
+tool-results/
 
-server.log
 # Skills directory
 /skills/
-# Tauri
-src-tauri/target/
-app-icon.png
-app-icon-real.png
 
-# Tauri
+# Electron (legacy, keep ignored)
+/dist-electron/
+/build-tools/
+/electron-app/
+
+# Tauri build artifacts
 src-tauri/target/
+src-tauri/gen/
+*.exe
+*.msi
+*.deb
+*.AppImage
+*.dmg
 app-icon.png
 app-icon-real.png

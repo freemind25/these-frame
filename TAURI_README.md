@@ -4,7 +4,34 @@
 
 ThesisFrame peut être installé comme une application Windows classique grâce à [Tauri v2](https://tauri.app/). L'application s'exécute dans une fenêtre native avec WebView2, tout en conservant toutes les fonctionnalités web (API routes, Prisma, IA).
 
-## 📋 Prérequis (sur la machine de build Windows)
+## 🤖 Build automatique via GitHub Actions (.exe sans machine Windows)
+
+Vous n'avez **pas besoin** d'une machine Windows pour obtenir le `.exe`. Le pipeline CI/CD le construit automatiquement.
+
+### Méthode rapide — Déclenchement manuel
+
+1. Allez sur votre repo GitHub → **Actions** → **Build Windows .exe (Tauri v2)**
+2. Cliquez **Run workflow**
+3. (Optionnel) Entrez un tag de release (ex: `v0.2.1`)
+4. Attendez ~10-15 minutes
+5. Téléchargez l'artifact **ThesisFrame-Setup** → `*.exe`
+
+### Méthode automatique — Via un tag Git
+
+```bash
+git tag v0.2.1
+git push origin v0.2.1
+```
+
+Le build se lance automatiquement et crée une **GitHub Release** avec le `.exe` attaché.
+
+### Secrets GitHub requis
+
+Aucun secret n'est requis pour le build. Le workflow utilise le `GITHUB_TOKEN` intégré.
+
+## 🖥️ Build local (sur votre machine Windows)
+
+### Prérequis
 
 | Outil | Version | Lien |
 |-------|---------|------|
@@ -13,8 +40,6 @@ ThesisFrame peut être installé comme une application Windows classique grâce 
 | Rust | stable | https://rustup.rs |
 | WebView2 | préinstallé | Win10/11 inclus |
 | Visual Studio Build Tools | 2022 | [vs_buildtools.exe](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (cocher « C++ build tools ») |
-
-## 🚀 Utilisation
 
 ### Développement (avec hot-reload)
 
