@@ -186,3 +186,22 @@ Stage Summary:
 - Analyse d'équilibre des chapitres fonctionnelle dans l'onglet Dir.
 - Calcul local (pas d'appel IA nécessaire), se met à jour en temps réel avec le compteur de mots
 - Recommandations contextuelles selon les règles académiques fournies par l'utilisateur
+
+---
+Task ID: 5
+Agent: Main
+Task: Intégration Google Drive (sauvegarde cloud) inspirée d'OmniCloud
+
+Work Log:
+- Analysé le dépôt OmniCloud (dimartarmizi/OmniCloud) - agrégateur cloud multi-fournisseur
+- Ajouté le modèle CloudDriveConnection au schéma Prisma (tokens OAuth)
+- Créé src/lib/google-drive.ts (helper complet : OAuth, refresh, upload, list, folder)
+- Créé 6 routes API : connect, callback, status, upload, files, disconnect
+- Créé src/components/thesis/cloud-drive-backup.tsx (composant UI complet)
+- Pattern d'adaptateur inspiré d'OmniCloud pour extensibilité future (OneDrive, Dropbox)
+
+Stage Summary:
+- Google Drive backup entièrement implémenté (côté serveur + UI)
+- Nécessite GOOGLE_DRIVE_CLIENT_ID et GOOGLE_DRIVE_CLIENT_SECRET dans .env/Vercel
+- Composant prêt à intégrer dans un Dialog sidebar
+- Tokens stockés en DB avec refresh automatique
