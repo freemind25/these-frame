@@ -311,3 +311,51 @@ Stage Summary:
 - Cache : 2e appel sur AlphaFold depuis le cache mémoire
 - Lint : 0 erreurs
 - Fichiers : 1 nouveau backend route, 1 composant frontend intégré dans references-tab.tsx
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Ajouter un consigne git push systématique dans PROJECT_STATUS.md
+
+Work Log:
+- Ajouté une section « ⚠️ CONSIGNES OBLIGATOIRES » en haut de PROJECT_STATUS.md
+- Règle : git push après chaque action réussie, avec procédure de recovery
+- Push immédiat : commit 9e2f05e
+
+Stage Summary:
+- Règle de push systématique documentée en tête du fichier de suivi
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Intégrer un chercheur de journaux en accès ouvert (inspiré de SciSpace)
+
+Work Log:
+- Analysé la page SciSpace « Open Access Journal Finder » : recherche par titre/abstract, comparaison APC/indexation, export CSV
+- Testé les API OpenAlex journals (APC, topics, DOAJ flag, Scopus flag) et DOAJ (licence, review process, APC, subjects)
+- Créé `src/app/api/journal-finder/route.ts` :
+  - Recherche parallèle OpenAlex + DOAJ (Promise.allSettled)
+  - Fusion et déduplication par ISSN/nom
+  - Classement par pertinence via LLM (z-ai-web-dev-sdk) quand titre/abstract fournis
+  - Filtres serveur : maxApc, doajOnly, freeOnly, tri par pertinence/APC/citations/nom
+  - Noms de pays en français (45 pays)
+- Corrigé bug DOAJ : l'API utilise le search dans le path, pas en query param
+- Créé `src/components/thesis/journal-finder.tsx` :
+  - Barre de recherche + suggestions de domaines (8 tags cliquables)
+  - Filtres avancés : titre manuscrit, résumé, APC max, DOAJ uniquement, sans APC, tri
+  - Cartes de journaux : nom, éditeur, pays, APC coloré, badges DOAJ/Scopus/Fusion, topics
+  - Détails dépliables : ISSN, publications, citations, licence, processus d'évaluation, liens
+  - Bordure verte pour les journaux les plus pertinents (score > 0.8)
+  - Export CSV avec BOM UTF-8
+  - Badge « Classé par IA » quand le classement LLM est utilisé
+- Intégré dans page.tsx : bouton sidebar « Journaux OA » + Dialog
+- Testé backend : biology → 50 OpenAlex + 50 DOAJ = 99 résultats fusionnés
+- Machine Learning avec classement IA → résultats classés par pertinence
+- Lint : 0 erreurs
+
+Stage Summary:
+- Feature complète : 3 fichiers (1 API route, 1 composant, page.tsx modifié)
+- 2 sources de données gratuites (OpenAlex + DOAJ) avec fusion intelligente
+- Classement IA optionnel basé sur le titre/résumé du manuscrit
+- Export CSV pour créer une shortlist de soumission
+- Push : commit a5f20c1
