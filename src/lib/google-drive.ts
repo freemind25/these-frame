@@ -18,11 +18,27 @@ export interface DriveFile {
 }
 
 /**
+ * Build the OAuth redirect URI (always absolute)
+ * @param baseUrl Override base URL (from request headers in API routes)
+ */
+export function buildRedirectUri(baseUrl?: string): string {
+  const base = baseUrl || process.env.NEXT_PUBLIC_APP_URL
+  if (!base) {
+    throw new Error(
+      'NEXT_PUBLIC_APP_URL is not set. Add it to .env, e.g. NEXT_PUBLIC_APP_URL=https://these-frame.vercel.app',
+    )
+  }
+  // Strip trailing slash to match Google's strict rules
+  const clean = base.replace(/\/+$/, '')
+  return `${clean}/api/cloud-drive/callback`
+}
+
+/**
  * Build Google OAuth consent URL
  */
-export function getGoogleAuthUrl(state?: string): string {
+export function getGoogleAuthUrl(state?: string, baseUrl?: string): string {
   const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/cloud-drive/callback`
+  const redirectUri = buildRedirectUri(baseUrl)
 
   if (!clientId) throw new Error('GOOGLE_DRIVE_CLIENT_ID not configured')
 
@@ -42,8 +58,8 @@ export function getGoogleAuthUrl(state?: string): string {
 /**
  * Exchange authorization code for tokens
  */
-export async function exchangeCode(code: string): Promise<GoogleTokens> {
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/cloud-drive/callback`
+export async function exchangeCode(code: string, baseUrl?: string): Promise<GoogleTokens> {
+  const redirectUri = buildRedirectUri(baseUrl)
 
   const res = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
@@ -73,7 +89,7 @@ export async function exchangeCode(code: string): Promise<GoogleTokens> {
 /**
  * Refresh an expired access token
  */
-export async function refreshAccessToken(refreshToken: string): Promise<GoogleTokens> {
+export async function refreshAccessToken(refreshToken: string): Promise<string> {
   const res = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -91,11 +107,20 @@ export async function refreshAccessToken(refreshToken: string): Promise<GoogleTo
   }
 
   const data = await res.json()
-  return {
-    access_token: data.access_token,
-    refresh_token: data.refresh_token || refreshToken,
-    expires_in: data.expires_in,
+  // Update DB with fresh token
+  const conn = await db.cloudDriveConnection.findFirst({ where: { provider: 'google_drive' } })
+  if (conn) {
+    const expiresAt = new Date(Date.now() + data.expires_in * 1000)
+    await db.cloudDriveConnection.update({
+      where: { id: conn.id },
+      data: {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token || refreshToken,
+        tokenExpiresAt: expiresAt,
+      },
+    })
   }
+  return data.access_token
 }
 
 /**
@@ -109,20 +134,7 @@ export async function getValidAccessToken(): Promise<string> {
   // Check if token is expired (with 5 min buffer)
   if (conn.tokenExpiresAt && new Date(conn.tokenExpiresAt).getTime() - Date.now() < 300_000) {
     if (!conn.refreshToken) throw new Error('No refresh token available')
-
-    const newTokens = await refreshAccessToken(conn.refreshToken)
-    const expiresAt = new Date(Date.now() + newTokens.expires_in * 1000)
-
-    await db.cloudDriveConnection.update({
-      where: { id: conn.id },
-      data: {
-        accessToken: newTokens.access_token,
-        refreshToken: newTokens.refresh_token,
-        tokenExpiresAt: expiresAt,
-      },
-    })
-
-    return newTokens.access_token
+    return refreshAccessToken(conn.refreshToken)
   }
 
   return conn.accessToken
