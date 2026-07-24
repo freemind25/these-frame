@@ -1,6 +1,7 @@
 'use client'
 
 import { createElement, useState } from 'react'
+import Image from 'next/image'
 import {
   BookOpen,
   CheckCircle2,
@@ -30,6 +31,7 @@ import {
   Loader2,
   RotateCcw,
   Send,
+  ImagePlus,
   type LucideIcon,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -329,7 +331,7 @@ export default function ArticlesGuideTab() {
 
       {/* Sub-tabs for the articles guide */}
       <Tabs defaultValue="steps" className="w-full">
-        <TabsList className="w-full grid grid-cols-8">
+        <TabsList className="w-full grid grid-cols-9">
           <TabsTrigger value="steps" className="text-[10px] sm:text-sm">Étapes</TabsTrigger>
           <TabsTrigger value="types" className="text-[10px] sm:text-sm">10 Types</TabsTrigger>
           <TabsTrigger value="sections" className="text-[10px] sm:text-sm">IMRaD</TabsTrigger>
@@ -338,6 +340,7 @@ export default function ArticlesGuideTab() {
           <TabsTrigger value="bibliometrie" className="text-[10px] sm:text-sm">Bibliom.</TabsTrigger>
           <TabsTrigger value="revue" className="text-[10px] sm:text-sm">Revue litt.</TabsTrigger>
           <TabsTrigger value="abstract" className="text-[10px] sm:text-sm">Abstract</TabsTrigger>
+          <TabsTrigger value="resources" className="text-[10px] sm:text-sm">Ressources</TabsTrigger>
         </TabsList>
 
         <TabsContent value="steps" className="mt-4">
@@ -739,6 +742,83 @@ export default function ArticlesGuideTab() {
                 <CardContent className="p-3">
                   <p className="text-[11px] text-muted-foreground italic">
                     {abstractSource}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* ── RESSOURCES VISUELLES ── */}
+        <TabsContent value="resources" className="mt-4">
+          <ScrollArea className="max-h-[70vh]">
+            <div className="space-y-6 pr-4">
+              {/* R-1 : Maîtriser la section Conclusion */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <ImagePlus className="h-4 w-4 text-emerald-600" />
+                    <CardTitle className="text-sm">Maîtriser la section Conclusion</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    Les 6 composantes d'une conclusion de recherche selon Creswell — Problématique, Résultats, Implications, Limites, Perspectives, Conclusion forte
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { label: 'Problem Statement', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+                      { label: 'Key Findings', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+                      { label: 'Implications', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+                      { label: 'Limitations', color: 'bg-rose-100 text-rose-800 border-rose-200' },
+                      { label: 'Future Work', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+                      { label: 'Closing Statement', color: 'bg-violet-100 text-violet-800 border-violet-200' },
+                    ].map((item) => (
+                      <div key={item.label} className={cn('rounded-lg border p-2 text-center text-[10px] font-medium', item.color)}>
+                        {item.label}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border overflow-hidden bg-white">
+                    <Image src="/resources/R-1.jpg" alt="Structure d'une conclusion de recherche" width={800} height={1200} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Source : John W. Creswell, &quot;Educational Research: Planning, Conducting, and Evaluating Quantitative and Qualitative Research&quot;
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* R-2 : Outils de revue systématique */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <ScanSearch className="h-4 w-4 text-emerald-600" />
+                    <CardTitle className="text-sm">5 outils pour une revue systématique</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    Outils essentiels pour le dépistage, l'analyse critique, la synthèse et le reporting de votre revue de littérature
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {[
+                      { name: 'Covidence', desc: 'Dépistage & sélection', color: 'bg-blue-900 text-white' },
+                      { name: 'Rayyan', desc: 'Screening IA aveugle', color: 'bg-violet-700 text-white' },
+                      { name: 'RevMan', desc: 'Méta-analyse Cochrane', color: 'bg-rose-600 text-white' },
+                      { name: 'JBI SUMARI', desc: 'Appréciation critique', color: 'bg-blue-700 text-white' },
+                      { name: 'PRISMA', desc: 'Diagramme de flux', color: 'bg-slate-800 text-white' },
+                    ].map((tool) => (
+                      <div key={tool.name} className={cn('rounded-lg p-2 text-center', tool.color)}>
+                        <p className="text-[10px] font-bold">{tool.name}</p>
+                        <p className="text-[9px] opacity-80">{tool.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border overflow-hidden bg-white">
+                    <Image src="/resources/R-2.jpg" alt="5 outils de revue systématique" width={800} height={1200} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Source : @DRFRED_PHD — Scholarships | Resources | Success
                   </p>
                 </CardContent>
               </Card>
