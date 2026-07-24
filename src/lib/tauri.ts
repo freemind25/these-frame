@@ -5,7 +5,6 @@
  * Safe to use in web browser — all calls are no-ops when not in Tauri.
  */
 
-import { isPermissionGranted, requestPermission } from '@tauri-apps/api/notification';
 import { invoke } from '@tauri-apps/api/core';
 
 /**
@@ -51,23 +50,6 @@ export async function getDesktopDir(): Promise<string | null> {
     return await invoke<string>('get_desktop_dir');
   } catch {
     return null;
-  }
-}
-
-/**
- * Request notification permission (desktop only).
- */
-export async function requestNotificationPermission(): Promise<boolean> {
-  if (!isDesktop()) return false;
-  try {
-    let granted = await isPermissionGranted();
-    if (!granted) {
-      const permission = await requestPermission();
-      granted = permission === 'granted';
-    }
-    return granted;
-  } catch {
-    return false;
   }
 }
 
