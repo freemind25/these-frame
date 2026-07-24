@@ -359,3 +359,36 @@ Stage Summary:
 - Classement IA optionnel basé sur le titre/résumé du manuscrit
 - Export CSV pour créer une shortlist de soumission
 - Push : commit a5f20c1
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Ajouter le support Tauri v2 pour le build desktop Windows
+
+Work Log:
+- Installé Rust toolchain (rustc 1.97.1) et Tauri CLI v2 (via npx)
+- Généré une icône d'application (IA : émeraude + graduation cap)
+- Généré les icônes Tauri pour toutes les plateformes (Windows, macOS, iOS, Android)
+- Créé `src-tauri/tauri.conf.json` :
+  - Fenêtre 1400x900, min 1024x700
+  - CSP personnalisée pour les API académiques et fournisseurs IA
+  - Cible NSIS pour Windows avec langues FR/EN/AR
+  - URL dynamique : http://localhost:3000 (dev + production)
+- Créé `src-tauri/Cargo.toml` : Tauri 2 + shell plugin + serde
+- Créé `src-tauri/src/lib.rs` et `main.rs` : app Tauri minimale
+- Configuré `next.config.ts` avec `output: 'standalone'`
+- Créé `scripts/start-server.js` : lance le serveur Next.js standalone
+- Créé `scripts/launch-desktop.bat` : lanceur Windows (serveur + app Tauri)
+- Créé `scripts/build-windows.bat` : script de build complet pour Windows
+- Ajouté `tauri:dev` et `tauri:build` dans package.json
+- Exclu `scripts/` et `src-tauri/` de ESLint
+- Lint : 0 erreurs
+
+Stage Summary:
+- Tauri v2 configuré pour le build desktop Windows
+- Approche hybride : Tauri WebView2 + serveur Next.js standalone
+- En dev : `npm run tauri:dev` lance le dev server + fenêtre Tauri
+- En prod : le lanceur batch démarre le serveur Node.js puis l'exe Tauri
+- Build Windows : exécuter `scripts/build-windows.bat` sur une machine Windows
+- Prérequis utilisateur : Node.js 20+, Rust (via rustup), WebView2 (préinstallé Win10/11)
+- Push : commit 6cc2584
