@@ -90,3 +90,17 @@ model Chapter {
 
   @@unique([thesisId, order])
 }
+
+model CloudDriveConnection {
+  id           String    @id @default(cuid())
+  provider     String    @default("google_drive") // google_drive, onedrive, dropbox
+  connected    Boolean   @default(false)
+  email        String?
+  displayName  String?
+  accessToken  String?
+  refreshToken String?
+  tokenExpiresAt DateTime?
+  lastSyncAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
