@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,7 @@ import ExportPdfContent from '@/components/thesis/export-pdf-tab'
 import ArticlesGuideContent from '@/components/thesis/articles-tab'
 import LiteratureSearch from '@/components/thesis/literature-search'
 import ChapterBalance from '@/components/thesis/chapter-balance'
+import CloudDriveBackup from '@/components/thesis/cloud-drive-backup'
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ChapterData {
@@ -82,6 +83,7 @@ export default function Home() {
   const [resourcesOpen, setResourcesOpen] = useState(false)
   const [literatureOpen, setLiteratureOpen] = useState(false)
   const [balanceOpen, setBalanceOpen] = useState(false)
+  const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
   const isMobile = useIsMobile()
 
   // AI chat state (in help panel)
@@ -406,6 +408,9 @@ export default function Home() {
             <button onClick={() => setBalanceOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Scale className="h-3.5 w-3.5" /><span>Équilibre chapitres</span>
             </button>
+            <button onClick={() => setCloudDriveOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <Cloud className="h-3.5 w-3.5" /><span>Sauvegarde cloud</span>
+            </button>
           </div>
 
           {/* User */}
@@ -684,6 +689,16 @@ export default function Home() {
             <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de rédaction scientifique</DialogTitle>
           </DialogHeader>
           <ArticlesGuideContent />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ CLOUD DRIVE DIALOG ═══ */}
+      <Dialog open={cloudDriveOpen} onOpenChange={setCloudDriveOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><Cloud className="h-4 w-4 text-emerald-600" />Sauvegarde Google Drive</DialogTitle>
+          </DialogHeader>
+          <CloudDriveBackup />
         </DialogContent>
       </Dialog>
 
