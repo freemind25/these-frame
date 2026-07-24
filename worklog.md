@@ -392,3 +392,32 @@ Stage Summary:
 - Build Windows : exécuter `scripts/build-windows.bat` sur une machine Windows
 - Prérequis utilisateur : Node.js 20+, Rust (via rustup), WebView2 (préinstallé Win10/11)
 - Push : commit 6cc2584
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Finaliser l'intégration Tauri v2 (corrections et améliorations)
+
+Work Log:
+- Vérifié tous les fichiers Tauri existants (tauri.conf.json, Cargo.toml, lib.rs, scripts)
+- Créé `src-tauri/capabilities/default.json` — permissions Tauri v2 (core:default, shell:allow-open, shell:allow-execute)
+- Mis à jour CSP dans tauri.conf.json : ajouté HAL (api.archives-ouvertes.fr), Google OAuth (accounts.google.com, oauth2.googleapis.com), Gemini (generativelanguage.googleapis.com), www.googleapis.com, drive.google.com
+- Changé beforeDevCommand/beforeBuildCommand de npm à bun
+- Ajouté 3 nouvelles commandes Tauri dans lib.rs : get_documents_dir, get_desktop_dir, is_desktop
+- Ajouté dépendance Rust `dirs = "6"` pour les chemins système
+- Installé `@tauri-apps/api@^2` pour le frontend
+- Créé `src/lib/tauri.ts` : utilitaires de détection desktop (isDesktop, getAppVersion, getDocumentsDir, getDesktopDir)
+- Ajouté badge « 🖥 Desktop » dans le footer de page.tsx quand l'app tourne dans Tauri
+- Amélioré `scripts/launch-desktop.bat` : vérification port 3000, shutdown gracieux avec netstat+taskkill, UTF-8 (chcp 65001)
+- Amélioré `scripts/build-windows.bat` : détection auto bun/npm, messages d'erreur clairs, pause
+- Amélioré `scripts/start-server.js` : fallback dev si standalone absent, shutdown gracieux SIGTERM/SIGINT, timeout 60s
+- Créé `TAURI_README.md` : documentation complète (architecture, prérequis, build, commandes Rust, CSP, performance)
+- Lint : 0 erreurs
+- Push : commit 4e38c33
+
+Stage Summary:
+- Intégration Tauri v2 complète et corrigée
+- Approche hybride : Tauri WebView2 + serveur Next.js standalone (conserve toutes les API routes)
+- 12 fichiers modifiés/créés
+- Instructions de build dans TAURI_README.md et scripts/build-windows.bat
+- Pour construire : exécuter `scripts/build-windows.bat` sur une machine Windows avec Rust + Node.js
