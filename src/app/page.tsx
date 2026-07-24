@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -81,6 +81,7 @@ export default function Home() {
   const [exportOpen, setExportOpen] = useState(false)
   const [resourcesOpen, setResourcesOpen] = useState(false)
   const [literatureOpen, setLiteratureOpen] = useState(false)
+  const [balanceOpen, setBalanceOpen] = useState(false)
   const isMobile = useIsMobile()
 
   // AI chat state (in help panel)
@@ -402,6 +403,9 @@ export default function Home() {
             <button onClick={() => setLiteratureOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
               <Search className="h-3.5 w-3.5" /><span>Recherche litt.</span>
             </button>
+            <button onClick={() => setBalanceOpen(true)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+              <Scale className="h-3.5 w-3.5" /><span>Équilibre chapitres</span>
+            </button>
           </div>
 
           {/* User */}
@@ -680,6 +684,16 @@ export default function Home() {
             <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de rédaction scientifique</DialogTitle>
           </DialogHeader>
           <ArticlesGuideContent />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ CHAPTER BALANCE DIALOG ═══ */}
+      <Dialog open={balanceOpen} onOpenChange={setBalanceOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><Scale className="h-4 w-4 text-emerald-600" />Bilan d'équilibre des chapitres</DialogTitle>
+          </DialogHeader>
+          {thesis && <ChapterBalance chapters={thesis.chapters} />}
         </DialogContent>
       </Dialog>
 
