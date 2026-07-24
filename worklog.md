@@ -219,3 +219,25 @@ Work Log:
 Stage Summary:
 - Upload route now compiles correctly
 - All 6 cloud-drive API routes functional
+
+---
+Task ID: 7
+Agent: Main
+Task: Créer une notice d'utilisation PDF professionnelle pour ThesisFrame
+
+Work Log:
+- Inventorié toutes les fonctionnalités de l'application via exploration du codebase
+- Créé un script Python (generate-manual.py) utilisant ReportLab pour générer un PDF professionnel
+- PDF de 12 pages avec couverture, table des matières, 14 sections documentées
+- Design professionnel : vert émeraude (#059669), Helvetica, barres décoratives, en-têtes/pieds de page
+- Contenu couvre : introduction, prise en main, structure thèse, éditeur, assistant IA (10 modes, 7 fournisseurs), feedback directeur, analyse d'équilibre, guide méthodologique, recherche documentaire (5 sources), références, export PDF, sauvegarde cloud Google Drive, paramètres, conseils, FAQ
+- Vérifié le contenu page par page avec PyPDF2
+
+Stage Summary:
+- PDF généré : /home/z/my-project/public/notice-utilisation-thesisframe.pdf (12 pages)
+- Script de génération : /home/z/my-project/generate-manual.py (réutilisable)
+- Documentation complète en français de toutes les fonctionnalités de ThesisFrame
+- Google Drive OAuth : diagnostic du double-slash dans redirect_uri (NEXT_PUBLIC_APP_URL avec / final)
+- Correctif code : buildRedirectUri() avec strip automatique du slash, diagnostic endpoint JSON
+- Analyse du dépôt Harper (automattic/harper) : correcteur grammatical WASM, recommandé pour futurs abstracts anglais
+- Analyse du dépôt OmniCloud : pattern adaptateur OAuth réutilisable identifié
