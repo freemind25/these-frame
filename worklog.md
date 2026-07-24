@@ -284,3 +284,30 @@ Stage Summary:
 - OpenAlex et Semantic Scholar actuellement rate-limited dans le sandbox (confirme le problème de l'article)
 - Crossref et HAL fonctionnent parfaitement comme sources par défaut
 - Lint : 0 erreurs
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Implémenter un vérificateur de citations dans ThesisFrame
+
+Work Log:
+- Créé `src/app/api/references/verify/route.ts` :
+  - POST : reçoit la liste des références du frontend, vérifie chaque DOI via Crossref
+  - Comparaison floue des titres (normalisation, seuil 70% d'overlap de mots)
+  - Vérification de l'année et du premier auteur
+  - Traitement par lots de 3 pour éviter les rate limits
+  - 5 statuts : valid, not_found, mismatch, no_doi, error
+  - POST avec referenceId : auto-correction des métadonnées (mise à jour via /api/references)
+- Ajouté composant `CitationVerifier` dans `references-tab.tsx` :
+  - Carte avec icône ShieldCheck, bouton "Vérifier les citations"
+  - Barre de résumé cliquable : X valides, Y écarts, Z introuvables, W sans DOI
+   - Panneau dépliable avec détails de chaque problème
+   - Bouton "Corriger automatiquement" pour les écarts (envoie les métadonnées Crossref)
+  - Styles dynamiques : bordure verte si tout valide, ambre si problèmes
+- Corrigé bug Crossref : le paramètre `select` n'est pas supporté sur l'endpoint `/works/{doi}` (seulement sur `/works` search)
+
+Stage Summary:
+- 3 statuts vérifiés : valid (AlphaFold ✓), mismatch (titre+auteur faux ✓), not_found (DOI fake ✓)
+- Cache : 2e appel sur AlphaFold depuis le cache mémoire
+- Lint : 0 erreurs
+- Fichiers : 1 nouveau backend route, 1 composant frontend intégré dans references-tab.tsx

@@ -19,6 +19,13 @@ import {
   FileCode2,
   Download,
   Database,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  AlertTriangle,
+  Wrench,
+  Loader2,
+  Fingerprint,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -47,6 +54,219 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { thesisWebsites } from '@/data/methodology-guide'
 import { academicDatabases } from '@/data/academic-databases'
+
+// ─── Citation Verifier ────────────────────────────────────────
+interface VerifyResult {
+  referenceId: string
+  doi: string | null
+  status: 'valid' | 'not_found' | 'mismatch' | 'no_doi' | 'error'
+  issues: string[]
+  verifiedTitle?: string
+  verifiedAuthors?: string
+  verifiedYear?: string
+  verifiedJournal?: string
+  verifiedDoi?: string
+  source?: string
+}
+
+interface VerifySummary {
+  total: number
+  valid: number
+  notFound: number
+  mismatch: number
+  noDoi: number
+  error: number
+}
+
+function CitationVerifier({ onRefresh, hasReferences, references }: { onRefresh: () => void; hasReferences: boolean; references: RefItem[] }) {
+  const [verifying, setVerifying] = useState(false)
+  const [results, setResults] = useState<VerifyResult[]>([])
+  const [summary, setSummary] = useState<VerifySummary | null>(null)
+  const [progress, setProgress] = useState(0)
+  const [fixingId, setFixingId] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(false)
+
+  const handleVerify = async () => {
+    setVerifying(true)
+    setResults([])
+    setSummary(null)
+    setProgress(0)
+    setExpanded(false)
+    try {
+      const res = await fetch('/api/references/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ references: references.map(r => ({ id: r.id, title: r.title, authors: r.authors, year: r.year, doi: r.doi, journal: r.journal })) }),
+      })
+      const data = await res.json()
+      setResults(data.results || [])
+      setSummary(data.summary || null)
+      setProgress(data.results?.length || 0)
+    } catch {
+      setResults([])
+    } finally {
+      setVerifying(false)
+    }
+  }
+
+  const handleAutoFix = async (r: VerifyResult) => {
+    if (fixingId) return
+    setFixingId(r.referenceId)
+    try {
+      const res = await fetch('/api/references/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          referenceId: r.referenceId,
+          verifiedTitle: r.verifiedTitle,
+          verifiedAuthors: r.verifiedAuthors,
+          verifiedYear: r.verifiedYear,
+          verifiedJournal: r.verifiedJournal,
+          verifiedDoi: r.verifiedDoi,
+        }),
+      })
+      if (res.ok) {
+        // Remove from results locally
+        setResults(prev => prev.filter(x => x.referenceId !== r.referenceId))
+        onRefresh()
+      }
+    } catch { /* ignore */ }
+    finally { setFixingId(null) }
+  }
+
+  const statusIcon = (status: VerifyResult['status']) => {
+    switch (status) {
+      case 'valid': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+      case 'not_found': return <ShieldX className="h-4 w-4 text-red-500" />
+      case 'mismatch': return <ShieldAlert className="h-4 w-4 text-amber-500" />
+      case 'no_doi': return <AlertTriangle className="h-4 w-4 text-slate-400" />
+      default: return <ShieldAlert className="h-4 w-4 text-red-400" />
+    }
+  }
+
+  const statusLabel = (status: VerifyResult['status']) => {
+    switch (status) {
+      case 'valid': return <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">Valide</Badge>
+      case 'not_found': return <Badge variant="outline" className="text-[10px] bg-red-50 text-red-700 border-red-200">Introuvable</Badge>
+      case 'mismatch': return <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">Écart détecté</Badge>
+      case 'no_doi': return <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-500 border-slate-200">Sans DOI</Badge>
+      default: return <Badge variant="outline" className="text-[10px] bg-red-50 text-red-600 border-red-200">Erreur</Badge>
+    }
+  }
+
+  const problemResults = results.filter(r => r.status !== 'valid')
+  const hasProblems = problemResults.length > 0
+  const allValid = summary && summary.total > 0 && summary.valid === summary.total
+  const noDoiOnly = summary && summary.total > 0 && summary.noDoi === summary.total
+
+  return (
+    <Card className={hasProblems ? 'border-amber-300 bg-amber-50/20' : allValid ? 'border-emerald-300 bg-emerald-50/20' : ''}>
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className={`flex items-center justify-center h-10 w-10 rounded-xl shrink-0 ${hasProblems ? 'bg-amber-100' : allValid ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+              <ShieldCheck className={`h-5 w-5 ${hasProblems ? 'text-amber-600' : allValid ? 'text-emerald-600' : 'text-slate-500'}`} />
+            </div>
+            <div>
+              <CardTitle className="text-base">Vérificateur de citations</CardTitle>
+              <CardDescription className="text-sm">
+                Vérifie l&apos;existence et la cohérence des références via Crossref
+              </CardDescription>
+            </div>
+          </div>
+          <Button
+            onClick={handleVerify}
+            disabled={verifying || !hasReferences}
+            variant={hasProblems ? 'default' : 'outline'}
+            size="sm"
+            className={hasProblems ? 'bg-amber-600 hover:bg-amber-700 gap-1.5' : 'gap-1.5'}
+          >
+            {verifying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Fingerprint className="h-3.5 w-3.5" />}
+            {verifying ? 'Vérification…' : 'Vérifier les citations'}
+          </Button>
+        </div>
+      </CardHeader>
+
+      {/* Summary bar */}
+      {summary && !verifying && (
+        <CardContent className="pt-0 pb-3">
+          <div className="flex items-center gap-3 flex-wrap text-xs">
+            {allValid ? (
+              <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Toutes les références avec DOI sont valides
+              </span>
+            ) : noDoiOnly ? (
+              <span className="flex items-center gap-1 text-slate-500">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Aucune référence avec DOI à vérifier
+              </span>
+            ) : (
+              <>
+                <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 hover:underline cursor-pointer">
+                  {summary.valid > 0 && <span className="text-emerald-600">{summary.valid} valide{summary.valid > 1 ? 's' : ''}</span>}
+                  {summary.mismatch > 0 && <span className="text-amber-600">{summary.mismatch} écart{summary.mismatch > 1 ? 's' : ''}</span>}
+                  {summary.notFound > 0 && <span className="text-red-600">{summary.notFound} introuvable{summary.notFound > 1 ? 's' : ''}</span>}
+                  {summary.noDoi > 0 && <span className="text-slate-400">{summary.noDoi} sans DOI</span>}
+                  {summary.error > 0 && <span className="text-red-400">{summary.error} erreur{summary.error > 1 ? 's' : ''}</span>}
+                  <ChevronRight className={`h-3.5 w-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+                </button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      )}
+
+      {/* Detailed results */}
+      {expanded && problemResults.length > 0 && (
+        <CardContent className="pt-0">
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            {problemResults.map(r => (
+              <div key={r.referenceId} className="rounded-lg border bg-white p-3 text-xs">
+                <div className="flex items-start gap-2">
+                  <div className="shrink-0 mt-0.5">{statusIcon(r.status)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      {statusLabel(r.status)}
+                      {r.source && <span className="text-[9px] text-slate-400">via {r.source}</span>}
+                    </div>
+                    <p className="font-medium text-slate-800 line-clamp-1">{r.verifiedTitle || (results.find(x => x.referenceId === r.referenceId)?.doi || 'Référence sans titre')}</p>
+                    {r.issues.map((issue, i) => (
+                      <p key={i} className="text-slate-500 mt-0.5">• {issue}</p>
+                    ))}
+                    {r.status === 'mismatch' && r.verifiedTitle && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-[10px] gap-1"
+                          onClick={() => handleAutoFix(r)}
+                          disabled={!!fixingId}
+                        >
+                          {fixingId === r.referenceId ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wrench className="h-3 w-3" />}
+                          Corriger automatiquement
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      )}
+
+      {verifying && (
+        <CardContent className="pt-0">
+          <div className="flex items-center gap-3 py-4">
+            <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+            <p className="text-sm text-slate-600">Vérification en cours — interrogation de Crossref pour chaque DOI…</p>
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  )
+}
 
 // ─── Reference type ──────────────────────────────────────────────
 interface RefItem {
@@ -872,6 +1092,9 @@ export default function ReferencesTab() {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      {/* Citation Verifier */}
+      <CitationVerifier onRefresh={loadReferences} hasReferences={references.length > 0} references={references} />
 
       {/* BibTeX preview info */}
       <Card className="bg-muted/30">
