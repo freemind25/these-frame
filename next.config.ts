@@ -1,8 +1,8 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  serverExternalPackages: ["z-ai-web-dev-sdk"],
+  output: process.env.VERCEL ? undefined : "standalone",
+  serverExternalPackages: ["z-ai-web-dev-sdk", "@prisma/client", "@prisma/engines"],
   typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
 }
