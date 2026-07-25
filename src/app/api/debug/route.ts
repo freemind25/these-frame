@@ -1,40 +1,45 @@
 import { NextResponse } from 'next/server'
-import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync } from 'fs'
-import { resolve } from 'path'
-import { tmpdir } from 'os'
+import { createClient } from '@libsql/client'
+import { mkdirSync } from 'fs'
 
 export async function GET() {
-  const info: Record<string, unknown> = {
-    cwd: process.cwd(),
-    tmpdir: tmpdir(),
-    env_DATABASE_URL: process.env.DATABASE_URL || '(not set)',
-    node_env: process.env.NODE_ENV,
-    vercel: !!process.env.VERCEL,
-    platform: process.platform,
-  }
+  const results: Record<string, string> = {}
 
-  // Test /tmp write
-  const testPath = '/tmp/thesis-test.txt'
+  // Test 1: libSQL with file:/tmp/test.db
   try {
-    mkdirSync('/tmp', { recursive: true })
-    writeFileSync(testPath, 'ok')
-    info.tmp_write = 'OK'
-    info.tmp_read = readFileSync(testPath, 'utf-8')
-    unlinkSync(testPath)
+    const c1 = createClient({ url: 'file:/tmp/thesis-libsql-test.db' })
+    await c1.execute('CREATE TABLE IF NOT EXISTS t(x INTEGER)')
+    await c1.execute('INSERT INTO t VALUES(1)')
+    const r = await c1.execute('SELECT * FROM t')
+    results['libsql_file:/tmp'] = `OK (${JSON.stringify(r.rows)})`
+    await c1.execute('DROP TABLE t')
+    await c1.close()
   } catch (e) {
-    info.tmp_write = `FAILED: ${e}`
+    results['libsql_file:/tmp'] = `FAILED: ${e}`
   }
 
-  // Test os.tmpdir write
-  const testPath2 = resolve(tmpdir(), 'thesis-test2.txt')
+  // Test 2: libSQL with file:///tmp/test.db (3 slashes)
   try {
-    mkdirSync(tmpdir(), { recursive: true })
-    writeFileSync(testPath2, 'ok')
-    info.os_tmp_write = 'OK'
-    unlinkSync(testPath2)
+    const c2 = createClient({ url: 'file:///tmp/thesis-libsql-test2.db' })
+    await c2.execute('CREATE TABLE IF NOT EXISTS t(x INTEGER)')
+    await c2.execute('INSERT INTO t VALUES(1)')
+    const r = await c2.execute('SELECT * FROM t')
+    results['libsql_file:///tmp'] = `OK (${JSON.stringify(r.rows)})`
+    await c2.execute('DROP TABLE t')
+    await c2.close()
   } catch (e) {
-    info.os_tmp_write = `FAILED: ${e}`
+    results['libsql_file:///tmp'] = `FAILED: ${e}`
   }
 
-  return NextResponse.json(info)
+  // Test 3: libSQL with explicit mode=rwc
+  try {
+    const c3 = createClient({ url: 'file:/tmp/thesis-libsql-test3.db?mode=rwc' })
+    await c3.execute('SELECT 1')
+    results['libsql_mode=rwc'] = 'OK'
+    await c3.close()
+  } catch (e) {
+    results['libsql_mode=rwc'] = `FAILED: ${e}`
+  }
+
+  return NextResponse.json(results)
 }
