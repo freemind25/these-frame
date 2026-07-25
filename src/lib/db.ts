@@ -3,18 +3,18 @@ import { readFileSync, existsSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 
 // ─── DATABASE_URL resolution ────────────────────────────
+// The schema uses provider="sqlite", so DATABASE_URL must start with file:
+// On Vercel, DATABASE_URL might be set to postgresql:// from a previous config — override it.
 try {
-  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.startsWith('file:')) {
-    const envPath = resolve(process.cwd(), '.env')
-    if (existsSync(envPath)) {
-      const envContent = readFileSync(envPath, 'utf-8')
-      for (const line of envContent.split('\n')) {
-        const trimmed = line.trim()
-        if (trimmed.startsWith('DATABASE_URL=')) {
-          const val = trimmed.slice('DATABASE_URL='.length)
-          if (val && !val.startsWith('postgresql')) {
-            process.env.DATABASE_URL = val
-          }
+  const envPath = resolve(process.cwd(), '.env')
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, 'utf-8')
+    for (const line of envContent.split('\n')) {
+      const trimmed = line.trim()
+      if (trimmed.startsWith('DATABASE_URL=')) {
+        const val = trimmed.slice('DATABASE_URL='.length)
+        if (val && !val.startsWith('postgresql')) {
+          process.env.DATABASE_URL = val
         }
       }
     }
@@ -23,17 +23,15 @@ try {
   // .env not found
 }
 
-// Default to /tmp for serverless (Vercel, etc.)
-if (!process.env.DATABASE_URL || process.env.DATABASE_URL.startsWith('file:')) {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = 'file:/tmp/thesis.db'
-  }
-  const dbPath = process.env.DATABASE_URL.replace('file:', '')
-  const dbDir = resolve(dbPath, '..')
-  try {
-    mkdirSync(dbDir, { recursive: true })
-  } catch {}
+// Force SQLite URL for serverless (Vercel Lambda has ephemeral FS, /tmp is writable)
+if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
+  process.env.DATABASE_URL = 'file:/tmp/thesis.db'
 }
+const dbPath = process.env.DATABASE_URL.replace('file:', '')
+const dbDir = resolve(dbPath, '..')
+try {
+  mkdirSync(dbDir, { recursive: true })
+} catch {}
 
 // ─── Prisma Client (singleton) ──────────────────────────
 const globalForPrisma = globalThis as unknown as {
