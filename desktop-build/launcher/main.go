@@ -5,11 +5,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -18,7 +20,7 @@ const (
 	appTitle   = "ThesisFrame"
 	appVersion = "0.2.0"
 	port       = "3100"
-	maxWaitSec = 120
+	maxWaitSec = 90
 )
 
 var (
@@ -35,6 +37,12 @@ func init() {
 }
 
 func main() {
+	// Check if Node.js exists
+	if _, err := os.Stat(nodeExe); os.IsNotExist(err) {
+		showError(fmt.Sprintf("Cannot find Node.js at:\n%s\n\nPlease extract the ZIP completely before running.", nodeExe))
+		return
+	}
+
 	// Check if already running
 	if isAlreadyRunning() {
 		openBrowser(serverURL)
@@ -47,15 +55,29 @@ func main() {
 
 	// Start the server
 	if err := startServer(); err != nil {
-		showError(fmt.Sprintf("Failed to start ThesisFrame:\n%s", err))
-		os.Exit(1)
+		showError(fmt.Sprintf("Failed to start ThesisFrame:\n%s\n\nCheck server.log for details.", err))
+		return
 	}
 
 	// Wait for server to be ready
 	if !waitForServer(maxWaitSec) {
-		showError("ThesisFrame server did not start in time.\nPlease check server.log for details.")
 		stopServer()
-		os.Exit(1)
+		logContent := readLog()
+		errorMsg := "Server did not start in time."
+		if logContent != "" {
+			lines := strings.Split(logContent, "\n")
+			errorLines := []string{}
+			for i := len(lines) - 1; i >= 0 && len(errorLines) < 5; i-- {
+				if strings.Contains(lines[i], "ERROR") || strings.Contains(lines[i], "Fatal") {
+					errorLines = append(errorLines, lines[i])
+				}
+			}
+			if len(errorLines) > 0 {
+				errorMsg += "\n\nserver.log errors:\n" + strings.Join(errorLines, "\n")
+			}
+		}
+		showError(errorMsg)
+		return
 	}
 
 	// Open browser
@@ -83,39 +105,35 @@ func startServer() error {
 		"HOSTNAME=127.0.0.1",
 	)
 
-	serverJS := filepath.Join(appDir, "server.js")
-	serverCmd = exec.Command(nodeExe, serverJS)
+	startJS := filepath.Join(appDir, "start.js")
+	if _, err := os.Stat(startJS); err == nil {
+		serverCmd = exec.Command(nodeExe, startJS)
+	} else {
+		serverCmd = exec.Command(nodeExe, "server.js")
+	}
 	serverCmd.Dir = appDir
 	serverCmd.Env = env
 	serverCmd.Stdin = nil
-
-	// Hide console window on Windows - use CREATE_NO_WINDOW flag
 	serverCmd.SysProcAttr = &syscall.SysProcAttr{
 		HideWindow:    true,
 		CreationFlags: 0x08000000,
 	}
-
-	// Log output
-	logFile, err := os.OpenFile(filepath.Join(appDir, "server.log"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err == nil {
-		serverCmd.Stdout = logFile
-		serverCmd.Stderr = logFile
-	}
-
 	return serverCmd.Start()
 }
 
 func waitForServer(timeoutSec int) bool {
-	client := &http.Client{Timeout: 2 * time.Second}
+	client := &http.Client{Timeout: 3 * time.Second}
 	deadline := time.Now().Add(time.Duration(timeoutSec) * time.Second)
-
 	for time.Now().Before(deadline) {
 		resp, err := client.Get(serverURL)
 		if err == nil {
+			body, _ := ioutil.ReadAll(resp.Body)
 			resp.Body.Close()
-			return true
+			if resp.StatusCode == 200 && len(body) > 500 && strings.Contains(string(body), "<html") {
+				return true
+			}
 		}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 	}
 	return false
 }
@@ -131,23 +149,32 @@ func openBrowser(url string) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
 	default:
 		cmd = exec.Command("xdg-open", url)
 	}
 	cmd.Start()
 }
 
+func readLog() string {
+	data, err := ioutil.ReadFile(filepath.Join(appDir, "server.log"))
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
 func showError(msg string) {
+	// Write error to temp file and show via PowerShell dialog
+	tmpFile := filepath.Join(os.TempDir(), "tf_err.txt")
+	ioutil.WriteFile(tmpFile, []byte(msg), 0644)
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		// Use PowerShell to show a graphical error dialog
-		psCmd := fmt.Sprintf(`Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('%s', 'ThesisFrame Error', 'OK', 'Error')`, msg)
-		cmd = exec.Command("powershell.exe", "-WindowStyle", "Hidden", "-Command", psCmd)
-		cmd.Run()
+		psScript := fmt.Sprintf(`Add-Type -AssemblyName System.Windows.Forms; $f=[System.IO.File]::ReadAllText('%s'); [System.Windows.Forms.MessageBox]::Show($f, 'ThesisFrame', 'OK', 'Error')`, tmpFile)
+		cmd = exec.Command("powershell.exe", "-NoProfile", "-Command", psScript)
 	default:
 		fmt.Fprintln(os.Stderr, msg)
+		return
 	}
+	cmd.Run()
 }

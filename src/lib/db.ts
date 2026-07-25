@@ -3,7 +3,6 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 // Force-load DATABASE_URL from .env file to override any system env
-// (the sandbox may set a SQLite DATABASE_URL that breaks PostgreSQL)
 try {
   const envPath = resolve(process.cwd(), '.env')
   const envContent = readFileSync(envPath, 'utf-8')
@@ -30,10 +29,8 @@ export const db =
     log: process.env.NODE_ENV !== 'production' ? ['error'] : [],
   })
 
-// Always cache to avoid multiple instances (important for Supabase pooler)
 globalForPrisma.prisma = db
 
-// Re-export for backward compat
 export async function ensureDb() {
   // No-op: Supabase handles table creation
 }
