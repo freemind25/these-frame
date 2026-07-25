@@ -40,7 +40,8 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "../prisma/schema.prisma": "prisma/schema.prisma"
+      "../prisma/schema.prisma": "prisma/schema.prisma",
+      "resources/server": "server"
     },
     "windows": {
       "nsis": {
