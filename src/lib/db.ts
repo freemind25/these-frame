@@ -1,27 +1,47 @@
 import { PrismaClient } from '@prisma/client'
 import { existsSync, mkdirSync, readFileSync } from 'fs'
-import { resolve } from 'path'
-import { createClient } from '@libsql/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
 
 // ─── DATABASE_URL resolution ────────────────────────────
+const IS_SERVERLESS = typeof process.env.VERCEL !== 'undefined'
+
+if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
+  // Must use a relative path for Prisma's native engine
+  process.env.DATABASE_URL = IS_SERVERLESS
+    ? 'file:/tmp/thesis.db'
+    : 'file:./db/custom.db'
+}
+
+// Also try loading from .env (local dev)
 try {
-  const envPath = resolve(process.cwd(), '.env')
+  const envPath = process.cwd() + '/.env'
   if (existsSync(envPath)) {
     const envContent = readFileSync(envPath, 'utf-8')
     for (const line of envContent.split('\n')) {
       const trimmed = line.trim()
-      if (trimmed.startsWith('DATABASE_URL=')) {
-        const val = trimmed.slice('DATABASE_URL='.length)
-        if (val && !val.startsWith('postgresql')) {
-          process.env.DATABASE_URL = val
-        }
+      if (trimmed.startsWith('DATABASE_URL=') && !trimmed.includes('postgresql')) {
+        process.env.DATABASE_URL = trimmed.slice('DATABASE_URL='.length)
       }
     }
   }
 } catch {}
 
-// ─── SQL for auto-creating tables ──────────────────────
+// Ensure DB directory exists (local only)
+if (!IS_SERVERLESS) {
+  mkdirSync(process.cwd() + '/db', { recursive: true })
+}
+
+// ─── Prisma Client (native SQLite engine) ─────────────
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient()
+}
+
+export const db = globalForPrisma.prisma
+
+// ─── SQL for auto-creating tables (serverless) ─────────
 const TABLE_SQL = [
   `CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY,"email" TEXT NOT NULL,"name" TEXT,"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
@@ -36,52 +56,11 @@ const TABLE_SQL = [
 ]
 
 let _ensured = false
-let _db: PrismaClient | undefined
-
-function getDbPath(): string {
-  return process.env.VERCEL ? '/tmp/thesis.db' : './db/custom.db'
-}
-
-function createPrismaClient(): PrismaClient {
-  const dbPath = getDbPath()
-  const dbDir = resolve(dbPath, '..')
-  mkdirSync(dbDir, { recursive: true })
-
-  const libsql = createClient({
-    url: `file:${resolve(dbPath)}`,
-  })
-
-  return new PrismaClient({
-    adapter: new PrismaLibSql(libsql),
-  })
-}
-
-export function getDb(): PrismaClient {
-  if (!_db) {
-    const g = globalThis as unknown as { prisma: PrismaClient | undefined }
-    if (!g.prisma) {
-      g.prisma = createPrismaClient()
-    }
-    _db = g.prisma
-  }
-  return _db
-}
-
-/** Legacy export – calls getDb() lazily */
-export const db = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    return (getDb() as any)[prop]
-  },
-})
 
 export async function ensureDb() {
   if (_ensured) return
-
-  const client = getDb()
-
   try {
-    // Check that the Thesis table actually exists (not just that SQLite is reachable)
-    const rows = await client.$queryRawUnsafe<{name: string}[]>(
+    const rows = await db.$queryRawUnsafe<{ name: string }[]>(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='Thesis'"
     )
     if (rows.length > 0) {
@@ -94,7 +73,7 @@ export async function ensureDb() {
 
   for (const sql of TABLE_SQL) {
     try {
-      await client.$executeRawUnsafe(sql)
+      await db.$executeRawUnsafe(sql)
     } catch (err) {
       console.error('[ensureDb]', sql.slice(0, 50), err)
     }
