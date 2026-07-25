@@ -537,7 +537,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
               <div className="flex-1">
                 <p className="text-xs text-red-700">{consensusError}</p>
                 {!consensusApiKey && (
-                  <a href="https://consensus.app" target="blank" rel="noopener" className="text-[10px] text-violet-600 underline mt-1 inline-flex items-center gap-1">
+                  <a href="https://consensus.app" target="_blank" rel="noopener" className="text-[10px] text-violet-600 underline mt-1 inline-flex items-center gap-1">
                     <KeyRound className="h-2.5 w-2.5" />Obtenir une clé gratuite sur consensus.app
                   </a>
                 )}
