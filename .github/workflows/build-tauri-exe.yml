@@ -45,13 +45,15 @@ jobs:
           $schema = Get-Content 'prisma/schema.prisma' -Raw
           $schema = $schema -replace 'provider = "postgresql"', 'provider = "sqlite"'
           if ($schema -notmatch 'binaryTargets') {
-            $schema = $schema -replace '(generator client \{)', '`$1`n  binaryTargets = ["windows"]'
+            $genInsert = 'generator client {' + "`n" + '  binaryTargets = ["windows"]'
+            $schema = $schema -replace 'generator client \{', $genInsert
           }
           Set-Content 'prisma/schema.prisma' $schema
 
           $config = Get-Content 'next.config.ts' -Raw
           if ($config -notmatch 'output:\s*"standalone"') {
-            $config = $config -replace 'const nextConfig: NextConfig = \{', 'const nextConfig: NextConfig = {`n  output: "standalone",'
+            $cfgInsert = 'const nextConfig: NextConfig = {' + "`n" + '  output: "standalone",'
+            $config = $config -replace 'const nextConfig: NextConfig = \{', $cfgInsert
           }
           Set-Content 'next.config.ts' $config
 
