@@ -104,11 +104,11 @@ jobs:
         shell: pwsh
         run: |
           if ('${{ steps.build-frontend.outcome }}' -eq 'failure') {
-            echo "step=build-frontend" >> $GITHUB_OUTPUT
-            echo "log_file=build-frontend.log" >> $GITHUB_OUTPUT
+            echo "step=build-frontend" >> $env:GITHUB_OUTPUT
+            echo "log_file=build-frontend.log" >> $env:GITHUB_OUTPUT
           } else {
-            echo "step=build-tauri" >> $GITHUB_OUTPUT
-            echo "log_file=build-tauri.log" >> $GITHUB_OUTPUT
+            echo "step=build-tauri" >> $env:GITHUB_OUTPUT
+            echo "log_file=build-tauri.log" >> $env:GITHUB_OUTPUT
           }
 
       - name: Upload build log as artifact
@@ -204,9 +204,9 @@ jobs:
         if: always()
         run: |
           if ('${{ steps.build-tauri.outcome }}' -eq 'success') {
-            echo "## Build reussi :white_check_mark:" >> $GITHUB_STEP_SUMMARY
-            echo "Téléchargez l'artifact **ThesisFrame-Setup**." >> $GITHUB_STEP_SUMMARY
+            echo "## Build reussi :white_check_mark:" >> $env:GITHUB_STEP_SUMMARY
+            echo "Téléchargez l'artifact **ThesisFrame-Setup**." >> $env:GITHUB_STEP_SUMMARY
           } else {
-            echo "## Build echoue :x:" >> $GITHUB_STEP_SUMMARY
-            echo "Un issue a été automatiquement créé avec le log d'erreur." >> $GITHUB_STEP_SUMMARY
+            echo "## Build echoue :x:" >> $env:GITHUB_STEP_SUMMARY
+            echo "Un issue a été automatiquement créé avec le log d'erreur." >> $env:GITHUB_STEP_SUMMARY
           }
