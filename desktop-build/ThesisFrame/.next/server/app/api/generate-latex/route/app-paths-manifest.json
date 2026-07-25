@@ -1,0 +1,3 @@
+{
+  "/api/generate-latex/route": "app/api/generate-latex/route.js"
+}

@@ -1,0 +1,3 @@
+{
+  "/api/thesis/chapters/[chapterId]/route": "app/api/thesis/chapters/[chapterId]/route.js"
+}

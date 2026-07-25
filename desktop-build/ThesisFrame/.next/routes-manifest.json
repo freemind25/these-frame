@@ -1,0 +1,299 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/thesis/chapters/[chapterId]",
+      "regex": "^/api/thesis/chapters/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchapterId": "nxtPchapterId"
+      },
+      "namedRegex": "^/api/thesis/chapters/(?<nxtPchapterId>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api",
+      "regex": "^/api(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api(?:/)?$"
+    },
+    {
+      "page": "/api/academy-db/annas-archive",
+      "regex": "^/api/academy\\-db/annas\\-archive(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/academy\\-db/annas\\-archive(?:/)?$"
+    },
+    {
+      "page": "/api/academy-db/libgen-im",
+      "regex": "^/api/academy\\-db/libgen\\-im(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/academy\\-db/libgen\\-im(?:/)?$"
+    },
+    {
+      "page": "/api/academy-db/libguides",
+      "regex": "^/api/academy\\-db/libguides(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/academy\\-db/libguides(?:/)?$"
+    },
+    {
+      "page": "/api/academy-db/welib",
+      "regex": "^/api/academy\\-db/welib(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/academy\\-db/welib(?:/)?$"
+    },
+    {
+      "page": "/api/ai-status",
+      "regex": "^/api/ai\\-status(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/ai\\-status(?:/)?$"
+    },
+    {
+      "page": "/api/ai-writing",
+      "regex": "^/api/ai\\-writing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/ai\\-writing(?:/)?$"
+    },
+    {
+      "page": "/api/cloud-drive/callback",
+      "regex": "^/api/cloud\\-drive/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cloud\\-drive/callback(?:/)?$"
+    },
+    {
+      "page": "/api/cloud-drive/connect",
+      "regex": "^/api/cloud\\-drive/connect(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cloud\\-drive/connect(?:/)?$"
+    },
+    {
+      "page": "/api/cloud-drive/disconnect",
+      "regex": "^/api/cloud\\-drive/disconnect(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cloud\\-drive/disconnect(?:/)?$"
+    },
+    {
+      "page": "/api/cloud-drive/files",
+      "regex": "^/api/cloud\\-drive/files(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cloud\\-drive/files(?:/)?$"
+    },
+    {
+      "page": "/api/cloud-drive/status",
+      "regex": "^/api/cloud\\-drive/status(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cloud\\-drive/status(?:/)?$"
+    },
+    {
+      "page": "/api/consensus",
+      "regex": "^/api/consensus(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/consensus(?:/)?$"
+    },
+    {
+      "page": "/api/consensus/config",
+      "regex": "^/api/consensus/config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/consensus/config(?:/)?$"
+    },
+    {
+      "page": "/api/consensus/mistral-config",
+      "regex": "^/api/consensus/mistral\\-config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/consensus/mistral\\-config(?:/)?$"
+    },
+    {
+      "page": "/api/directeur",
+      "regex": "^/api/directeur(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/directeur(?:/)?$"
+    },
+    {
+      "page": "/api/download",
+      "regex": "^/api/download(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/download(?:/)?$"
+    },
+    {
+      "page": "/api/export-pdf",
+      "regex": "^/api/export\\-pdf(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/export\\-pdf(?:/)?$"
+    },
+    {
+      "page": "/api/generate-latex",
+      "regex": "^/api/generate\\-latex(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/generate\\-latex(?:/)?$"
+    },
+    {
+      "page": "/api/humanizer",
+      "regex": "^/api/humanizer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/humanizer(?:/)?$"
+    },
+    {
+      "page": "/api/journal-finder",
+      "regex": "^/api/journal\\-finder(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/journal\\-finder(?:/)?$"
+    },
+    {
+      "page": "/api/literature-search",
+      "regex": "^/api/literature\\-search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/literature\\-search(?:/)?$"
+    },
+    {
+      "page": "/api/literature-search/doi-lookup",
+      "regex": "^/api/literature\\-search/doi\\-lookup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/literature\\-search/doi\\-lookup(?:/)?$"
+    },
+    {
+      "page": "/api/literature-search/related",
+      "regex": "^/api/literature\\-search/related(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/literature\\-search/related(?:/)?$"
+    },
+    {
+      "page": "/api/mendeley/auth",
+      "regex": "^/api/mendeley/auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mendeley/auth(?:/)?$"
+    },
+    {
+      "page": "/api/mendeley/callback",
+      "regex": "^/api/mendeley/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mendeley/callback(?:/)?$"
+    },
+    {
+      "page": "/api/mendeley/disconnect",
+      "regex": "^/api/mendeley/disconnect(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mendeley/disconnect(?:/)?$"
+    },
+    {
+      "page": "/api/mendeley/documents",
+      "regex": "^/api/mendeley/documents(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mendeley/documents(?:/)?$"
+    },
+    {
+      "page": "/api/mendeley/search",
+      "regex": "^/api/mendeley/search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mendeley/search(?:/)?$"
+    },
+    {
+      "page": "/api/notebook/ask",
+      "regex": "^/api/notebook/ask(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notebook/ask(?:/)?$"
+    },
+    {
+      "page": "/api/notebook/entries",
+      "regex": "^/api/notebook/entries(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notebook/entries(?:/)?$"
+    },
+    {
+      "page": "/api/notebook/sources",
+      "regex": "^/api/notebook/sources(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notebook/sources(?:/)?$"
+    },
+    {
+      "page": "/api/references",
+      "regex": "^/api/references(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/references(?:/)?$"
+    },
+    {
+      "page": "/api/references/bibtex",
+      "regex": "^/api/references/bibtex(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/references/bibtex(?:/)?$"
+    },
+    {
+      "page": "/api/references/import-bibtex",
+      "regex": "^/api/references/import\\-bibtex(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/references/import\\-bibtex(?:/)?$"
+    },
+    {
+      "page": "/api/references/verify",
+      "regex": "^/api/references/verify(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/references/verify(?:/)?$"
+    },
+    {
+      "page": "/api/thesis",
+      "regex": "^/api/thesis(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/thesis(?:/)?$"
+    },
+    {
+      "page": "/api/thesis/seed",
+      "regex": "^/api/thesis/seed(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/thesis/seed(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

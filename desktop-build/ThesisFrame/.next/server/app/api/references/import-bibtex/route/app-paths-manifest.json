@@ -1,0 +1,3 @@
+{
+  "/api/references/import-bibtex/route": "app/api/references/import-bibtex/route.js"
+}

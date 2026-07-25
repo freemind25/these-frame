@@ -1,0 +1,3 @@
+{
+  "/api/consensus/mistral-config/route": "app/api/consensus/mistral-config/route.js"
+}
