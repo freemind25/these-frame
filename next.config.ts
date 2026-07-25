@@ -1,7 +1,8 @@
-import type { NextConfig} from "next"
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["sharp", "z-ai-web-dev-sdk"],
+  output: "standalone",
+  serverExternalPackages: ["z-ai-web-dev-sdk"],
   typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
 }
