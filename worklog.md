@@ -503,3 +503,40 @@ Stage Summary:
 - start.js sets DATABASE_URL=file:./db/thesis.db, PORT=3100, HOSTNAME=127.0.0.1
 - Prisma Windows engine (query_engine-windows.dll.node) included
 - All errors logged to app/server.log for debugging
+---
+Task ID: 8
+Agent: Main
+Task: Recréer l'infrastructure Tauri v2 complète + CI avec capture de log en cas d'échec et création d'issue GitHub
+
+Work Log:
+- L'ancienne approche (portable Node.js + BAT + Go launcher) a échoué de manière répétée
+- Supprimé l'ancien workflow build-windows-exe.yml (approche portable Node)
+- Recréé toute l'infrastructure Tauri v2 depuis zéro :
+  - `src-tauri/Cargo.toml` — Rust deps (tauri 2, shell, dialog, fs, serde, tokio, reqwest)
+  - `src-tauri/tauri.conf.json` — Config Tauri (fenêtre 1400x900, CSP académique, NSIS FR/EN/AR)
+  - `src-tauri/src/lib.rs` — Commandes Rust (version, documents_dir, desktop_dir, server_status)
+  - `src-tauri/src/main.rs` — Entry point avec windows_subsystem = "windows"
+  - `src-tauri/capabilities/default.json` — Permissions Tauri v2
+  - `src-tauri/icons/` — Icônes PNG placeholder
+  - `scripts/start-server.js` — Lanceur serveur standalone avec init DB SQLite
+  - `scripts/build-windows.bat` — Script build Windows local
+- Créé le workflow CI `.github/workflows/build-tauri-windows.yml` :
+  - Trigger : push de tag v* + workflow_dispatch manuel
+  - Build sur windows-latest avec Rust cache
+  - Prisma SQLite + Windows binary target
+  - Capture de log via Tee-Object pour chaque étape (build-frontend.log, build-tauri.log)
+  - En cas d'échec : détermine l'étape fautive, uploade le log comme artifact
+  - Crée AUTOMATIQUEMENT une GitHub Issue avec : tableau récapitulatif, erreurs extraites, log complet en <details>
+  - Labels : ci-failure, tauri-build, windows
+  - Si succès : upload artifact ThesisFrame-Setup + création de Release si tag
+- Mis à jour `package.json` : ajouté script `build:tauri`, supprimé electron/electron-packager
+- Mis à jour `src/lib/tauri.ts` : vrais appels Tauri via dynamic import (fallback web)
+- Mis à jour `src/lib/db.ts` : support SQLite desktop + création auto du répertoire db
+- Disque sandbox plein : impossible d'installer node_modules localement (le CI sur GitHub n'a pas ce problème)
+
+Stage Summary:
+- Infrastructure Tauri v2 complète (11 fichiers créés/modifiés)
+- CI/CD avec reporting d'erreur automatique via GitHub Issues
+- En cas de build échoué (croix rouge :ci:), un issue est créé avec le log complet
+- Pour déclencher le build : Actions → Build Windows .exe (Tauri v2) → Run workflow
+- Ou : git tag v0.2.1 && git push origin v0.2.1

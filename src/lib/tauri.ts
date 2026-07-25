@@ -1,6 +1,6 @@
 /**
  * ThesisFrame — Tauri Desktop Integration
- * All calls are no-ops when not running inside Tauri.
+ * All calls gracefully degrade when not running inside Tauri.
  */
 
 export function isDesktop(): boolean {
@@ -9,21 +9,46 @@ export function isDesktop(): boolean {
 }
 
 export async function getAppVersion(): Promise<string> {
-  return '0.2.0';
+  if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
+    return '0.2.0-web';
+  }
+  const { invoke } = await import('@tauri-apps/api/core');
+  try {
+    return await invoke<string>('get_app_version');
+  } catch {
+    return '0.2.0';
+  }
 }
 
 export async function getDocumentsDir(): Promise<string | null> {
-  return null;
+  if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
+    return null;
+  }
+  try {
+    const { invoke } = await import('@tauri-apps/api/core');
+    return await invoke<string>('get_documents_dir');
+  } catch {
+    return null;
+  }
 }
 
 export async function getDesktopDir(): Promise<string | null> {
-  return null;
+  if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
+    return null;
+  }
+  try {
+    const { invoke } = await import('@tauri-apps/api/core');
+    return await invoke<string>('get_desktop_dir');
+  } catch {
+    return null;
+  }
 }
 
 export function getPlatformInfo(): { isDesktop: boolean; isWeb: boolean; platform: string } {
+  const desktop = isDesktop();
   return {
-    isDesktop: false,
-    isWeb: true,
-    platform: 'web',
+    isDesktop: desktop,
+    isWeb: !desktop,
+    platform: desktop ? 'windows' : 'web',
   };
 }

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "prisma generate && next build",
+    "build:tauri": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
@@ -94,8 +95,6 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/parser": "^8.65.0",
     "bun-types": "^1.3.4",
-    "electron": "^33",
-    "electron-packager": "^17.1.2",
     "eslint": "^9",
     "eslint-config-next": "^16.1.1",
     "tailwindcss": "^4",
