@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::path::PathBuf;
+use tauri::Manager;
 
 #[tauri::command]
 fn get_app_version() -> String {
@@ -18,7 +18,7 @@ fn get_app_data_dir(app_handle: tauri::AppHandle) -> Result<String, String> {
 
 #[tauri::command]
 fn get_documents_dir() -> Result<String, String> {
-    dirs::documents_dir()
+    dirs::document_dir()
         .map(|p| p.to_string_lossy().to_string())
         .ok_or_else(|| "Could not determine documents directory".to_string())
 }
