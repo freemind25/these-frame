@@ -19,7 +19,7 @@ export async function POST() {
       return NextResponse.json(existing)
     }
 
-    // Create thesis with all 6 chapters in a single transaction
+    // Create thesis with all chapters in a single transaction
     const thesis = await db.thesis.create({
       data: {
         chapters: {
@@ -42,9 +42,10 @@ export async function POST() {
 
     return NextResponse.json(thesis, { status: 201 })
   } catch (error) {
-    console.error('[POST /api/thesis/seed] Error:', error)
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[POST /api/thesis/seed] Error:', msg, error)
     return NextResponse.json(
-      { error: 'Failed to seed thesis' },
+      { error: 'Failed to seed thesis', detail: msg },
       { status: 500 },
     )
   }

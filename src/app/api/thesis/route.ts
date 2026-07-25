@@ -28,9 +28,10 @@ export async function GET() {
 
     return NextResponse.json(thesis)
   } catch (error) {
-    console.error('[GET /api/thesis] Error:', error)
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[GET /api/thesis] Error:', msg, error)
     return NextResponse.json(
-      { error: 'Failed to fetch thesis' },
+      { error: 'Failed to fetch thesis', detail: msg },
       { status: 500 },
     )
   }

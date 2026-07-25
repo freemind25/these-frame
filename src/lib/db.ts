@@ -3,7 +3,6 @@ import { readFileSync, existsSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 
 // ─── DATABASE_URL resolution ────────────────────────────
-// Priority: env var > .env file > default (file:/tmp/thesis.db for serverless)
 try {
   if (!process.env.DATABASE_URL || process.env.DATABASE_URL.startsWith('file:')) {
     const envPath = resolve(process.cwd(), '.env')
@@ -21,7 +20,7 @@ try {
     }
   }
 } catch {
-  // .env not found, use default env
+  // .env not found
 }
 
 // Default to /tmp for serverless (Vercel, etc.)
@@ -49,6 +48,99 @@ export const db =
 
 globalForPrisma.prisma = db
 
+// ─── SQL statements for each table ─────────────────────
+const TABLE_SQL = [
+  `CREATE TABLE IF NOT EXISTS "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "name" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
+  `CREATE TABLE IF NOT EXISTS "Post" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "content" TEXT,
+    "published" BOOLEAN NOT NULL DEFAULT 0,
+    "authorId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "MendeleyConfig" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "clientId" TEXT,
+    "clientSecret" TEXT,
+    "accessToken" TEXT,
+    "refreshToken" TEXT,
+    "tokenExpiresAt" DATETIME,
+    "connected" BOOLEAN NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "Reference" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL DEFAULT 'article',
+    "citationKey" TEXT,
+    "title" TEXT NOT NULL,
+    "authors" TEXT NOT NULL,
+    "year" TEXT,
+    "journal" TEXT,
+    "volume" TEXT,
+    "number" TEXT,
+    "pages" TEXT,
+    "doi" TEXT,
+    "abstract" TEXT,
+    "tags" TEXT,
+    "notes" TEXT,
+    "source" TEXT NOT NULL DEFAULT 'manual',
+    "mendeleyId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Reference_mendeleyId_key" ON "Reference"("mendeleyId")`,
+  `CREATE TABLE IF NOT EXISTS "Thesis" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL DEFAULT 'Ma thèse de doctorat',
+    "subtitle" TEXT,
+    "author" TEXT NOT NULL DEFAULT 'Doctorant',
+    "field" TEXT NOT NULL DEFAULT '',
+    "university" TEXT NOT NULL DEFAULT '',
+    "status" TEXT NOT NULL DEFAULT 'draft',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "Chapter" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "thesisId" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "number" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL DEFAULT '',
+    "wordCount" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'draft',
+    "directorFeedback" TEXT,
+    "directorFeedbackAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Chapter_thesisId_fkey" FOREIGN KEY ("thesisId") REFERENCES "Thesis"("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Chapter_thesisId_order_key" ON "Chapter"("thesisId", "order")`,
+  `CREATE TABLE IF NOT EXISTS "CloudDriveConnection" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "provider" TEXT NOT NULL DEFAULT 'google_drive',
+    "connected" BOOLEAN NOT NULL DEFAULT 0,
+    "email" TEXT,
+    "displayName" TEXT,
+    "accessToken" TEXT,
+    "refreshToken" TEXT,
+    "tokenExpiresAt" DATETIME,
+    "lastSyncAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+]
+
 // ─── Ensure DB + tables exist (safe for serverless) ─────
 let _ensured = false
 
@@ -59,109 +151,22 @@ export async function ensureDb() {
     _ensured = true
     return
   } catch {
-    // DB file might not exist yet, try creating tables
+    // Tables might not exist, create them
   }
 
+  for (const sql of TABLE_SQL) {
+    try {
+      await db.$executeRawUnsafe(sql)
+    } catch (err) {
+      console.error('[ensureDb] SQL error:', sql.slice(0, 60), err)
+    }
+  }
+
+  // Verify by querying again
   try {
-    await db.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "User" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "email" TEXT NOT NULL,
-        "name" TEXT,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
-
-      CREATE TABLE IF NOT EXISTS "Post" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "title" TEXT NOT NULL,
-        "content" TEXT,
-        "published" BOOLEAN NOT NULL DEFAULT 0,
-        "authorId" TEXT NOT NULL,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS "MendeleyConfig" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "clientId" TEXT,
-        "clientSecret" TEXT,
-        "accessToken" TEXT,
-        "refreshToken" TEXT,
-        "tokenExpiresAt" DATETIME,
-        "connected" BOOLEAN NOT NULL DEFAULT 0,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS "Reference" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "type" TEXT NOT NULL DEFAULT 'article',
-        "citationKey" TEXT,
-        "title" TEXT NOT NULL,
-        "authors" TEXT NOT NULL,
-        "year" TEXT,
-        "journal" TEXT,
-        "volume" TEXT,
-        "number" TEXT,
-        "pages" TEXT,
-        "doi" TEXT,
-        "abstract" TEXT,
-        "tags" TEXT,
-        "notes" TEXT,
-        "source" TEXT NOT NULL DEFAULT 'manual',
-        "mendeleyId" TEXT,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE UNIQUE INDEX IF NOT EXISTS "Reference_mendeleyId_key" ON "Reference"("mendeleyId");
-
-      CREATE TABLE IF NOT EXISTS "Thesis" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "title" TEXT NOT NULL DEFAULT 'Ma thèse de doctorat',
-        "subtitle" TEXT,
-        "author" TEXT NOT NULL DEFAULT 'Doctorant',
-        "field" TEXT NOT NULL DEFAULT '',
-        "university" TEXT NOT NULL DEFAULT '',
-        "status" TEXT NOT NULL DEFAULT 'draft',
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS "Chapter" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "thesisId" TEXT NOT NULL,
-        "order" INTEGER NOT NULL,
-        "number" TEXT NOT NULL,
-        "title" TEXT NOT NULL,
-        "content" TEXT NOT NULL DEFAULT '',
-        "wordCount" INTEGER NOT NULL DEFAULT 0,
-        "status" TEXT NOT NULL DEFAULT 'draft',
-        "directorFeedback" TEXT,
-        "directorFeedbackAt" DATETIME,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT "Chapter_thesisId_fkey" FOREIGN KEY ("thesisId") REFERENCES "Thesis"("id") ON DELETE CASCADE ON UPDATE CASCADE
-      );
-      CREATE UNIQUE INDEX IF NOT EXISTS "Chapter_thesisId_order_key" ON "Chapter"("thesisId", "order");
-
-      CREATE TABLE IF NOT EXISTS "CloudDriveConnection" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "provider" TEXT NOT NULL DEFAULT 'google_drive',
-        "connected" BOOLEAN NOT NULL DEFAULT 0,
-        "email" TEXT,
-        "displayName" TEXT,
-        "accessToken" TEXT,
-        "refreshToken" TEXT,
-        "tokenExpiresAt" DATETIME,
-        "lastSyncAt" DATETIME,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `)
+    await db.$queryRaw`SELECT 1`
     _ensured = true
   } catch (err) {
-    console.error('[ensureDb] Failed to create tables:', err)
+    console.error('[ensureDb] DB still not accessible after table creation:', err)
   }
 }
