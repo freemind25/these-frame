@@ -97,7 +97,8 @@ pub fn run() {
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
-                let state = window.app_handle().state::<ServerProcess>();
+                let app_handle = window.app_handle();
+                let state = app_handle.state::<ServerProcess>();
                 if let Some(mut child) = state.0.lock().unwrap().take() {
                     let _ = child.kill();
                 }
