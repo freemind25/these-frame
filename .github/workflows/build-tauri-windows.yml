@@ -187,7 +187,7 @@ jobs:
 
             ---
 
-            *Log complet disponible dans l'artifact \\`build-failure-log\\	 de cette run.*
+            *Log complet disponible dans l'artifact \`build-failure-log\` de cette run.*
             `;
 
             await github.rest.issues.create({
