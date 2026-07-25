@@ -17,13 +17,19 @@ interface SearchResult {
 
 const UA = { 'User-Agent': 'ThesisFrame/1.0 (academic research tool)' }
 
-// ─── Semantic Scholar ───────────────────────────────────────
-async function searchSemanticScholar(query: string, limit: number): Promise<SearchResult[]> {
-  const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=${limit}&fields=title,authors,year,abstract,citationCount,externalIds,journal,openAccessPdf`
-  const res = await fetchWithRetry(url, { headers: UA })
+// ─── Semantic Scholar (bulk + API key) ────────────────────
+async function searchSemanticScholar(query: string, limit: number, apiKey?: string): Promise<SearchResult[]> {
+  // Bulk endpoint returns more data per request, fewer round-trips
+  // Fields: only what we need (per S2 tutorial: limit fields for speed)
+  const fields = 'title,authors,year,citationCount,externalIds,journal,openAccessPdf'
+  const url = `https://api.semanticscholar.org/graph/v1/paper/search/bulk?query=${encodeURIComponent(query)}&limit=${limit}&fields=${fields}`
+  const headers: Record<string, string> = { ...UA }
+  if (apiKey) headers['x-api-key'] = apiKey
+  const res = await fetchWithRetry(url, { headers }, 2, apiKey ? 1000 : 3000)
   if (!res.ok) return []
   const data = await res.json()
-  return (data.data || []).map((p: Record<string, unknown>) => {
+  const papers = (data.data || data || []) as Record<string, unknown>[]
+  return papers.map(p => {
     const authors = ((p.authors as Record<string, string>[]) || []).map(a => a.name).join(', ')
     const extIds = (p.externalIds as Record<string, string>) || {}
     const oaPdf = (p.openAccessPdf as Record<string, string>) || {}
@@ -331,7 +337,7 @@ function deduplicateResults(results: SearchResult[]): SearchResult[] {
 // ─── Main Route ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    const { query, sources = ['openalex', 'crossref'], limit = 10 } = await request.json()
+    const { query, sources = ['openalex', 'crossref'], limit = 10, s2ApiKey } = await request.json()
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 })
@@ -342,7 +348,7 @@ export async function POST(request: NextRequest) {
     // Launch all searches in parallel (each source handles its own rate limits)
     const searches: Promise<SearchResult[]>[] = []
 
-    if (sources.includes('semantic_scholar')) searches.push(searchSemanticScholar(query, safeLimit))
+    if (sources.includes('semantic_scholar')) searches.push(searchSemanticScholar(query, safeLimit, s2ApiKey as string | undefined))
     if (sources.includes('openalex')) searches.push(searchOpenAlex(query, safeLimit))
     if (sources.includes('crossref')) searches.push(searchCrossref(query, safeLimit))
     if (sources.includes('arxiv')) searches.push(searchArxiv(query, safeLimit))

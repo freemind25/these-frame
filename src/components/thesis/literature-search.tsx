@@ -35,7 +35,11 @@ const SOURCE_OPTIONS = [
   { id: 'pubmed', label: 'PubMed', icon: Heart, color: 'bg-rose-50 text-rose-700 border-rose-200', desc: '35M+ articles biomédicaux' },
 ]
 
-export default function LiteratureSearch() {
+interface LiteratureSearchProps {
+  s2ApiKey?: string
+}
+
+export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
   // Search state
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
@@ -54,9 +58,14 @@ export default function LiteratureSearch() {
   const [doiError, setDoiError] = useState('')
   const [doiAdded, setDoiAdded] = useState(false)
 
-  // Related papers state
+  // Related papers state (old /api/related)
   const [relatedDois, setRelatedDois] = useState<Record<string, SearchResult[]>>({})
   const [relatedLoading, setRelatedLoading] = useState<Record<string, boolean>>({})
+
+  // S2 Recommendations state
+  const [recommendations, setRecommendations] = useState<SearchResult[]>([])
+  const [recommendLoading, setRecommendLoading] = useState(false)
+  const [recommendDoi, setRecommendDoi] = useState('')
 
   // Add to references state
   const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
@@ -80,7 +89,7 @@ export default function LiteratureSearch() {
       const res = await fetch('/api/literature-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim(), sources: selectedSources, limit: 10 }),
+        body: JSON.stringify({ query: query.trim(), sources: selectedSources, limit: 10, s2ApiKey }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -147,6 +156,27 @@ export default function LiteratureSearch() {
     setCopiedIdx(idx as number)
     setTimeout(() => setCopiedIdx(null), 2000)
   }, [])
+
+  const fetchS2Recommendations = useCallback(async (doi: string) => {
+    if (!doi || recommendLoading) return
+    setRecommendLoading(true)
+    setRecommendations([])
+    try {
+      const res = await fetch('/api/literature-search/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doi, limit: 10, s2ApiKey }),
+      })
+      const data = await res.json()
+      if (res.ok && data.results) {
+        setRecommendations(data.results)
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setRecommendLoading(false)
+    }
+  }, [recommendLoading, s2ApiKey])
 
   const fetchRelatedPapers = useCallback(async (doi: string) => {
     if (!doi || relatedDois[doi] || relatedLoading[doi]) return
@@ -332,17 +362,21 @@ export default function LiteratureSearch() {
             Recherche académique multi-sources
           </p>
           <p className="text-[10px] text-emerald-600 leading-snug mt-0.5">
-            6 bases de données gratuites · Cache par DOI · Retry automatique sur rate limits · Abstracts PubMed
+            7 sources · S2 Recommendations · Cache par DOI · Retry automatique · Abstracts PubMed
           </p>
         </div>
       </div>
 
       {/* Tab switch: Search vs DOI Lookup */}
-      <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'search' | 'doi')}>
+      <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'search' | 'doi' | 'recommend')}>
         <TabsList className="w-full h-9">
           <TabsTrigger value="search" className="flex-1 text-xs gap-1.5">
             <Search className="h-3.5 w-3.5" />
             Recherche
+          </TabsTrigger>
+          <TabsTrigger value="recommend" className="flex-1 text-xs gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            S2 IA
           </TabsTrigger>
           <TabsTrigger value="doi" className="flex-1 text-xs gap-1.5">
             <Fingerprint className="h-3.5 w-3.5" />
@@ -414,6 +448,41 @@ export default function LiteratureSearch() {
               </div>
             )}
             {results.map((r, i) => renderResult(r, i))}
+          </div>
+        </TabsContent>
+
+        {/* ─── S2 Recommendations Tab ─────────────── */}
+        <TabsContent value="recommend" className="mt-3 space-y-3">
+          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-sky-50 border border-sky-200">
+            <GraduationCap className="h-3.5 w-3.5 text-sky-600 shrink-0 mt-0.5" />
+            <p className="text-[11px] text-sky-700 leading-snug">
+              <strong>Recommandations IA par Semantic Scholar.</strong> Entrez un DOI ci-dessous pour découvrir des articles similaires suggérés par le modèle de S2.{s2ApiKey ? '' : ' Une clé S2 est recommandée (⚙ → Clé API Semantic Scholar).'}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                value={recommendDoi}
+                onChange={e => setRecommendDoi(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') fetchS2Recommendations(recommendDoi.trim()) }}
+                placeholder="Collez un DOI pour obtenir des recommandations..."
+                className="pl-9 h-10 text-sm font-mono"
+              />
+            </div>
+            <Button onClick={() => fetchS2Recommendations(recommendDoi.trim())} disabled={!recommendDoi.trim() || recommendLoading} className="h-10 px-4">
+              {recommendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <span className="ml-1.5 text-sm">Suggérer</span>
+            </Button>
+          </div>
+          <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
+            {recommendations.length === 0 && !recommendLoading && (
+              <div className="text-center py-8">
+                <GraduationCap className="h-8 w-8 text-slate-300 mx-auto mb-3" />
+                <p className="text-xs text-slate-500">Entrez un DOI pour obtenir des recommandations</p>
+              </div>
+            )}
+            {recommendations.map((r, i) => renderResult(r, `rec-${i}`))}
           </div>
         </TabsContent>
 

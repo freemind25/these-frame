@@ -120,23 +120,32 @@ export default function Home() {
     return ''
   })
 
+  // Semantic Scholar API key (1 req/s guaranteed with key)
+  const [s2ApiKey, setS2ApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_s2ApiKey') || ''
+    return ''
+  })
+
   const saveProviderSettings = useCallback(() => {
     localStorage.setItem('tf_provider', aiProvider)
     localStorage.setItem('tf_apiKey', aiApiKey)
     localStorage.setItem('tf_baseUrl', aiBaseUrl)
     localStorage.setItem('tf_model', aiModel)
+    localStorage.setItem('tf_s2ApiKey', s2ApiKey)
     setProviderSettingsOpen(false)
-  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel])
+  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel, s2ApiKey])
 
   const clearProviderSettings = useCallback(() => {
     localStorage.removeItem('tf_provider')
     localStorage.removeItem('tf_apiKey')
     localStorage.removeItem('tf_baseUrl')
     localStorage.removeItem('tf_model')
+    localStorage.removeItem('tf_s2ApiKey')
     setAiProvider('z-ai')
     setAiApiKey('')
     setAiBaseUrl('')
     setAiModel('')
+    setS2ApiKey('')
   }, [])
 
   // Director state
@@ -733,7 +742,7 @@ export default function Home() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4 text-emerald-600" />Recherche de littérature scientifique</DialogTitle>
           </DialogHeader>
-          <LiteratureSearch />
+          <LiteratureSearch s2ApiKey={s2ApiKey} />
         </DialogContent>
       </Dialog>
 
@@ -826,6 +835,28 @@ export default function Home() {
                 </p>
               </div>
             )}
+
+            <Separator className="my-1" />
+
+            {/* Semantic Scholar API Key */}
+            <div className="space-y-1.5">
+              <Label className="text-xs flex items-center gap-1.5">
+                <GraduationCap className="h-3 w-3 text-sky-600" />
+                Clé API Semantic Scholar
+                <span className="text-slate-400 font-normal">(optionnel)</span>
+              </Label>
+              <Input
+                type="password"
+                value={s2ApiKey}
+                onChange={e => setS2ApiKey(e.target.value)}
+                placeholder="Clé S2 (1 req/s garanti)"
+                className="h-9 text-sm"
+              />
+              <p className="text-[10px] text-slate-400 leading-snug">
+                Sans clé : partage du rate limit global (souvent 429). Avec clé : 1 req/s garanti. Gratuit sur{' '}
+                <a href="https://www.semanticscholar.org/product/api#api-key" target="_blank" rel="noopener" className="text-sky-600 underline">semanticscholar.org/product/api</a>
+              </p>
+            </div>
 
             <div className="flex items-center justify-between pt-2">
               <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={clearProviderSettings}>
