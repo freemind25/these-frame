@@ -3,6 +3,8 @@ use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
 use std::time::Duration;
 use tauri::Manager;
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
