@@ -69,3 +69,5 @@ src-tauri/gen/
 *.dmg
 app-icon.png
 app-icon-real.png
+download/
+tmp-pack/
