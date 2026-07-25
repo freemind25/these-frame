@@ -62,6 +62,7 @@ tool-results/
 # Tauri build artifacts
 src-tauri/target/
 src-tauri/gen/
+src-tauri/resources/
 *.exe
 *.msi
 *.deb
