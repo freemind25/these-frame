@@ -1,33 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 import { existsSync, mkdirSync, readFileSync } from 'fs'
 
-// ─── DATABASE_URL resolution ────────────────────────────
+// ─── Database URL (Turbopack-safe: string literals, not process.env) ───
+// Turbopack inlines process.env.DATABASE_URL at build time → undefined on Vercel.
+// Instead, pass the URL directly via datasources to bypass Prisma's env() lookup.
 const IS_SERVERLESS = typeof process.env.VERCEL !== 'undefined'
+const DB_URL = IS_SERVERLESS ? 'file:/tmp/thesis.db' : 'file:./db/custom.db'
 
-if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
-  // Must use a relative path for Prisma's native engine
-  process.env.DATABASE_URL = IS_SERVERLESS
-    ? 'file:/tmp/thesis.db'
-    : 'file:./db/custom.db'
-}
-
-// Also try loading from .env (local dev)
-try {
-  const envPath = process.cwd() + '/.env'
-  if (existsSync(envPath)) {
-    const envContent = readFileSync(envPath, 'utf-8')
-    for (const line of envContent.split('\n')) {
-      const trimmed = line.trim()
-      if (trimmed.startsWith('DATABASE_URL=') && !trimmed.includes('postgresql')) {
-        process.env.DATABASE_URL = trimmed.slice('DATABASE_URL='.length)
-      }
-    }
-  }
-} catch {}
-
-// Ensure DB directory exists (local only)
+// Ensure DB directory exists (local dev only — /tmp always exists on Vercel)
 if (!IS_SERVERLESS) {
-  mkdirSync(process.cwd() + '/db', { recursive: true })
+  mkdirSync('./db', { recursive: true })
 }
 
 // ─── Prisma Client (native SQLite engine) ─────────────
@@ -36,12 +18,16 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = new PrismaClient()
+  globalForPrisma.prisma = new PrismaClient({
+    datasources: {
+      db: { url: DB_URL },
+    },
+  })
 }
 
 export const db = globalForPrisma.prisma
 
-// ─── SQL for auto-creating tables (serverless) ─────────
+// ─── SQL for auto-creating tables (serverless / fresh DB) ───
 const TABLE_SQL = [
   `CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY,"email" TEXT NOT NULL,"name" TEXT,"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
