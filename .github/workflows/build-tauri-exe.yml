@@ -1,0 +1,150 @@
+name: Build Windows Installer (Tauri .exe)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag de release optionnel (ex: v0.2.1). Laisser vide pour un simple artifact."
+        required: false
+        type: string
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Switch to SQLite + standalone mode
+        shell: pwsh
+        run: |
+          $schema = Get-Content 'prisma/schema.prisma' -Raw
+          $schema = $schema -replace 'provider = "postgresql"', 'provider = "sqlite"'
+          if ($schema -notmatch 'binaryTargets') {
+            $schema = $schema -replace '(generator client \{)', '`$1`n  binaryTargets = ["windows"]'
+          }
+          Set-Content 'prisma/schema.prisma' $schema
+
+          $config = Get-Content 'next.config.ts' -Raw
+          if ($config -notmatch 'output:\s*"standalone"') {
+            $config = $config -replace 'const nextConfig: NextConfig = \{', 'const nextConfig: NextConfig = {`n  output: "standalone",'
+          }
+          Set-Content 'next.config.ts' $config
+
+          Set-Content -Path '.env' -Value 'DATABASE_URL=file:./db/custom.db'
+          New-Item -ItemType Directory -Force -Path 'db' | Out-Null
+
+      - name: Generate Prisma + Build Next.js
+        run: |
+          bunx prisma generate
+          bun run build
+        env:
+          DATABASE_URL: 'file:./db/custom.db'
+          NODE_ENV: production
+
+      - name: Download portable Node.js runtime
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.16.0/node-v22.16.0-win-x64.zip' -OutFile 'node.zip'
+          Expand-Archive -Path 'node.zip' -DestinationPath 'node-tmp'
+          Move-Item 'node-tmp/node-v22.16.0-win-x64' 'node-portable'
+          Remove-Item 'node.zip', 'node-tmp' -Recurse -Force
+
+      - name: Assemble embedded server resources
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path 'src-tauri/resources/app', 'src-tauri/resources/node' | Out-Null
+
+          # Standalone Next.js server + static assets
+          Copy-Item '.next/standalone/*' 'src-tauri/resources/app/' -Recurse -Force
+          if (Test-Path '.next/static') {
+            Copy-Item '.next/static' 'src-tauri/resources/app/.next/static' -Recurse -Force
+          }
+          Copy-Item 'public' 'src-tauri/resources/app/public' -Recurse -Force
+          Remove-Item 'src-tauri/resources/app/.env' -Force -ErrorAction SilentlyContinue
+
+          # Portable Node.js runtime (binary only)
+          Copy-Item 'node-portable/node.exe' 'src-tauri/resources/node/node.exe'
+
+          # Launcher script: sets up the local SQLite DB path + fixed port, then boots server.js
+          $startJs = @'
+          const path = require('path');
+          const fs = require('fs');
+          const dbDir = path.join(__dirname, 'db');
+          if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+          const dbPath = path.join(dbDir, 'custom.db');
+          process.env.DATABASE_URL = 'file:' + dbPath;
+          process.env.NODE_ENV = 'production';
+          process.env.PORT = '3100';
+          process.env.HOSTNAME = '127.0.0.1';
+          require(path.join(__dirname, 'server.js'));
+          '@
+          Set-Content 'src-tauri/resources/app/start.js' -Value $startJs.Trim()
+
+          Write-Host 'Embedded server resources assembled.'
+
+      - name: Sanity test embedded server
+        shell: pwsh
+        run: |
+          $proc = Start-Process -FilePath 'src-tauri/resources/node/node.exe' -ArgumentList 'src-tauri/resources/app/start.js' -PassThru -NoNewWindow
+          Start-Sleep -Seconds 20
+          try {
+            $r = Invoke-WebRequest -Uri 'http://127.0.0.1:3100/' -TimeoutSec 10 -UseBasicParsing
+            Write-Host "TEST PASSED: status=$($r.StatusCode)"
+          } catch {
+            Write-Host "TEST FAILED: $($_.Exception.Message)"
+            exit 1
+          } finally {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Build Tauri installer (.exe)
+        run: bunx tauri build
+
+      - name: Locate installer
+        id: locate
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path 'src-tauri/target/release/bundle/nsis' -Filter '*.exe' -Recurse | Select-Object -First 1
+          if (-not $exe) { throw "No .exe installer found" }
+          Write-Host "Found installer: $($exe.FullName)"
+          echo "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          echo "exe_name=$($exe.Name)" >> $env:GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThesisFrame-Setup
+          path: ${{ steps.locate.outputs.exe_path }}
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.locate.outputs.exe_path }}
+          generate_release_notes: true

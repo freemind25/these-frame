@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>ThesisFrame</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #3b4a6b 0%, #b5533c 100%);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .spinner {
+    width: 46px;
+    height: 46px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 22px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; letter-spacing: 0.02em; }
+  p { opacity: 0.85; font-size: 13px; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h1>ThesisFrame</h1>
+  <p id="status">Démarrage du serveur…</p>
+
+<script>
+  var TARGET_URL = "http://127.0.0.1:3100/";
+  var tries = 0;
+  var MAX_TRIES = 90; // ~45s
+
+  function check() {
+    tries++;
+    fetch(TARGET_URL, { mode: "no-cors", cache: "no-store" })
+      .then(function () {
+        window.location.href = TARGET_URL;
+      })
+      .catch(function () {
+        if (tries < MAX_TRIES) {
+          document.getElementById("status").textContent =
+            "Démarrage du serveur… (" + tries + ")";
+          setTimeout(check, 500);
+        } else {
+          document.getElementById("status").textContent =
+            "Le serveur met du temps à démarrer. Veuillez patienter ou redémarrer l'application.";
+        }
+      });
+  }
+
+  setTimeout(check, 800);
+</script>
+</body>
+</html>
