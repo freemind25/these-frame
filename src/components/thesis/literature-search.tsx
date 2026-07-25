@@ -4,7 +4,8 @@ import { useState, useCallback } from 'react'
 import {
   Search, Loader2, ExternalLink, BookOpen, Quote, Copy, Check,
   GraduationCap, Globe, Database, FileText, Atom, Heart, Plus, CheckCheck, GitBranch,
-  Link, Fingerprint, Building2, AlertCircle, Sparkles, Trash2,
+  Link, Fingerprint, Building2, AlertCircle, Sparkles, Trash2, Brain, MessageCircleQuestion,
+  ThumbsUp, ThumbsDown, Minus, ArrowRight, KeyRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,21 +36,28 @@ const SOURCE_OPTIONS = [
   { id: 'pubmed', label: 'PubMed', icon: Heart, color: 'bg-rose-50 text-rose-700 border-rose-200', desc: '35M+ articles biomédicaux' },
 ]
 
-interface LiteratureSearchProps {
-  s2ApiKey?: string
+interface ConsensusPaper extends SearchResult {
+  consensusScore?: number
+  consensusLabel?: string
+  tldr?: string
 }
 
-export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
+interface LiteratureSearchProps {
+  s2ApiKey?: string
+  consensusApiKey?: string
+}
+
+export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: LiteratureSearchProps) {
   // Search state
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar'])
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [expandedIdx, setExpandedIdx] = useState<number | string | null>(null)
+  const [copiedIdx, setCopiedIdx] = useState<number | string | null>(null)
   const [totalResults, setTotalResults] = useState(0)
   const [sourceErrors, setSourceErrors] = useState<string[]>([])
-  const [searchMode, setSearchMode] = useState<'search' | 'doi'>('search')
+  const [searchMode, setSearchMode] = useState<'search' | 'doi' | 'recommend' | 'consensus'>('search')
 
   // DOI lookup state
   const [doiInput, setDoiInput] = useState('')
@@ -66,6 +74,13 @@ export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
   const [recommendations, setRecommendations] = useState<SearchResult[]>([])
   const [recommendLoading, setRecommendLoading] = useState(false)
   const [recommendDoi, setRecommendDoi] = useState('')
+
+  // Consensus AI state
+  const [consensusQuery, setConsensusQuery] = useState('')
+  const [consensusLoading, setConsensusLoading] = useState(false)
+  const [consensusAnswer, setConsensusAnswer] = useState('')
+  const [consensusPapers, setConsensusPapers] = useState<ConsensusPaper[]>([])
+  const [consensusError, setConsensusError] = useState('')
 
   // Add to references state
   const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
@@ -156,6 +171,34 @@ export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
     setCopiedIdx(idx as number)
     setTimeout(() => setCopiedIdx(null), 2000)
   }, [])
+
+  const fetchConsensusAnswer = useCallback(async () => {
+    if (!consensusQuery.trim() || consensusLoading) return
+    if (!consensusApiKey?.trim()) {
+      setConsensusError('Clé API Consensus requise. Ouvrez les paramètres (⚙) pour l\'ajouter.')
+      return
+    }
+    setConsensusLoading(true)
+    setConsensusAnswer('')
+    setConsensusPapers([])
+    setConsensusError('')
+    setAddedDois(new Set())
+    try {
+      const res = await fetch('/api/literature-search/consensus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: consensusQuery.trim(), apiKey: consensusApiKey, limit: 10 }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur Consensus')
+      setConsensusAnswer(data.answer || '')
+      setConsensusPapers(data.papers || [])
+    } catch (err) {
+      setConsensusError(err instanceof Error ? err.message : 'Erreur lors de la requête')
+    } finally {
+      setConsensusLoading(false)
+    }
+  }, [consensusQuery, consensusLoading, consensusApiKey])
 
   const fetchS2Recommendations = useCallback(async (doi: string) => {
     if (!doi || recommendLoading) return
@@ -362,17 +405,21 @@ export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
             Recherche académique multi-sources
           </p>
           <p className="text-[10px] text-emerald-600 leading-snug mt-0.5">
-            7 sources · S2 Recommendations · Cache par DOI · Retry automatique · Abstracts PubMed
+            7 sources · Consensus IA · S2 Recommendations · Cache par DOI · Retry automatique
           </p>
         </div>
       </div>
 
       {/* Tab switch: Search vs DOI Lookup */}
-      <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'search' | 'doi' | 'recommend')}>
+      <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'search' | 'doi' | 'recommend' | 'consensus')}>
         <TabsList className="w-full h-9">
           <TabsTrigger value="search" className="flex-1 text-xs gap-1.5">
             <Search className="h-3.5 w-3.5" />
             Recherche
+          </TabsTrigger>
+          <TabsTrigger value="consensus" className="flex-1 text-xs gap-1.5">
+            <Brain className="h-3.5 w-3.5" />
+            Consensus
           </TabsTrigger>
           <TabsTrigger value="recommend" className="flex-1 text-xs gap-1.5">
             <Sparkles className="h-3.5 w-3.5" />
@@ -380,7 +427,7 @@ export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
           </TabsTrigger>
           <TabsTrigger value="doi" className="flex-1 text-xs gap-1.5">
             <Fingerprint className="h-3.5 w-3.5" />
-            DOI / URL
+            DOI
           </TabsTrigger>
         </TabsList>
 
@@ -449,6 +496,172 @@ export default function LiteratureSearch({ s2ApiKey }: LiteratureSearchProps) {
             )}
             {results.map((r, i) => renderResult(r, i))}
           </div>
+        </TabsContent>
+
+        {/* ─── Consensus AI Tab ──────────────────── */}
+        <TabsContent value="consensus" className="mt-3 space-y-3">
+          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-violet-50 border border-violet-200">
+            <Brain className="h-3.5 w-3.5 text-violet-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[11px] text-violet-700 leading-snug">
+                <strong>Consensus AI</strong> analyse 220M+ papiers et génère une réponse synthétique basée sur les preuves scientifiques.
+              </p>
+              <p className="text-[10px] text-violet-600 leading-snug mt-0.5">
+                Posez une question de recherche pour obtenir une réponse avec citations.{!consensusApiKey ? ' Clé API requise (⚙ → Paramètres).' : ''}
+              </p>
+            </div>
+          </div>
+
+          {/* Question input */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <MessageCircleQuestion className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                value={consensusQuery}
+                onChange={e => setConsensusQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') fetchConsensusAnswer() }}
+                placeholder="Ex: Does intermittent fasting improve cognitive function?"
+                className="pl-9 h-10 text-sm"
+              />
+            </div>
+            <Button onClick={fetchConsensusAnswer} disabled={!consensusQuery.trim() || consensusLoading} className="h-10 px-4 bg-violet-600 hover:bg-violet-700">
+              {consensusLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+              <span className="ml-1.5 text-sm">Analyser</span>
+            </Button>
+          </div>
+
+          {/* Error */}
+          {consensusError && (
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-50 border border-red-200">
+              <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-red-700">{consensusError}</p>
+                {!consensusApiKey && (
+                  <a href="https://consensus.app" target="blank" rel="noopener" className="text-[10px] text-violet-600 underline mt-1 inline-flex items-center gap-1">
+                    <KeyRound className="h-2.5 w-2.5" />Obtenir une clé gratuite sur consensus.app
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Loading */}
+          {consensusLoading && (
+            <div className="flex flex-col items-center py-10 gap-3">
+              <div className="relative">
+                <Brain className="h-10 w-10 text-violet-300" />
+                <Loader2 className="h-5 w-5 text-violet-600 animate-spin absolute -top-1 -right-1" />
+              </div>
+              <p className="text-xs text-slate-500">Consensus analyse la littérature scientifique...</p>
+            </div>
+          )}
+
+          {/* Synthesized answer */}
+          {consensusAnswer && !consensusLoading && (
+            <div className="rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain className="h-4 w-4 text-violet-600" />
+                <h3 className="text-sm font-semibold text-violet-900">Réponse synthétique</h3>
+              </div>
+              <div className="text-[12px] text-slate-700 leading-relaxed whitespace-pre-wrap">{consensusAnswer}</div>
+              <div className="flex items-center gap-3 mt-3 pt-2 border-t border-violet-100">
+                <button
+                  onClick={async () => { await navigator.clipboard.writeText(consensusAnswer); setCopiedIdx('consensus-answer'); setTimeout(() => setCopiedIdx(null), 2000) }}
+                  className="text-[10px] text-violet-600 hover:text-violet-800 flex items-center gap-1 transition-colors"
+                >
+                  {copiedIdx === 'consensus-answer' ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  Copier
+                </button>
+                <span className="text-[10px] text-slate-400">{consensusPapers.length} papier{consensusPapers.length > 1 ? 's' : ''} cité{consensusPapers.length > 1 ? 's' : ''}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Cited papers */}
+          {consensusPapers.length > 0 && !consensusLoading && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <BookOpen className="h-3.5 w-3.5 text-violet-600" />
+                <p className="text-xs font-semibold text-slate-700">Papiers cités ({consensusPapers.length})</p>
+              </div>
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+                {consensusPapers.map((p, i) => (
+                  <div key={`consensus-${i}`} className="rounded-xl border border-slate-200 bg-white p-3.5 hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <Badge variant="outline" className="text-[9px] bg-violet-50 text-violet-700 border-violet-200">Consensus AI</Badge>
+                          {p.year && <span className="text-[10px] text-slate-400">{p.year}</span>}
+                          {p.consensusLabel && (
+                            <span className={`text-[9px] font-semibold flex items-center gap-0.5 ${
+                              p.consensusLabel === 'Yes' ? 'text-emerald-600' :
+                              p.consensusLabel === 'No' ? 'text-red-600' : 'text-amber-600'
+                            }`}>
+                              {p.consensusLabel === 'Yes' ? <ThumbsUp className="h-2.5 w-2.5" /> :
+                               p.consensusLabel === 'No' ? <ThumbsDown className="h-2.5 w-2.5" /> :
+                               <Minus className="h-2.5 w-2.5" />}
+                              {p.consensusLabel}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-semibold text-slate-900 leading-snug mb-1 line-clamp-2">{p.title}</h4>
+                        <p className="text-[11px] text-slate-500 line-clamp-1">{p.authors}</p>
+                        {p.journal && <p className="text-[10px] text-slate-400 italic mt-0.5">{p.journal}</p>}
+                        {p.tldr && !p.abstract && (
+                          <p className="text-[11px] text-violet-600 mt-1.5 line-clamp-2 leading-snug">
+                            <Sparkles className="h-2.5 w-2.5 inline mr-0.5" />{p.tldr}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1 shrink-0">
+                        {p.url && (
+                          <a href={p.url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => setExpandedIdx(expandedIdx === `consensus-${i}` ? null : `consensus-${i}`)}
+                          className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                          title="Voir le résumé"
+                        >
+                          <BookOpen className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => addToReferences(p)}
+                          disabled={isAdded(p, `consensus-${i}`) || isAdding(p)}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            isAdded(p, `consensus-${i}`)
+                              ? 'text-emerald-500'
+                              : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700 disabled:opacity-50'
+                          }`}
+                          title={isAdded(p, `consensus-${i}`) ? 'Déjà ajouté' : 'Ajouter aux références'}
+                        >
+                          {isAdding(p) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> :
+                           isAdded(p, `consensus-${i}`) ? <CheckCheck className="h-3.5 w-3.5" /> :
+                           <Plus className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+                    {expandedIdx === `consensus-${i}` && (p.abstract || p.tldr) && (
+                      <div className="mt-3 pt-3 border-t border-slate-100">
+                        <p className="text-[11px] text-slate-600 leading-relaxed">{p.abstract || p.tldr}</p>
+                        {p.doi && <p className="text-[10px] text-slate-400 mt-2 font-mono">DOI: {p.doi}</p>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!consensusAnswer && !consensusLoading && !consensusError && consensusPapers.length === 0 && (
+            <div className="text-center py-8">
+              <Brain className="h-8 w-8 text-violet-200 mx-auto mb-3" />
+              <p className="text-xs text-slate-500">Posez une question de recherche pour obtenir une réponse basée sur les preuves</p>
+              <p className="text-[10px] text-slate-400 mt-1">Consensus analyse automatiquement les 220M+ papiers indexés</p>
+            </div>
+          )}
         </TabsContent>
 
         {/* ─── S2 Recommendations Tab ─────────────── */}

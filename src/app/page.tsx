@@ -6,7 +6,7 @@ import {
   FileText, GraduationCap as CapIcon, ChevronRight, ChevronDown,
   BookMarked, Download, Save, Check, Loader2, X, Menu, Sparkles,
   ShieldCheck, Send, RotateCcw, AlertTriangle, RefreshCw, PanelRightOpen, PanelRightClose,
-  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud, Newspaper, Monitor,
+  Library, ClipboardList, ListChecks, Lightbulb, Settings, Trash2, Search, Scale, Cloud, Newspaper, Monitor, Brain,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -126,14 +126,21 @@ export default function Home() {
     return ''
   })
 
+  // Consensus AI API key
+  const [consensusApiKey, setConsensusApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_consensusApiKey') || ''
+    return ''
+  })
+
   const saveProviderSettings = useCallback(() => {
     localStorage.setItem('tf_provider', aiProvider)
     localStorage.setItem('tf_apiKey', aiApiKey)
     localStorage.setItem('tf_baseUrl', aiBaseUrl)
     localStorage.setItem('tf_model', aiModel)
     localStorage.setItem('tf_s2ApiKey', s2ApiKey)
+    localStorage.setItem('tf_consensusApiKey', consensusApiKey)
     setProviderSettingsOpen(false)
-  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel, s2ApiKey])
+  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel, s2ApiKey, consensusApiKey])
 
   const clearProviderSettings = useCallback(() => {
     localStorage.removeItem('tf_provider')
@@ -141,11 +148,13 @@ export default function Home() {
     localStorage.removeItem('tf_baseUrl')
     localStorage.removeItem('tf_model')
     localStorage.removeItem('tf_s2ApiKey')
+    localStorage.removeItem('tf_consensusApiKey')
     setAiProvider('z-ai')
     setAiApiKey('')
     setAiBaseUrl('')
     setAiModel('')
     setS2ApiKey('')
+    setConsensusApiKey('')
   }, [])
 
   // Director state
@@ -742,7 +751,7 @@ export default function Home() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4 text-emerald-600" />Recherche de littérature scientifique</DialogTitle>
           </DialogHeader>
-          <LiteratureSearch s2ApiKey={s2ApiKey} />
+          <LiteratureSearch s2ApiKey={s2ApiKey} consensusApiKey={consensusApiKey} />
         </DialogContent>
       </Dialog>
 
@@ -855,6 +864,28 @@ export default function Home() {
               <p className="text-[10px] text-slate-400 leading-snug">
                 Sans clé : partage du rate limit global (souvent 429). Avec clé : 1 req/s garanti. Gratuit sur{' '}
                 <a href="https://www.semanticscholar.org/product/api#api-key" target="_blank" rel="noopener" className="text-sky-600 underline">semanticscholar.org/product/api</a>
+              </p>
+            </div>
+
+            <Separator className="my-1" />
+
+            {/* Consensus AI API Key */}
+            <div className="space-y-1.5">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Brain className="h-3 w-3 text-violet-600" />
+                Clé API Consensus AI
+                <span className="text-slate-400 font-normal">(requis pour l'onglet Consensus)</span>
+              </Label>
+              <Input
+                type="password"
+                value={consensusApiKey}
+                onChange={e => setConsensusApiKey(e.target.value)}
+                placeholder="Clé API Consensus"
+                className="h-9 text-sm"
+              />
+              <p className="text-[10px] text-slate-400 leading-snug">
+                Analyse IA de 220M+ papiers avec réponses synthétiques basées sur les preuves. Obtenez une clé gratuite sur{' '}
+                <a href="https://consensus.app" target="_blank" rel="noopener" className="text-violet-600 underline">consensus.app</a>
               </p>
             </div>
 
