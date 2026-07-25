@@ -473,3 +473,33 @@ Stage Summary:
 - Commit: "ci: add GitHub Actions workflow for automatic Windows .exe build"
 - The .exe will be built automatically on GitHub's Windows runners when code is pushed to main
 - User can download the .exe from GitHub Actions artifacts page
+---
+Task ID: 4
+Agent: Main
+Task: Fix Windows desktop package - BAT encoding + Prisma engine issues
+
+Work Log:
+- Identified 4 root causes of previous failures:
+  1. Prisma schema was PostgreSQL during build (SQLite needed for desktop)
+  2. Windows Prisma engine binary not included in standalone output
+  3. No SQLite database tables created (ensureDb was no-op)
+  4. db.ts only accepted postgresql:// URLs from .env
+- Built with SQLite schema + binaryTargets: ["native", "windows"]
+- Verified query_engine-windows.dll.node (21MB) included in standalone output
+- Modified db.ts to accept file:// URLs and create tables via ensureDb()
+- Created start.js that sets DATABASE_URL, PORT, HOSTNAME before requiring server.js
+- Added error logging to server.log file for Windows debugging
+- Fixed BAT files: removed Unicode box-drawing chars, added CRLF line endings
+- Downloaded Node.js v22.16.0 Windows x64 binary
+- Packaged into 86MB ZIP at /home/z/my-project/download/ThesisFrame.zip
+- Fixed tauri.ts to not import @tauri-apps/api/core (causes build errors in non-Tauri env)
+- Created /api/download route for ZIP download
+- Restored dev config (PostgreSQL schema, original next.config.ts, db.ts)
+
+Stage Summary:
+- ThesisFrame.zip (86MB) ready at download/ThesisFrame.zip
+- Structure: node/node.exe + app/ (server.js, start.js, .next, node_modules, public, db, prisma)
+- DEMARRER.bat: ASCII only, CRLF, sets process.cwd() to app/ before starting
+- start.js sets DATABASE_URL=file:./db/thesis.db, PORT=3100, HOSTNAME=127.0.0.1
+- Prisma Windows engine (query_engine-windows.dll.node) included
+- All errors logged to app/server.log for debugging
