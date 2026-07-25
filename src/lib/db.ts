@@ -70,10 +70,17 @@ let _ensured = false
 export async function ensureDb() {
   if (_ensured) return
   try {
-    await db.$queryRaw`SELECT 1`
-    _ensured = true
-    return
-  } catch {}
+    // Check that the Thesis table actually exists (not just that SQLite is reachable)
+    const rows = await db.$queryRawUnsafe<{name: string}[]>(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='Thesis'"
+    )
+    if (rows.length > 0) {
+      _ensured = true
+      return
+    }
+  } catch {
+    // Table doesn't exist yet, fall through to create
+  }
 
   for (const sql of TABLE_SQL) {
     try {
@@ -83,10 +90,5 @@ export async function ensureDb() {
     }
   }
 
-  try {
-    await db.$queryRaw`SELECT 1`
-    _ensured = true
-  } catch (err) {
-    console.error('[ensureDb] still failing:', err)
-  }
-}
+  _ensured = true
+}</arg_value><arg_key>old_str': 
