@@ -540,3 +540,24 @@ Stage Summary:
 - En cas de build échoué (croix rouge :ci:), un issue est créé avec le log complet
 - Pour déclencher le build : Actions → Build Windows .exe (Tauri v2) → Run workflow
 - Ou : git tag v0.2.1 && git push origin v0.2.1
+---
+Task ID: 9
+Agent: Main
+Task: Ajouter Consensus AI dans la recherche de littérature scientifique
+
+Work Log:
+- Recherché l'API Consensus (consensus.app) : endpoint POST /v1/quick_search, Bearer auth, 220M+ papiers
+- Créé route API /api/literature-search/consensus/route.ts (appel API + mapping vers SearchResult)
+- Ajouté nouvel onglet 'Consensus' dans literature-search.tsx avec :
+  - Input de question de recherche
+  - Affichage de la réponse synthétique IA
+  - Liste des papiers cités avec badge consensus (Yes/No/Maybe)
+  - Actions : copier réponse, voir abstract, ajouter aux références, lien externe
+- Ajouté clé API Consensus dans les paramètres (localStorage tf_consensusApiKey)
+- Mis à jour page.tsx : state, save, clear, prop drilling, UI champ clé API
+
+Stage Summary:
+- Consensus AI intégré comme 4ème onglet dans Recherche littérature
+- Route API : POST /api/literature-search/consensus (query, apiKey, limit)
+- Clé API gérée via localStorage (tf_consensusApiKey)
+- Push réussi : dcac33c
