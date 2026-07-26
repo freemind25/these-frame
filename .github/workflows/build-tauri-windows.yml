@@ -51,6 +51,7 @@ jobs:
         run: |
           $schema = Get-Content 'prisma/schema.prisma' -Raw
           $schema = $schema -replace 'provider = "postgresql"', 'provider = "sqlite"'
+          $schema = $schema -replace '(?m)^\s*directUrl\s*=\s*env\("DIRECT_URL"\)\s*\r?\n', ''
           if ($schema -notmatch 'binaryTargets') {
             $schema = $schema -replace '(generator client \{)', "`$1`n  binaryTargets = [`"windows`"]"
           }

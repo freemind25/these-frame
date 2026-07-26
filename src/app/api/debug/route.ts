@@ -8,7 +8,7 @@ export async function GET() {
   try {
     await ensureDb()
     const rows = await db.$queryRawUnsafe<{name: string}[]>(
-      "SELECT name FROM sqlite_master WHERE type='table'"
+      "SELECT tablename AS name FROM pg_catalog.pg_tables WHERE schemaname = 'public'"
     )
     results['prisma_tables'] = `OK (${rows.map(r => r.name).join(', ')})`
   } catch (e) {
