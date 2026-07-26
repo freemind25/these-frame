@@ -23,7 +23,6 @@ jobs:
 
       - name: Lint
         run: bun run lint
-        continue-on-error: true # 5 erreurs préexistantes (react-hooks/set-state-in-effect) à traiter séparément
 
       - name: Prisma generate
         run: bunx prisma generate

@@ -55,7 +55,12 @@ export default function CloudDriveBackup() {
     } catch { /* ignore */ }
   }, [])
 
+  // Fetch initial (setState se fait après un await, dans le corps de la fonction
+  // async — c'est le pattern standard "fetch au montage" recommandé par React,
+  // pas un setState synchrone).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStatus() }, [fetchStatus])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { if (status?.connected) fetchFiles() }, [status?.connected, fetchFiles])
 
   const handleConnect = async () => {

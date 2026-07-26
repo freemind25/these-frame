@@ -1,6 +1,6 @@
 'use client'
 
-import { createElement, useState, useCallback, useEffect } from 'react'
+import { createElement, useState, useCallback } from 'react'
 import {
   Sparkles,
   PenTool,
@@ -203,15 +203,8 @@ export default function AIWritingTab() {
   const [thinkingEnabled, setThinkingEnabled] = useState(false)
 
   // Provider state
-  const [providerConfig, setProviderConfig] = useState<ProviderConfig>({
-    provider: 'z-ai', apiKey: '', model: 'default', customBaseUrl: '', customModel: '',
-  })
+  const [providerConfig, setProviderConfig] = useState<ProviderConfig>(loadProviderConfig)
   const [showApiKey, setShowApiKey] = useState(false)
-
-  // Load provider config from localStorage on mount
-  useEffect(() => {
-    setProviderConfig(loadProviderConfig())
-  }, [])
 
   const chatEndRef = useCallback((node: HTMLDivElement | null) => {
     if (node) node.scrollIntoView({ behavior: 'smooth' })
