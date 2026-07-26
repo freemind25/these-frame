@@ -34,6 +34,7 @@ const SOURCE_OPTIONS = [
   { id: 'hal', label: 'HAL', icon: Building2, color: 'bg-orange-50 text-orange-700 border-orange-200', desc: 'Archive ouverte française' },
   { id: 'arxiv', label: 'arXiv', icon: Atom, color: 'bg-violet-50 text-violet-700 border-violet-200', desc: 'Preprints CS, physique, maths' },
   { id: 'pubmed', label: 'PubMed', icon: Heart, color: 'bg-rose-50 text-rose-700 border-rose-200', desc: '35M+ articles biomédicaux' },
+  { id: 'doaj', label: 'DOAJ', icon: BookOpen, color: 'bg-orange-50 text-orange-700 border-orange-200', desc: '20K+ revues en accès libre' },
 ]
 
 interface ConsensusPaper extends SearchResult {
@@ -52,7 +53,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar'])
+  const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar', 'doaj'])
   const [expandedIdx, setExpandedIdx] = useState<number | string | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | string | null>(null)
   const [totalResults, setTotalResults] = useState(0)
@@ -405,7 +406,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
             Recherche académique multi-sources
           </p>
           <p className="text-[10px] text-emerald-600 leading-snug mt-0.5">
-            7 sources · Consensus IA · S2 Recommendations · Cache par DOI · Retry automatique
+            8 sources · DOAJ accès libre · Consensus IA · S2 Recommendations · Cache par DOI
           </p>
         </div>
       </div>

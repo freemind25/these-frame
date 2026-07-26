@@ -278,6 +278,41 @@ async function searchHAL(query: string, limit: number): Promise<SearchResult[]> 
   }
 }
 
+// ─── DOAJ (no API key needed, 2 req/sec, all OA) ──────
+async function searchDOAJ(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    const url = `https://doaj.org/api/search/articles/${encodeURIComponent(query)}?pageSize=${limit}`
+    const res = await fetchWithRetry(url, { headers: { ...UA, 'User-Agent': 'ThesisFrame/1.0 (mailto:thesisframe@example.com)' } }, 1, 600)
+    if (!res.ok) return []
+    const data = await res.json()
+    if (data.error) return []
+    return (data.results || []).map((doc: Record<string, unknown>) => {
+      const bibjson = (doc.bibjson as Record<string, unknown>) || {}
+      const authors = ((bibjson.author as Record<string, string>[]) || []).map(a => a.name).join(', ')
+      const ids = (bibjson.identifier as Record<string, string>[]) || []
+      const doi = ids.find(i => i.type === 'doi')?.id
+      const links = (bibjson.link as Record<string, string>[]) || []
+      const fulltext = links.find(l => l.type === 'fulltext')
+      const journal = (bibjson.journal as Record<string, string>) || {}
+      const r: SearchResult = {
+        title: (bibjson.title as string) || '',
+        authors,
+        year: String(bibjson.year || ''),
+        abstract: (bibjson.abstract as string) || undefined,
+        source: 'DOAJ',
+        doi: doi || undefined,
+        url: fulltext?.url || undefined,
+        journal: journal.title || undefined,
+        isPreprint: false,
+      }
+      cacheSearchResult(r)
+      return r
+    })
+  } catch {
+    return []
+  }
+}
+
 // ─── Deduplication ──────────────────────────────────────────
 function normalizeTitle(title: string): string {
   return title.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -354,6 +389,7 @@ export async function POST(request: NextRequest) {
     if (sources.includes('arxiv')) searches.push(searchArxiv(query, safeLimit))
     if (sources.includes('pubmed')) searches.push(searchPubmed(query, safeLimit))
     if (sources.includes('hal')) searches.push(searchHAL(query, safeLimit))
+    if (sources.includes('doaj')) searches.push(searchDOAJ(query, safeLimit))
 
     const rawResults: SearchResult[] = []
     const errors: string[] = []
