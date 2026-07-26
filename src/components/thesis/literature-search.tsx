@@ -5,7 +5,7 @@ import {
   Search, Loader2, ExternalLink, BookOpen, Quote, Copy, Check,
   GraduationCap, Globe, Database, FileText, Atom, Heart, Plus, CheckCheck, GitBranch,
   Link, Fingerprint, Building2, AlertCircle, Sparkles, Trash2, Brain, MessageCircleQuestion,
-  ThumbsUp, ThumbsDown, Minus, ArrowRight, KeyRound,
+  ThumbsUp, ThumbsDown, Minus, ArrowRight, KeyRound, Library,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,6 +35,7 @@ const SOURCE_OPTIONS = [
   { id: 'arxiv', label: 'arXiv', icon: Atom, color: 'bg-violet-50 text-violet-700 border-violet-200', desc: 'Preprints CS, physique, maths' },
   { id: 'pubmed', label: 'PubMed', icon: Heart, color: 'bg-rose-50 text-rose-700 border-rose-200', desc: '35M+ articles biomédicaux' },
   { id: 'doaj', label: 'DOAJ', icon: BookOpen, color: 'bg-orange-50 text-orange-700 border-orange-200', desc: '20K+ revues en accès libre' },
+  { id: 'core', label: 'CORE', icon: Library, color: 'bg-cyan-50 text-cyan-700 border-cyan-200', desc: '300M+ papiers, full-text PDF' },
 ]
 
 interface ConsensusPaper extends SearchResult {
@@ -53,7 +54,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar', 'doaj'])
+  const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar', 'doaj', 'core'])
   const [expandedIdx, setExpandedIdx] = useState<number | string | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | string | null>(null)
   const [totalResults, setTotalResults] = useState(0)
@@ -406,7 +407,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
             Recherche académique multi-sources
           </p>
           <p className="text-[10px] text-emerald-600 leading-snug mt-0.5">
-            8 sources · DOAJ accès libre · Consensus IA · S2 Recommendations · Cache par DOI
+            9 sources · CORE 300M+ · DOAJ accès libre · Consensus IA · Cache par DOI
           </p>
         </div>
       </div>

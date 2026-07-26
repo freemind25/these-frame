@@ -313,6 +313,49 @@ async function searchDOAJ(query: string, limit: number): Promise<SearchResult[]>
   }
 }
 
+// ─── CORE (300M+ papers, API key required) ──────────────
+async function searchCORE(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    const apiKey = process.env.CORE_API_KEY
+    if (!apiKey) return []
+    const url = `https://api.core.ac.uk/v3/search/works/?q=${encodeURIComponent(query)}&limit=${limit}`
+    const res = await fetchWithRetry(url, {
+      headers: {
+        ...UA,
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/json',
+      },
+    }, 2, 200)
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data.results || []).map((doc: Record<string, unknown>) => {
+      const authors = ((doc.authors as Record<string, string>[]) || []).map(a => a.name).join(', ')
+      const journals = (doc.journals as Record<string, string>[]) || []
+      const doi = (doc.doi as string) || undefined
+      const downloadUrl = (doc.downloadUrl as string) || undefined
+      const ftUrls = (doc.sourceFulltextUrls as string[]) || []
+      const links = (doc.links as Record<string, string>[]) || []
+      const displayUrl = links.find(l => l.type === 'display')?.url
+      const r: SearchResult = {
+        title: (doc.title as string) || '',
+        authors,
+        year: String(doc.yearPublished || ''),
+        abstract: (doc.abstract as string) || undefined,
+        source: 'CORE',
+        doi,
+        url: downloadUrl || ftUrls[0] || displayUrl || undefined,
+        citationCount: (doc.citationCount as number) || 0,
+        journal: journals[0]?.title || undefined,
+        isPreprint: false,
+      }
+      cacheSearchResult(r)
+      return r
+    })
+  } catch {
+    return []
+  }
+}
+
 // ─── Deduplication ──────────────────────────────────────────
 function normalizeTitle(title: string): string {
   return title.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -390,6 +433,7 @@ export async function POST(request: NextRequest) {
     if (sources.includes('pubmed')) searches.push(searchPubmed(query, safeLimit))
     if (sources.includes('hal')) searches.push(searchHAL(query, safeLimit))
     if (sources.includes('doaj')) searches.push(searchDOAJ(query, safeLimit))
+    if (sources.includes('core')) searches.push(searchCORE(query, safeLimit))
 
     const rawResults: SearchResult[] = []
     const errors: string[] = []
