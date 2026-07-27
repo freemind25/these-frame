@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.png" alt="ThesisFrame Logo" width="180" />
+<img src="public/logo.png" alt="ThesisFrame Logo" width="350" />
 
 # ThesisFrame
 
