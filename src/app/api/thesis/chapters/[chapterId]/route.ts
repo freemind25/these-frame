@@ -135,7 +135,7 @@ export async function DELETE(
     // Return updated thesis
     const updatedThesis = await db.thesis.findFirst({
       where: { id: existing.thesisId },
-      include: { chapters: { orderBy: { order: 'asc' } } },
+      include: { chapters: { orderBy: { order: 'asc' } }, parts: { orderBy: { order: 'asc' } } },
     })
 
     return NextResponse.json(updatedThesis)

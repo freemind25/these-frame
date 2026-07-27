@@ -63,21 +63,24 @@ model Reference {
 // ─── Thesis Editor Models ─────────────────────────────────────
 
 model Thesis {
-  id        String    @id @default(cuid())
-  title     String    @default("Ma thèse de doctorat")
-  subtitle  String?
-  author    String    @default("Doctorant")
-  field     String    @default("")
-  university String   @default("")
-  status    String    @default("draft")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  chapters  Chapter[]
+  id            String    @id @default(cuid())
+  title         String    @default("Ma thèse de doctorat")
+  subtitle      String?
+  author        String    @default("Doctorant")
+  field         String    @default("")
+  university    String   @default("")
+  status        String    @default("draft")
+  structureMode String    @default("chapters") // "chapters" | "parts"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  chapters      Chapter[]
+  parts         Part[]
 }
 
 model Chapter {
   id               String    @id @default(cuid())
   thesisId         String
+  partId           String?
   order            Int
   number           String
   title            String
@@ -89,6 +92,20 @@ model Chapter {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   thesis           Thesis    @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  part             Part?     @relation(fields: [partId], references: [id], onDelete: SetNull)
+
+  @@unique([thesisId, order])
+}
+
+model Part {
+  id        String    @id @default(cuid())
+  thesisId  String
+  title     String    @default("")
+  order     Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  thesis    Thesis    @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  chapters  Chapter[]
 
   @@unique([thesisId, order])
 }

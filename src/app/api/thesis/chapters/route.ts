@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     await ensureDb()
     const body = await request.json()
-    const { title, insertAfterOrder } = body
+    const { title, insertAfterOrder, partId } = body
 
     if (!title || typeof title !== 'string' || !title.trim()) {
       return NextResponse.json(
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     const chapter = await db.chapter.create({
       data: {
         thesisId: thesis.id,
+        partId: partId || null,
         order: newOrder,
         number,
         title: title.trim(),
@@ -118,7 +119,7 @@ export async function PATCH(request: NextRequest) {
     // Return updated thesis with reordered chapters
     const updatedThesis = await db.thesis.findFirst({
       where: { id: chapter.thesisId },
-      include: { chapters: { orderBy: { order: 'asc' } } },
+      include: { chapters: { orderBy: { order: 'asc' } }, parts: { orderBy: { order: 'asc' } } },
     })
 
     return NextResponse.json(updatedThesis)

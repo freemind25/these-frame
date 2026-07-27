@@ -621,3 +621,28 @@ Stage Summary:
 - 0 erreur lint, 0 erreur TS dans nos fichiers
 - Fonctionnalités: ajout, suppression, réordonnancement, renommage, badge custom
 
+
+---
+Task ID: phase-3
+Agent: Main
+Task: Phase 3 — Mode Parties (structure hiérarchique Partie → Chapitres)
+
+Work Log:
+- Modifié prisma/schema.prisma: ajouté structureMode sur Thesis, modèle Part, partId nullable sur Chapter
+- Mis à jour src/types/thesis.ts: ajouté PartData, structureMode, parts[] sur ThesisData
+- Réécrit src/app/api/thesis/route.ts: GET/PATCH avec include parts
+- Créé src/app/api/thesis/parts/route.ts: POST (créer), PATCH (renommer/réordonner)
+- Créé src/app/api/thesis/parts/[partId]/route.ts: DELETE (supprimer + désassigner chapitres)
+- Créé src/app/api/thesis/switch-mode/route.ts: basculer chapters↔parts avec migration
+- Mis à jour POST /api/thesis/chapters: accepte partId optionnel
+- Réécrit sidebar-nav.tsx: mode flat vs mode parties, toggle Layers, PartHeader avec collapsible
+- Wiring complet dans page.tsx: 5 handlers parts + switch-mode
+- Toutes les erreurs JSX corrigées (parsing, UTF-8, nesting)
+
+Stage Summary:
+- 8 fichiers modifiés/créés pour la Phase 3
+- Prisma: Thesis.structureMode + Part modèle + Chapter.partId
+- 5 API routes: GET/PATCH thesis, POST/PATCH/DELETE parts, POST switch-mode, POST/PATCH/DELETE chapters
+- Sidebar: toggle mode (icône Layers), PartHeader collapsible, chapitres non-assignés
+- 0 erreur lint, 0 erreur TS dans nos fichiers
+

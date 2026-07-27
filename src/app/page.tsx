@@ -202,16 +202,15 @@ export default function Home() {
     }
   }, [])
 
-  const handleAddChapter = useCallback(async (insertAfterOrder: number) => {
+  const handleAddChapter = useCallback(async (insertAfterOrder: number, partId?: string) => {
     try {
       const res = await fetch('/api/thesis/chapters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Nouveau chapitre', insertAfterOrder }),
+        body: JSON.stringify({ title: 'Nouveau chapitre', insertAfterOrder, partId }),
       })
       if (res.ok) {
         const chapter = await res.json()
-        // Refresh thesis to get updated chapters list
         const thesisRes = await fetch('/api/thesis')
         const thesisData = (await thesisRes.json()).thesis || (await thesisRes.json())
         if (thesisData?.id) {
@@ -273,6 +272,87 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Failed to rename chapter:', err)
+    }
+  }, [])
+
+  // ─── Part management ────────────────────────────────────
+  const handleAddPart = useCallback(async () => {
+    try {
+      const partNum = (thesis?.parts?.length || 0) + 1
+      const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
+      const title = `Partie ${partNum <= 10 ? romanNumerals[partNum - 1] : partNum}`
+      const res = await fetch('/api/thesis/parts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      })
+      if (res.ok) {
+        const thesisRes = await fetch('/api/thesis')
+        const thesisData = (await thesisRes.json()).thesis || (await thesisRes.json())
+        if (thesisData?.id) setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to add part:', err)
+    }
+  }, [thesis?.parts?.length])
+
+  const handleDeletePart = useCallback(async (partId: string) => {
+    try {
+      const res = await fetch(`/api/thesis/parts/${partId}`, { method: 'DELETE' })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to delete part:', err)
+    }
+  }, [])
+
+  const handleRenamePart = useCallback(async (partId: string, newTitle: string) => {
+    try {
+      await fetch('/api/thesis/parts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId, title: newTitle }),
+      })
+      setThesis(prev => prev ? {
+        ...prev,
+        parts: prev.parts.map(p => p.id === partId ? { ...p, title: newTitle } : p),
+      } : null)
+    } catch (err) {
+      console.error('Failed to rename part:', err)
+    }
+  }, [])
+
+  const handleReorderPart = useCallback(async (partId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/thesis/parts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId, direction }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to reorder part:', err)
+    }
+  }, [])
+
+  const handleSwitchMode = useCallback(async (mode: 'chapters' | 'parts') => {
+    try {
+      const res = await fetch('/api/thesis/switch-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to switch mode:', err)
     }
   }, [])
 
@@ -392,6 +472,11 @@ export default function Home() {
           onDeleteChapter={handleDeleteChapter}
           onReorderChapter={handleReorderChapter}
           onRenameChapter={handleRenameChapter}
+          onAddPart={handleAddPart}
+          onDeletePart={handleDeletePart}
+          onRenamePart={handleRenamePart}
+          onReorderPart={handleReorderPart}
+          onSwitchMode={handleSwitchMode}
         />
 
         {/* ═══ MAIN AREA ═══ */}

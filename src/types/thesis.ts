@@ -1,6 +1,16 @@
+export interface PartData {
+  id: string
+  thesisId: string
+  title: string
+  order: number
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ChapterData {
   id: string
   thesisId: string
+  partId: string | null
   order: number
   number: string
   title: string
@@ -19,7 +29,9 @@ export interface ThesisData {
   field: string
   university: string
   status: string
+  structureMode: 'chapters' | 'parts'
   chapters: ChapterData[]
+  parts: PartData[]
 }
 
 export interface ChatMsg {
