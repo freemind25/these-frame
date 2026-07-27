@@ -4,7 +4,8 @@ import { homedir } from 'os'
 import ZAI from 'z-ai-web-dev-sdk'
 
 // Singleton SDK instance
-let zaiInstance: InstanceType<typeof ZAI> | null = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let zaiInstance: any = null
 let initAttempted = false
 let initError: string | null = null
 
@@ -59,49 +60,41 @@ function readFileConfig(): ZAIConfig | null {
 
 /**
  * Get a ready-to-use ZAI SDK instance.
- *
- * Strategy (Vercel-safe):
- * 1. Try reading existing .z-ai-config file (Z.ai platform)
- * 2. Try building from environment variables
- * 3. If both fail, store error — never throw silently, never write files
  */
 export async function getZAI() {
   if (zaiInstance) return zaiInstance
 
-  // Prevent repeated failed initialization attempts
   if (initAttempted && initError) {
     throw new Error(initError)
   }
 
   initAttempted = true
 
-  // Strategy 1: Read from file system (works on Z.ai platform)
+  // Strategy 1: Read from file system
   const fileConfig = readFileConfig()
   if (fileConfig) {
     try {
-      zaiInstance = new ZAI(fileConfig)
+      zaiInstance = await ZAI.create(fileConfig)
       return zaiInstance
     } catch (err) {
       console.error('Failed to initialize ZAI from file config:', err)
     }
   }
 
-  // Strategy 2: Build from environment variables (Vercel, Netlify, etc.)
+  // Strategy 2: Build from environment variables
   const envConfig = buildConfigFromEnv()
   if (envConfig) {
     try {
-      zaiInstance = new ZAI(envConfig)
+      zaiInstance = await ZAI.create(envConfig)
       return zaiInstance
     } catch (err) {
       console.error('Failed to initialize ZAI from env config:', err)
     }
   }
 
-  // No config available — store a clear error message
   initError =
     'Configuration IA non trouvée. ' +
-    'Sur Vercel, ajoutez les variables d\'environnement : ZAI_BASE_URL, ZAI_API_KEY, ZAI_CHAT_ID, ZAI_TOKEN, ZAI_USER_ID. ' +
-    'En local, le fichier .z-ai-config est utilisé automatiquement.'
+    'Sur Vercel, ajoutez les variables d\'environnement : ZAI_BASE_URL, ZAI_API_KEY.'
 
   throw new Error(initError)
 }

@@ -42,7 +42,7 @@ async function resolvePaperId(opts: { doi?: string; arxivId?: string; paperId?: 
 // ─── Main Route ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    const { doi, arxivId, paperId, limit = 5 } = await request.json()
+    const { doi, arxivId, paperId, limit = 5 }: { doi?: string; arxivId?: string; paperId?: string; limit?: number } = await request.json()
 
     if (!doi && !arxivId && !paperId) {
       return NextResponse.json({ error: 'At least one of doi, arxivId, or paperId is required' }, { status: 400 })
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       const extIds = (p.externalIds as Record<string, string>) || {}
       const oaPdf = (p.openAccessPdf as Record<string, string>) || {}
       const r: SearchResult = {
-        title: p.title || '',
+        title: String(p.title || ''),
         authors,
         year: String(p.year || ''),
         abstract: (p.abstract as string) || undefined,

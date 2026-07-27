@@ -770,10 +770,11 @@ function MendeleyImportPanel({ connected, onImport }: { connected: boolean; onIm
   }
 
   const filtered = search
-    ? documents.filter((d: Record<string, unknown>) =>
-        String(d.title || '').toLowerCase().includes(search.toLowerCase()) ||
-        String((d.authors as Array<Record<string, string>> || []).map(a => `${a.first_name || ''} ${a.last_name || ''}`).join(' ')).toLowerCase().includes(search.toLowerCase())
-      )
+    ? documents.filter((d) => {
+        const doc = d as Record<string, unknown>
+        return String(doc.title || '').toLowerCase().includes(search.toLowerCase()) ||
+          String((doc.authors as Array<Record<string, string>> || []).map(a => `${a.first_name || ''} ${a.last_name || ''}`).join(' ')).toLowerCase().includes(search.toLowerCase())
+      })
     : documents
 
   if (!connected) {
@@ -841,12 +842,13 @@ function MendeleyImportPanel({ connected, onImport }: { connected: boolean; onIm
             ) : filtered.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">Aucun document trouvé</div>
             ) : (
-              filtered.map((doc: Record<string, unknown>) => {
-                const id = doc.id as string
-                const title = String(doc.title || 'Sans titre')
-                const authors = (doc.authors as Array<Record<string, string>> || []).map(a => `${a.last_name || ''} ${a.first_name || ''}`).join(', ')
-                const year = doc.year || ''
-                const source = (doc.source as string) || (doc.journal as string) || ''
+              filtered.map((doc) => {
+                const d = doc as Record<string, unknown>
+                const id = d.id as string
+                const title = String(d.title || 'Sans titre')
+                const authors = (d.authors as Array<Record<string, string>> || []).map(a => `${a.last_name || ''} ${a.first_name || ''}`).join(', ')
+                const year = String(d.year || '')
+                const source = (d.source as string) || (d.journal as string) || ''
                 const isSelected = selected.has(id)
                 return (
                   <div

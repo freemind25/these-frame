@@ -219,7 +219,7 @@ export default function AIWritingTab() {
     const updated = { ...providerConfig, [key]: value }
     if (key === 'provider') {
       // Reset model to first when provider changes
-      updated.model = PROVIDER_MODELS[value][0].value
+      updated.model = PROVIDER_MODELS[value as ProviderId][0].value
     }
     setProviderConfig(updated)
     saveProviderConfig(updated)

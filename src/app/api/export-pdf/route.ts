@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib'
+
+// Font type for helpers (avoids circular reference with typeof font.embed)
+type PDFEmbeddedFont = Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>
 
 // ─── Types ─────────────────────────────────────────────────────
 interface ChapterInput {
@@ -43,7 +46,7 @@ const COLOR_WATERMARK = rgb(0.85, 0.85, 0.85)
 
 // ─── Helpers ───────────────────────────────────────────────────
 
-function wrapText(text: string, font: Awaited<ReturnType<typeof font.embed>> & { widthOfTextAtSize: (t: string, s: number) => number }, fontSize: number, maxWidth: number): string[] {
+function wrapText(text: string, font: PDFEmbeddedFont, fontSize: number, maxWidth: number): string[] {
   // Normalize whitespace
   const normalized = text.replace(/\r\n/g, '\n').replace(/\t/g, '    ')
   const paragraphs = normalized.split('\n')
@@ -327,7 +330,7 @@ function addWatermark(
       size: 48,
       color: COLOR_WATERMARK,
       font,
-      rotate: { type: 'degrees' as const, angle: 45 },
+      rotate: degrees(45),
     })
   } catch { /* noop */ }
 }
@@ -350,7 +353,7 @@ export async function POST(request: NextRequest) {
 
     const pdfBytes = await generateThesisPdf(body)
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(new Uint8Array(pdfBytes), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

@@ -742,7 +742,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-slate-700">Papier trouvé</p>
-                {(doiResult as Record<string, unknown>).fromCache && (
+                {(doiResult as unknown as Record<string, unknown>).fromCache as boolean && (
                   <Badge variant="outline" className="text-[9px] bg-slate-50">
                     <Sparkles className="h-2.5 w-2.5 mr-1" /> depuis le cache
                   </Badge>

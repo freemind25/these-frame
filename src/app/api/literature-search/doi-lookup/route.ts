@@ -102,10 +102,10 @@ function parseSemanticScholar(data: Record<string, unknown>) {
 
 function parseArxiv(raw: Record<string, unknown>) {
   const entry = raw._raw as string
-  const title = (entry.match(/<title>(.*?)<\/title>/s)?.[1] || '').replace(/\s+/g, ' ').trim()
+  const title = (entry.match(/<title>[\s\S]*?<\/title>/)?.[1] || '').replace(/\s+/g, ' ').trim()
   const authors = [...entry.matchAll(/<name>(.*?)<\/name>/g)].map(m => m[1].trim()).join(', ')
   const year = (entry.match(/<published>(\d{4})/)?.[1]) || ''
-  const summary = (entry.match(/<summary>(.*?)<\/summary>/s)?.[1] || '').replace(/\s+/g, ' ').trim()
+  const summary = (entry.match(/<summary>[\s\S]*?<\/summary>/)?.[1] || '').replace(/\s+/g, ' ').trim()
   const id = (entry.match(/<id>(.*?)<\/id>/)?.[1]) || ''
   const doi = (entry.match(/<doi>(.*?)<\/doi>/)?.[1]) || undefined
   const arxivId = (entry.match(/(\d{4}\.\d{4,5})/)?.[1]) || undefined
@@ -200,16 +200,16 @@ export async function POST(request: NextRequest) {
       } else if (source === 'OpenAlex') {
         const parsed = parseOpenAlex(r)
         if (!best.title) {
-          best = parsed
+          best = parsed as unknown as Record<string, unknown>
         } else {
           if (!best.abstract && parsed.abstract) best.abstract = parsed.abstract
           if (!best.citationCount && parsed.citationCount) best.citationCount = parsed.citationCount
-          if (parsed.isOpenAccess && !best.url) best.url = parsed.url
+          if ((parsed as Record<string, unknown>).isOpenAccess && !best.url) best.url = parsed.url
         }
       } else if (source === 'Semantic Scholar') {
         const parsed = parseSemanticScholar(r)
         if (!best.title) {
-          best = parsed
+          best = parsed as unknown as Record<string, unknown>
         } else {
           if (!best.abstract && parsed.abstract) best.abstract = parsed.abstract
           if (!best.citationCount && parsed.citationCount) best.citationCount = parsed.citationCount
@@ -223,8 +223,8 @@ export async function POST(request: NextRequest) {
     // Cache the result
     const finalDoi = (best.doi as string) || normalizedDoi || undefined
     const finalArxivId = (best.arxivId as string) || normalizedArxivId || undefined
-    if (finalDoi) searchCache.setByDoi(best as Parameters<typeof searchCache.setByDoi>[0])
-    if (finalArxivId && best.title) searchCache.setByArxiv(best as Parameters<typeof searchCache.setByArxiv>[0], finalArxivId)
+    if (finalDoi) searchCache.setByDoi(best as unknown as Parameters<typeof searchCache.setByDoi>[0])
+    if (finalArxivId && best.title) searchCache.setByArxiv(best as unknown as Parameters<typeof searchCache.setByArxiv>[0], finalArxivId)
 
     // Remove internal fields
     const { _sources, ...paper } = best

@@ -354,9 +354,9 @@ export async function POST(request: NextRequest) {
       // External provider (Mistral, OpenAI, custom)
       const apiMessages = history.map(m => ({ role: m.role, content: m.content }))
       aiResponse = await callOpenAICompatible({
-        baseUrl,
-        apiKey,
-        model,
+        baseUrl: baseUrl!,
+        apiKey: apiKey!,
+        model: model!,
         messages: apiMessages,
         temperature,
         maxTokens,

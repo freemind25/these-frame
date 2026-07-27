@@ -29,7 +29,7 @@ interface RecommendedPaper {
 // doi: convenience — auto-resolved to DOI:xxx format
 export async function POST(request: NextRequest) {
   try {
-    const { positivePaperIds, negativePaperIds, doi, limit = 10, s2ApiKey } = await request.json()
+    const { positivePaperIds, negativePaperIds, doi, limit = 10, s2ApiKey }: { positivePaperIds?: string[]; negativePaperIds?: string[]; doi?: string; limit?: number; s2ApiKey?: string } = await request.json()
 
     // Build positive IDs from explicit list or single DOI
     let positive: string[] = positivePaperIds || []
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         const oaPdf = (p.openAccessPdf as Record<string, string>) || {}
         const intent = (p.intent as string[]) || []
         const r: RecommendedPaper = {
-          title: p.title || '',
+          title: String(p.title || ''),
           authors,
           year: String(p.year || ''),
           abstract: (p.abstract as string) || undefined,

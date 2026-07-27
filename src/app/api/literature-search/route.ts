@@ -34,7 +34,7 @@ async function searchSemanticScholar(query: string, limit: number, apiKey?: stri
     const extIds = (p.externalIds as Record<string, string>) || {}
     const oaPdf = (p.openAccessPdf as Record<string, string>) || {}
     const r: SearchResult = {
-      title: p.title || '',
+      title: String(p.title || ''),
       authors,
       year: String(p.year || ''),
       abstract: (p.abstract as string) || undefined,
@@ -63,7 +63,7 @@ async function searchOpenAlex(query: string, limit: number): Promise<SearchResul
     const oa = (r.open_access as Record<string, string>) || {}
     const doi = (r.doi as string)?.replace('https://doi.org/', '') || undefined
     const result: SearchResult = {
-      title: r.title || '',
+      title: String(r.title || ''),
       authors,
       year: String(r.publication_year || ''),
       source: 'OpenAlex',
@@ -118,10 +118,10 @@ async function searchArxiv(query: string, limit: number): Promise<SearchResult[]
   const results: SearchResult[] = []
   const entries = text.split('<entry>').slice(1)
   for (const entry of entries.slice(0, limit)) {
-    const title = (entry.match(/<title>(.*?)<\/title>/s)?.[1] || '').replace(/\s+/g, ' ').trim()
+    const title = (entry.match(/<title>[\s\S]*?<\/title>/)?.[1] || '').replace(/\s+/g, ' ').trim()
     const authors = [...entry.matchAll(/<name>(.*?)<\/name>/g)].map(m => m[1].trim()).join(', ')
     const year = (entry.match(/<published>(\d{4})/)?.[1]) || ''
-    const summary = (entry.match(/<summary>(.*?)<\/summary>/s)?.[1] || '').replace(/\s+/g, ' ').trim()
+    const summary = (entry.match(/<summary>[\s\S]*?<\/summary>/)?.[1] || '').replace(/\s+/g, ' ').trim()
     const id = (entry.match(/<id>(.*?)<\/id>/)?.[1]) || ''
     const doi = (entry.match(/<doi>(.*?)<\/doi>/)?.[1]) || undefined
     const pdfMatch = id.match(/(\d{4}\.\d{4,5})/)
@@ -323,10 +323,11 @@ async function searchEuropePMC(query: string, limit: number): Promise<SearchResu
     const items = (data.resultList?.result as Record<string, unknown>[]) || []
     return items.slice(0, limit).map(doc => {
       // Authors
-      const authorList = (doc.authorList?.author as Record<string, string>[]) || []
+      const docAny = doc as Record<string, unknown>
+      const authorList = (docAny.authorList as Record<string, unknown> | undefined)?.author as Record<string, string>[] | undefined || []
       const authors = authorList.map(a => a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim()).filter(Boolean).join(', ')
       // OA URL
-      const ftUrls = (doc.fullTextUrlList?.fullTextUrl as Record<string, string>[]) || []
+      const ftUrls = ((docAny.fullTextUrlList as Record<string, unknown> | undefined)?.fullTextUrl as Record<string, string>[]) || []
       const oaUrl = ftUrls.find(u => u.documentStyle === 'full_text' || u.documentStyle === 'oa')
       const euPmcUrl = `https://europepmc.org/article/${doc.pmcid || doc.pmid || doc.id}`
       const doi = (doc.doi as string) || undefined
@@ -339,7 +340,7 @@ async function searchEuropePMC(query: string, limit: number): Promise<SearchResu
         doi,
         url: oaUrl?.url || (doi ? `https://doi.org/${doi}` : euPmcUrl),
         citationCount: (doc.citationCount as number) || 0,
-        journal: (doc.journalInfo?.journal?.title as string) || undefined,
+        journal: ((docAny.journalInfo as Record<string, unknown> | undefined)?.journal as Record<string, unknown>)?.title as string || undefined,
         isPreprint: false,
       }
       cacheSearchResult(r)

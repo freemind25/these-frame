@@ -55,7 +55,7 @@ function evictQueryCache() {
 
 export const searchCache = {
   // Store a paper by DOI
-  setByDoi(paper: CachedPaper) {
+  setByDoi(paper: Omit<CachedPaper, 'fetchedAt'>) {
     if (!paper.doi) return
     const key = paper.doi.toLowerCase()
     if (doiCache.size >= MAX_CACHE_SIZE) evict(doiCache)
@@ -63,7 +63,7 @@ export const searchCache = {
   },
 
   // Store a paper by arXiv ID
-  setByArxiv(paper: CachedPaper, arxivId: string) {
+  setByArxiv(paper: Omit<CachedPaper, 'fetchedAt'>, arxivId: string) {
     if (!arxivId) return
     const key = arxivId.toLowerCase()
     if (arxivCache.size >= MAX_CACHE_SIZE) evict(arxivCache)
