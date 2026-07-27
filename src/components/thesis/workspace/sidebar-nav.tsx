@@ -51,9 +51,7 @@ export default function SidebarNav({
     )}>
       {/* Brand */}
       <div className="flex items-center gap-3 px-3 py-4 mb-2">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-[0_0_16px_rgba(16,185,129,0.3)] shrink-0">
-          <GraduationCap className="h-4 w-4" />
-        </div>
+        <img src="/logo.png" alt="ThesisFrame" className="w-9 h-9 rounded-xl object-contain shrink-0 shadow-[0_0_16px_rgba(16,185,129,0.2)]" />
         <div className="overflow-hidden">
           <h1 className="font-bold text-sm text-white tracking-tight leading-tight">ThesisFrame</h1>
           <p className="text-[10px] text-emerald-400 font-medium">{thesis.title}</p>
