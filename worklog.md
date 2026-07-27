@@ -600,3 +600,24 @@ Stage Summary:
 - Logo now displays in the sidebar brand area, browser tab (favicon), and is available on GitHub
 - Files changed: public/logo.png, public/favicon.ico, src/app/layout.tsx, src/components/thesis/workspace/sidebar-nav.tsx
 - Commit: "fix: restore ThesisFrame logo (book+quill+frame) in app sidebar & favicon"
+
+---
+Task ID: phases-1-2
+Agent: Main
+Task: Phases 1+2 — Ajouter/supprimer/réordonner/renommer chapitres + fallback custom
+
+Work Log:
+- Créé POST /api/thesis/chapters (insertion avec position, numérotation romaine auto)
+- Réécrit DELETE /api/thesis/chapters/[chapterId] (suppression réelle + réindexation)
+- Ajouté PATCH /api/thesis/chapters (réordonnancement swap up/down)
+- Réécrit sidebar-nav.tsx (boutons hover: +/×/↑↓/✏, badge custom)
+- Réécrit chapter-header.tsx (fallback pour chapitres personnalisés)
+- Ajouté message guide générique dans help-panel.tsx
+- Wiring complet dans page.tsx (4 handlers + fix directeur submit)
+- Fix ChapterEditor pour titres custom
+
+Stage Summary:
+- 3 endpoints API, 4 composants modifiés
+- 0 erreur lint, 0 erreur TS dans nos fichiers
+- Fonctionnalités: ajout, suppression, réordonnancement, renommage, badge custom
+

@@ -188,9 +188,97 @@ export default function Home() {
     }, 2000)
   }, [activeChapter, activeChapterId])
 
+  // ─── Chapter management ──────────────────────────────────
+  const refreshThesis = useCallback(async () => {
+    try {
+      const res = await fetch('/api/thesis')
+      const data = await res.json()
+      const thesisData = data.thesis || data
+      if (thesisData?.id) {
+        setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to refresh thesis:', err)
+    }
+  }, [])
+
+  const handleAddChapter = useCallback(async (insertAfterOrder: number) => {
+    try {
+      const res = await fetch('/api/thesis/chapters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Nouveau chapitre', insertAfterOrder }),
+      })
+      if (res.ok) {
+        const chapter = await res.json()
+        // Refresh thesis to get updated chapters list
+        const thesisRes = await fetch('/api/thesis')
+        const thesisData = (await thesisRes.json()).thesis || (await thesisRes.json())
+        if (thesisData?.id) {
+          setThesis(thesisData)
+          setActiveChapterId(chapter.id)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to add chapter:', err)
+    }
+  }, [])
+
+  const handleDeleteChapter = useCallback(async (chapterId: string) => {
+    try {
+      const res = await fetch(`/api/thesis/chapters/${chapterId}`, { method: 'DELETE' })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        // If deleted chapter was active, select first remaining
+        if (activeChapterId === chapterId) {
+          const remaining = thesisData.chapters
+          setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete chapter:', err)
+    }
+  }, [activeChapterId])
+
+  const handleReorderChapter = useCallback(async (chapterId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/thesis/chapters', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId, direction }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+      }
+    } catch (err) {
+      console.error('Failed to reorder chapter:', err)
+    }
+  }, [])
+
+  const handleRenameChapter = useCallback(async (chapterId: string, newTitle: string) => {
+    try {
+      const res = await fetch(`/api/thesis/chapters/${chapterId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setThesis(prev => prev ? {
+          ...prev,
+          chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
+        } : null)
+      }
+    } catch (err) {
+      console.error('Failed to rename chapter:', err)
+    }
+  }, [])
+
   // ─── Director submit ─────────────────────────────────────
   const handleDirectorSubmit = useCallback(async () => {
-    if (!activeChapter || !chapterMeta) return
+    if (!activeChapter) return
     setDirectorLoading(true)
     setDirectorFeedback('')
     try {
@@ -198,7 +286,7 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chapitreTitre: `${chapterMeta.number}. ${chapterMeta.title}`,
+          chapitreTitre: chapterMeta ? `${chapterMeta.number}. ${chapterMeta.title}` : `${activeChapter.number}. ${activeChapter.title}`,
           chapitreContenu: activeChapter.content,
           probleme: { quoi: 'Contenu du chapitre soumis', comment: 'Évaluation qualitative', pourquoi: 'Validation avant passage au chapitre suivant' },
           hypothese: { texte: 'Chapitre soumis pour évaluation', observation: true, verifiable: true, coherente: true },
@@ -300,6 +388,10 @@ export default function Home() {
           onOpenBalance={() => setBalanceOpen(true)}
           onOpenCloudDrive={() => setCloudDriveOpen(true)}
           onOpenJournalFinder={() => setJournalFinderOpen(true)}
+          onAddChapter={handleAddChapter}
+          onDeleteChapter={handleDeleteChapter}
+          onReorderChapter={handleReorderChapter}
+          onRenameChapter={handleRenameChapter}
         />
 
         {/* ═══ MAIN AREA ═══ */}
@@ -320,8 +412,8 @@ export default function Home() {
             <ChapterEditor
               content={activeChapter?.content || ''}
               onChange={handleContentChange}
-              chapterNumber={chapterMeta?.number || ''}
-              chapterTitle={chapterMeta?.title || ''}
+              chapterNumber={chapterMeta?.number || activeChapter?.number || ''}
+              chapterTitle={chapterMeta?.title || activeChapter?.title || ''}
             />
 
             {helpOpen && !isMobile && (

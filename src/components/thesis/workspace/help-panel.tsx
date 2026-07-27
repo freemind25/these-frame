@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  Sparkles, ShieldCheck, Send, Loader2, ClipboardList, ListChecks, Lightbulb, Settings,
+  Sparkles, ShieldCheck, Send, Loader2, ClipboardList, ListChecks, Lightbulb, Settings, FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -67,7 +67,7 @@ export default function HelpPanel({
 
         {/* ── GUIDE TAB ── */}
         <TabsContent value="guide" className="flex-1 overflow-y-auto p-3 mt-2 space-y-4">
-          {chapterMeta && (
+          {chapterMeta ? (
             <>
               <div>
                 <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
@@ -96,6 +96,25 @@ export default function HelpPanel({
                 </ul>
               </div>
             </>
+          ) : (
+            <div className="text-center py-6 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mx-auto">
+                <FileText className="h-5 w-5 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-700">Chapitre personnalisé</p>
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                  Ce chapitre ne fait pas partie du template IMRaD par défaut.
+                  Vous êtes libre de le structurer selon vos besoins.
+                </p>
+              </div>
+              <div className="text-[11px] text-slate-400 bg-slate-50 rounded-lg p-3 text-left space-y-1.5">
+                <p className="font-semibold text-slate-600">Conseils :</p>
+                <p>• Définissez clairement l&apos;objectif de ce chapitre</p>
+                <p>• Structurez avec des titres et sous-titres</p>
+                <p>• Utilisez l&apos;onglet IA pour obtenir de l&apos;aide à la rédaction</p>
+              </div>
+            </div>
           )}
         </TabsContent>
 

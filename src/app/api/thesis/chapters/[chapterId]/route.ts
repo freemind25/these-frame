@@ -86,7 +86,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/thesis/chapters/[chapterId] — Reset chapter content
+// DELETE /api/thesis/chapters/[chapterId] — Delete chapter and reindex orders
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ chapterId: string }> },
@@ -107,21 +107,43 @@ export async function DELETE(
       )
     }
 
-    // Reset content and word count, keep structure intact
-    const reset = await db.chapter.update({
+    // Delete the chapter
+    await db.chapter.delete({
       where: { id: chapterId },
-      data: {
-        content: '',
-        wordCount: 0,
-        status: 'draft',
-      },
     })
 
-    return NextResponse.json(reset)
+    // Reindex remaining chapters: close the gap
+    const remaining = await db.chapter.findMany({
+      where: { thesisId: existing.thesisId },
+      orderBy: { order: 'asc' },
+    })
+
+    // Update numbering
+    const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX']
+    await db.$transaction(
+      remaining.map((ch, i) =>
+        db.chapter.update({
+          where: { id: ch.id },
+          data: {
+            order: i + 1,
+            number: i < 20 ? romanNumerals[i] : String(i + 1),
+          },
+        })
+      )
+    )
+
+    // Return updated thesis
+    const updatedThesis = await db.thesis.findFirst({
+      where: { id: existing.thesisId },
+      include: { chapters: { orderBy: { order: 'asc' } } },
+    })
+
+    return NextResponse.json(updatedThesis)
   } catch (error) {
-    console.error('[DELETE /api/thesis/chapters/:id] Error:', error)
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[DELETE /api/thesis/chapters/:id] Error:', msg, error)
     return NextResponse.json(
-      { error: 'Failed to reset chapter' },
+      { error: 'Failed to delete chapter', detail: msg },
       { status: 500 },
     )
   }
