@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, ensureDb } from '@/lib/db'
+import { renumberChapters } from '@/lib/chapter-numbering'
 
 // POST /api/thesis/parts — Create a new part
 export async function POST(request: NextRequest) {
@@ -42,15 +43,34 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    let switchedMode = false
     // Switch thesis to parts mode if not already
     if (thesis.structureMode !== 'parts') {
       await db.thesis.update({
         where: { id: thesis.id },
         data: { structureMode: 'parts' },
       })
+      // Assign all chapters to the first part
+      if (existingParts.length === 0) {
+        await db.chapter.updateMany({
+          where: { thesisId: thesis.id },
+          data: { partId: part.id },
+        })
+      }
+      switchedMode = true
     }
 
-    return NextResponse.json(part, { status: 201 })
+    // Renumber chapters if we switched mode
+    if (switchedMode) {
+      await renumberChapters(thesis.id, 'parts')
+    }
+
+    // Return full thesis for state refresh
+    const updatedThesis = await db.thesis.findFirst({
+      where: { id: thesis.id },
+      include: { chapters: { orderBy: { order: 'asc' } }, parts: { orderBy: { order: 'asc' } } },
+    })
+    return NextResponse.json(updatedThesis, { status: 201 })
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error('[POST /api/thesis/parts] Error:', msg, error)
@@ -93,6 +113,9 @@ export async function PATCH(request: NextRequest) {
         db.part.update({ where: { id: part.id }, data: { order: sibling.order } }),
         db.part.update({ where: { id: sibling.id }, data: { order: part.order } }),
       ])
+
+      // Renumber chapters after part reorder
+      await renumberChapters(part.thesisId, 'parts')
 
       const thesis = await db.thesis.findFirst({
         where: { id: part.thesisId },

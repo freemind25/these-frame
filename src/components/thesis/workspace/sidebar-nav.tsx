@@ -4,7 +4,7 @@ import { useState } from 'react'
 import {
   GraduationCap, FileText, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, FlaskConical, BarChart3, MessageSquare,
-  Plus, ChevronUp, ChevronDown, Trash2, Pencil, Check, Layers, FolderOpen,
+  Plus, ChevronUp, ChevronDown, Trash2, Pencil, Check, Layers, FolderOpen, LayoutTemplate,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -49,14 +49,19 @@ interface SidebarNavProps {
   onReorderPart: (partId: string, direction: 'up' | 'down') => void
   // Structure mode
   onSwitchMode: (mode: 'chapters' | 'parts') => void
+  // Template
+  onOpenTemplates: () => void
 }
 
-// ─── Chapter Row ──────────────────────────────────────────
+// ─── Chapter Row (shared for flat & parts mode) ──────────
 function ChapterRow({
-  ch, idx, total, isActive, meta, onEdit, onDelete, onReorder, onAddAfter,
+  ch, idx, total, isActive, meta, isPartsMode,
+  onSelect, onEdit, onDelete, onReorder, onAddAfter,
 }: {
   ch: ChapterData; idx: number; total: number
   isActive: boolean; meta: ReturnType<typeof CHAPTERS.find>
+  isPartsMode: boolean
+  onSelect: () => void
   onEdit: (id: string, title: string) => void
   onDelete: (id: string) => void
   onReorder: (id: string, dir: 'up' | 'down') => void
@@ -78,7 +83,7 @@ function ChapterRow({
   return (
     <div className="group relative">
       <button
-        onClick={() => { if (!editing) return }}
+        onClick={onSelect}
         className={cn(
           'w-full p-2.5 flex items-start gap-2.5 rounded-xl text-left transition-all duration-200 relative overflow-hidden',
           isActive
@@ -137,13 +142,21 @@ function ChapterRow({
 
 // ─── Part Header ──────────────────────────────────────────
 function PartHeader({
-  part, chaptersInPart, thesis, isCollapsed, onToggle, onRename, onDelete, onReorder, onAddChapter,
+  part, chaptersInPart, activeChapterId,
+  isCollapsed, onToggle,
+  onRenamePart, onDeletePart, onReorderPart,
+  onSelectChapter, onAddChapter, onDeleteChapter, onReorderChapter, onRenameChapter,
   isOnly, isLast,
 }: {
-  part: PartData; chaptersInPart: ChapterData[]; thesis: ThesisData
+  part: PartData; chaptersInPart: ChapterData[]; activeChapterId: string
   isCollapsed: boolean; onToggle: () => void
-  onRename: (id: string, t: string) => void; onDelete: (id: string) => void
-  onReorder: (id: string, dir: 'up' | 'down') => void; onAddChapter: (partId: string) => void
+  onRenamePart: (id: string, t: string) => void; onDeletePart: (id: string) => void
+  onReorderPart: (id: string, dir: 'up' | 'down') => void
+  onSelectChapter: (id: string) => void
+  onAddChapter: (order: number, partId?: string) => void
+  onDeleteChapter: (id: string) => void
+  onReorderChapter: (id: string, dir: 'up' | 'down') => void
+  onRenameChapter: (id: string, t: string) => void
   isOnly: boolean; isLast: boolean
 }) {
   const [editing, setEditing] = useState(false)
@@ -151,9 +164,9 @@ function PartHeader({
   const [confirmDel, setConfirmDel] = useState(false)
 
   const startRename = () => { setEditing(true); setTitle(part.title) }
-  const confirm = () => { if (title.trim()) onRename(part.id, title.trim()); setEditing(false) }
+  const confirm = () => { if (title.trim()) onRenamePart(part.id, title.trim()); setEditing(false) }
   const handleDel = () => {
-    if (confirmDel) { onDelete(part.id); setConfirmDel(false) }
+    if (confirmDel) { onDeletePart(part.id); setConfirmDel(false) }
     else { setConfirmDel(true); setTimeout(() => setConfirmDel(false), 3000) }
   }
 
@@ -179,9 +192,9 @@ function PartHeader({
         {/* Part actions on hover */}
         <div className="flex items-center gap-0 opacity-0 group-hover/part:opacity-100 transition-opacity">
           <button onClick={startRename} className="p-0.5 text-slate-600 hover:text-amber-400 rounded" title="Renommer"><Pencil className="h-2.5 w-2.5" /></button>
-          <button onClick={() => onReorder(part.id, 'up')} className={cn('p-0.5 text-slate-600 hover:text-sky-400 rounded', isOnly && 'invisible')} title="Monter"><ChevronUp className="h-2.5 w-2.5" /></button>
-          <button onClick={() => onReorder(part.id, 'down')} className={cn('p-0.5 text-slate-600 hover:text-sky-400 rounded', isLast && 'invisible')} title="Descendre"><ChevronDown className="h-2.5 w-2.5" /></button>
-          <button onClick={() => onAddChapter(part.id)} className="p-0.5 text-slate-600 hover:text-emerald-400 rounded" title="Ajouter chapitre"><Plus className="h-2.5 w-2.5" /></button>
+          <button onClick={() => onReorderPart(part.id, 'up')} className={cn('p-0.5 text-slate-600 hover:text-sky-400 rounded', isOnly && 'invisible')} title="Monter"><ChevronUp className="h-2.5 w-2.5" /></button>
+          <button onClick={() => onReorderPart(part.id, 'down')} className={cn('p-0.5 text-slate-600 hover:text-sky-400 rounded', isLast && 'invisible')} title="Descendre"><ChevronDown className="h-2.5 w-2.5" /></button>
+          <button onClick={() => onAddChapter(chaptersInPart.length > 0 ? Math.max(...chaptersInPart.map(c => c.order)) : 0, part.id)} className="p-0.5 text-slate-600 hover:text-emerald-400 rounded" title="Ajouter chapitre"><Plus className="h-2.5 w-2.5" /></button>
           <button onClick={handleDel} className={cn('p-0.5 rounded',
             confirmDel ? 'text-red-400 animate-pulse' : 'text-slate-600 hover:text-red-400'
           )} title={confirmDel ? 'Confirmer suppression' : 'Supprimer partie'}><Trash2 className="h-2.5 w-2.5" /></button>
@@ -194,12 +207,20 @@ function PartHeader({
             return (
               <ChapterRow
                 key={ch.id} ch={ch} idx={idx} total={chaptersInPart.length}
-                isActive={ch.id === thesis.chapters.find(c => c.id === ch.id)?.id && ch.id === thesis.chapters.find(c => c.id === ch.id)?.id}
+                isActive={ch.id === activeChapterId}
                 meta={meta}
-                onEdit={onRename} onDelete={(id) => {}} onReorder={() => {}} onAddAfter={() => {}}
+                isPartsMode={true}
+                onSelect={() => onSelectChapter(ch.id)}
+                onEdit={onRenameChapter}
+                onDelete={onDeleteChapter}
+                onReorder={onReorderChapter}
+                onAddAfter={(_id, order) => onAddChapter(order, part.id)}
               />
             )
           })}
+          {chaptersInPart.length === 0 && (
+            <p className="text-[9px] text-slate-600 italic pl-2 py-1">Aucun chapitre</p>
+          )}
         </div>
       )}
     </div>
@@ -212,7 +233,7 @@ export default function SidebarNav({
   onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature, onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onAddChapter, onDeleteChapter, onReorderChapter, onRenameChapter,
   onAddPart, onDeletePart, onRenamePart, onReorderPart,
-  onSwitchMode,
+  onSwitchMode, onOpenTemplates,
 }: SidebarNavProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
@@ -232,7 +253,7 @@ export default function SidebarNav({
   const chaptersByPart = isPartsMode
     ? thesis.parts.map(part => ({
         part,
-        chapters: thesis.chapters.filter(c => c.partId === part.id),
+        chapters: thesis.chapters.filter(c => c.partId === part.id).sort((a, b) => a.order - b.order),
       }))
     : [{ part: null, chapters: thesis.chapters }]
 
@@ -247,7 +268,6 @@ export default function SidebarNav({
     if (confirmDeleteId === id) { onDeleteChapter(id); setConfirmDeleteId(null) }
     else { setConfirmDeleteId(id); setTimeout(() => setConfirmDeleteId(null), 3000) }
   }
-  const handleChapterAddAfter = (chId: string, order: number, partId?: string) => { onAddChapter(order, partId) }
 
   return (
     <aside className={cn(
@@ -280,10 +300,10 @@ export default function SidebarNav({
 
       <Separator className="bg-slate-800" />
 
-      {/* Chapters header with mode toggle */}
+      {/* Chapters header with mode toggle and template button */}
       <div className="px-3 pt-2 pb-1 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Chapitres</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Structure</span>
           <button
             onClick={() => onSwitchMode(isPartsMode ? 'chapters' : 'parts')}
             className="p-0.5 text-slate-600 hover:text-emerald-400 hover:bg-slate-800 rounded transition-colors"
@@ -291,22 +311,27 @@ export default function SidebarNav({
           >
             <Layers className="h-3 w-3" />
           </button>
+          {isPartsMode && (
+            <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded font-medium">Parties</span>
+          )}
         </div>
-        <button
-          onClick={() => isPartsMode ? onAddPart() : onAddChapter(thesis.chapters.length > 0 ? Math.max(...thesis.chapters.map(c => c.order)) : 0)}
-          className="p-0.5 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
-          title={isPartsMode ? 'Ajouter une partie' : 'Ajouter un chapitre'}
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={onOpenTemplates}
+            className="p-0.5 text-slate-600 hover:text-violet-400 hover:bg-slate-800 rounded transition-colors"
+            title="Modèles de structure"
+          >
+            <LayoutTemplate className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => isPartsMode ? onAddPart() : onAddChapter(thesis.chapters.length > 0 ? Math.max(...thesis.chapters.map(c => c.order)) : 0)}
+            className="p-0.5 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
+            title={isPartsMode ? 'Ajouter une partie' : 'Ajouter un chapitre'}
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
-
-      {/* Mode indicator */}
-      {isPartsMode && (
-        <div className="px-3 pb-1.5">
-          <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded font-medium">Mode Parties</span>
-        </div>
-      )}
 
       {/* Chapters list */}
       <nav className="flex-1 overflow-y-auto space-y-1 px-2 min-h-0">
@@ -314,19 +339,23 @@ export default function SidebarNav({
           if (isPartsMode && part) {
             return (
               <PartHeader
-                key={part.id} part={part} chaptersInPart={chapters} thesis={thesis}
+                key={part.id} part={part} chaptersInPart={chapters} activeChapterId={activeChapterId}
                 isCollapsed={collapsedParts.has(part.id)}
                 onToggle={() => togglePartCollapse(part.id)}
-                onRename={onRenamePart} onDelete={onDeletePart}
-                onReorder={onReorderPart}
-                onAddChapter={(pid) => onAddChapter(chapters.length > 0 ? Math.max(...chapters.map(c => c.order)) : 0, pid)}
+                onRenamePart={onRenamePart} onDeletePart={onDeletePart}
+                onReorderPart={onReorderPart}
+                onSelectChapter={handleChapterSelect}
+                onAddChapter={onAddChapter}
+                onDeleteChapter={onDeleteChapter}
+                onReorderChapter={onReorderChapter}
+                onRenameChapter={onRenameChapter}
                 isOnly={thesis.parts.length <= 1} isLast={part.order === Math.max(...thesis.parts.map(p => p.order))}
               />
             )
           }
           // Flat mode
           return (
-            <>
+            <div key="flat">
               {chapters.map((ch, idx) => {
                 const meta = CHAPTERS.find(m => m.order === ch.order)
                 const isActive = ch.id === activeChapterId
@@ -343,53 +372,53 @@ export default function SidebarNav({
                         isActive ? 'bg-gradient-to-r from-emerald-900/80 to-slate-900 text-white border border-emerald-500/40' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent',
                       )}
                     >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
-                    isActive ? 'bg-emerald-500/20' : 'bg-slate-800 group-hover:bg-slate-700',
-                  )}>
-                    <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400')} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {isEditing ? (
-                      <div className="flex items-center gap-1">
-                        <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { if (editTitle.trim()) onRenameChapter(ch.id, editTitle.trim()); setEditingId(null) } if (e.key === 'Escape') setEditingId(null) }}
-                          onClick={(e) => e.stopPropagation()} autoFocus
-                          className="text-[11px] font-semibold bg-slate-700 text-white rounded px-1.5 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                        <button onClick={(e) => { e.stopPropagation(); if (editTitle.trim()) onRenameChapter(ch.id, editTitle.trim()); setEditingId(null) }} className="p-0.5 text-emerald-400"><Check className="h-3 w-3" /></button>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
+                        isActive ? 'bg-emerald-500/20' : 'bg-slate-800 group-hover:bg-slate-700',
+                      )}>
+                        <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400')} />
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-1.5">
-                          <span className={cn('text-[10px] font-bold', isActive ? 'text-emerald-400' : 'text-slate-600')}>{ch.number}</span>
-                          <span className={cn('text-[11px] font-semibold leading-tight truncate', isActive && 'text-white')}>{ch.title}</span>
-                          {isCustom && <span className="text-[8px] bg-slate-700 text-slate-400 px-1 rounded shrink-0">custom</span>}
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status] || STATUS_COLORS.draft)} />
-                          <span className="text-[9px] text-slate-600">{ch.wordCount.toLocaleString()} mots</span>
-                        </div>
-                      </>
-                    )}
+                      <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                          <div className="flex items-center gap-1">
+                            <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter') { if (editTitle.trim()) onRenameChapter(ch.id, editTitle.trim()); setEditingId(null) } if (e.key === 'Escape') setEditingId(null) }}
+                              onClick={(e) => e.stopPropagation()} autoFocus
+                              className="text-[11px] font-semibold bg-slate-700 text-white rounded px-1.5 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            />
+                            <button onClick={(e) => { e.stopPropagation(); if (editTitle.trim()) onRenameChapter(ch.id, editTitle.trim()); setEditingId(null) }} className="p-0.5 text-emerald-400"><Check className="h-3 w-3" /></button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-1.5">
+                              <span className={cn('text-[10px] font-bold', isActive ? 'text-emerald-400' : 'text-slate-600')}>{ch.number}</span>
+                              <span className={cn('text-[11px] font-semibold leading-tight truncate', isActive && 'text-white')}>{ch.title}</span>
+                              {isCustom && <span className="text-[8px] bg-slate-700 text-slate-400 px-1 rounded shrink-0">custom</span>}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status] || STATUS_COLORS.draft)} />
+                              <span className="text-[9px] text-slate-600">{ch.wordCount.toLocaleString()} mots</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                    <div className={cn('absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10', isActive && 'opacity-100')}>
+                      <button onClick={(e) => { e.stopPropagation(); setEditingId(ch.id); setEditTitle(ch.title) }} className="p-1 text-slate-500 hover:text-amber-400 hover:bg-slate-700/80 rounded" title="Renommer"><Pencil className="h-3 w-3" /></button>
+                      {idx > 0 && <button onClick={(e) => { e.stopPropagation(); onReorderChapter(ch.id, 'up') }} className="p-1 text-slate-500 hover:text-sky-400 hover:bg-slate-700/80 rounded" title="Monter"><ChevronUp className="h-3 w-3" /></button>}
+                      {idx < thesis.chapters.length - 1 && <button onClick={(e) => { e.stopPropagation(); onReorderChapter(ch.id, 'down') }} className="p-1 text-slate-500 hover:text-sky-400 hover:bg-slate-700/80 rounded" title="Descendre"><ChevronDown className="h-3 w-3" /></button>}
+                      <button onClick={(e) => { e.stopPropagation(); onAddChapter(ch.order) }} className="p-1 text-slate-500 hover:text-emerald-400 hover:bg-slate-700/80 rounded" title="Ajouter après"><Plus className="h-3 w-3" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); handleChapterDel(ch.id) }} className={cn('p-1 rounded',
+                        isConfirmingDel ? 'text-red-400 hover:text-red-300 hover:bg-red-500/20 animate-pulse' : 'text-slate-500 hover:text-red-400 hover:bg-slate-700/80',
+                      )} title={isConfirmingDel ? 'Confirmer' : 'Supprimer'}><Trash2 className="h-3 w-3" /></button>
+                    </div>
                   </div>
-                </button>
-                <div className={cn('absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10', isActive && 'opacity-100')}>
-                  <button onClick={(e) => { e.stopPropagation(); setEditingId(ch.id); setEditTitle(ch.title) }} className="p-1 text-slate-500 hover:text-amber-400 hover:bg-slate-700/80 rounded" title="Renommer"><Pencil className="h-3 w-3" /></button>
-                  {idx > 0 && <button onClick={(e) => { e.stopPropagation(); onReorderChapter(ch.id, 'up') }} className="p-1 text-slate-500 hover:text-sky-400 hover:bg-slate-700/80 rounded" title="Monter"><ChevronUp className="h-3 w-3" /></button>}
-                  {idx < thesis.chapters.length - 1 && <button onClick={(e) => { e.stopPropagation(); onReorderChapter(ch.id, 'down') }} className="p-1 text-slate-500 hover:text-sky-400 hover:bg-slate-700/80 rounded" title="Descendre"><ChevronDown className="h-3 w-3" /></button>}
-                  <button onClick={(e) => { e.stopPropagation(); onAddChapter(ch.order) }} className="p-1 text-slate-500 hover:text-emerald-400 hover:bg-slate-700/80 rounded" title="Ajouter après"><Plus className="h-3 w-3" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); handleChapterDel(ch.id) }} className={cn('p-1 rounded',
-                    isConfirmingDel ? 'text-red-400 hover:text-red-300 hover:bg-red-500/20 animate-pulse' : 'text-slate-500 hover:text-red-400 hover:bg-slate-700/80',
-                  )} title={isConfirmingDel ? 'Confirmer' : 'Supprimer'}><Trash2 className="h-3 w-3" /></button>
-                </div>
-              </div>
-            )
-          })}
-          </>
-      )
-    })}
-        {/* Unassigned chapters in parts mode */
+                )
+              })}
+            </div>
+          )
+        })}
+        {/* Unassigned chapters in parts mode */}
         {isPartsMode && unassignedChapters.length > 0 && (
           <div className="mt-2">
             <div className="px-1 py-1"><span className="text-[9px] text-slate-600 uppercase tracking-wider">Non assignés</span></div>

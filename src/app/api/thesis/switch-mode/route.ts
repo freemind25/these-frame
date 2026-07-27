@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, ensureDb } from '@/lib/db'
+import { renumberChapters } from '@/lib/chapter-numbering'
 
 // POST /api/thesis/switch-mode — Switch structure mode with migration
 export async function POST(request: NextRequest) {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (mode === 'parts') {
+      // Create a default part and assign all chapters to it
       const part = await db.part.create({
         data: { thesisId: thesis.id, title: 'Partie I', order: 1 },
       })
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
         data: { partId: part.id },
       })
     } else {
+      // Switching back: unassign chapters and delete all parts
       await db.chapter.updateMany({
         where: { thesisId: thesis.id, partId: { not: null } },
         data: { partId: null },
@@ -42,9 +45,17 @@ export async function POST(request: NextRequest) {
       await db.part.deleteMany({ where: { thesisId: thesis.id } })
     }
 
-    const updated = await db.thesis.update({
+    // Update thesis mode
+    await db.thesis.update({
       where: { id: thesis.id },
       data: { structureMode: mode },
+    })
+
+    // Renumber all chapters for the new mode
+    await renumberChapters(thesis.id, mode)
+
+    const updated = await db.thesis.findFirst({
+      where: { id: thesis.id },
       include: {
         chapters: { orderBy: { order: 'asc' } },
         parts: { orderBy: { order: 'asc' } },

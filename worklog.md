@@ -672,3 +672,30 @@ Stage Summary:
 - Sidebar: toggle mode (icône Layers), PartHeader collapsible, chapitres non-assignés
 - 0 erreur lint, 0 erreur TS dans nos fichiers
 
+---
+Task ID: 3+4
+Agent: Main
+Task: Phase 3 (Parts mode) + Phase 4 (Template system)
+
+Work Log:
+- Analyzed existing codebase: Prisma schema, types, API routes, sidebar, page.tsx all already had partial Phase 3 scaffolding from a prior session
+- Identified critical bugs: ChapterRow in PartHeader had stub handlers (no select/delete/reorder/add), isActive check was broken, chapters API didn't respect part boundaries on reorder, numbering was always roman numerals even in parts mode, switch-mode didn't renumber chapters
+- Created shared `src/lib/chapter-numbering.ts` utility: `chapterNumber()` and `renumberChapters()` functions with parts-mode support (e.g., "I.1", "I.2", "II.1")
+- Rewrote `src/app/api/thesis/chapters/route.ts`: POST creates chapters with proper part-scoped numbering, PATCH reorder constrains sibling search to same part in parts mode
+- Rewrote `src/app/api/thesis/chapters/[chapterId]/route.ts`: DELETE renumbers with `renumberChapters()` respecting mode
+- Rewrote `src/app/api/thesis/parts/route.ts`: POST auto-assigns chapters to first part on mode switch, renumbers; PATCH renumbers after part reorder
+- Rewrote `src/app/api/thesis/parts/[partId]/route.ts`: DELETE renumbers remaining parts and chapters, auto-switches back to chapters mode if last part deleted
+- Rewrote `src/app/api/thesis/switch-mode/route.ts`: Uses shared `renumberChapters()` to reformat all chapter numbers on mode switch
+- Completely rewrote `src/components/thesis/workspace/sidebar-nav.tsx`: Fixed PartHeader to pass real handlers (onSelect, onDelete, onReorder, onAddAfter, onRename) to ChapterRow; fixed isActive check using activeChapterId prop; added LayoutTemplate icon button for template dialog
+- Updated `src/components/thesis/workspace/chapter-header.tsx`: Added `activePart` prop, shows part badge in parts mode, uses `activeChapter.number` for title in parts/custom mode
+- Updated `src/app/page.tsx`: Computed `activePart`, passed to ChapterHeader; added `templateOpen` state and `handleApplyTemplate`; wired TemplateDialog
+- Created `src/data/thesis-templates.ts`: 4 templates (IMRaD classique, Thématique en parties, Par articles, Minimal)
+- Created `src/app/api/thesis/apply-template/route.ts`: Replaces all chapters/parts with template structure, handles both chapters and parts modes
+- Created `src/components/thesis/workspace/template-dialog.tsx`: Template selector with preview, double-confirm (with warning), loading state
+- Regenerated Prisma client (`npx prisma generate`) to pick up Part model, partId, structureMode
+- All files pass `tsc --noEmit` and `bun run lint` cleanly
+
+Stage Summary:
+- Phase 3 (Parts mode) COMPLETE: Full hierarchical Part→Chapter structure with collapsible sidebar, part-scoped reorder/delete/add, "I.1" numbering format, auto-migration when switching modes
+- Phase 4 (Template system) COMPLETE: 4 thesis templates (IMRaD, Thématique, Articles, Minimal) with selector dialog accessible from sidebar LayoutTemplate button, double-confirm destructive action
+- Shared utility `src/lib/chapter-numbering.ts` eliminates code duplication across 5 API routes

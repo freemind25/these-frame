@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import type { ChapterData } from '@/types/thesis'
+import type { ChapterData, PartData } from '@/types/thesis'
 import type { ChapterStructure } from '@/data/chapters-structure'
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -34,14 +34,16 @@ interface ChapterHeaderProps {
   chapterMeta: ChapterStructure | undefined
   colors: ColorSet
   activeChapter: ChapterData | undefined
+  activePart: PartData | null
   saveStatus: 'idle' | 'saving' | 'saved' | 'error'
   helpOpen: boolean
   onToggleHelp: () => void
 }
 
 export default function ChapterHeader({
-  isMobile, onOpenSidebar, chapterMeta, colors, activeChapter, saveStatus, helpOpen, onToggleHelp,
+  isMobile, onOpenSidebar, chapterMeta, colors, activeChapter, activePart, saveStatus, helpOpen, onToggleHelp,
 }: ChapterHeaderProps) {
+  const isPartsMode = !!activePart
   const isCustom = !chapterMeta
   const Icon = chapterMeta?.icon ? (ICON_MAP[chapterMeta.icon] || FileText) : FileText
 
@@ -62,8 +64,13 @@ export default function ChapterHeader({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
-            {isCustom ? activeChapter?.title || 'Chapitre sans titre' : `Chapitre ${chapterMeta.number}. ${chapterMeta.title}`}
+            {isCustom || isPartsMode
+              ? `${activeChapter?.number || ''}. ${activeChapter?.title || 'Chapitre sans titre'}`
+              : `Chapitre ${chapterMeta.number}. ${chapterMeta.title}`}
           </h2>
+          {isPartsMode && (
+            <Badge variant="outline" className="text-[9px] border-emerald-300 text-emerald-600 shrink-0">{activePart.title}</Badge>
+          )}
           {isCustom && (
             <Badge variant="outline" className="text-[9px] border-slate-300 text-slate-500 shrink-0">Personnalisé</Badge>
           )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, ensureDb } from '@/lib/db'
+import { renumberChapters } from '@/lib/chapter-numbering'
 
 // GET /api/thesis/chapters/[chapterId] — Get a single chapter
 export async function GET(
@@ -113,24 +114,24 @@ export async function DELETE(
     })
 
     // Reindex remaining chapters: close the gap
+    const thesis = await db.thesis.findFirst({ where: { id: existing.thesisId } })
+    const mode = thesis?.structureMode || 'chapters'
     const remaining = await db.chapter.findMany({
       where: { thesisId: existing.thesisId },
       orderBy: { order: 'asc' },
     })
 
-    // Update numbering
-    const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX']
     await db.$transaction(
       remaining.map((ch, i) =>
         db.chapter.update({
           where: { id: ch.id },
-          data: {
-            order: i + 1,
-            number: i < 20 ? romanNumerals[i] : String(i + 1),
-          },
+          data: { order: i + 1 },
         })
       )
     )
+
+    // Renumber with proper format (parts mode uses Part.Chapter)
+    await renumberChapters(existing.thesisId, mode)
 
     // Return updated thesis
     const updatedThesis = await db.thesis.findFirst({

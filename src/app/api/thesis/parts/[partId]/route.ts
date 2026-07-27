@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, ensureDb } from '@/lib/db'
+import { renumberChapters } from '@/lib/chapter-numbering'
 
 // DELETE /api/thesis/parts/[partId] — Delete part, unassign its chapters, reindex
 export async function DELETE(
@@ -35,12 +36,16 @@ export async function DELETE(
       )
     )
 
-    // If no parts left, switch back to chapters mode
+    // If no parts left, switch back to chapters mode and renumber
     if (remaining.length === 0) {
       await db.thesis.update({
         where: { id: part.thesisId },
         data: { structureMode: 'chapters' },
       })
+      await renumberChapters(part.thesisId, 'chapters')
+    } else {
+      // Still in parts mode — renumber chapters (part indices may have shifted)
+      await renumberChapters(part.thesisId, 'parts')
     }
 
     const thesis = await db.thesis.findFirst({

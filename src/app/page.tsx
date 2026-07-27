@@ -14,6 +14,7 @@ import ChapterEditor from '@/components/thesis/workspace/chapter-editor'
 import HelpPanel from '@/components/thesis/workspace/help-panel'
 import ProviderSettingsDialog from '@/components/thesis/workspace/provider-settings-dialog'
 import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
+import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 
 // ─── Component ─────────────────────────────────────────────────
 export default function Home() {
@@ -33,6 +34,7 @@ export default function Home() {
   const [balanceOpen, setBalanceOpen] = useState(false)
   const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
   const [journalFinderOpen, setJournalFinderOpen] = useState(false)
+  const [templateOpen, setTemplateOpen] = useState(false)
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
   const desktopBadge = desktopMode ? (
@@ -139,6 +141,9 @@ export default function Home() {
   }, [])
 
   const activeChapter = thesis?.chapters.find(c => c.id === activeChapterId)
+  const activePart = activeChapter?.partId
+    ? thesis?.parts.find(p => p.id === activeChapter.partId) ?? null
+    : null
   const chapterMeta = CHAPTERS.find(c => c.order === activeChapter?.order)
   const colors = chapterMeta ? CHAPTER_COLORS[chapterMeta.color] : CHAPTER_COLORS.emerald
 
@@ -287,8 +292,7 @@ export default function Home() {
         body: JSON.stringify({ title }),
       })
       if (res.ok) {
-        const thesisRes = await fetch('/api/thesis')
-        const thesisData = (await thesisRes.json()).thesis || (await thesisRes.json())
+        const thesisData = await res.json()
         if (thesisData?.id) setThesis(thesisData)
       }
     } catch (err) {
@@ -353,6 +357,26 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Failed to switch mode:', err)
+    }
+  }, [])
+
+  // ─── Template management ──────────────────────────────
+  const handleApplyTemplate = useCallback(async (templateId: string) => {
+    try {
+      const res = await fetch('/api/thesis/apply-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        if (thesisData.chapters?.length > 0) {
+          setActiveChapterId(thesisData.chapters[0].id)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to apply template:', err)
     }
   }, [])
 
@@ -477,6 +501,7 @@ export default function Home() {
           onRenamePart={handleRenamePart}
           onReorderPart={handleReorderPart}
           onSwitchMode={handleSwitchMode}
+          onOpenTemplates={() => setTemplateOpen(true)}
         />
 
         {/* ═══ MAIN AREA ═══ */}
@@ -487,6 +512,7 @@ export default function Home() {
             chapterMeta={chapterMeta}
             colors={colors}
             activeChapter={activeChapter}
+            activePart={activePart}
             saveStatus={saveStatus}
             helpOpen={helpOpen}
             onToggleHelp={() => setHelpOpen(!helpOpen)}
@@ -551,6 +577,12 @@ export default function Home() {
         setJournalFinderOpen={setJournalFinderOpen}
         s2ApiKey={s2ApiKey}
         consensusApiKey={consensusApiKey}
+      />
+
+      <TemplateDialog
+        open={templateOpen}
+        onOpenChange={setTemplateOpen}
+        onApply={handleApplyTemplate}
       />
 
       <ProviderSettingsDialog
