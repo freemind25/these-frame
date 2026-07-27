@@ -313,6 +313,75 @@ async function searchDOAJ(query: string, limit: number): Promise<SearchResult[]>
   }
 }
 
+// ─── Europe PMC (33M+ publications, no key, JSON) ──────
+async function searchEuropePMC(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    const url = `https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(query)}&format=json&pageSize=${limit}&resultType=core&cursor=*`
+    const res = await fetchWithRetry(url, { headers: UA }, 1, 300)
+    if (!res.ok) return []
+    const data = await res.json()
+    const items = (data.resultList?.result as Record<string, unknown>[]) || []
+    return items.slice(0, limit).map(doc => {
+      // Authors
+      const authorList = (doc.authorList?.author as Record<string, string>[]) || []
+      const authors = authorList.map(a => a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim()).filter(Boolean).join(', ')
+      // OA URL
+      const ftUrls = (doc.fullTextUrlList?.fullTextUrl as Record<string, string>[]) || []
+      const oaUrl = ftUrls.find(u => u.documentStyle === 'full_text' || u.documentStyle === 'oa')
+      const euPmcUrl = `https://europepmc.org/article/${doc.pmcid || doc.pmid || doc.id}`
+      const doi = (doc.doi as string) || undefined
+      const r: SearchResult = {
+        title: (doc.title as string) || '',
+        authors,
+        year: String(doc.pubYear || ''),
+        abstract: (doc.abstractText as string) || undefined,
+        source: 'Europe PMC',
+        doi,
+        url: oaUrl?.url || (doi ? `https://doi.org/${doi}` : euPmcUrl),
+        citationCount: (doc.citationCount as number) || 0,
+        journal: (doc.journalInfo?.journal?.title as string) || undefined,
+        isPreprint: false,
+      }
+      cacheSearchResult(r)
+      return r
+    })
+  } catch {
+    return []
+  }
+}
+
+// ─── ERIC (1.5M+ education publications, no key, JSON) ────
+async function searchERIC(query: string, limit: number): Promise<SearchResult[]> {
+  try {
+    const url = `https://api.ies.ed.gov/eric/?search=${encodeURIComponent(query)}&rows=${limit}&format=json`
+    const res = await fetchWithRetry(url, { headers: UA }, 1, 300)
+    if (!res.ok) return []
+    const data = await res.json()
+    const docs = (data.response?.docs as Record<string, unknown>[]) || []
+    return docs.slice(0, limit).map(doc => {
+      const authors = ((doc.author as string[]) || []).join(', ')
+      const year = String(doc.publicationdateyear || '')
+      const doi = (doc.doi as string) || undefined
+      const issn = ((doc.issn as string[]) || [])[0]
+      const r: SearchResult = {
+        title: (doc.title as string) || '',
+        authors,
+        year,
+        abstract: (doc.description as string) || undefined,
+        source: 'ERIC',
+        doi,
+        url: doi ? `https://doi.org/${doi}` : (doc.url as string) || undefined,
+        journal: issn || undefined,
+        isPreprint: false,
+      }
+      cacheSearchResult(r)
+      return r
+    })
+  } catch {
+    return []
+  }
+}
+
 // ─── CORE (300M+ papers, API key required) ──────────────
 async function searchCORE(query: string, limit: number): Promise<SearchResult[]> {
   try {
@@ -434,6 +503,8 @@ export async function POST(request: NextRequest) {
     if (sources.includes('hal')) searches.push(searchHAL(query, safeLimit))
     if (sources.includes('doaj')) searches.push(searchDOAJ(query, safeLimit))
     if (sources.includes('core')) searches.push(searchCORE(query, safeLimit))
+    if (sources.includes('europe_pmc')) searches.push(searchEuropePMC(query, safeLimit))
+    if (sources.includes('eric')) searches.push(searchERIC(query, safeLimit))
 
     const rawResults: SearchResult[] = []
     const errors: string[] = []

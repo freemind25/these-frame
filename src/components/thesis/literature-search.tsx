@@ -5,7 +5,7 @@ import {
   Search, Loader2, ExternalLink, BookOpen, Quote, Copy, Check,
   GraduationCap, Globe, Database, FileText, Atom, Heart, Plus, CheckCheck, GitBranch,
   Link, Fingerprint, Building2, AlertCircle, Sparkles, Trash2, Brain, MessageCircleQuestion,
-  ThumbsUp, ThumbsDown, Minus, ArrowRight, KeyRound, Library,
+  ThumbsUp, ThumbsDown, Minus, ArrowRight, KeyRound, Library, Stethoscope, School,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +36,8 @@ const SOURCE_OPTIONS = [
   { id: 'pubmed', label: 'PubMed', icon: Heart, color: 'bg-rose-50 text-rose-700 border-rose-200', desc: '35M+ articles biomédicaux' },
   { id: 'doaj', label: 'DOAJ', icon: BookOpen, color: 'bg-orange-50 text-orange-700 border-orange-200', desc: '20K+ revues en accès libre' },
   { id: 'core', label: 'CORE', icon: Library, color: 'bg-cyan-50 text-cyan-700 border-cyan-200', desc: '300M+ papiers, full-text PDF' },
+  { id: 'europe_pmc', label: 'Europe PMC', icon: Stethoscope, color: 'bg-teal-50 text-teal-700 border-teal-200', desc: '33M+ publications biomédicales' },
+  { id: 'eric', label: 'ERIC', icon: School, color: 'bg-indigo-50 text-indigo-700 border-indigo-200', desc: '1.5M+ publications en éducation' },
 ]
 
 interface ConsensusPaper extends SearchResult {
