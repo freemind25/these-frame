@@ -561,3 +561,22 @@ Stage Summary:
 - Route API : POST /api/literature-search/consensus (query, apiKey, limit)
 - Clé API gérée via localStorage (tf_consensusApiKey)
 - Push réussi : dcac33c
+---
+Task ID: research-prompts
+Agent: main
+Task: Integrate 9 NotebookLM research prompts into ThesisFrame AI writing
+
+Work Log:
+- Analyzed uploaded res.1-11.md containing 9 NotebookLM research prompts
+- Created src/data/research-prompts.ts with 9 prompts adapted to French for ThesisFrame
+- Added new AI writing mode "Analyse approfondie" (lime color, ScanSearch icon)
+- Added missing icon imports (Scale, Shield, MessageCircle)
+- Added lime color mappings for mode colors/accent/bg
+- Lint: 0 errors
+- Committed and pushed to GitHub
+
+Stage Summary:
+- 9 research prompts integrated as a new AI writing mode
+- Prompts: Radiographie du champ, Où experts s opposent, Frise chronologique, Chasseur de lacunes, Rédiger la revue, Plan d action feedback, Blindage de candidature, Explication grand public
+- Live on Vercel after ~1min
+
