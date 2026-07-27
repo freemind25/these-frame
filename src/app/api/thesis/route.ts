@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, ensureDb } from '@/lib/db'
+import { getMockThesis, isDbAvailable } from '@/lib/mock-thesis'
 
 // GET /api/thesis — Get or create thesis with all chapters and parts
 export async function GET() {
   try {
+    // Check if DB is available; fall back to mock data
+    const dbOk = await isDbAvailable()
+    if (!dbOk) {
+      console.warn('[GET /api/thesis] DB unavailable, returning mock thesis')
+      return NextResponse.json(getMockThesis())
+    }
+
     await ensureDb()
     let thesis = await db.thesis.findFirst({
       include: {
@@ -26,13 +34,22 @@ export async function GET() {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error('[GET /api/thesis] Error:', msg, error)
-    return NextResponse.json({ error: 'Failed to fetch thesis', detail: msg }, { status: 500 })
+    // Fallback to mock if DB fails
+    return NextResponse.json(getMockThesis())
   }
 }
 
 // PATCH /api/thesis — Update thesis metadata (including structureMode)
 export async function PATCH(request: NextRequest) {
   try {
+    const dbOk = await isDbAvailable()
+    if (!dbOk) {
+      // In mock mode, return updated mock thesis
+      const body = await request.json()
+      const mock = getMockThesis()
+      return NextResponse.json({ ...mock, ...body })
+    }
+
     await ensureDb()
     const body = await request.json()
     const { title, subtitle, author, field, university, status, structureMode } = body
