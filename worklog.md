@@ -580,3 +580,23 @@ Stage Summary:
 - Prompts: Radiographie du champ, Où experts s opposent, Frise chronologique, Chasseur de lacunes, Rédiger la revue, Plan d action feedback, Blindage de candidature, Explication grand public
 - Live on Vercel after ~1min
 
+
+---
+Task ID: logo-restore
+Agent: Main
+Task: Restore ThesisFrame logo (book+quill+frame design) in application sidebar, favicon, and GitHub
+
+Work Log:
+- Analyzed uploaded logo image: ThesisFrame logo with book, quill, frame in gold/navy blue
+- Confirmed current logo.png was a different design (geometric bars)
+- Replaced public/logo.png with the correct uploaded logo
+- Replaced public/favicon.ico with the same logo
+- Updated sidebar-nav.tsx: replaced GraduationCap Lucide icon with <img src="/logo.png">
+- Updated layout.tsx: changed favicon from emoji SVG (🎓) to /favicon.ico, added apple icon /logo.png
+- Ran lint: no errors
+- Committed and pushed to GitHub
+
+Stage Summary:
+- Logo now displays in the sidebar brand area, browser tab (favicon), and is available on GitHub
+- Files changed: public/logo.png, public/favicon.ico, src/app/layout.tsx, src/components/thesis/workspace/sidebar-nav.tsx
+- Commit: "fix: restore ThesisFrame logo (book+quill+frame) in app sidebar & favicon"
