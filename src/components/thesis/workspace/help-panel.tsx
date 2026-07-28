@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import {
   Sparkles, ShieldCheck, Send, Loader2, ClipboardList, ListChecks, Lightbulb, Settings, FileText,
+  PenLine, AlertTriangle, ChevronDown, BookOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import ChapterBalance from '@/components/thesis/chapter-balance'
+import { writingSources } from '@/data/thesis-writing-guide'
 import type { ChapterData, ThesisData, ChatMsg } from '@/types/thesis'
 import type { ChapterStructure } from '@/data/chapters-structure'
 
@@ -50,8 +54,10 @@ export default function HelpPanel({
   aiMode, onAiModeChange, aiProvider, onOpenProviderSettings, aiMessages, aiLoading, aiInput, onAiInputChange, onAiSend,
   onDirectorSubmit, directorLoading, directorFeedback,
 }: HelpPanelProps) {
+  const [sourcesOpen, setSourcesOpen] = useState(false)
+
   return (
-    <aside className="w-80 border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-hidden">
+    <aside className="w-[340px] border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-hidden">
       <Tabs value={helpTab} onValueChange={onHelpTabChange} className="flex flex-col h-full">
         <TabsList className="mx-3 mt-3 bg-slate-100 rounded-lg p-0.5 h-auto grid grid-cols-3">
           <TabsTrigger value="guide" className="text-[10px] py-1.5 px-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm gap-0.5">
@@ -69,6 +75,11 @@ export default function HelpPanel({
         <TabsContent value="guide" className="flex-1 overflow-y-auto p-3 mt-2 space-y-4">
           {chapterMeta ? (
             <>
+              {/* Word Count Guide Badge */}
+              <Badge variant="outline" className="text-[10px] font-semibold border-amber-300 bg-amber-50 text-amber-800 w-full justify-center py-1">
+                📏 {chapterMeta.wordCountGuide}
+              </Badge>
+
               <div>
                 <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
                   <ListChecks className="h-3.5 w-3.5 text-emerald-600" />
@@ -95,6 +106,62 @@ export default function HelpPanel({
                   ))}
                 </ul>
               </div>
+
+              {/* Conseils de rédaction */}
+              <Separator />
+              <div>
+                <h3 className="text-xs font-bold text-amber-800 flex items-center gap-1.5 mb-1.5">
+                  <PenLine className="h-3.5 w-3.5 text-amber-500" />
+                  Conseils de rédaction
+                </h3>
+                <ul className="space-y-1.5">
+                  {chapterMeta.writingTips.map((tip, i) => (
+                    <li key={i} className="text-[11px] text-amber-900/80 bg-amber-50/70 border border-amber-100 rounded-md px-2.5 py-1.5 leading-relaxed">
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Erreurs fréquentes */}
+              <Separator />
+              <div>
+                <h3 className="text-xs font-bold text-rose-800 flex items-center gap-1.5 mb-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
+                  Erreurs fréquentes
+                </h3>
+                <ul className="space-y-1.5">
+                  {chapterMeta.commonMistakes.map((mistake, i) => (
+                    <li key={i} className="text-[11px] text-rose-900/80 bg-rose-50/70 border border-rose-100 rounded-md px-2.5 py-1.5 leading-relaxed">
+                      {mistake}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Sources */}
+              <Separator />
+              <Collapsible open={sourcesOpen} onOpenChange={setSourcesOpen}>
+                <CollapsibleTrigger className="w-full flex items-center justify-between group">
+                  <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <BookOpen className="h-3.5 w-3.5 text-slate-500" />
+                    Sources
+                  </h3>
+                  <ChevronDown className={cn(
+                    'h-3.5 w-3.5 text-slate-400 transition-transform duration-200',
+                    sourcesOpen && 'rotate-180',
+                  )} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 space-y-1.5">
+                  {writingSources.map((source) => (
+                    <div key={source.id} className="text-[10px] text-slate-600 bg-slate-50 border border-slate-100 rounded-md px-2.5 py-1.5">
+                      <p className="font-semibold text-slate-700">{source.author} ({source.year})</p>
+                      <p className="italic text-slate-500 mt-0.5">{source.title}</p>
+                      <p className="text-slate-400 mt-0.5">{source.publisher}</p>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
             </>
           ) : (
             <div className="text-center py-6 space-y-3">
