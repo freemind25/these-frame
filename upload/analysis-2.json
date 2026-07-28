@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "This is an **infographic titled \"15 Steps To Conduct Qualitative Research\"** with the subtitle \"A Simple Guide for Researchers.\" It's an educational visual guide produced by **Research Rover** (logo in top right corner).\n\n## Overall Layout & Design\n- **Color scheme**: White background with purple/dark blue accents\n- **Structure**: 3-column grid layout with 15 numbered steps\n- **Typography**: Large serif title, sans-serif body text\n- **Footer**: Dark purple banner with contact information\n\n## Header Section\n- **Main title**: \"15 Steps\" (large, bold, purple)\n- **Subtitle**: \"To Conduct Qualitative Research\" (bold black)\n- **Tagline**: \"A Simple Guide for Researchers\" (italicized)\n- **Branding**: \"Research Rover\" logo with circular icon (top right)\n\n## The 15 Steps (Grid Content)\n\nEach step follows a consistent format: **Purple circle with white number** → **Bold uppercase heading** → **Descriptive paragraph**\n\n**Row 1:**\n1. **DEFINE YOUR RESEARCH QUESTION** - Start with a clear, focused question exploring a phenomenon in depth.\n2. **REVIEW THE LITERATURE** - Explore existing studies to understand what's known and identify gaps.\n3. **CHOOSE AN APPROPRIATE RESEARCH DESIGN** - Select design fitting your question (case study, phenomenology, grounded theory).\n\n**Row 2:**\n4. **SELECT YOUR PARTICIPANTS** - Use purposive sampling to choose participants who can provide rich data.\n5. **GAIN ACCESS AND BUILD RAPPORT** - Establish trust, explain study clearly, build comfortable relationship.\n6. **COLLECT YOUR DATA** - Use interviews, observations, or focus groups. Be open and attentive.\n\n**Row 3:**\n7. **TAKE FIELD NOTES** - Record observations, thoughts, and non-verbal cues during/after collection.\n8. **MANAGE AND ORGANIZE YOUR DATA** - Transcribe interviews and organize systematically for analysis.\n9. **ANALYZE YOUR DATA** - Code data, identify patterns/themes, explore meanings.\n\n**Row 4:**\n10. **ENSURE TRUSTWORTHINESS** - Use credibility, transferability, dependability, confirmability for rigor.\n11. **INTERPRET YOUR FINDINGS** - Connect themes to research question and existing literature.\n12. **PRESENT YOUR FINDINGS** - Use rich quotes and clear narratives to present results meaningfully.\n\n**Row 5:**\n13. **REFLECT ON YOUR ROLE** - Acknowledge biases and how presence influenced research.\n14. **CONSIDER ETHICAL PRACTICES** - Protect rights, ensure confidentiality, obtain informed consent.\n15. **DRAW CONCLUSIONS AND SUGGEST IMPLICATIONS** - Summarize insights; suggest practice, policy, or future research areas.\n\n## Footer Banner (Dark Purple)\n- **Left**: \"Follow\" + \"**Anam Javed**\" (underlined/linked name)\n- **Center**: \"for more research writing tips\"\n- **Right**: \"whatsapp: 03177108264\"\n\n## UI/Design Elements\n- Numbered circular badges (1-15) with white text on purple background\n- Card-like containers with subtle borders around each step\n- Clean whitespace between elements\n- Professional academic aesthetic suitable for researchers/students\n\nThis appears to be a social media graphic or educational poster designed to be shared digitally, likely targeting graduate students, academics, or researchers learning qualitative methodology.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785229591,
+  "id": "202607281706002f0b123d62ef4500",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607281706002f0b123d62ef4500",
+  "usage": {
+    "completion_tokens": 729,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1969,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 2698
+  }
+}

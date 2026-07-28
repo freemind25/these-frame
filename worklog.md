@@ -58,3 +58,33 @@ Work Log:
 Stage Summary:
 - 8 recommendations compiled with priority tiers (see analysis below)
 - Top picks: Harper (grammar), MeiliSearch (search), SiYuan concepts (blocks/links), TipTap (editor upgrade)
+
+---
+Task ID: 4-a
+Agent: Data Agent
+Task: Add 15 thesis repositories to academic-databases.ts
+
+Work Log:
+- Added ThesisRepository interface with id, name, description, url, searchUrl, language, coverage, color
+- Added 15 international thesis repositories as thesisRepositories export
+- Repositories cover: OATD, OpenThesis, DART-Europe, ProQuest, MIT, NDLTD, Caltech, British Library, Harvard DASH, Theses Canada, RePEc, SSRN, Europe PMC, WorldCat, ETD Center
+
+Stage Summary:
+- 15 thesis repositories added to /src/data/academic-databases.ts
+- Each entry has searchUrl with {query} placeholder for search integration
+- Coverage spans Global, Europe, USA, UK, Canada
+
+---
+Task ID: 4-b
+Agent: Data Agent
+Task: Add 15 qualitative research steps to methodology-guide.ts
+
+Work Log:
+- Added qualitativeResearchSteps export with 15 steps
+- Used existing MethodoStep interface (id, title, description, details[])
+- Covers full qualitative research cycle: question → literature → design → participants → access → data collection → field notes → data management → analysis → trustworthiness → interpretation → presentation → reflexivity → ethics → conclusions
+
+Stage Summary:
+- 15 qualitative research steps added to /src/data/methodology-guide.ts
+- All steps adapted in French for the academic context
+- Ready for integration in methodology-tab.tsx

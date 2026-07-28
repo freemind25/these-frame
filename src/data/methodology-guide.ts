@@ -428,6 +428,178 @@ export const webResources: DocumentSource[] = [
   { id: 'cirs', name: 'CIRS', type: 'Centre de recherche', url: 'http://www.cirs.fr', description: 'Centre international de recherche scientifique.' },
 ]
 
+// ─── Les 15 étapes de la recherche qualitative ─────────────────
+export const qualitativeResearchSteps: MethodoStep[] = [
+  {
+    id: 'qr-question',
+    title: 'Définir la question de recherche',
+    description: 'Formuler une question claire et ciblée qui explore un phénomène en profondeur.',
+    details: [
+      'La question doit être ouverte et exploratoire',
+      'Éviter les questions qui se répondent par oui/non',
+      'Centrer sur l\'expérience vécue et les significations',
+      'Assurer la faisabilité dans le temps et les ressources disponibles',
+    ],
+  },
+  {
+    id: 'qr-litterature',
+    title: 'Revue de la littérature',
+    description: 'Explorer les études existantes pour comprendre ce qui est connu et identifier les lacunes.',
+    details: [
+      'Consulter les bases de données académiques (HAL, Persée, JSTOR…)',
+      'Identifier les théories pertinentes et les débats en cours',
+      'Repérer les lacunes (gaps) dans la littérature existante',
+      'Construire un cadre théorique solide pour guider l\'analyse',
+    ],
+  },
+  {
+    id: 'qr-design',
+    title: 'Choisir le design de recherche approprié',
+    description: "Sélectionner un design adapté à la question : étude de cas, phénoménologie, théorie enracinée, ethnographie…",
+    details: [
+      'Étude de cas : analyse approfondie d\'un cas spécifique',
+      'Phénoménologie : comprendre l\'expérience vécue',
+      'Théorie enracinée (Grounded Theory) : construire une théorie à partir des données',
+      'Ethnographie : immersion dans le contexte culturel',
+      'Recherche-action : intervenir pour transformer une situation',
+    ],
+  },
+  {
+    id: 'qr-participants',
+    title: 'Sélectionner les participants',
+    description: 'Utiliser un échantillonnage raisonné (purposive) pour choisir des participants capables de fournir des données riches.',
+    details: [
+      'Échantillonnage raisonné : sélectionner des informateurs clés',
+      'Échantillonnage en boule de neige : un participant en réfère un autre',
+      'Taille d\'échantillon déterminée par saturation théorique',
+      'Diversifier les profils pour enrichir la perspective',
+    ],
+  },
+  {
+    id: 'qr-acces',
+    title: "Obtenir l'accès et établir la confiance",
+    description: 'Établir une relation de confiance avec les participants, expliquer clairement l\'étude et créer un cadre confortable.',
+    details: [
+      'Obtenir les autorisations institutionnelles nécessaires',
+      'Présenter l\'étude de manière transparente et honnête',
+      'Garantir la confidentialité et l\'anonymat',
+      'Obtenir le consentement éclairé de chaque participant',
+    ],
+  },
+  {
+    id: 'qr-collecte',
+    title: 'Collecter les données',
+    description: "Utiliser des entretiens, des observations ou des focus groups. Être ouvert et attentif aux données émergentes.",
+    details: [
+      'Entretiens semi-directifs ou non directifs',
+      'Observation participante ou non participante',
+      'Focus groups pour recueillir des perspectives collectives',
+      'Journaux de terrain et notes de terrain',
+      'Enregistrement audio (avec autorisation) et retranscription',
+    ],
+  },
+  {
+    id: 'qr-notes',
+    title: 'Prendre des notes de terrain',
+    description: 'Enregistrer les observations, les pensées et les indices non verbaux pendant et après la collecte.',
+    details: [
+      'Noter les observations immédiatement après chaque session',
+      'Inclure le contexte, l\'ambiance, les comportements non verbaux',
+      'Séparer les observations des interprétations personnelles',
+      'Utiliser un carnet de terrain structuré',
+    ],
+  },
+  {
+    id: 'qr-organisation',
+    title: 'Gérer et organiser les données',
+    description: "Retranscrire les entretiens et organiser systématiquement les données pour faciliter l'analyse.",
+    details: [
+      'Retranscrire intégralement les entretiens',
+      'Utiliser un logiciel d\'analyse qualitative (NVivo, Atlas.ti, MAXQDA)',
+      'Créer un système de codage cohérent',
+      'Sauvegarder régulièrement les données brutes et traitées',
+    ],
+  },
+  {
+    id: 'qr-analyse',
+    title: 'Analyser les données',
+    description: 'Coder les données, identifier les thèmes et explorer les significations.',
+    details: [
+      'Codage ouvert : fragmenter les données en unités de sens',
+      'Codage axial : relier les catégories entre elles',
+      'Codage sélectif : intégrer les catégories autour d\'un thème central',
+      'Utiliser l\'analyse thématique ou l\'analyse de contenu',
+      'Vérifier la cohérence interne des interprétations',
+    ],
+  },
+  {
+    id: 'qr-fiabilite',
+    title: "Assurer la rigueur scientifique (trustworthiness)",
+    description: "Utiliser la crédibilité, la transférabilité, la dépendance et la confirmabilité pour garantir la rigueur.",
+    details: [
+      'Crédibilité : triangulation des sources et des méthodes',
+      'Transférabilité : descriptions épaisses pour permettre la généralisation',
+      'Dépendance : traçabilité des décisions analytiques',
+      'Confirmabilité : audit trail et vérification par des pairs',
+    ],
+  },
+  {
+    id: 'qr-interpretation',
+    title: 'Interpréter les résultats',
+    description: 'Relier les thèmes identifiés à la question de recherche et à la littérature existante.',
+    details: [
+      'Mettre en dialogue les résultats avec le cadre théorique',
+      'Expliquer les convergences et divergences avec la littérature',
+      'Identifier les résultats inattendus et les surprises analytiques',
+      'Formuler des interprétations nuancées et argumentées',
+    ],
+  },
+  {
+    id: 'qr-presentation',
+    title: 'Présenter les résultats',
+    description: "Utiliser des citations riches et des récits clairs pour présenter les résultats de manière significative.",
+    details: [
+      'Citer directement les participants pour donner de la voix aux données',
+      'Utiliser des tableaux thématiques pour organiser les résultats',
+      'Équilibrer la description et l\'interprétation',
+      'Illustrer avec des exemples concrets et des verbatim',
+    ],
+  },
+  {
+    id: 'qr-reflexivite',
+    title: 'Exercer la réflexivité',
+    description: "Reconnaître les biais du chercheur et comment sa présence a influencé la recherche.",
+    details: [
+      'Tenir un journal de recherche (research diary)',
+      'Identifier ses propres préconceptions et a priori',
+      'Documenter comment la relation avec les participants a évolué',
+      'Être transparent sur le positionnement épistémologique',
+    ],
+  },
+  {
+    id: 'qr-ethique',
+    title: 'Considérer les pratiques éthiques',
+    description: "Protéger les droits des participants, assurer la confidentialité et obtenir le consentement éclairé.",
+    details: [
+      'Obtenir l\'avis d\'un comité d\'éthique si nécessaire',
+      'Garantir l\'anonymat et la confidentialité des données',
+      'Respecter le droit de retrait à tout moment',
+      'Sécuriser le stockage des données sensibles',
+    ],
+  },
+  {
+    id: 'qr-conclusions',
+    title: 'Tirer des conclusions et suggérer des implications',
+    description: "Résumer les enseignements clés et suggérer des implications pour la pratique, les politiques ou les futures recherches.",
+    details: [
+      'Synthétiser les contributions théoriques de l\'étude',
+      'Formuler des recommandations pratiques et opérationnelles',
+      'Identifier les limites de l\'étude de manière honnête',
+      'Proposer des pistes pour de futures recherches',
+    ],
+  },
+]
+
 // ─── Structure de l'introduction ──────────────────────────────────
 export const introductionStructure = [
   { step: 'Amener le sujet (Y)', detail: 'Présenter le contexte général, amener progressivement le lecteur vers le sujet.' },
