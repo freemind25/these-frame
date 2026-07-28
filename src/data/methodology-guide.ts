@@ -765,6 +765,147 @@ export const problemStatementQuestions = [
 
 export const problemStatementSource = 'Faryadi, Q. (2018). PhD Thesis Writing Process: A Systematic Approach. Creative Education, 9, 2534-2545.'
 
+// ─── Évaluer un article de recherche (5 critères) ──────────────
+// Source : Askpstudyinaustralia — « How to Effectively Review a Research Paper »
+export interface PaperReviewCriterion {
+  id: string
+  number: number
+  title: string
+  titleEn: string
+  question: string
+  subQuestions: string[]
+  color: string
+}
+
+export const paperReviewCriteria: PaperReviewCriterion[] = [
+  {
+    id: 'importance',
+    number: 1,
+    title: 'Importance',
+    titleEn: 'Importance',
+    question: 'Pourquoi cette recherche compte-t-elle ?',
+    subQuestions: [
+      'Quel problème ou besoin cette recherche adresse-t-elle ?',
+      'Qui est le public cible ou le bénéficiaire ?',
+      'Comment cette recherche contribue-t-elle aux connaissances ou à la pratique dans le domaine ?',
+    ],
+    color: 'border-emerald-200 bg-emerald-50/50',
+  },
+  {
+    id: 'originality',
+    number: 2,
+    title: 'Originalité',
+    titleEn: 'Originality',
+    question: 'Qu\'est-ce qui rend cette recherche différente ?',
+    subQuestions: [
+      'En quoi diffère-t-elle des études existantes ?',
+      'La nouveauté ou la contribution unique est-elle clairement énoncée ?',
+      'La lacune de recherche est-elle bien définie et justifiée ?',
+    ],
+    color: 'border-amber-200 bg-amber-50/50',
+  },
+  {
+    id: 'methodological',
+    number: 3,
+    title: 'Rigueur méthodologique',
+    titleEn: 'Methodological Soundness',
+    question: 'La recherche est-elle rigoureuse et fiable ?',
+    subQuestions: [
+      'Le design de recherche est-il approprié pour les objectifs ?',
+      'Les méthodes et procédures sont-elles clairement expliquées et justifiées ?',
+      'Le processus de collecte et d\'analyse des données est-il valide et fiable ?',
+    ],
+    color: 'border-sky-200 bg-sky-50/50',
+  },
+  {
+    id: 'reproducibility',
+    number: 4,
+    title: 'Reproductibilité',
+    titleEn: 'Reproducibility',
+    question: 'Les résultats peuvent-ils être vérifiés ou répliqués ?',
+    subQuestions: [
+      'Y a-t-il suffisamment d\'informations pour que d\'autres puissent répliquer l\'étude ?',
+      'Les données, méthodes et résultats sont-ils présentés de manière transparente ?',
+      'Les limites de l\'étude sont-elles reconnues ?',
+    ],
+    color: 'border-violet-200 bg-violet-50/50',
+  },
+  {
+    id: 'clarity',
+    number: 5,
+    title: 'Clarté et qualité de la présentation',
+    titleEn: 'Clarity & Quality of Presentation',
+    question: 'L\'article est-il bien rédigé et facile à suivre ?',
+    subQuestions: [
+      'L\'article est-il bien organisé et logiquement structuré ?',
+      'Les figures, tableaux et références sont-ils exacts et pertinents ?',
+      'La rédaction est-elle claire, concise et exempte d\'erreurs grammaticales ?',
+    ],
+    color: 'border-rose-200 bg-rose-50/50',
+  },
+]
+
+export const paperReviewSource = 'Askpstudyinaustralia — « How to Effectively Review a Research Paper ». #1GradSchoolResourceHub'
+
+// ─── Les 4 éléments essentiels d\'une problématique ─────────────
+// Source : Askpstudyinaustralia — « How to Write a Research Problem Statement »
+export interface ProblemStatementElement {
+  id: string
+  number: number
+  title: string
+  titleEn: string
+  description: string
+  keyQuestion: string
+  color: string
+}
+
+export const problemStatementElements: ProblemStatementElement[] = [
+  {
+    id: 'context',
+    number: 1,
+    title: 'Contexte',
+    titleEn: 'Context',
+    description: 'Fournir le contexte et les informations de base pour aider les lecteurs à comprendre la situation générale.',
+    keyQuestion: 'Que savons-nous déjà ?',
+    color: 'border-emerald-200 bg-emerald-50/50',
+  },
+  {
+    id: 'issue',
+    number: 2,
+    title: 'Problème',
+    titleEn: 'Issue',
+    description: 'Décrire clairement le problème ou l\'enjeu spécifique que votre recherche entend adresser.',
+    keyQuestion: 'Que devons-nous encore savoir ?',
+    color: 'border-amber-200 bg-amber-50/50',
+  },
+  {
+    id: 'significance',
+    number: 3,
+    title: 'Signification',
+    titleEn: 'Significance',
+    description: 'Expliquer pourquoi ce problème compte et pourquoi une investigation supplémentaire est nécessaire.',
+    keyQuestion: 'Pourquoi devons-nous en savoir plus ?',
+    color: 'border-sky-200 bg-sky-50/50',
+  },
+  {
+    id: 'objectives',
+    number: 4,
+    title: 'Objectifs',
+    titleEn: 'Objectives',
+    description: 'Énoncer le but de votre recherche et ce que vous espérez accomplir ou découvrir.',
+    keyQuestion: 'Que ferez-vous pour en savoir plus ?',
+    color: 'border-violet-200 bg-violet-50/50',
+  },
+]
+
+export const problemStatementCharacteristics = [
+  { name: 'Spécifique', nameEn: 'Specific', description: 'Se concentrer sur un problème clair. Éviter d\'être trop vaste ou vague.' },
+  { name: 'Concis', nameEn: 'Concise', description: 'Utiliser un langage clair et direct. Chaque mot doit apporter de la valeur.' },
+  { name: 'Mesurable', nameEn: 'Measurable', description: 'S\'assurer que le problème peut être étudié et que les résultats peuvent être évalués.' },
+]
+
+export const problemStatementElementsSource = 'Askpstudyinaustralia — « How to Write a Research Problem Statement ». #1GradSchoolResourceHub'
+
 export const introductionWritingTips = [
   'Énoncez le problème ou le phénomène à étudier.',
   'Identifiez la partie affectée par le problème.',

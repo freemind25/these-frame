@@ -32,6 +32,8 @@ import {
   RotateCcw,
   Send,
   ImagePlus,
+  Eye,
+  Target,
   type LucideIcon,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -62,6 +64,11 @@ import {
   abstractStructure,
   abstractSource,
   litReviewTypes,
+  paperReviewCriteria,
+  paperReviewSource,
+  problemStatementElements,
+  problemStatementCharacteristics,
+  problemStatementElementsSource,
 } from '@/data/methodology-guide'
 
 // ─── Icon map ─────────────────────────────────────────────────────
@@ -819,6 +826,110 @@ export default function ArticlesGuideTab() {
                   </div>
                   <p className="text-[10px] text-muted-foreground italic">
                     Source : @DRFRED_PHD — Scholarships | Resources | Success
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* R-3 : Évaluer un article de recherche */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-emerald-600" />
+                    <CardTitle className="text-sm">Évaluer un article de recherche</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    5 critères essentiels pour évaluer la qualité, la rigueur et l'impact de tout article scientifique
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    {paperReviewCriteria.map((c) => (
+                      <div key={c.id} className={cn('rounded-lg border p-3', c.color)}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-bold text-amber-600">{String(c.number).padStart(2, '0')}</span>
+                          <span className="text-xs font-bold">{c.title}</span>
+                        </div>
+                        <p className="text-[10px] font-medium text-amber-700 mb-1.5">{c.question}</p>
+                        <ul className="space-y-0.5">
+                          {c.subQuestions.map((sq, i) => (
+                            <li key={i} className="text-[10px] text-slate-600 flex gap-1">
+                              <span className="text-emerald-500 mt-0.5">•</span>{sq}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border overflow-hidden bg-white">
+                    <Image src="/resources/R-3.jpg" alt="5 critères pour évaluer un article de recherche" width={800} height={1200} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    {paperReviewSource}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* R-4 : Rédiger une problématique de recherche */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-emerald-600" />
+                    <CardTitle className="text-sm">Rédiger une problématique de recherche</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    Les 4 éléments essentiels et 3 caractéristiques d'une problématique forte et efficace
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {problemStatementElements.map((el) => (
+                      <div key={el.id} className={cn('rounded-lg border p-2', el.color)}>
+                        <span className="text-xs font-bold text-amber-600">{String(el.number).padStart(2, '0')}</span>
+                        <p className="text-[11px] font-semibold mt-0.5">{el.title}</p>
+                        <p className="text-[9px] text-amber-700 font-medium mt-0.5">{el.keyQuestion}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border p-3 bg-slate-50">
+                    <p className="text-[10px] font-bold text-slate-700 mb-2">Caractéristiques d'une problématique forte :</p>
+                    <div className="space-y-1.5">
+                      {problemStatementCharacteristics.map((ch) => (
+                        <div key={ch.name} className="flex items-start gap-2">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" />
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-800">{ch.name}</span>
+                            <span className="text-[10px] text-slate-500"> — {ch.description}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border overflow-hidden bg-white">
+                    <Image src="/resources/R-4.jpg" alt="4 éléments d'une problématique de recherche" width={800} height={1200} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    {problemStatementElementsSource}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* R-5 : 10 types de lacunes de recherche */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <FlaskConical className="h-4 w-4 text-emerald-600" />
+                    <CardTitle className="text-sm">10 types de lacunes de recherche</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    Cartographie complète des Research Gaps avec stratégies pour combler chaque lacune
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="rounded-lg border overflow-hidden bg-white">
+                    <Image src="/resources/R-5.jpg" alt="10 types de lacunes de recherche" width={800} height={1200} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Source : Miles, D. A. (2017). A taxonomy of research gaps. Doctoral student workshop, Dallas, Texas. Mindmap par Lennart Nacke.
                   </p>
                 </CardContent>
               </Card>
