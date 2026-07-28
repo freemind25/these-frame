@@ -32,7 +32,6 @@ export default function ExcalidrawTab() {
     }
     return null
   })
-  const [zoomLevel, setZoomLevel] = useState(100)
 
   const handleExportPNG = useCallback(async () => {
     if (!excalidrawAPI) return
@@ -85,9 +84,8 @@ export default function ExcalidrawTab() {
     excalidrawAPI?.zoomOut()
   }, [excalidrawAPI])
 
-  const updateScene = useCallback((sceneData: any) => {
-    setData(sceneData)
-    // Debounced save
+  const updateScene = useCallback((_sceneData: any) => {
+    // Debounced save to localStorage
     clearTimeout((window as any)._excalidrawSaveTimer)
     ;(window as any)._excalidrawSaveTimer = setTimeout(() => {
       const exportData = excalidrawAPI?.getSceneElements()

@@ -15,8 +15,9 @@ import { useCallback, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 import {
-  Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Quote,
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code as CodeIcon, Quote,
   Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Highlighter, Link as LinkIcon, Undo2, Redo2, Minus, Type,
 } from 'lucide-react'
@@ -26,6 +27,20 @@ interface TiptapEditorProps {
   onChange: (content: string) => void
   chapterNumber: string
   chapterTitle: string
+}
+
+function ToolbarBtn({ active, onClick, title, children }: { active: boolean; onClick: () => void; title: string; children: React.ReactNode }) {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={cn('h-7 w-7', active && 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 hover:text-emerald-700')}
+      onClick={onClick}
+      title={title}
+    >
+      {children}
+    </Button>
+  )
 }
 
 export default function TiptapEditor({ content, onChange, chapterNumber, chapterTitle }: TiptapEditorProps) {
@@ -59,7 +74,6 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
     immediatelyRender: false,
   })
 
-  // Sync external content changes
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       isSettingContent.current = true
@@ -71,9 +85,7 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
   const addLink = useCallback(() => {
     if (!editor) return
     const url = window.prompt('URL du lien :')
-    if (url) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
-    }
+    if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
   }, [editor])
 
   const characters = editor?.storage.characterCount?.characters() || 0
@@ -89,7 +101,6 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-white">
-      {/* Toolbar */}
       <div className="shrink-0 border-b bg-white px-2 py-1 flex items-center gap-0.5 flex-wrap overflow-x-auto">
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Annuler">
           <Undo2 className="h-3.5 w-3.5" />
@@ -97,10 +108,8 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Retablir">
           <Redo2 className="h-3.5 w-3.5" />
         </Button>
-
         <Separator orientation="vertical" className="h-5 mx-1" />
 
-        {/* Text type */}
         <ToggleGroup type="single" value={
           editor.isActive('heading', { level: 1 }) ? 'h1' :
           editor.isActive('heading', { level: 2 }) ? 'h2' :
@@ -116,72 +125,39 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
           <ToggleGroupItem value="h2" className="h-7 w-7 p-0" title="Titre 2"><Heading2 className="h-3.5 w-3.5" /></ToggleGroupItem>
           <ToggleGroupItem value="h3" className="h-7 w-7 p-0" title="Titre 3"><Heading3 className="h-3.5 w-3.5" /></ToggleGroupItem>
         </ToggleGroup>
-
         <Separator orientation="vertical" className="h-5 mx-1" />
 
-        <ToggleGroup type="multiple">
-          <ToggleGroupItem value="bold" className="h-7 w-7 p-0" title="Gras" pressed={editor.isActive('bold')}
-            onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="italic" className="h-7 w-7 p-0" title="Italique" pressed={editor.isActive('italic')}
-            onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="underline" className="h-7 w-7 p-0" title="Souligner" pressed={editor.isActive('underline')}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="strike" className="h-7 w-7 p-0" title="Barre" pressed={editor.isActive('strike')}
-            onClick={() => editor.chain().focus().toggleStrike().run()}><Strikethrough className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="code" className="h-7 w-7 p-0" title="Code" pressed={editor.isActive('code')}
-            onClick={() => editor.chain().focus().toggleCode().run()}><Code className="h-3.5 w-3.5" /></ToggleGroupItem>
-        </ToggleGroup>
-
+        <ToolbarBtn active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Gras"><Bold className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italique"><Italic className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Souligner"><UnderlineIcon className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()} title="Barre"><Strikethrough className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()} title="Code"><CodeIcon className="h-3.5 w-3.5" /></ToolbarBtn>
         <Separator orientation="vertical" className="h-5 mx-1" />
 
-        <ToggleGroup type="single">
-          <ToggleGroupItem value="left" className="h-7 w-7 p-0" title="Aligner a gauche" pressed={editor.isActive({ textAlign: 'left' })}
-            onClick={() => editor.chain().focus().setTextAlign('left').run()}><AlignLeft className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="center" className="h-7 w-7 p-0" title="Centrer" pressed={editor.isActive({ textAlign: 'center' })}
-            onClick={() => editor.chain().focus().setTextAlign('center').run()}><AlignCenter className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="right" className="h-7 w-7 p-0" title="Aligner a droite" pressed={editor.isActive({ textAlign: 'right' })}
-            onClick={() => editor.chain().focus().setTextAlign('right').run()}><AlignRight className="h-3.5 w-3.5" /></ToggleGroupItem>
-          <ToggleGroupItem value="justify" className="h-7 w-7 p-0" title="Justifier" pressed={editor.isActive({ textAlign: 'justify' })}
-            onClick={() => editor.chain().focus().setTextAlign('justify').run()}><AlignJustify className="h-3.5 w-3.5" /></ToggleGroupItem>
-        </ToggleGroup>
-
+        <ToolbarBtn active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Aligner a gauche"><AlignLeft className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Centrer"><AlignCenter className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Aligner a droite"><AlignRight className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive({ textAlign: 'justify' })} onClick={() => editor.chain().focus().setTextAlign('justify').run()} title="Justifier"><AlignJustify className="h-3.5 w-3.5" /></ToolbarBtn>
         <Separator orientation="vertical" className="h-5 mx-1" />
 
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().toggleBulletList().run()} pressed={editor.isActive('bulletList')} title="Liste a puces">
-          <List className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().toggleOrderedList().run()} pressed={editor.isActive('orderedList')} title="Liste numerotee">
-          <ListOrdered className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().toggleBlockquote().run()} pressed={editor.isActive('blockquote')} title="Citation">
-          <Quote className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().toggleCodeBlock().run()} pressed={editor.isActive('codeBlock')} title="Bloc de code">
-          <Code className="h-3.5 w-3.5" />
-        </Button>
+        <ToolbarBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Liste a puces"><List className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Liste numerotee"><ListOrdered className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Citation"><Quote className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()} title="Bloc de code"><CodeIcon className="h-3.5 w-3.5" /></ToolbarBtn>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Ligne horizontale">
           <Minus className="h-3.5 w-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={addLink} pressed={editor.isActive('link')} title="Lien">
-          <LinkIcon className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} pressed={editor.isActive('highlight')} title="Surligner">
-          <Highlighter className="h-3.5 w-3.5" />
-        </Button>
+        <ToolbarBtn active={editor.isActive('link')} onClick={addLink} title="Lien"><LinkIcon className="h-3.5 w-3.5" /></ToolbarBtn>
+        <ToolbarBtn active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Surligner"><Highlighter className="h-3.5 w-3.5" /></ToolbarBtn>
 
         <div className="flex-1" />
-
-        <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">
-          {words} mots
-        </span>
+        <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">{words} mots</span>
       </div>
 
-      {/* Editor area */}
       <div className="flex-1 overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
 
-      {/* Status bar */}
       <div className="shrink-0 border-t bg-slate-50 px-4 py-1 flex items-center justify-between text-[10px] text-slate-400">
         <div className="flex items-center gap-3">
           <span>{characters} caracteres</span>

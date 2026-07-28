@@ -31,7 +31,7 @@ export default function ThesisSearch({ thesis, onSelectChapter }: ThesisSearchPr
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   // Index thesis content
   const indexContent = useCallback(async () => {
