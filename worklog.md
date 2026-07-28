@@ -88,3 +88,45 @@ Stage Summary:
 - 15 qualitative research steps added to /src/data/methodology-guide.ts
 - All steps adapted in French for the academic context
 - Ready for integration in methodology-tab.tsx
+
+---
+Task ID: 4-c
+Agent: UI Agent
+Task: Integrate thesis repos + qualitative steps into methodology-tab.tsx
+
+Work Log:
+- Added imports: thesisRepositories, qualitativeResearchSteps, GraduationCap, Globe, MapPin, Languages, MessageSquare
+- Changed TabsList from 6 to 8 columns (responsive: grid-cols-4 sm:grid-cols-8)
+- Added 2 new tab triggers: Qualitative, Thèses
+- Added Qualitative Research Steps tab with 15-step timeline (amber theme)
+- Added Thesis Repositories tab with 15 repositories (coverage/language badges, links)
+- Verified: TypeScript compiles clean (0 errors in src/), ESLint clean
+
+Stage Summary:
+- methodology-tab.tsx now has 8 tabs total
+- Tab order: Démarche, Problématique, Opérat., Outils, Variables, Doc., Qualitative, Thèses
+- Qualitative tab shows 15 steps with amber timeline design
+- Thèses tab shows 15 repositories with coverage/language info and direct links
+
+---
+Task ID: 4-d
+Agent: Main Agent
+Task: Integrate FreeLLMAPI as AI provider + openalternative.co analysis
+
+Work Log:
+- Analyzed openalternative.co via web search + page_reader (Cloudflare blocked agent-browser)
+- Explored 6+ categories: Grammarly, Word, Confluence, Notion AI, Google Docs, search engines, AI platforms
+- Read detailed pages for: TipTap, AFFiNE, Harper, MeiliSearch, SiYuan, Dify
+- Identified 8 recommendations: Harper (grammar), MeiliSearch (search), TipTap (editor), SiYuan (blocks), Excalidraw (diagrams), LanguageTool (multilingual), AFFiNE (inspiration), Dify (AI workflow)
+- Analyzed https://github.com/tashfeenahmed/freellmapi (17.2K stars, 28 free LLM providers, 4B tokens/month)
+- Added FreeLLMAPI as dedicated provider option in provider-settings-dialog.tsx
+- FreeLLMAPI configured with default baseUrl http://localhost:3456/v1 and model "fusion"
+- Added informational banner explaining FreeLLMAPI features and install command
+- Removed unused `cn` import from provider-settings-dialog.tsx
+- Verified: tsc --noEmit clean, eslint clean
+
+Stage Summary:
+- FreeLLMAPI integrated as 8th AI provider option in settings dialog
+- All existing AI routes (ai-writing, directeur, humanizer, notebook) work with FreeLLMAPI via existing OpenAI-compatible adapter
+- The "fusion" model uses multi-model synthesis (similar to ThesisFrame's consensus engine)
+- openalternative.co analysis saved for future v0.4.0/v0.5.0 planning

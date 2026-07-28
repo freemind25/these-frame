@@ -16,6 +16,11 @@ import {
   Database,
   Search,
   ExternalLink,
+  GraduationCap,
+  Globe,
+  MapPin,
+  Languages,
+  MessageSquare,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -50,7 +55,9 @@ import {
   introductionWritingTips,
   introductionWritingAdvice,
   operationalisationBaripedia,
+  qualitativeResearchSteps,
 } from '@/data/methodology-guide'
+import { thesisRepositories } from '@/data/academic-databases'
 
 // ─── MethodologyTab ──────────────────────────────────────────────
 export default function MethodologyTab() {
@@ -75,13 +82,15 @@ export default function MethodologyTab() {
       </Card>
 
       <Tabs defaultValue="demarche" className="w-full">
-        <TabsList className="w-full grid grid-cols-6">
+        <TabsList className="w-full grid grid-cols-4 sm:grid-cols-8">
           <TabsTrigger value="demarche" className="text-xs sm:text-sm">Démarche</TabsTrigger>
           <TabsTrigger value="problematique" className="text-xs sm:text-sm">Problématique</TabsTrigger>
           <TabsTrigger value="operation" className="text-xs sm:text-sm">Opérat.</TabsTrigger>
           <TabsTrigger value="outils" className="text-xs sm:text-sm">Outils</TabsTrigger>
           <TabsTrigger value="variables" className="text-xs sm:text-sm">Variables</TabsTrigger>
           <TabsTrigger value="documentation" className="text-xs sm:text-sm">Doc.</TabsTrigger>
+          <TabsTrigger value="qualitative" className="text-xs sm:text-sm">Qualitative</TabsTrigger>
+          <TabsTrigger value="theses" className="text-xs sm:text-sm">Thèses</TabsTrigger>
         </TabsList>
 
         {/* ── Démarche ── */}
@@ -768,6 +777,105 @@ export default function MethodologyTab() {
               </div>
             </div>
           </ScrollArea>
+        </TabsContent>
+
+        {/* ── Recherche qualitative ── */}
+        <TabsContent value="qualitative" className="mt-4">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-amber-600" />
+                  Les 15 étapes de la recherche qualitative
+                </CardTitle>
+                <CardDescription>Guide complet pour mener une recherche qualitative rigoureuse, de la question de recherche aux conclusions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="relative">
+                  <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-amber-200" />
+                  <div className="space-y-4">
+                    {qualitativeResearchSteps.map((step, i) => (
+                      <div key={step.id} className="flex gap-4 relative">
+                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 text-amber-700 shrink-0 z-10 text-sm font-bold">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 pb-2">
+                          <h4 className="text-sm font-semibold">{step.title}</h4>
+                          <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
+                          <ul className="mt-2 space-y-1">
+                            {step.details.map((d, j) => (
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                                <CheckCircle2 className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+                                <span>{d}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* ── Référentiels de thèses ── */}
+        <TabsContent value="theses" className="mt-4">
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-violet-600" />
+                  15 sites gratuits pour télécharger des thèses
+                </CardTitle>
+                <CardDescription>Répertoires mondiaux de thèses et mémoires en accès ouvert</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {thesisRepositories.map((repo, i) => (
+                    <div key={repo.id} className="rounded-lg border p-3 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <div className="flex items-center justify-center h-8 w-8 rounded-full text-white text-xs font-bold shrink-0" style={{ backgroundColor: repo.color }}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-medium">{repo.name}</p>
+                            <Badge variant="outline" className="text-[10px] gap-1">
+                              <MapPin className="h-2.5 w-2.5" />{repo.coverage}
+                            </Badge>
+                            <Badge variant="outline" className="text-[10px] gap-1">
+                              <Languages className="h-2.5 w-2.5" />{repo.language}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{repo.description}</p>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <a
+                              href={repo.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-sky-600 hover:underline flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3" /> Accéder
+                            </a>
+                            <a
+                              href={repo.searchUrl.replace('{query}', '')}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-violet-600 hover:underline flex items-center gap-1"
+                            >
+                              <Search className="h-3 w-3" /> Page de recherche
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* ── Documentation ── */}

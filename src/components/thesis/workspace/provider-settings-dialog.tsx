@@ -1,7 +1,6 @@
 'use client'
 
-import { GraduationCap, Settings, Trash2, Check, Brain } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { GraduationCap, Settings, Trash2, Check, Brain, Zap, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -51,6 +50,7 @@ export default function ProviderSettingsDialog({
               else if (v === 'anthropic') { setAiBaseUrl('https://api.anthropic.com/v1'); setAiModel('claude-sonnet-4-20250514') }
               else if (v === 'groq') { setAiBaseUrl('https://api.groq.com/openai/v1'); setAiModel('llama-3.3-70b-versatile') }
               else if (v === 'ollama') { setAiBaseUrl('http://localhost:11434/v1'); setAiModel('llama3') }
+              else if (v === 'freellmapi') { setAiBaseUrl('http://localhost:3456/v1'); setAiModel('fusion') }
               else if (v === 'custom') { setAiBaseUrl(''); setAiModel('') }
             }}>
               <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
@@ -61,6 +61,7 @@ export default function ProviderSettingsDialog({
                 <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
                 <SelectItem value="groq">Groq</SelectItem>
                 <SelectItem value="ollama">Ollama (local)</SelectItem>
+                <SelectItem value="freellmapi">FreeLLMAPI (28 fournisseurs gratuits)</SelectItem>
                 <SelectItem value="custom">Personnalisé (OpenAI-compat.)</SelectItem>
               </SelectContent>
             </Select>
@@ -108,6 +109,26 @@ export default function ProviderSettingsDialog({
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
               <p className="text-xs text-emerald-800">
                 Le fournisseur <strong>Z.ai</strong> est utilisé par défaut. Aucune configuration supplémentaire n'est nécessaire.
+              </p>
+            </div>
+          )}
+
+          {aiProvider === 'freellmapi' && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 space-y-2">
+              <p className="text-xs text-amber-800">
+                <Zap className="h-3 w-3 inline-block mr-1" />
+                <strong>FreeLLMAPI</strong> agrège 28 fournisseurs LLM gratuits (~4 milliards de tokens/mois) derrière un seul endpoint OpenAI-compatible.
+              </p>
+              <p className="text-[10px] text-amber-700 leading-snug">
+                Par défaut, le modèle <code className="bg-amber-100 px-1 rounded">fusion</code> envoie votre prompt à plusieurs modèles en parallèle et synthétise une réponse.
+                Vous pouvez aussi choisir un modèle spécifique (ex: <code className="bg-amber-100 px-1 rounded">gpt-4o-mini</code>, <code className="bg-amber-100 px-1 rounded">claude-haiku</code>, <code className="bg-amber-100 px-1 rounded">llama-4-maverick</code>).
+              </p>
+              <p className="text-[10px] text-amber-700">
+                Installation : <code className="bg-amber-100 px-1 rounded">curl -fsSL https://freellmapi.co/install.sh | bash</code>{' '}
+                ou voir{' '}
+                <a href="https://github.com/tashfeenahmed/freellmapi" target="_blank" rel="noopener" className="underline font-medium flex items-center gap-0.5 inline-flex">
+                  GitHub <ExternalLink className="h-2.5 w-2.5" />
+                </a>
               </p>
             </div>
           )}
