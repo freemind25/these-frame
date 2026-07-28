@@ -10,7 +10,7 @@ import type { ThesisData, ChatMsg } from '@/types/thesis'
 
 import SidebarNav from '@/components/thesis/workspace/sidebar-nav'
 import ChapterHeader from '@/components/thesis/workspace/chapter-header'
-import ChapterEditor from '@/components/thesis/workspace/chapter-editor'
+import TiptapEditor from '@/components/thesis/tiptap-editor'
 import HelpPanel from '@/components/thesis/workspace/help-panel'
 import ProviderSettingsDialog from '@/components/thesis/workspace/provider-settings-dialog'
 import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
@@ -68,6 +68,11 @@ export default function Home() {
   const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
   const [journalFinderOpen, setJournalFinderOpen] = useState(false)
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [excalidrawOpen, setExcalidrawOpen] = useState(false)
+  const [grammarOpen, setGrammarOpen] = useState(false)
+  const [harperOpen, setHarperOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
   const desktopBadge = desktopMode ? (
@@ -590,6 +595,12 @@ export default function Home() {
           onOpenBalance={() => setBalanceOpen(true)}
           onOpenCloudDrive={() => setCloudDriveOpen(true)}
           onOpenJournalFinder={() => setJournalFinderOpen(true)}
+          onOpenExcalidraw={() => setExcalidrawOpen(true)}
+          onOpenGrammar={() => setGrammarOpen(true)}
+          onOpenHarper={() => setHarperOpen(true)}
+          onOpenSearch={() => setSearchOpen(true)}
+          onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
+          editorMode={editorMode}
           onAddChapter={handleAddChapter}
           onDeleteChapter={handleDeleteChapter}
           onReorderChapter={handleReorderChapter}
@@ -618,12 +629,22 @@ export default function Home() {
 
           {/* Editor + Help panel */}
           <div className="flex flex-1 min-h-0">
-            <ChapterEditor
-              content={activeChapter?.content || ''}
-              onChange={handleContentChange}
-              chapterNumber={chapterMeta?.number || activeChapter?.number || ''}
-              chapterTitle={chapterMeta?.title || activeChapter?.title || ''}
-            />
+            {editorMode === 'rich' ? (
+              <TiptapEditor
+                content={activeChapter?.content || ''}
+                onChange={handleContentChange}
+                chapterNumber={chapterMeta?.number || activeChapter?.number || ''}
+                chapterTitle={chapterMeta?.title || activeChapter?.title || ''}
+              />
+            ) : (
+              <textarea
+                value={activeChapter?.content || ''}
+                onChange={(e) => handleContentChange(e.target.value)}
+                className="flex-1 resize-none border-0 focus:outline-none p-6 sm:p-10 text-[15px] leading-[1.8] font-serif text-slate-800 bg-white placeholder:text-slate-300"
+                placeholder={`Commencez la redaction du Chapitre ${chapterMeta?.number || 'I'}. ${chapterMeta?.title || ''}...`}
+                spellCheck
+              />
+            )}
 
             {helpOpen && !isMobile && (
               <HelpPanel
@@ -673,6 +694,19 @@ export default function Home() {
         setLiteratureOpen={setLiteratureOpen}
         journalFinderOpen={journalFinderOpen}
         setJournalFinderOpen={setJournalFinderOpen}
+        excalidrawOpen={excalidrawOpen}
+        setExcalidrawOpen={setExcalidrawOpen}
+        grammarOpen={grammarOpen}
+        setGrammarOpen={setGrammarOpen}
+        harperOpen={harperOpen}
+        setHarperOpen={setHarperOpen}
+        searchOpen={searchOpen}
+        setSearchOpen={setSearchOpen}
+        activeChapter={activeChapter}
+        onContentChange={handleContentChange}
+        onSelectChapter={setActiveChapterId}
+        editorMode={editorMode}
+        onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
         s2ApiKey={s2ApiKey}
         consensusApiKey={consensusApiKey}
       />

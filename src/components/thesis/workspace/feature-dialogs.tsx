@@ -1,6 +1,6 @@
 'use client'
 
-import { Library, Download, BookOpen, Cloud, Scale, Search, Newspaper } from 'lucide-react'
+import { Library, Download, BookOpen, Cloud, Scale, Search, Newspaper, PenLine, SpellCheck, ShieldCheck, PenTool } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import ReferencesTab from '@/components/thesis/references-tab'
 import ExportPdfContent from '@/components/thesis/export-pdf-tab'
@@ -9,7 +9,11 @@ import LiteratureSearch from '@/components/thesis/literature-search'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import CloudDriveBackup from '@/components/thesis/cloud-drive-backup'
 import JournalFinder from '@/components/thesis/journal-finder'
-import type { ThesisData } from '@/types/thesis'
+import ExcalidrawTab from '@/components/thesis/excalidraw-tab'
+import GrammarChecker from '@/components/thesis/grammar-checker'
+import HarperChecker from '@/components/thesis/harper-checker'
+import ThesisSearch from '@/components/thesis/thesis-search'
+import type { ThesisData, ChapterData } from '@/types/thesis'
 
 interface FeatureDialogsProps {
   thesis: ThesisData | null
@@ -27,6 +31,19 @@ interface FeatureDialogsProps {
   setLiteratureOpen: (v: boolean) => void
   journalFinderOpen: boolean
   setJournalFinderOpen: (v: boolean) => void
+  excalidrawOpen: boolean
+  setExcalidrawOpen: (v: boolean) => void
+  grammarOpen: boolean
+  setGrammarOpen: (v: boolean) => void
+  harperOpen: boolean
+  setHarperOpen: (v: boolean) => void
+  searchOpen: boolean
+  setSearchOpen: (v: boolean) => void
+  activeChapter: ChapterData | undefined
+  onContentChange: (content: string) => void
+  onSelectChapter: (id: string) => void
+  editorMode: 'rich' | 'plain'
+  onToggleEditorMode: () => void
   s2ApiKey: string
   consensusApiKey: string
 }
@@ -34,14 +51,20 @@ interface FeatureDialogsProps {
 export default function FeatureDialogs({
   thesis, refsOpen, setRefsOpen, exportOpen, setExportOpen, resourcesOpen, setResourcesOpen,
   cloudDriveOpen, setCloudDriveOpen, balanceOpen, setBalanceOpen, literatureOpen, setLiteratureOpen,
-  journalFinderOpen, setJournalFinderOpen, s2ApiKey, consensusApiKey,
+  journalFinderOpen, setJournalFinderOpen,
+  excalidrawOpen, setExcalidrawOpen,
+  grammarOpen, setGrammarOpen,
+  harperOpen, setHarperOpen,
+  searchOpen, setSearchOpen,
+  activeChapter, onContentChange, onSelectChapter, editorMode, onToggleEditorMode,
+  s2ApiKey, consensusApiKey,
 }: FeatureDialogsProps) {
   return (
     <>
       <Dialog open={refsOpen} onOpenChange={setRefsOpen}>
         <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><Library className="h-4 w-4 text-emerald-600" />Références bibliographiques</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-base"><Library className="h-4 w-4 text-emerald-600" />References bibliographiques</DialogTitle>
           </DialogHeader>
           <ReferencesTab />
         </DialogContent>
@@ -59,7 +82,7 @@ export default function FeatureDialogs({
       <Dialog open={resourcesOpen} onOpenChange={setResourcesOpen}>
         <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de rédaction scientifique</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de redaction scientifique</DialogTitle>
           </DialogHeader>
           <ArticlesGuideContent />
         </DialogContent>
@@ -77,7 +100,7 @@ export default function FeatureDialogs({
       <Dialog open={balanceOpen} onOpenChange={setBalanceOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><Scale className="h-4 w-4 text-emerald-600" />Bilan d'équilibre des chapitres</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-base"><Scale className="h-4 w-4 text-emerald-600" />Bilan d'equilibre des chapitres</DialogTitle>
           </DialogHeader>
           {thesis && <ChapterBalance chapters={thesis.chapters} />}
         </DialogContent>
@@ -86,7 +109,7 @@ export default function FeatureDialogs({
       <Dialog open={literatureOpen} onOpenChange={setLiteratureOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4 text-emerald-600" />Recherche de littérature scientifique</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4 text-emerald-600" />Recherche de litterature scientifique</DialogTitle>
           </DialogHeader>
           <LiteratureSearch s2ApiKey={s2ApiKey} consensusApiKey={consensusApiKey} />
         </DialogContent>
@@ -95,9 +118,59 @@ export default function FeatureDialogs({
       <Dialog open={journalFinderOpen} onOpenChange={setJournalFinderOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><Newspaper className="h-4 w-4 text-emerald-600" />Trouver un journal en accès ouvert</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-base"><Newspaper className="h-4 w-4 text-emerald-600" />Trouver un journal en acces ouvert</DialogTitle>
           </DialogHeader>
           <JournalFinder />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Excalidraw ── */}
+      <Dialog open={excalidrawOpen} onOpenChange={setExcalidrawOpen}>
+        <DialogContent className="sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="px-4 pt-4 pb-2">
+            <DialogTitle className="flex items-center gap-2 text-base"><PenLine className="h-4 w-4 text-emerald-600" />Editeur de diagrammes — Excalidraw</DialogTitle>
+          </DialogHeader>
+          <ExcalidrawTab />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Grammar Checker (LanguageTool) ── */}
+      <Dialog open={grammarOpen} onOpenChange={setGrammarOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><SpellCheck className="h-4 w-4 text-emerald-600" />Verification grammaticale — LanguageTool</DialogTitle>
+          </DialogHeader>
+          <GrammarChecker content={activeChapter?.content || ''} onApplySuggestion={(offset, length, replacement) => {
+            if (!activeChapter) return
+            const text = activeChapter.content || ''
+            const newText = text.slice(0, offset) + replacement + text.slice(offset + length)
+            onContentChange(newText)
+          }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Harper Style Checker ── */}
+      <Dialog open={harperOpen} onOpenChange={setHarperOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><ShieldCheck className="h-4 w-4 text-emerald-600" />Analyse de style academique — Harper</DialogTitle>
+          </DialogHeader>
+          <HarperChecker content={activeChapter?.content || ''} onApplySuggestion={(offset, length, replacement) => {
+            if (!activeChapter) return
+            const text = activeChapter.content || ''
+            const newText = text.slice(0, offset) + replacement + text.slice(offset + length)
+            onContentChange(newText)
+          }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Thesis Search ── */}
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><PenTool className="h-4 w-4 text-emerald-600" />Recherche plein texte — MeiliSearch</DialogTitle>
+          </DialogHeader>
+          <ThesisSearch thesis={thesis} onSelectChapter={(id) => { onSelectChapter(id); setSearchOpen(false) }} />
         </DialogContent>
       </Dialog>
     </>

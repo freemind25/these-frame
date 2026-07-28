@@ -5,6 +5,7 @@ import {
   GraduationCap, FileText, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, FlaskConical, BarChart3, MessageSquare,
   Plus, ChevronUp, ChevronDown, Trash2, Pencil, Check, Layers, FolderOpen, LayoutTemplate,
+  PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -37,6 +38,12 @@ interface SidebarNavProps {
   onOpenBalance: () => void
   onOpenCloudDrive: () => void
   onOpenJournalFinder: () => void
+  onOpenExcalidraw: () => void
+  onOpenGrammar: () => void
+  onOpenHarper: () => void
+  onOpenSearch: () => void
+  onToggleEditorMode: () => void
+  editorMode: 'rich' | 'plain'
   // Chapter management
   onAddChapter: (insertAfterOrder: number, partId?: string) => void
   onDeleteChapter: (chapterId: string) => void
@@ -231,6 +238,7 @@ function PartHeader({
 export default function SidebarNav({
   thesis, activeChapterId, onSelectChapter, sidebarOpen, onCloseSidebar, isMobile, totalWords,
   onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature, onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
+  onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch, onToggleEditorMode, editorMode,
   onAddChapter, onDeleteChapter, onReorderChapter, onRenameChapter,
   onAddPart, onDeletePart, onRenamePart, onReorderPart,
   onSwitchMode, onOpenTemplates,
@@ -465,6 +473,21 @@ export default function SidebarNav({
         </button>
         <button onClick={onOpenJournalFinder} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
           <Newspaper className="h-3.5 w-3.5" /><span>Journaux OA</span>
+        </button>
+        <button onClick={onOpenExcalidraw} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+          <PenLine className="h-3.5 w-3.5" /><span>Diagrammes</span>
+        </button>
+        <button onClick={onOpenGrammar} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+          <SpellCheck className="h-3.5 w-3.5" /><span>Grammaire (LT)</span>
+        </button>
+        <button onClick={onOpenHarper} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+          <ShieldCheck className="h-3.5 w-3.5" /><span>Harper (style)</span>
+        </button>
+        <button onClick={onOpenSearch} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+          <PenTool className="h-3.5 w-3.5" /><span>Recherche these</span>
+        </button>
+        <button onClick={onToggleEditorMode} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
+          <ToggleLeft className="h-3.5 w-3.5" /><span>Editeur {editorMode === 'rich' ? '→ Texte' : '→ Riche'}</span>
         </button>
       </div>
 

@@ -130,3 +130,35 @@ Stage Summary:
 - All existing AI routes (ai-writing, directeur, humanizer, notebook) work with FreeLLMAPI via existing OpenAI-compatible adapter
 - The "fusion" model uses multi-model synthesis (similar to ThesisFrame's consensus engine)
 - openalternative.co analysis saved for future v0.4.0/v0.5.0 planning
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Integrate Excalidraw, LanguageTool, Harper, MeiliSearch, TipTap
+
+Work Log:
+- Installed 16 packages: @excalidraw/excalidraw, @tiptap/react, @tiptap/starter-kit, @tiptap/extension-placeholder, @tiptap/extension-highlight, @tiptap/extension-underline, @tiptap/extension-text-align, @tiptap/extension-character-count, @tiptap/extension-color, @tiptap/extension-text-style, @tiptap/extension-link, @tiptap/extension-typography, lowlight, @tailwindcss/typography
+- Created Excalidraw component (src/components/thesis/excalidraw-tab.tsx) with dynamic import (ssr:false), floating toolbar, PNG/SVG export, auto-save to localStorage
+- Created LanguageTool API route (src/app/api/grammar-check/route.ts) proxying to api.languagetool.org/v2/check
+- Created GrammarChecker component (src/components/thesis/grammar-checker.tsx) with multi-language support, match cards, replacement suggestions, severity badges
+- Created Harper-style lint API route (src/app/api/harper-lint/route.ts) with 13 French academic writing rules
+- Created HarperChecker component (src/components/thesis/harper-checker.tsx) with rules for passive voice, informal expressions, repetition, typography
+- Created MeiliSearch-style search mini-service (mini-services/search-service/) on port 3031 with TF-IDF scoring, French stemmer, inverted index
+- Created thesis-search API proxy routes (src/app/api/thesis-search/index/, /search/)
+- Created ThesisSearch component (src/components/thesis/thesis-search.tsx) with debounced search, highlighted results, chapter navigation
+- Replaced plain textarea with TipTap rich text editor (src/components/thesis/tiptap-editor.tsx) with full formatting toolbar
+- Added TipTap CSS styles (globals.css) for headings, blockquotes, code blocks, lists, highlights
+- Updated sidebar-nav.tsx with 5 new tool buttons: Diagrammes, Grammaire (LT), Harper (style), Recherche these, Editeur toggle
+- Updated feature-dialogs.tsx with 4 new dialogs: Excalidraw, LanguageTool, Harper, Search
+- Updated page.tsx with new state, editor mode toggle (rich/plain), new sidebar props
+- Added @tailwindcss/typography plugin via @plugin directive in globals.css
+- Verified: ESLint 0 errors, all features render correctly in browser
+
+Stage Summary:
+- 5 major integrations completed: Excalidraw, LanguageTool, Harper, MeiliSearch-style search, TipTap
+- 13 new files created, 4 existing files modified
+- TipTap replaces textarea as default editor with toggle to plain text
+- Search service runs on port 3031 with French stemmer and TF-IDF scoring
+- LanguageTool checks French grammar via public API (no key needed)
+- Harper provides 13 French academic writing style rules
+- All tools accessible from sidebar Outils section
