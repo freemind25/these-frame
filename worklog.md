@@ -162,3 +162,21 @@ Stage Summary:
 - LanguageTool checks French grammar via public API (no key needed)
 - Harper provides 13 French academic writing style rules
 - All tools accessible from sidebar Outils section
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Release v0.4.0
+
+Work Log:
+- Fixed TypeScript errors: removed `pressed` prop from Button/ToggleGroupItem (not in this shadcn/ui version), created ToolbarBtn wrapper component with `active` prop and emerald styling
+- Fixed excalidraw-tab.tsx: removed stale `setData` reference, removed unused `zoomLevel` state
+- Fixed thesis-search.tsx: changed `useRef<ReturnType<typeof setTimeout>>()` to `useRef<...>(null)`
+- Pre-release checks: ESLint 0 errors (1 warning in mini-service only), tsc --noEmit 0 errors in src/, prisma validate OK
+- Bumped version 0.3.0 → 0.4.0 in package.json
+- Committed, tagged v0.4.0, pushed to origin/main
+
+Stage Summary:
+- Release v0.4.0 created and pushed to GitHub
+- All pre-release checks pass (lint, tsc, prisma validate)
+- 5 new tool integrations: Excalidraw, LanguageTool, Harper, MeiliSearch-style search, TipTap rich editor
