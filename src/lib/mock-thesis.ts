@@ -44,11 +44,14 @@ export function getMockThesis(): ThesisData {
   return _mockThesis
 }
 
-/** Check if database is reachable */
+/** Check if database is reachable — never throws */
 export async function isDbAvailable(): Promise<boolean> {
   try {
     const { db } = await import('@/lib/db')
-    await db.$queryRaw`SELECT 1`
+    await Promise.race([
+      db.$queryRaw`SELECT 1`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+    ])
     return true
   } catch {
     return false

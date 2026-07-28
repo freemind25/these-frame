@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Loader2, AlertTriangle, RefreshCw, Monitor } from 'lucide-react'
+import { Loader2, AlertTriangle, RefreshCw, Monitor, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { CHAPTERS, CHAPTER_COLORS } from '@/data/chapters-structure'
@@ -16,11 +16,44 @@ import ProviderSettingsDialog from '@/components/thesis/workspace/provider-setti
 import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
 import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 
+// ─── Client-side mock thesis (instant rendering, no API needed) ───
+function createLocalThesis(): ThesisData {
+  return {
+    id: 'local-thesis-001',
+    title: 'Ma thèse de doctorat',
+    subtitle: 'Sous-titre de la thèse',
+    author: 'Doctorant',
+    field: 'Sciences',
+    university: 'Université de démonstration',
+    status: 'draft',
+    structureMode: 'chapters',
+    chapters: CHAPTERS.map((ch, i) => ({
+      id: `local-ch-${ch.order}`,
+      thesisId: 'local-thesis-001',
+      partId: null,
+      order: ch.order,
+      number: ch.number,
+      title: ch.title,
+      content: i === 0
+        ? `# ${ch.title}\n\n${ch.description}\n\n## 1.1 Contexte général du domaine\n\nCommencez à rédiger ici...`
+        : '',
+      wordCount: i === 0 ? 42 : 0,
+      status: i === 0 ? 'in_progress' : 'draft',
+      directorFeedback: null,
+      directorFeedbackAt: null,
+    })),
+    parts: [],
+  }
+}
+
 // ─── Component ─────────────────────────────────────────────────
 export default function Home() {
-  const [thesis, setThesis] = useState<ThesisData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeChapterId, setActiveChapterId] = useState<string>('')
+  // Initialize with local mock data IMMEDIATELY — no loading state needed
+  const localThesis = useRef<ThesisData>(createLocalThesis())
+  const [thesis, setThesis] = useState<ThesisData>(localThesis.current)
+  const [activeChapterId, setActiveChapterId] = useState<string>(localThesis.current.chapters[0]?.id || '')
+  const [loading, setLoading] = useState(false)
+  const [apiStatus, setApiStatus] = useState<'unknown' | 'connected' | 'offline'>('unknown')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   // UI state
@@ -68,7 +101,7 @@ export default function Home() {
     return ''
   })
 
-  // Semantic Scholar API key (1 req/s guaranteed with key)
+  // Semantic Scholar API key
   const [s2ApiKey, setS2ApiKey] = useState(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('tf_s2ApiKey') || ''
     return ''
@@ -116,13 +149,20 @@ export default function Home() {
   // Detect Tauri desktop environment
   useEffect(() => { setDesktopMode(isDesktop()) }, [])
 
-  // Load thesis on mount
+  // Try to load thesis from API (non-blocking — page already shows local data)
   useEffect(() => {
+    let cancelled = false
     async function load() {
       try {
-        // Seed ensures thesis exists
-        await fetch('/api/thesis/seed', { method: 'POST' })
-        const res = await fetch('/api/thesis')
+        setLoading(true)
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000) // 5s timeout
+
+        await fetch('/api/thesis/seed', { method: 'POST', signal: controller.signal })
+        const res = await fetch('/api/thesis', { signal: controller.signal })
+        clearTimeout(timeout)
+
+        if (cancelled) return
         const data = await res.json()
         const thesisData = data.thesis || data
         if (thesisData?.id) {
@@ -130,14 +170,19 @@ export default function Home() {
           if (thesisData.chapters?.length > 0) {
             setActiveChapterId(thesisData.chapters[0].id)
           }
+          setApiStatus('connected')
         }
       } catch (err) {
-        console.error('Failed to load thesis:', err)
+        if (!cancelled) {
+          console.warn('API unavailable, using local data:', err)
+          setApiStatus('offline')
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     load()
+    return () => { cancelled = true }
   }, [])
 
   const activeChapter = thesis?.chapters.find(c => c.id === activeChapterId)
@@ -161,7 +206,7 @@ export default function Home() {
       chapters: prev.chapters.map(c =>
         c.id === activeChapterId ? { ...c, content } : c
       ),
-    } : null)
+    } : prev)
 
     // Debounced save
     setSaveStatus('idle')
@@ -181,7 +226,7 @@ export default function Home() {
           setThesis(prev => prev ? {
             ...prev,
             chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
-          } : null)
+          } : prev)
           setSaveStatus('saved')
           setTimeout(() => setSaveStatus('idle'), 2000)
         } else {
@@ -193,15 +238,13 @@ export default function Home() {
     }, 2000)
   }, [activeChapter, activeChapterId])
 
-  // ─── Chapter management ──────────────────────────────────
+  // ─── Chapter management (with local fallback) ───────────
   const refreshThesis = useCallback(async () => {
     try {
       const res = await fetch('/api/thesis')
       const data = await res.json()
       const thesisData = data.thesis || data
-      if (thesisData?.id) {
-        setThesis(thesisData)
-      }
+      if (thesisData?.id) setThesis(thesisData)
     } catch (err) {
       console.error('Failed to refresh thesis:', err)
     }
@@ -222,10 +265,22 @@ export default function Home() {
           setThesis(thesisData)
           setActiveChapterId(chapter.id)
         }
+        return
       }
     } catch (err) {
-      console.error('Failed to add chapter:', err)
+      console.error('Failed to add chapter via API, using local fallback:', err)
     }
+    // Local fallback
+    const newId = `local-ch-new-${Date.now()}`
+    const newOrder = insertAfterOrder + 1
+    setThesis(prev => ({
+      ...prev,
+      chapters: [
+        ...prev.chapters.map(c => c.order > insertAfterOrder ? { ...c, order: c.order + 1 } : c),
+        { id: newId, thesisId: prev.id, partId: partId || null, order: newOrder, number: `${newOrder}`, title: 'Nouveau chapitre', content: '', wordCount: 0, status: 'draft', directorFeedback: null, directorFeedbackAt: null },
+      ].sort((a, b) => a.order - b.order),
+    }))
+    setActiveChapterId(newId)
   }, [])
 
   const handleDeleteChapter = useCallback(async (chapterId: string) => {
@@ -234,14 +289,26 @@ export default function Home() {
       if (res.ok) {
         const thesisData = await res.json()
         setThesis(thesisData)
-        // If deleted chapter was active, select first remaining
         if (activeChapterId === chapterId) {
           const remaining = thesisData.chapters
           setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
         }
+        return
       }
     } catch (err) {
-      console.error('Failed to delete chapter:', err)
+      console.error('Failed to delete chapter via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => {
+      const remaining = prev.chapters.filter(c => c.id !== chapterId)
+      return { ...prev, chapters: remaining }
+    })
+    if (activeChapterId === chapterId) {
+      setThesis(prev => {
+        const remaining = prev.chapters
+        setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
+        return prev
+      })
     }
   }, [activeChapterId])
 
@@ -255,10 +322,23 @@ export default function Home() {
       if (res.ok) {
         const thesisData = await res.json()
         setThesis(thesisData)
+        return
       }
     } catch (err) {
-      console.error('Failed to reorder chapter:', err)
+      console.error('Failed to reorder chapter via API, using local fallback:', err)
     }
+    // Local fallback
+    setThesis(prev => {
+      const chapters = [...prev.chapters].sort((a, b) => a.order - b.order)
+      const idx = chapters.findIndex(c => c.id === chapterId)
+      if (idx < 0) return prev
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+      if (swapIdx < 0 || swapIdx >= chapters.length) return prev
+      const temp = chapters[idx].order
+      chapters[idx] = { ...chapters[idx], order: chapters[swapIdx].order }
+      chapters[swapIdx] = { ...chapters[swapIdx], order: temp }
+      return { ...prev, chapters: chapters.sort((a, b) => a.order - b.order) }
+    })
   }, [])
 
   const handleRenameChapter = useCallback(async (chapterId: string, newTitle: string) => {
@@ -273,14 +353,20 @@ export default function Home() {
         setThesis(prev => prev ? {
           ...prev,
           chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
-        } : null)
+        } : prev)
+        return
       }
     } catch (err) {
-      console.error('Failed to rename chapter:', err)
+      console.error('Failed to rename chapter via API, using local fallback:', err)
     }
+    // Local fallback
+    setThesis(prev => prev ? {
+      ...prev,
+      chapters: prev.chapters.map(c => c.id === chapterId ? { ...c, title: newTitle } : c),
+    } : prev)
   }, [])
 
-  // ─── Part management ────────────────────────────────────
+  // ─── Part management (with local fallback) ──────────────
   const handleAddPart = useCallback(async () => {
     try {
       const partNum = (thesis?.parts?.length || 0) + 1
@@ -293,11 +379,19 @@ export default function Home() {
       })
       if (res.ok) {
         const thesisData = await res.json()
-        if (thesisData?.id) setThesis(thesisData)
+        if (thesisData?.id) { setThesis(thesisData); return }
       }
     } catch (err) {
-      console.error('Failed to add part:', err)
+      console.error('Failed to add part via API, using local fallback:', err)
     }
+    // Local fallback
+    const newPartId = `local-part-${Date.now()}`
+    const partOrder = (thesis?.parts?.length || 0) + 1
+    const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
+    setThesis(prev => ({
+      ...prev,
+      parts: [...prev.parts, { id: newPartId, thesisId: prev.id, title: `Partie ${partOrder <= 10 ? romanNumerals[partOrder - 1] : partOrder}`, order: partOrder, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }],
+    }))
   }, [thesis?.parts?.length])
 
   const handleDeletePart = useCallback(async (partId: string) => {
@@ -306,10 +400,12 @@ export default function Home() {
       if (res.ok) {
         const thesisData = await res.json()
         setThesis(thesisData)
+        return
       }
     } catch (err) {
-      console.error('Failed to delete part:', err)
+      console.error('Failed to delete part via API, using local fallback:', err)
     }
+    setThesis(prev => ({ ...prev, parts: prev.parts.filter(p => p.id !== partId) }))
   }, [])
 
   const handleRenamePart = useCallback(async (partId: string, newTitle: string) => {
@@ -319,13 +415,13 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ partId, title: newTitle }),
       })
-      setThesis(prev => prev ? {
-        ...prev,
-        parts: prev.parts.map(p => p.id === partId ? { ...p, title: newTitle } : p),
-      } : null)
     } catch (err) {
       console.error('Failed to rename part:', err)
     }
+    setThesis(prev => prev ? {
+      ...prev,
+      parts: prev.parts.map(p => p.id === partId ? { ...p, title: newTitle } : p),
+    } : prev)
   }, [])
 
   const handleReorderPart = useCallback(async (partId: string, direction: 'up' | 'down') => {
@@ -338,10 +434,23 @@ export default function Home() {
       if (res.ok) {
         const thesisData = await res.json()
         setThesis(thesisData)
+        return
       }
     } catch (err) {
-      console.error('Failed to reorder part:', err)
+      console.error('Failed to reorder part via API, using local fallback:', err)
     }
+    // Local fallback
+    setThesis(prev => {
+      const parts = [...prev.parts].sort((a, b) => a.order - b.order)
+      const idx = parts.findIndex(p => p.id === partId)
+      if (idx < 0) return prev
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+      if (swapIdx < 0 || swapIdx >= parts.length) return prev
+      const temp = parts[idx].order
+      parts[idx] = { ...parts[idx], order: parts[swapIdx].order }
+      parts[swapIdx] = { ...parts[swapIdx], order: temp }
+      return { ...prev, parts: parts.sort((a, b) => a.order - b.order) }
+    })
   }, [])
 
   const handleSwitchMode = useCallback(async (mode: 'chapters' | 'parts') => {
@@ -354,10 +463,13 @@ export default function Home() {
       if (res.ok) {
         const thesisData = await res.json()
         setThesis(thesisData)
+        return
       }
     } catch (err) {
-      console.error('Failed to switch mode:', err)
+      console.error('Failed to switch mode via API, using local fallback:', err)
     }
+    // Local fallback
+    setThesis(prev => ({ ...prev, structureMode: mode }))
   }, [])
 
   // ─── Template management ──────────────────────────────
@@ -374,6 +486,7 @@ export default function Home() {
         if (thesisData.chapters?.length > 0) {
           setActiveChapterId(thesisData.chapters[0].id)
         }
+        return
       }
     } catch (err) {
       console.error('Failed to apply template:', err)
@@ -401,7 +514,6 @@ export default function Home() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setDirectorFeedback(data.response)
-      // Update chapter status
       await fetch(`/api/thesis/chapters/${activeChapterId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -446,31 +558,17 @@ export default function Home() {
   }, [aiInput, aiLoading, aiMessages, aiMode, aiProvider, aiApiKey, aiBaseUrl, aiModel])
 
   // ─── Render ─────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center space-y-3">
-          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground">Chargement de votre thèse...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!thesis) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center space-y-3">
-          <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
-          <p className="text-sm text-muted-foreground">Impossible de charger la thèse.</p>
-          <Button onClick={() => window.location.reload()} variant="outline" size="sm"><RefreshCw className="h-3 w-3 mr-1" />Réessayer</Button>
-        </div>
-      </div>
-    )
-  }
-
+  // Page always renders — thesis is initialized with local data
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
+      {/* ── API OFFLINE BANNER ── */}
+      {apiStatus === 'offline' && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center gap-2 text-[11px] text-amber-700 shrink-0">
+          <WifiOff className="h-3 w-3 shrink-0" />
+          <span>Mode hors-ligne — les données sont locales et non synchronisées.</span>
+        </div>
+      )}
+
       {/* ── MOBILE OVERLAY ── */}
       {sidebarOpen && isMobile && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30" onClick={() => setSidebarOpen(false)} />
