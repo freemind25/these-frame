@@ -10,13 +10,13 @@ export function isDesktop(): boolean {
 
 export async function getAppVersion(): Promise<string> {
   if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
-    return '0.2.0-web';
+    return '0.3.0-web';
   }
   const { invoke } = await import('@tauri-apps/api/core');
   try {
     return await invoke<string>('get_app_version');
   } catch {
-    return '0.2.0';
+    return '0.3.0';
   }
 }
 
