@@ -1,543 +1,740 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowLeft, ArrowRight, Check, X, ChevronDown, Sparkles, BookOpen, Download, Search, Scale, Cloud, Newspaper, PenLine, SpellCheck, ShieldCheck, PenTool, Library, ToggleLeft, Menu, Layers, LayoutTemplate, Plus, GraduationCap } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { Monitor, WifiOff } from 'lucide-react'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { CHAPTERS, CHAPTER_COLORS } from '@/data/chapters-structure'
+import { isDesktop } from '@/lib/tauri'
+import type { ThesisData, ChatMsg } from '@/types/thesis'
 
-// ─── CHAPTERS DATA (same as real app) ────────────────────
-const CHAPTERS_DEMO = [
-  { num: 'I', title: 'Introduction générale', shortTitle: 'Introduction', color: 'emerald', icon: 'FileText', words: 1240, status: 'in_progress' },
-  { num: 'II', title: 'Données bibliographiques et cadre théorique', shortTitle: 'Bibliographie', color: 'sky', icon: 'BookOpen', words: 4320, status: 'revised' },
-  { num: 'III', title: 'Cadre méthodologique', shortTitle: 'Méthodologie', color: 'amber', icon: 'FlaskConical', words: 2810, status: 'in_progress' },
-  { num: 'IV', title: 'Résultats', shortTitle: 'Résultats', color: 'violet', icon: 'BarChart3', words: 0, status: 'draft' },
-  { num: 'V', title: 'Discussion', shortTitle: 'Discussion', color: 'rose', icon: 'MessageSquare', words: 0, status: 'draft' },
-  { num: 'VI', title: 'Conclusion générale', shortTitle: 'Conclusion', color: 'teal', icon: 'GraduationCap', words: 0, status: 'draft' },
-]
+import ToolsSidebar from '@/components/thesis/workspace/tools-sidebar'
+import HorizontalChapterTabs from '@/components/thesis/workspace/horizontal-chapter-tabs'
+import ChapterHeader from '@/components/thesis/workspace/chapter-header'
+import TiptapEditor from '@/components/thesis/tiptap-editor'
+import HelpPanel from '@/components/thesis/workspace/help-panel'
+import ProviderSettingsDialog from '@/components/thesis/workspace/provider-settings-dialog'
+import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
+import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 
-const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-gray-400', in_progress: 'bg-amber-400', submitted: 'bg-sky-400', revised: 'bg-emerald-400',
+// ─── Client-side mock thesis (instant rendering, no API needed) ───
+function createLocalThesis(): ThesisData {
+  return {
+    id: 'local-thesis-001',
+    title: 'Ma thèse de doctorat',
+    subtitle: 'Sous-titre de la thèse',
+    author: 'Doctorant',
+    field: 'Sciences',
+    university: 'Université de démonstration',
+    status: 'draft',
+    structureMode: 'chapters',
+    chapters: CHAPTERS.map((ch, i) => ({
+      id: `local-ch-${ch.order}`,
+      thesisId: 'local-thesis-001',
+      partId: null,
+      order: ch.order,
+      number: ch.number,
+      title: ch.title,
+      content: i === 0
+        ? `# ${ch.title}\n\n${ch.description}\n\n## 1.1 Contexte général du domaine\n\nCommencez à rédiger ici...`
+        : '',
+      wordCount: i === 0 ? 42 : 0,
+      status: i === 0 ? 'in_progress' : 'draft',
+      directorFeedback: null,
+      directorFeedbackAt: null,
+    })),
+    parts: [],
+  }
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'brouillon', in_progress: 'en cours', submitted: 'soumis', revised: 'révisé',
-}
+// ─── Component ─────────────────────────────────────────────────
+export default function Home() {
+  // Initialize with local mock data IMMEDIATELY — no loading state needed
+  const localThesis = useRef<ThesisData>(createLocalThesis())
+  const [thesis, setThesis] = useState<ThesisData>(localThesis.current)
+  const [activeChapterId, setActiveChapterId] = useState<string>(localThesis.current.chapters[0]?.id || '')
+  const [loading, setLoading] = useState(false)
+  const [apiStatus, setApiStatus] = useState<'unknown' | 'connected' | 'offline'>('unknown')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
-const COLOR_MAP: Record<string, { bg: string; text: string; border: string; light: string; activeBg: string; activeText: string }> = {
-  emerald: { bg: 'bg-emerald-100', text: 'text-emerald-600', border: 'border-emerald-300', light: 'bg-emerald-50', activeBg: 'bg-emerald-600', activeText: 'text-white' },
-  sky:     { bg: 'bg-sky-100', text: 'text-sky-600', border: 'border-sky-300', light: 'bg-sky-50', activeBg: 'bg-sky-600', activeText: 'text-white' },
-  amber:   { bg: 'bg-amber-100', text: 'text-amber-600', border: 'border-amber-300', light: 'bg-amber-50', activeBg: 'bg-amber-600', activeText: 'text-white' },
-  violet:  { bg: 'bg-violet-100', text: 'text-violet-600', border: 'border-violet-300', light: 'bg-violet-50', activeBg: 'bg-violet-600', activeText: 'text-white' },
-  rose:    { bg: 'bg-rose-100', text: 'text-rose-600', border: 'border-rose-300', light: 'bg-rose-50', activeBg: 'bg-rose-600', activeText: 'text-white' },
-  teal:    { bg: 'bg-teal-100', text: 'text-teal-600', border: 'border-teal-300', light: 'bg-teal-50', activeBg: 'bg-teal-600', activeText: 'text-white' },
-}
+  // UI state
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(true)
+  const [helpTab, setHelpTab] = useState('guide')
+  const [refsOpen, setRefsOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [literatureOpen, setLiteratureOpen] = useState(false)
+  const [balanceOpen, setBalanceOpen] = useState(false)
+  const [cloudDriveOpen, setCloudDriveOpen] = useState(false)
+  const [journalFinderOpen, setJournalFinderOpen] = useState(false)
+  const [templateOpen, setTemplateOpen] = useState(false)
+  const [excalidrawOpen, setExcalidrawOpen] = useState(false)
+  const [grammarOpen, setGrammarOpen] = useState(false)
+  const [harperOpen, setHarperOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
+  const isMobile = useIsMobile()
+  const [desktopMode, setDesktopMode] = useState(false)
+  const desktopBadge = desktopMode ? (
+    <span className="inline-flex items-center gap-0.5 ml-1.5 px-1 py-0 rounded bg-emerald-100 text-emerald-700 font-medium">
+      <Monitor className="h-2.5 w-2.5" />Desktop
+    </span>
+  ) : null
 
-const TOOLS = [
-  { icon: Library, label: 'Références biblio.' },
-  { icon: BookOpen, label: 'Guide rédaction' },
-  { icon: Download, label: 'Export PDF' },
-  { icon: Search, label: 'Recherche litt.' },
-  { icon: Scale, label: 'Équilibre chapitres' },
-  { icon: Cloud, label: 'Sauvegarde cloud' },
-  { icon: Newspaper, label: 'Journaux OA' },
-  { icon: PenLine, label: 'Diagrammes' },
-  { icon: SpellCheck, label: 'Grammaire (LT)' },
-  { icon: ShieldCheck, label: 'Harper (style)' },
-  { icon: PenTool, label: 'Recherche thèse' },
-]
+  // AI chat state (in help panel)
+  const [aiMessages, setAiMessages] = useState<ChatMsg[]>([])
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiMode, setAiMode] = useState('scientific-writing')
 
-// ═══════════════════════════════════════════════════════════
-// PROPOSED LAYOUT COMPONENT
-// ═══════════════════════════════════════════════════════════
-function ProposedLayout() {
-  const [activeChapter, setActiveChapter] = useState(2) // Chapter III
-  const [toolsOpen, setToolsOpen] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(false)
-  const [helpTab, setHelpTab] = useState<'guide' | 'ia' | 'director'>('guide')
-  const active = CHAPTERS_DEMO[activeChapter]
-  const colors = COLOR_MAP[active.color]
-  const totalWords = CHAPTERS_DEMO.reduce((s, c) => s + c.words, 0)
+  // AI provider state
+  const [providerSettingsOpen, setProviderSettingsOpen] = useState(false)
+  const [aiProvider, setAiProvider] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_provider') || 'z-ai'
+    return 'z-ai'
+  })
+  const [aiApiKey, setAiApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_apiKey') || ''
+    return ''
+  })
+  const [aiBaseUrl, setAiBaseUrl] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_baseUrl') || ''
+    return ''
+  })
+  const [aiModel, setAiModel] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_model') || ''
+    return ''
+  })
 
+  // Semantic Scholar API key
+  const [s2ApiKey, setS2ApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_s2ApiKey') || ''
+    return ''
+  })
+
+  // Consensus AI API key
+  const [consensusApiKey, setConsensusApiKey] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('tf_consensusApiKey') || ''
+    return ''
+  })
+
+  const saveProviderSettings = useCallback(() => {
+    localStorage.setItem('tf_provider', aiProvider)
+    localStorage.setItem('tf_apiKey', aiApiKey)
+    localStorage.setItem('tf_baseUrl', aiBaseUrl)
+    localStorage.setItem('tf_model', aiModel)
+    localStorage.setItem('tf_s2ApiKey', s2ApiKey)
+    localStorage.setItem('tf_consensusApiKey', consensusApiKey)
+    setProviderSettingsOpen(false)
+  }, [aiProvider, aiApiKey, aiBaseUrl, aiModel, s2ApiKey, consensusApiKey])
+
+  const clearProviderSettings = useCallback(() => {
+    localStorage.removeItem('tf_provider')
+    localStorage.removeItem('tf_apiKey')
+    localStorage.removeItem('tf_baseUrl')
+    localStorage.removeItem('tf_model')
+    localStorage.removeItem('tf_s2ApiKey')
+    localStorage.removeItem('tf_consensusApiKey')
+    setAiProvider('z-ai')
+    setAiApiKey('')
+    setAiBaseUrl('')
+    setAiModel('')
+    setS2ApiKey('')
+    setConsensusApiKey('')
+  }, [])
+
+  // Director state
+  const [directorLoading, setDirectorLoading] = useState(false)
+  const [directorFeedback, setDirectorFeedback] = useState('')
+
+  // Auto-save
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const localContent = useRef<string>('')
+
+  // Detect Tauri desktop environment
+  useEffect(() => { setDesktopMode(isDesktop()) }, [])
+
+  // Try to load thesis from API (non-blocking — page already shows local data)
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        setLoading(true)
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000) // 5s timeout
+
+        await fetch('/api/thesis/seed', { method: 'POST', signal: controller.signal })
+        const res = await fetch('/api/thesis', { signal: controller.signal })
+        clearTimeout(timeout)
+
+        if (cancelled) return
+        const data = await res.json()
+        const thesisData = data.thesis || data
+        if (thesisData?.id) {
+          setThesis(thesisData)
+          if (thesisData.chapters?.length > 0) {
+            setActiveChapterId(thesisData.chapters[0].id)
+          }
+          setApiStatus('connected')
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.warn('API unavailable, using local data:', err)
+          setApiStatus('offline')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
+  const activeChapter = thesis?.chapters.find(c => c.id === activeChapterId)
+  const activePart = activeChapter?.partId
+    ? thesis?.parts.find(p => p.id === activeChapter.partId) ?? null
+    : null
+  const chapterMeta = CHAPTERS.find(c => c.order === activeChapter?.order)
+  const colors = chapterMeta ? CHAPTER_COLORS[chapterMeta.color] : CHAPTER_COLORS.emerald
+
+  // Total word count
+  const totalWords = thesis?.chapters.reduce((sum, c) => sum + c.wordCount, 0) || 0
+
+  // ─── Auto-save handler ───────────────────────────────────
+  const handleContentChange = useCallback((content: string) => {
+    if (!activeChapter) return
+    localContent.current = content
+
+    // Optimistic update
+    setThesis(prev => prev ? {
+      ...prev,
+      chapters: prev.chapters.map(c =>
+        c.id === activeChapterId ? { ...c, content } : c
+      ),
+    } : prev)
+
+    // Debounced save
+    setSaveStatus('idle')
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(async () => {
+      setSaveStatus('saving')
+      try {
+        const wordCount = content.split(/\s+/).filter(w => w.length > 0).length
+        const res = await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, wordCount, status: wordCount > 0 ? 'in_progress' : 'draft' }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const updated = data.chapter || data
+          setThesis(prev => prev ? {
+            ...prev,
+            chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
+          } : prev)
+          setSaveStatus('saved')
+          setTimeout(() => setSaveStatus('idle'), 2000)
+        } else {
+          setSaveStatus('error')
+        }
+      } catch {
+        setSaveStatus('error')
+      }
+    }, 2000)
+  }, [activeChapter, activeChapterId])
+
+  // ─── Chapter management (with local fallback) ───────────
+  const refreshThesis = useCallback(async () => {
+    try {
+      const res = await fetch('/api/thesis')
+      const data = await res.json()
+      const thesisData = data.thesis || data
+      if (thesisData?.id) setThesis(thesisData)
+    } catch (err) {
+      console.error('Failed to refresh thesis:', err)
+    }
+  }, [])
+
+  const handleAddChapter = useCallback(async (insertAfterOrder: number, partId?: string) => {
+    try {
+      const res = await fetch('/api/thesis/chapters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Nouveau chapitre', insertAfterOrder, partId }),
+      })
+      if (res.ok) {
+        const chapter = await res.json()
+        const thesisRes = await fetch('/api/thesis')
+        const thesisData = (await thesisRes.json()).thesis || (await thesisRes.json())
+        if (thesisData?.id) {
+          setThesis(thesisData)
+          setActiveChapterId(chapter.id)
+        }
+        return
+      }
+    } catch (err) {
+      console.error('Failed to add chapter via API, using local fallback:', err)
+    }
+    // Local fallback
+    const newId = `local-ch-new-${Date.now()}`
+    const newOrder = insertAfterOrder + 1
+    setThesis(prev => ({
+      ...prev,
+      chapters: [
+        ...prev.chapters.map(c => c.order > insertAfterOrder ? { ...c, order: c.order + 1 } : c),
+        { id: newId, thesisId: prev.id, partId: partId || null, order: newOrder, number: `${newOrder}`, title: 'Nouveau chapitre', content: '', wordCount: 0, status: 'draft', directorFeedback: null, directorFeedbackAt: null },
+      ].sort((a, b) => a.order - b.order),
+    }))
+    setActiveChapterId(newId)
+  }, [])
+
+  const handleDeleteChapter = useCallback(async (chapterId: string) => {
+    try {
+      const res = await fetch(`/api/thesis/chapters/${chapterId}`, { method: 'DELETE' })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        if (activeChapterId === chapterId) {
+          const remaining = thesisData.chapters
+          setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
+        }
+        return
+      }
+    } catch (err) {
+      console.error('Failed to delete chapter via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => {
+      const remaining = prev.chapters.filter(c => c.id !== chapterId)
+      return { ...prev, chapters: remaining }
+    })
+    if (activeChapterId === chapterId) {
+      setThesis(prev => {
+        const remaining = prev.chapters
+        setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
+        return prev
+      })
+    }
+  }, [activeChapterId])
+
+  const handleReorderChapter = useCallback(async (chapterId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/thesis/chapters', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId, direction }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        return
+      }
+    } catch (err) {
+      console.error('Failed to reorder chapter via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => {
+      const chapters = [...prev.chapters].sort((a, b) => a.order - b.order)
+      const idx = chapters.findIndex(c => c.id === chapterId)
+      if (idx < 0) return prev
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+      if (swapIdx < 0 || swapIdx >= chapters.length) return prev
+      const temp = chapters[idx].order
+      chapters[idx] = { ...chapters[idx], order: chapters[swapIdx].order }
+      chapters[swapIdx] = { ...chapters[swapIdx], order: temp }
+      return { ...prev, chapters: chapters.sort((a, b) => a.order - b.order) }
+    })
+  }, [])
+
+  const handleRenameChapter = useCallback(async (chapterId: string, newTitle: string) => {
+    try {
+      const res = await fetch(`/api/thesis/chapters/${chapterId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setThesis(prev => prev ? {
+          ...prev,
+          chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
+        } : prev)
+        return
+      }
+    } catch (err) {
+      console.error('Failed to rename chapter via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => prev ? {
+      ...prev,
+      chapters: prev.chapters.map(c => c.id === chapterId ? { ...c, title: newTitle } : c),
+    } : prev)
+  }, [])
+
+  // ─── Part management (with local fallback) ──────────────
+  const handleAddPart = useCallback(async () => {
+    try {
+      const partNum = (thesis?.parts?.length || 0) + 1
+      const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
+      const title = `Partie ${partNum <= 10 ? romanNumerals[partNum - 1] : partNum}`
+      const res = await fetch('/api/thesis/parts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        if (thesisData?.id) { setThesis(thesisData); return }
+      }
+    } catch (err) {
+      console.error('Failed to add part via API, using local fallback:', err)
+    }
+    // Local fallback
+    const newPartId = `local-part-${Date.now()}`
+    const partOrder = (thesis?.parts?.length || 0) + 1
+    const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
+    setThesis(prev => ({
+      ...prev,
+      parts: [...prev.parts, { id: newPartId, thesisId: prev.id, title: `Partie ${partOrder <= 10 ? romanNumerals[partOrder - 1] : partOrder}`, order: partOrder, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }],
+    }))
+  }, [thesis?.parts?.length])
+
+  const handleDeletePart = useCallback(async (partId: string) => {
+    try {
+      const res = await fetch(`/api/thesis/parts/${partId}`, { method: 'DELETE' })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        return
+      }
+    } catch (err) {
+      console.error('Failed to delete part via API, using local fallback:', err)
+    }
+    setThesis(prev => ({ ...prev, parts: prev.parts.filter(p => p.id !== partId) }))
+  }, [])
+
+  const handleRenamePart = useCallback(async (partId: string, newTitle: string) => {
+    try {
+      await fetch('/api/thesis/parts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId, title: newTitle }),
+      })
+    } catch (err) {
+      console.error('Failed to rename part:', err)
+    }
+    setThesis(prev => prev ? {
+      ...prev,
+      parts: prev.parts.map(p => p.id === partId ? { ...p, title: newTitle } : p),
+    } : prev)
+  }, [])
+
+  const handleReorderPart = useCallback(async (partId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/thesis/parts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partId, direction }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        return
+      }
+    } catch (err) {
+      console.error('Failed to reorder part via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => {
+      const parts = [...prev.parts].sort((a, b) => a.order - b.order)
+      const idx = parts.findIndex(p => p.id === partId)
+      if (idx < 0) return prev
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+      if (swapIdx < 0 || swapIdx >= parts.length) return prev
+      const temp = parts[idx].order
+      parts[idx] = { ...parts[idx], order: parts[swapIdx].order }
+      parts[swapIdx] = { ...parts[swapIdx], order: temp }
+      return { ...prev, parts: parts.sort((a, b) => a.order - b.order) }
+    })
+  }, [])
+
+  const handleSwitchMode = useCallback(async (mode: 'chapters' | 'parts') => {
+    try {
+      const res = await fetch('/api/thesis/switch-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        return
+      }
+    } catch (err) {
+      console.error('Failed to switch mode via API, using local fallback:', err)
+    }
+    // Local fallback
+    setThesis(prev => ({ ...prev, structureMode: mode }))
+  }, [])
+
+  // ─── Template management ──────────────────────────────
+  const handleApplyTemplate = useCallback(async (templateId: string) => {
+    try {
+      const res = await fetch('/api/thesis/apply-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId }),
+      })
+      if (res.ok) {
+        const thesisData = await res.json()
+        setThesis(thesisData)
+        if (thesisData.chapters?.length > 0) {
+          setActiveChapterId(thesisData.chapters[0].id)
+        }
+        return
+      }
+    } catch (err) {
+      console.error('Failed to apply template:', err)
+    }
+  }, [])
+
+  // ─── Director submit ─────────────────────────────────────
+  const handleDirectorSubmit = useCallback(async () => {
+    if (!activeChapter) return
+    setDirectorLoading(true)
+    setDirectorFeedback('')
+    try {
+      const res = await fetch('/api/directeur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapitreTitre: chapterMeta ? `${chapterMeta.number}. ${chapterMeta.title}` : `${activeChapter.number}. ${activeChapter.title}`,
+          chapitreContenu: activeChapter.content,
+          probleme: { quoi: 'Contenu du chapitre soumis', comment: 'Évaluation qualitative', pourquoi: 'Validation avant passage au chapitre suivant' },
+          hypothese: { texte: 'Chapitre soumis pour évaluation', observation: true, verifiable: true, coherente: true },
+          sousDomaineLabel: thesis?.field || 'Non précisé',
+          contraintesMethodologiques: '',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setDirectorFeedback(data.response)
+      await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'submitted', directorFeedback: data.response }),
+      })
+    } catch (err) {
+      setDirectorFeedback(err instanceof Error ? err.message : 'Erreur lors de la soumission.')
+    } finally {
+      setDirectorLoading(false)
+    }
+  }, [activeChapter, chapterMeta, thesis, activeChapterId])
+
+  // ─── AI chat ────────────────────────────────────────────
+  const handleAiSend = useCallback(async () => {
+    if (!aiInput.trim() || aiLoading) return
+    const msg = aiInput.trim()
+    setAiInput('')
+    const newMessages: ChatMsg[] = [...aiMessages, { role: 'user', content: msg }]
+    setAiMessages(newMessages)
+    setAiLoading(true)
+    try {
+      const reqBody: Record<string, unknown> = { mode: aiMode, message: msg, temperature: 0.7, maxTokens: 2048, thinking: 'disabled' }
+      if (aiProvider !== 'z-ai') {
+        reqBody.provider = aiProvider
+        reqBody.apiKey = aiApiKey
+        reqBody.baseUrl = aiBaseUrl
+        reqBody.model = aiModel
+      }
+      const res = await fetch('/api/ai-writing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reqBody),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setAiMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+    } catch (err) {
+      setAiMessages(prev => [...prev, { role: 'assistant', content: `Erreur : ${err instanceof Error ? err.message : 'inconnue'}` }])
+    } finally {
+      setAiLoading(false)
+    }
+  }, [aiInput, aiLoading, aiMessages, aiMode, aiProvider, aiApiKey, aiBaseUrl, aiModel])
+
+  // ─── Render ─────────────────────────────────────────────
+  // Page always renders — thesis is initialized with local data
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
-      {/* ═══ TOP BAR ═══ */}
-      <header className="bg-white border-b border-slate-200 px-4 py-2 flex items-center gap-4 shrink-0 z-30">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-[0_0_12px_rgba(16,185,129,0.25)]">
-            <GraduationCap className="h-4 w-4 text-white" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-none">ThesisFrame</h1>
-            <p className="text-[9px] text-emerald-600 font-medium">Ma thèse de doctorat</p>
-          </div>
+      {/* ── API OFFLINE BANNER ── */}
+      {apiStatus === 'offline' && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center gap-2 text-[11px] text-amber-700 shrink-0">
+          <WifiOff className="h-3 w-3 shrink-0" />
+          <span>Mode hors-ligne — les données sont locales et non synchronisées.</span>
         </div>
+      )}
 
-        {/* Progress */}
-        <div className="hidden sm:flex items-center gap-3 flex-1 max-w-md mx-auto">
-          <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">Progression</span>
-          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style={{ width: `${Math.min(100, (totalWords / 80000) * 100)}%` }} />
-          </div>
-          <span className="text-[10px] text-emerald-600 font-bold tabular-nums">{totalWords.toLocaleString()} mots</span>
-        </div>
+      <div className="flex flex-1 min-h-0">
+        {/* ═══ TOOLS SIDEBAR (left, tools only) ═══ */}
+        <ToolsSidebar
+          thesis={thesis}
+          totalWords={totalWords}
+          sidebarOpen={sidebarOpen}
+          onCloseSidebar={() => setSidebarOpen(false)}
+          isMobile={isMobile}
+          editorMode={editorMode}
+          onOpenRefs={() => setRefsOpen(true)}
+          onOpenResources={() => setResourcesOpen(true)}
+          onOpenExport={() => setExportOpen(true)}
+          onOpenLiterature={() => setLiteratureOpen(true)}
+          onOpenBalance={() => setBalanceOpen(true)}
+          onOpenCloudDrive={() => setCloudDriveOpen(true)}
+          onOpenJournalFinder={() => setJournalFinderOpen(true)}
+          onOpenExcalidraw={() => setExcalidrawOpen(true)}
+          onOpenGrammar={() => setGrammarOpen(true)}
+          onOpenHarper={() => setHarperOpen(true)}
+          onOpenSearch={() => setSearchOpen(true)}
+          onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
+          onSwitchMode={handleSwitchMode}
+          onOpenTemplates={() => setTemplateOpen(true)}
+        />
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Tools dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setToolsOpen(!toolsOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <Menu className="h-4 w-4" />
-              <span className="hidden sm:inline">Outils</span>
-              <ChevronDown className="h-3 w-3" />
-            </button>
-            {toolsOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setToolsOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Outils</span>
-                  </div>
-                  {TOOLS.map(t => (
-                    <button key={t.label} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                      <t.icon className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{t.label}</span>
-                    </button>
-                  ))}
-                  <div className="border-t border-slate-100 mt-1 pt-1">
-                    <button className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                      <ToggleLeft className="h-3.5 w-3.5 text-slate-400" />
-                      <span>Éditeur → Texte</span>
-                    </button>
-                    <button className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                      <Layers className="h-3.5 w-3.5 text-slate-400" />
-                      <span>Mode parties</span>
-                    </button>
-                    <button className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-                      <LayoutTemplate className="h-3.5 w-3.5 text-slate-400" />
-                      <span>Modèles</span>
-                    </button>
-                  </div>
-                </div>
-              </>
+        {/* ═══ MAIN AREA ═══ */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <ChapterHeader
+          isMobile={isMobile}
+          onOpenSidebar={() => setSidebarOpen(true)}
+          chapterMeta={chapterMeta}
+          colors={colors}
+          activeChapter={activeChapter}
+          activePart={activePart}
+          saveStatus={saveStatus}
+          helpOpen={helpOpen}
+          onToggleHelp={() => setHelpOpen(!helpOpen)}
+        />
+
+          {/* ═══ HORIZONTAL CHAPTER TABS ═══ */}
+          <HorizontalChapterTabs
+            thesis={thesis}
+            activeChapterId={activeChapterId}
+            onSelectChapter={setActiveChapterId}
+            onAddChapter={handleAddChapter}
+            onDeleteChapter={handleDeleteChapter}
+            onReorderChapter={handleReorderChapter}
+            onRenameChapter={handleRenameChapter}
+            onAddPart={handleAddPart}
+            onDeletePart={handleDeletePart}
+            onRenamePart={handleRenamePart}
+          />
+
+          {/* Editor + Help panel */}
+          <div className="flex flex-1 min-h-0">
+            {editorMode === 'rich' ? (
+              <TiptapEditor
+                content={activeChapter?.content || ''}
+                onChange={handleContentChange}
+                chapterNumber={chapterMeta?.number || activeChapter?.number || ''}
+                chapterTitle={chapterMeta?.title || activeChapter?.title || ''}
+              />
+            ) : (
+              <textarea
+                value={activeChapter?.content || ''}
+                onChange={(e) => handleContentChange(e.target.value)}
+                className="flex-1 resize-none border-0 focus:outline-none p-6 sm:p-10 text-[15px] leading-[1.8] font-serif text-slate-800 bg-white placeholder:text-slate-300"
+                placeholder={`Commencez la redaction du Chapitre ${chapterMeta?.number || 'I'}. ${chapterMeta?.title || ''}...`}
+                spellCheck
+              />
+            )}
+
+            {helpOpen && !isMobile && (
+              <HelpPanel
+                helpTab={helpTab}
+                onHelpTabChange={setHelpTab}
+                chapterMeta={chapterMeta}
+                colors={colors}
+                thesis={thesis}
+                activeChapter={activeChapter}
+                aiMode={aiMode}
+                onAiModeChange={setAiMode}
+                aiProvider={aiProvider}
+                onOpenProviderSettings={() => setProviderSettingsOpen(true)}
+                aiMessages={aiMessages}
+                aiLoading={aiLoading}
+                aiInput={aiInput}
+                onAiInputChange={setAiInput}
+                onAiSend={handleAiSend}
+                onDirectorSubmit={handleDirectorSubmit}
+                directorLoading={directorLoading}
+                directorFeedback={directorFeedback}
+              />
             )}
           </div>
 
-          {/* Help toggle */}
-          <button
-            onClick={() => setHelpOpen(!helpOpen)}
-            className={cn('p-1.5 rounded-lg transition-colors', helpOpen ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100')}
-            title={helpOpen ? "Fermer l'aide" : "Ouvrir l'aide"}
-          >
-            <Sparkles className="h-4 w-4" />
-          </button>
-
-          {/* User avatar */}
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[10px] ring-2 ring-emerald-500/20 shrink-0">
-            DR
-          </div>
-        </div>
-      </header>
-
-      {/* ═══ HORIZONTAL CHAPTER TABS ═══ */}
-      <nav className="bg-white border-b border-slate-200 px-3 py-2 flex items-center gap-1.5 shrink-0 overflow-x-auto z-20">
-        {CHAPTERS_DEMO.map((ch, i) => {
-          const c = COLOR_MAP[ch.color]
-          const isActive = i === activeChapter
-          return (
-            <button
-              key={ch.num}
-              onClick={() => setActiveChapter(i)}
-              className={cn(
-                'group relative flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all duration-200 shrink-0 border',
-                isActive
-                  ? `${c.activeBg} ${c.activeText} border-transparent shadow-sm`
-                  : `bg-white ${c.text} ${c.border} hover:${c.bg}`,
-              )}
-            >
-              <span className={cn('text-xs font-bold', isActive ? 'text-white/80' : c.text)}>{ch.num}</span>
-              <div className="flex flex-col">
-                <span className={cn('text-xs font-semibold leading-tight whitespace-nowrap', isActive && 'text-white')}>{ch.shortTitle}</span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status])} />
-                  <span className={cn('text-[9px] tabular-nums', isActive ? 'text-white/70' : 'text-slate-400')}>{ch.words.toLocaleString()}m</span>
-                </div>
-              </div>
-              {/* Active indicator */}
-              {isActive && (
-                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-full bg-emerald-500" />
-              )}
-            </button>
-          )
-        })}
-        {/* Add chapter button */}
-        <button className="shrink-0 p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-dashed border-slate-300 hover:border-emerald-400">
-          <Plus className="h-3.5 w-3.5" />
-        </button>
-      </nav>
-
-      {/* ═══ CHAPTER INFO BAR ═══ */}
-      <div className={cn('bg-white/90 backdrop-blur-sm border-b px-4 sm:px-6 py-2 flex items-center gap-3 shrink-0', colors.border)}>
-        <div className={cn('p-1.5 rounded-lg flex items-center justify-center', colors.light, colors.text)}>
-          <FlaskConical className="h-3.5 w-3.5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h2 className="text-sm font-bold text-slate-900 tracking-tight">Chapitre {active.num}. {active.title}</h2>
-          <p className="text-[10px] text-slate-500 truncate">Design de recherche, outils de collecte et techniques d'analyse.</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Badge variant="outline" className="text-[10px] gap-1">
-            <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[active.status])} />
-            {STATUS_LABELS[active.status]}
-          </Badge>
-          <Badge variant="secondary" className="text-[10px] hidden sm:inline-flex">{active.words.toLocaleString()} mots</Badge>
-          <span className="text-emerald-500 text-xs font-medium hidden sm:inline">✓ Enregistré</span>
+          {/* Footer */}
+          <footer className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+            <p>ThesisFrame © 2025 — {thesis.university}{desktopBadge}</p>
+            <p>{thesis.field} · {(totalWords / 1000).toFixed(1)}k mots rédigés</p>
+          </footer>
         </div>
       </div>
 
-      {/* ═══ EDITOR + HELP ═══ */}
-      <div className="flex flex-1 min-h-0">
-        {/* Editor area */}
-        <main className="flex-1 bg-white overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-6 sm:px-10 py-8">
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Chapitre {active.num}. {active.title}</h1>
-            <p className="text-sm text-slate-500 mb-8">{active.num === 'III' ? "Design de recherche, outils de collecte et techniques d'analyse." : 'Description du chapitre...'}</p>
+      <FeatureDialogs
+        thesis={thesis}
+        refsOpen={refsOpen}
+        setRefsOpen={setRefsOpen}
+        exportOpen={exportOpen}
+        setExportOpen={setExportOpen}
+        resourcesOpen={resourcesOpen}
+        setResourcesOpen={setResourcesOpen}
+        cloudDriveOpen={cloudDriveOpen}
+        setCloudDriveOpen={setCloudDriveOpen}
+        balanceOpen={balanceOpen}
+        setBalanceOpen={setBalanceOpen}
+        literatureOpen={literatureOpen}
+        setLiteratureOpen={setLiteratureOpen}
+        journalFinderOpen={journalFinderOpen}
+        setJournalFinderOpen={setJournalFinderOpen}
+        excalidrawOpen={excalidrawOpen}
+        setExcalidrawOpen={setExcalidrawOpen}
+        grammarOpen={grammarOpen}
+        setGrammarOpen={setGrammarOpen}
+        harperOpen={harperOpen}
+        setHarperOpen={setHarperOpen}
+        searchOpen={searchOpen}
+        setSearchOpen={setSearchOpen}
+        activeChapter={activeChapter}
+        onContentChange={handleContentChange}
+        onSelectChapter={setActiveChapterId}
+        editorMode={editorMode}
+        onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
+        s2ApiKey={s2ApiKey}
+        consensusApiKey={consensusApiKey}
+      />
 
-            <h2 className="text-lg font-bold text-slate-800 mb-4">3.1 Approche épistémologique et design de recherche</h2>
-            <p className="text-[15px] leading-[1.8] font-serif text-slate-700 mb-6">
-              La présente étude s'inscrit dans une démarche de recherche qualitative, ancrée dans le paradigme interprétativiste. Cette approche épistémologique a été retenue en raison de sa pertinence pour explorer les phénomènes complexes liés à notre objet d'étude. Le design de recherche adopté combine une approche de type étude de cas multiples avec une analyse thématique des données recueillies.
-            </p>
-            <p className="text-[15px] leading-[1.8] font-serif text-slate-700 mb-6">
-              Cette section détaille les choix méthodologiques qui guident notre investigation, en justifiant chaque décision au regard des objectifs de recherche formulés dans le chapitre d'introduction. Nous présentons successivement l'approche épistémologique retenue, le design de recherche, ainsi que les considérations éthiques qui encadrent notre démarche.
-            </p>
+      <TemplateDialog
+        open={templateOpen}
+        onOpenChange={setTemplateOpen}
+        onApply={handleApplyTemplate}
+      />
 
-            <h2 className="text-lg font-bold text-slate-800 mb-4">3.2 Population et stratégie d'échantillonnage</h2>
-            <p className="text-[15px] leading-[1.8] font-serif text-slate-700 mb-6">
-              L'échantillon de cette recherche a été constitué selon une procédure d'échantillonnage purposif. Cette méthode non probabiliste permet de sélectionner des participants dont les caractéristiques sont pertinentes pour la problématique étudiée...
-            </p>
-          </div>
-        </main>
-
-        {/* Help panel */}
-        {helpOpen && (
-          <aside className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0">
-            <div className="flex border-b border-slate-200">
-              {(['guide', 'ia', 'director'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setHelpTab(tab)}
-                  className={cn(
-                    'flex-1 py-2.5 text-xs font-medium transition-colors border-b-2',
-                    helpTab === tab ? 'text-emerald-600 border-emerald-500' : 'text-slate-400 border-transparent hover:text-slate-600',
-                  )}
-                >
-                  {tab === 'guide' ? 'Guide' : tab === 'ia' ? 'IA' : 'Directeur'}
-                </button>
-              ))}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {helpTab === 'guide' && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-slate-900">Attendus du chapitre</h3>
-                  <ul className="space-y-1.5">
-                    {['Justifier le choix du design de recherche', 'Décrire la population et l\'échantillon', 'Présenter les instruments de collecte', 'Expliquer les techniques d\'analyse', 'Aborder les considérations éthiques'].map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                        <Check className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <h3 className="text-sm font-bold text-slate-900 mt-4">Structure suggérée</h3>
-                  <ul className="space-y-1">
-                    {['3.1 Approche épistémologique', '3.2 Population et échantillonnage', '3.3 Instruments de collecte', '3.4 Techniques d\'analyse', '3.5 Considérations éthiques'].map((s, i) => (
-                      <li key={i} className="text-xs text-slate-500 pl-4 py-0.5 border-l-2 border-slate-200">{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {helpTab === 'ia' && (
-                <div className="space-y-3">
-                  <p className="text-xs text-slate-500">Posez une question sur ce chapitre...</p>
-                  <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600 italic">
-                    "Comment structurer la section échantillonnage ?"
-                  </div>
-                </div>
-              )}
-              {helpTab === 'director' && (
-                <div className="space-y-3">
-                  <p className="text-xs text-slate-500">Soumettez votre chapitre pour une évaluation...</p>
-                  <button className="w-full py-2 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-colors">
-                    Soumettre au directeur
-                  </button>
-                </div>
-              )}
-            </div>
-          </aside>
-        )}
-      </div>
-
-      {/* ═══ FOOTER ═══ */}
-      <footer className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
-        <p>ThesisFrame © 2025 — Université de démonstration</p>
-        <p>Sciences · {(totalWords / 1000).toFixed(1)}k mots rédigés</p>
-      </footer>
+      <ProviderSettingsDialog
+        open={providerSettingsOpen}
+        onOpenChange={setProviderSettingsOpen}
+        aiProvider={aiProvider}
+        setAiProvider={setAiProvider}
+        aiApiKey={aiApiKey}
+        setAiApiKey={setAiApiKey}
+        aiBaseUrl={aiBaseUrl}
+        setAiBaseUrl={setAiBaseUrl}
+        aiModel={aiModel}
+        setAiModel={setAiModel}
+        s2ApiKey={s2ApiKey}
+        setS2ApiKey={setS2ApiKey}
+        consensusApiKey={consensusApiKey}
+        setConsensusApiKey={setConsensusApiKey}
+        onSave={saveProviderSettings}
+        onClear={clearProviderSettings}
+      />
     </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════
-// PROPOSAL OVERVIEW PAGE
-// ═══════════════════════════════════════════════════════════
-export default function ProposalPage() {
-  const [view, setView] = useState<'proposal' | 'current'>('proposal')
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Proposal header */}
-      <header className="bg-white border-b border-slate-200 px-4 sm:px-8 py-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">Proposition de refonte — Navigation horizontale</h1>
-              <p className="text-sm text-slate-500">ThesisFrame · Restructuration de l'interface</p>
-            </div>
-          </div>
-
-          {/* Toggle */}
-          <div className="flex items-center gap-3 mt-6">
-            <span className="text-xs font-medium text-slate-500">Aperçu :</span>
-            <button
-              onClick={() => setView('proposal')}
-              className={cn(
-                'px-4 py-1.5 rounded-full text-xs font-medium transition-all',
-                view === 'proposal' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-              )}
-            >
-              Nouvelle interface (horizontale)
-            </button>
-            <button
-              onClick={() => setView('current')}
-              className={cn(
-                'px-4 py-1.5 rounded-full text-xs font-medium transition-all',
-                view === 'current' ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-              )}
-            >
-              Interface actuelle (sidebar)
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <div className="flex-1 flex flex-col">
-        {view === 'proposal' && <>
-          {/* Benefits section */}
-          <div className="max-w-5xl mx-auto w-full px-4 sm:px-8 py-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { icon: '🎯', title: 'Navigation intuitive', desc: 'Tous les chapitres visibles d\'un coup — plus besoin de scroller dans la sidebar' },
-                { icon: '📐', title: 'Espace de rédaction maximisé', desc: 'Suppression de la sidebar 256px — l\'éditeur gagne ~20% de largeur utile' },
-                { icon: '🧰', title: 'Outils accessibles', desc: 'Menu déroulant compact pour les 11 outils + actions de structure' },
-              ].map(b => (
-                <div key={b.title} className="bg-white rounded-xl border border-slate-200 p-4">
-                  <span className="text-lg">{b.icon}</span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-2">{b.title}</h3>
-                  <p className="text-xs text-slate-500 mt-1">{b.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Live preview */}
-          <div className="flex-1 border-t border-slate-200 bg-slate-100">
-            <div className="text-center py-2 bg-slate-200/60 border-b border-slate-200">
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Aperçu en direct — Nouvelle interface proposée</span>
-            </div>
-            <div className="h-[calc(100vh-340px)]">
-              <ProposedLayout />
-            </div>
-          </div>
-        </>}
-
-        {view === 'current' && <>
-          <div className="max-w-5xl mx-auto w-full px-4 sm:px-8 py-6">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-bold text-amber-900">Problèmes identifiés avec l'interface actuelle</h3>
-                <ul className="mt-2 space-y-1 text-xs text-amber-800">
-                  <li>• La navigation verticale dans la sidebar rend difficile la vue d'ensemble des chapitres</li>
-                  <li>• 11 boutons d'outils + 6 chapitres + actions de gestion = sidebar surchargée</li>
-                  <li>• La sidebar consomme 256px de largeur, réduisant l'espace de rédaction</li>
-                  <li>• Sur mobile, la sidebar est un overlay qui cache totalement l'éditeur</li>
-                  <li>• Les actions par chapitre (renommer, réordonner, supprimer) sont cachées au hover</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 border-t border-slate-200 bg-slate-100">
-            <div className="text-center py-2 bg-slate-200/60 border-b border-slate-200">
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Interface actuelle — avec sidebar verticale</span>
-            </div>
-            <CurrentLayoutMock />
-          </div>
-        </>}
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t bg-white px-4 py-3 text-center text-xs text-slate-400 mt-auto">
-        <p>Ceci est une proposition de maquette. Cliquez sur les boutons ci-dessus pour comparer les deux interfaces.</p>
-      </footer>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════
-// CURRENT LAYOUT MOCK (simplified reproduction)
-// ═══════════════════════════════════════════════════════════
-function CurrentLayoutMock() {
-  return (
-    <div className="h-[calc(100vh-380px)] flex bg-slate-200">
-      {/* Dark sidebar */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
-        {/* Brand */}
-        <div className="flex items-center gap-3 px-3 py-4 mb-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
-            <GraduationCap className="h-4 w-4 text-white" />
-          </div>
-          <div>
-            <h1 className="font-bold text-sm text-white">ThesisFrame</h1>
-            <p className="text-[10px] text-emerald-400">Ma thèse de doctorat</p>
-          </div>
-        </div>
-        {/* Progress */}
-        <div className="px-3 pb-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-slate-500 font-medium">PROGRESSION</span>
-            <span className="text-[10px] text-emerald-400 font-bold">8 370 mots</span>
-          </div>
-          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style={{ width: '10.5%' }} />
-          </div>
-        </div>
-        {/* Chapters header */}
-        <div className="px-3 pt-2 pb-1 flex items-center justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Structure</span>
-          <div className="flex items-center gap-0.5">
-            <Layers className="h-3 w-3 text-slate-600" />
-            <Plus className="h-3 w-3 text-emerald-500" />
-          </div>
-        </div>
-        {/* Chapters (vertical list - cramped) */}
-        <nav className="flex-1 overflow-y-auto space-y-0.5 px-2 min-h-0">
-          {CHAPTERS_DEMO.map((ch, i) => {
-            const isActive = i === 2
-            return (
-              <button
-                key={ch.num}
-                className={cn(
-                  'w-full p-2.5 flex items-start gap-2.5 rounded-xl text-left transition-all relative overflow-hidden',
-                  isActive
-                    ? 'bg-gradient-to-r from-emerald-900/80 to-slate-900 text-white border border-emerald-500/40'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent',
-                )}
-              >
-                <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
-                  isActive ? 'bg-emerald-500/20' : 'bg-slate-800',
-                )}>
-                  <span className={cn('text-[10px] font-bold', isActive ? 'text-emerald-400' : 'text-slate-400')}>{ch.num}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className={cn('text-[11px] font-semibold leading-tight truncate', isActive && 'text-white')}>{ch.shortTitle}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_COLORS[ch.status])} />
-                    <span className="text-[9px] text-slate-600">{ch.words.toLocaleString()} mots</span>
-                  </div>
-                </div>
-              </button>
-            )
-          })}
-        </nav>
-        {/* Tools (cramped list) */}
-        <div className="shrink-0 px-3 pt-2 pb-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Outils</span>
-        </div>
-        <div className="shrink-0 px-2 pb-3 space-y-0.5 max-h-60 overflow-y-auto">
-          {TOOLS.map(t => (
-            <button key={t.label} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
-              <t.icon className="h-3.5 w-3.5" /><span>{t.label}</span>
-            </button>
-          ))}
-        </div>
-        {/* User */}
-        <div className="shrink-0 p-3 border-t border-slate-800">
-          <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-[10px]">DR</div>
-            <div className="overflow-hidden flex-1">
-              <div className="text-[10px] font-medium text-slate-200">Doctorant</div>
-              <div className="text-[9px] text-slate-500">Université de démonstration</div>
-            </div>
-          </div>
-        </div>
-      </aside>
-      {/* Main area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white">
-        {/* Chapter header */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center gap-3 shrink-0">
-          <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-            <FlaskConical className="h-3.5 w-3.5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-bold text-slate-900 tracking-tight">Chapitre III. Cadre méthodologique</h2>
-            <p className="text-[10px] text-slate-500 truncate">Design de recherche, outils de collecte et techniques d'analyse.</p>
-          </div>
-          <Badge variant="outline" className="text-[10px] gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            en cours
-          </Badge>
-          <Badge variant="secondary" className="text-[10px]">2 810 mots</Badge>
-        </header>
-        {/* Editor */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-6 sm:px-10 py-8">
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Chapitre III. Cadre méthodologique</h1>
-            <p className="text-sm text-slate-500 mb-8">Design de recherche, outils de collecte et techniques d'analyse.</p>
-            <p className="text-[15px] leading-[1.8] font-serif text-slate-700 mb-6">
-              La présente étude s'inscrit dans une démarche de recherche qualitative, ancrée dans le paradigme interprétativiste...
-            </p>
-          </div>
-        </main>
-        <footer className="border-t bg-white/80 px-4 py-2 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
-          <p>ThesisFrame © 2025 — Université de démonstration</p>
-          <p>Sciences · 8.4k mots rédigés</p>
-        </footer>
-      </div>
-    </div>
-  )
-}
-
-function AlertTriangle(props: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-      <path d="M12 9v4" /><path d="M12 17h.01" />
-    </svg>
-  )
-}
-
-function FlaskConical(props: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
-      <path d="M8.5 2h7" /><path d="M7 16.5h10" />
-    </svg>
   )
 }
