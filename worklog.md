@@ -34,3 +34,40 @@ Work Log:
 Stage Summary:
 - Redesigned 2 key UI components for a visibly different interface
 - No TypeScript errors, page loads successfully
+---
+Task ID: 5-bailey-recreate
+Agent: main
+Task: Create academic-writing-guide.ts
+
+Work Log:
+- Created complete TypeScript data file with 5 interfaces, 1 source, 12 writing process steps, 12 writing elements, 60 vocabulary items, 5 writing models
+- All content in French, code identifiers in English
+- Fixed double-escaped apostrophes throughout French text
+- Added missing category field to 9 writing elements using Python regex
+- Verified TypeScript compilation passes (0 errors)
+
+Stage Summary:
+- File: src/data/academic-writing-guide.ts
+- TypeScript compilation: 0 errors
+
+---
+Task ID: 5-enrich-writing-guide
+Agent: main
+Task: Add turabianResearchProcess and brauseInvisibleRules data exports to thesis-writing-guide.ts
+
+Work Log:
+- Read existing thesis-writing-guide.ts (1177 lines) to understand structure and identify insertion point
+- Added ResearchPhase interface with fields: id, title, description, keyActivities, deliverables, commonPitfalls
+- Added turabianResearchProcess export with 10 research phases from Turabian Part I
+- Added InvisibleRule interface with fields: id, title, description, practicalAdvice, metaphor
+- Added brauseInvisibleRules export with 12 invisible rules from Brause (2000)
+- Fixed grammar: "une métaphores productives" -> "une métaphore productive"
+- Fixed English word: "qui know chaque" -> "qui connaît chaque"
+- Verified TypeScript compilation: 0 errors (bunx tsc --noEmit)
+
+Stage Summary:
+- File: src/data/thesis-writing-guide.ts (now 1599 lines, was 1177)
+- New exports: turabianResearchProcess (10 phases), brauseInvisibleRules (12 rules)
+- New interfaces: ResearchPhase, InvisibleRule
+- All text in French, all code identifiers in English
+- Existing content untouched, TypeScript compilation passes
