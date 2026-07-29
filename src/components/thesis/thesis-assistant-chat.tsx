@@ -22,6 +22,7 @@ import {
   Check,
   FileInput,
   BookOpen,
+  FileSearch,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ const WELCOME_MESSAGE =
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  ragChunksFound?: number
 }
 
 interface ChapterProgress {
@@ -75,10 +77,12 @@ function AssistantBubble({
   content,
   activeMode,
   onInsertText,
+  ragChunksFound = 0,
 }: {
   content: string
   activeMode: AssistantMode
   onInsertText?: (text: string) => void
+  ragChunksFound?: number
 }) {
   const [copied, setCopied] = useState(false)
 
@@ -120,7 +124,15 @@ function AssistantBubble({
   return (
     <div className="mr-8">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs text-left text-slate-400">Assistant</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-left text-slate-400">Assistant</p>
+          {ragChunksFound > 0 && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-900/40 text-[10px] text-emerald-400">
+              <FileSearch className="size-2.5" />
+              {ragChunksFound} extrait{ragChunksFound > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
           <button
             onClick={handleCopy}
@@ -224,6 +236,14 @@ export default function ThesisAssistantChat({
         if (thesisProgress) reqBody.thesisProgress = thesisProgress
         if (thesisTitle) reqBody.thesisTitle = thesisTitle
         if (thesisField) reqBody.thesisField = thesisField
+        // Send all chapters content for RAG retrieval
+        if (chapters && chapters.length > 0) {
+          reqBody.allChaptersContent = chapters.map((c) => ({
+            number: c.number,
+            title: c.title,
+            content: c.content,
+          }))
+        }
       }
 
       const res = await fetch('/api/thesis-assistant', {
@@ -237,7 +257,11 @@ export default function ThesisAssistantChat({
       if (res.ok && data.success) {
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: data.response },
+          {
+            role: 'assistant',
+            content: data.response,
+            ragChunksFound: data.ragChunksFound ?? 0,
+          },
         ])
       } else {
         setMessages((prev) => [
@@ -259,7 +283,7 @@ export default function ThesisAssistantChat({
     } finally {
       setLoading(false)
     }
-  }, [input, loading, activeMode, sessionId, chapterTitle, chapterNumber, chapterContent, thesisProgress, thesisTitle, thesisField, contextEnabled])
+  }, [input, loading, activeMode, sessionId, chapterTitle, chapterNumber, chapterContent, thesisProgress, thesisTitle, thesisField, contextEnabled, chapters])
 
   const clearConversation = useCallback(async () => {
     try {
@@ -400,6 +424,7 @@ export default function ThesisAssistantChat({
                     content={msg.content}
                     activeMode={activeMode}
                     onInsertText={onInsertText}
+                    ragChunksFound={msg.ragChunksFound}
                   />
                 ) : (
                   <div

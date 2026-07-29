@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { buildSystemPrompt, type AssistantMode } from '@/lib/thesis-assistant-knowledge'
+import { retrieve, formatRagContext, shouldRetrieve, type Chunk } from '@/lib/thesis-rag'
 
 const VALID_MODES: AssistantMode[] = ['general', 'redaction', 'correction', 'critique', 'methode', 'bibliographie', 'suivi']
 
@@ -12,6 +13,12 @@ interface ChapterProgress {
   title: string
   wordCount: number
   status: string
+}
+
+interface ChapterContent {
+  number: string
+  title: string
+  content: string
 }
 
 function buildContextBlock(body: Record<string, unknown>): string {
@@ -51,9 +58,13 @@ function buildContextBlock(body: Record<string, unknown>): string {
   return parts.length > 0 ? parts.join('\n\n') : ''
 }
 
-function enrichSystemPrompt(basePrompt: string, mode: AssistantMode, contextBlock: string, body: Record<string, unknown>): string {
-  if (!contextBlock) return basePrompt
-
+function enrichSystemPrompt(
+  basePrompt: string,
+  mode: AssistantMode,
+  contextBlock: string,
+  ragBlock: string,
+  body: Record<string, unknown>,
+): string {
   const thesisTitle = body.thesisTitle as string | undefined
   const thesisField = body.thesisField as string | undefined
 
@@ -65,7 +76,7 @@ function enrichSystemPrompt(basePrompt: string, mode: AssistantMode, contextBloc
     ? `INFORMATIONS SUR LA THÈSE :\n${headerParts.join('\n')}`
     : ''
 
-  return [header, basePrompt, contextBlock].filter(Boolean).join('\n\n')
+  return [header, basePrompt, contextBlock, ragBlock].filter(Boolean).join('\n\n')
 }
 
 export async function POST(request: NextRequest) {
@@ -75,6 +86,7 @@ export async function POST(request: NextRequest) {
       mode, message, sessionId, clearHistory,
       chapterTitle, chapterNumber, chapterContent,
       thesisProgress, thesisTitle, thesisField,
+      allChaptersContent,
     } = body as {
       mode?: string
       message?: string
@@ -86,6 +98,7 @@ export async function POST(request: NextRequest) {
       thesisProgress?: ChapterProgress[]
       thesisTitle?: string
       thesisField?: string
+      allChaptersContent?: ChapterContent[]
     }
 
     const currentMode = (mode || 'general') as AssistantMode
@@ -101,6 +114,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Le message est requis.' }, { status: 400 })
     }
 
+    const trimmedMessage = message.trim()
     const sid = sessionId || `thesis_ast_${Date.now()}`
 
     if (clearHistory) {
@@ -109,10 +123,21 @@ export async function POST(request: NextRequest) {
 
     // Build context from thesis data
     const contextBlock = buildContextBlock(body)
+
+    // ── RAG: retrieve relevant chunks if the query references thesis content ──
+    let ragBlock = ''
+    let ragChunks: Chunk[] = []
+    if (shouldRetrieve(trimmedMessage) && allChaptersContent && allChaptersContent.length > 0) {
+      const ragResult = retrieve(trimmedMessage, allChaptersContent, { topK: 5, minScore: 0.05 })
+      ragChunks = ragResult.chunks
+      ragBlock = formatRagContext(ragResult)
+    }
+
     const systemPrompt = enrichSystemPrompt(
       buildSystemPrompt(currentMode),
       currentMode,
       contextBlock,
+      ragBlock,
       body,
     )
 
@@ -125,7 +150,12 @@ export async function POST(request: NextRequest) {
       history = [{ role: 'system', content: systemPrompt }]
     }
 
-    history.push({ role: 'user', content: message.trim() })
+    // If RAG found chunks, prepend them to the user message for better visibility
+    const userContent = ragChunks.length > 0
+      ? `[Recherche dans vos chapitres : ${ragChunks.length} extrait(s) pertinent(s) trouvé(s).]\n\n${trimmedMessage}`
+      : trimmedMessage
+
+    history.push({ role: 'user', content: userContent })
 
     // Trim to last 20 messages + system
     if (history.length > 21) {
@@ -155,6 +185,7 @@ export async function POST(request: NextRequest) {
       response: aiResponse,
       sessionId: sid,
       messageCount: history.length - 1,
+      ragChunksFound: ragChunks.length,
     })
   } catch (error) {
     console.error('Thesis assistant error:', error)
