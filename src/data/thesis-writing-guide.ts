@@ -1174,3 +1174,426 @@ export function getSourceLabel(sourceId: string): string {
   const shortTitle = source.title.split(':')[0].split('(')[0].trim()
   return `${source.author} (${source.year})`
 }
+
+// ─── Phases du processus de recherche (Turabian, Part I) ──────────
+
+/** Phase du processus de recherche selon Turabian (8e éd.), Part I */
+export interface ResearchPhase {
+  id: string
+  title: string
+  description: string
+  keyActivities: string[]
+  deliverables: string[]
+  commonPitfalls: string[]
+}
+
+export const turabianResearchProcess: ResearchPhase[] = [
+  {
+    id: 'rp-question',
+    title: 'Formuler une question de recherche',
+    description: 'Toute recherche sérieuse commence par une question bien posée qui donne une direction claire à l\'ensemble du travail. Turabian insiste sur le fait qu\'une bonne question de recherche doit être significative, c\'est-à-dire qu\'elle doit mériter une réponse et apporter une contribution au champ disciplinaire. La question doit être suffisamment ciblée pour être traitée de manière approfondie dans le cadre d\'une thèse, mais aussi assez ouverte pour permettre une exploration riche et nuancée.',
+    keyActivities: [
+      'Identifier un domaine d\'intérêt général lié à votre discipline et à vos lectures antérieures',
+      'Narrow ce domaine en lisant des revues de littérature récentes pour repérer les controverses et les lacunes',
+      'Formuler une question provisoire, puis la raffiner en itérant entre lecture et reformulation',
+      'Vérifier que la question est significative : pourquoi la réponse importe-t-elle pour d\'autres chercheurs ?',
+      'S\'assurer que la question est faisable compte tenu des ressources, du temps et des données disponibles',
+      'Tester la question en rédigeant un court paragraphe exploratoire de 200 à 300 mots',
+    ],
+    deliverables: [
+      'Une question de recherche clairement formulée en une ou deux phrases',
+      'Un court paragraphe justifiant la pertinence et la faisabilité de la question',
+      'Une liste préliminaire de mots-clés et de concepts associés pour guider la recherche documentaire',
+    ],
+    commonPitfalls: [
+      'Choisir une question trop vaste (par exemple « l\'impact d\'Internet sur la société ») qui ne peut être traitée en une seule thèse',
+      'Formuler une question dont la réponse est déjà connue ou trivialement évidente',
+      'Ignorer la signification de la question : se demander « et alors ? » pour vérifier que la réponse apporte une vraie contribution',
+    ],
+  },
+  {
+    id: 'rp-sources',
+    title: 'Identifier et évaluer les sources',
+    description: 'La qualité d\'une thèse dépend directement de la qualité de ses sources. Turabian consacre un chapitre entier à l\'évaluation critique des sources, en distinguant les sources primaires (données brutes, textes originaux, archives) des sources secondaires (analyses, synthèses, commentaires). Chaque source doit être évaluée selon trois critères fondamentaux : sa fiabilité (l\'auteur est-il crédible, le texte a-t-il été revu par des pairs ?), sa pertinence (la source traite-t-elle directement de votre question ?) et sa actualité (les informations sont-elles à jour ?).',
+    keyActivities: [
+      'Construire une stratégie de recherche documentaire en utilisant les bases de données spécialisées de votre discipline',
+      'Distinguer systématiquement les sources primaires des sources secondaires et les équilibrer dans votre corpus',
+      'Évaluer chaque source selon les critères de fiabilité, pertinence et actualité',
+      'Constituer un système de classement des sources (par thème, par approche méthodologique, par chronologie)',
+      'Documenter systématiquement les références complètes dès le premier contact avec la source',
+      'Identifier les sources clés (citations incontournables) et les sources de support (illustrations, exemples)',
+      'Repérer les contradicteurs : les auteurs qui défendent des positions opposées aux vôtres',
+    ],
+    deliverables: [
+      'Un corpus de sources organisé et classé selon vos thèmes de recherche',
+      'Une fiche d\'évaluation pour chaque source principale (fiabilité, pertinence, notes de lecture)',
+      'Une bibliographie provisoire structurée selon le style de citation requis',
+      'Un tableau de synthèse comparant les principales sources sur les dimensions clés de votre question',
+    ],
+    commonPitfalls: [
+      'Se limiter aux trois premières pages de résultats de recherche Google Scholar sans creuser plus profondément',
+      'Confondre popularité et fiabilité : un article beaucoup cité n\'est pas nécessairement irréprochable méthodologiquement',
+      'Négliger les sources contradictoires, ce qui affaiblit la solidité de l\'argumentation finale',
+    ],
+  },
+  {
+    id: 'rp-reading',
+    title: 'Lire de manière active',
+    description: 'Lire pour une thèse n\'est pas comme lire pour le plaisir ou pour se renseigner. Turabian souligne que la lecture active implique un engagement critique constant avec le texte : on ne se contente pas d\'absorber l\'information, on la questionne, on la compare avec d\'autres lectures, on l\'évalue à l\'aune de sa propre question de recherche. La prise de notes structurée est essentielle pour éviter de devoir relire les mêmes textes et pour construire progressivement sa propre argumentation.',
+    keyActivities: [
+      'Lire avec un objectif précis en tête : que cherchez-vous dans ce texte par rapport à votre question ?',
+      'Prendre des notes structurées en distinguant les idées de l\'auteur de vos propres commentaires et interprétations',
+      'Annoter directement les textes (surlignement, marges) en utilisant un code couleur cohérent pour les concepts clés',
+      'Rédiger un bref résumé de chaque texte lu, en indiquant sa contribution spécifique à votre recherche',
+      'Construire des tableaux comparatifs pour mettre en parallèle les positions de différents auteurs sur un même enjeu',
+      'Garder un journal de lecture où vous notez vos réactions, questions et idées émergentes au fil de vos lectures',
+    ],
+    deliverables: [
+      'Des fiches de lecture complètes pour chaque source majeure, avec résumé, critique et liens vers votre question',
+      'Un tableau comparatif des principales positions théoriques et résultats empiriques dans votre champ',
+      'Un journal de lecture documentant votre évolution intellectuelle au fil de la recherche',
+      'Une carte conceptuelle reliant les auteurs, concepts et résultats entre eux',
+    ],
+    commonPitfalls: [
+      'Surligner tout le texte sans distinction, ce qui revient à ne pas annoter du tout',
+      'Recopier des passages entiers sans les paraphraser, ce qui risque de conduire au plagiat involontaire',
+      'Lire de façon linéaire et passive sans jamais s\'arrêter pour questionner ou synthétiser',
+    ],
+  },
+  {
+    id: 'rp-thesis',
+    title: 'Formuler une thèse (claim)',
+    description: 'Le « claim » ou thèse, au sens de Turabian, est l\'affirmation centrale que vous défendez dans votre travail. Ce n\'est pas un simple constat ou un résumé de votre sujet, mais une proposition argumentée qui mérite d\'être prouvée. Turabian insiste sur la distinction cruciale entre le sujet (ce dont vous parlez) et la thèse (ce que vous affirmez à propos de ce sujet). Une bonne thèse est spécifique, défendable, non triviale et capable de générer un débat raisonnable.',
+    keyActivities: [
+      'Transformer votre question de recherche en une affirmation claire et testable qui répond à cette question',
+      'Vérifier que votre thèse n\'est ni trop évidente (personne ne la contesterait) ni trop radicale (impossible à prouver)',
+      'Identifier les raisons principales qui soutiennent votre thèse et les hiérarchiser par ordre d\'importance',
+      'Anticiper les objections les plus sérieuses à votre thèse et préparer des réponses argumentées',
+      'Rédiger votre thèse en une seule phrase claire que vous pourrez utiliser comme fil conducteur de tout le manuscrit',
+      'Tester votre thèse auprès de votre directeur et de collègues pour vérifier sa clarté et sa pertinence',
+    ],
+    deliverables: [
+      'Une phrase de thèse claire, spécifique et défendable qui résume votre position centrale',
+      'Une liste des trois à cinq raisons principales qui soutiennent cette thèse',
+      'Un court texte (500 mots) justifiant pourquoi cette thèse est significative et originale',
+    ],
+    commonPitfalls: [
+      'Formuler une thèse vague ou trop générale qui ne permet pas de guider la structure de l\'argumentation',
+      'Confondre la thèse avec le sujet : « Cette thèse porte sur X » n\'est pas une thèse mais un constat thématique',
+      'Modifier sa thèse au fil de la recherche sans le reconnaître, créant une incohérence entre introduction et conclusion',
+    ],
+  },
+  {
+    id: 'rp-arguments',
+    title: 'Construire des arguments solides',
+    description: 'Turabian détaille la structure de l\'argumentation académique en s\'appuyant sur la logique du warrant (le lien entre la raison et la thèse). Chaque argument doit reposer sur des raisons clairement articulées, elles-mêmes étayées par des preuves tangibles (données, citations, exemples). Un argument solide reconnaît également les objections légitimes et y répond de manière constructive, ce qui renforce plutôt qu\'affaiblit la position défendue. La clé est de construire une chaîne logique transparente que le lecteur peut suivre et évaluer.',
+    keyActivities: [
+      'Pour chaque raison soutenant votre thèse, identifier le warrant (le principe général qui relie la raison à la thèse)',
+      'Assembler des preuves variées pour chaque raison : données quantitatives, citations d\'experts, exemples concrets, analogies',
+      'Énumérer les objections les plus sérieuses à votre argumentation et rédiger des réponses nuancées',
+      'Structurer chaque section argumentative selon le schéma : raison → preuve → warrant → réponse aux objections',
+      'Utiliser des connecteurs logiques explicites pour rendre la structure argumentative visible au lecteur',
+      'Éviter les sophismes courants : généralisation hâtive, homme de paille, appel à l\'autorité sans justification',
+      'Vérifier que chaque paragraphe contribue directement à soutenir la thèse et n\'introduit pas d\'arguments non pertinents',
+    ],
+    deliverables: [
+      'Un schéma argumentaire complet montrant thèse, raisons, preuves, warrants et réponses aux objections',
+      'Des paragraphes argumentatifs rédigés suivant la structure raison-preuve-warrant',
+      'Une section dédiée aux objections et limites, montrant la rigueur intellectuelle de la démarche',
+    ],
+    commonPitfalls: [
+      'Empiler des preuves sans expliquer comment elles soutiennent la thèse, laissant au lecteur le soin de faire le lien',
+      'Ignorer les objections par peur d\'affaiblir son argumentation, alors que les reconnaître renforce la crédibilité',
+      'Présenter des raisons qui se répètent sous des formulations différentes sans apporter de perspectives véritablement nouvelles',
+    ],
+  },
+  {
+    id: 'rp-outline',
+    title: 'Élaborer un plan détaillé',
+    description: 'Le plan détaillé est la carte routière de votre thèse. Turabian y consacre un chapitre entier car elle considère que la qualité du plan détermine en grande partie la qualité du texte final. Un bon plan n\'est pas rigide : il évolue au fil de la recherche et de la rédaction, mais il offre à tout moment une vision claire de la structure globale et de la progression logique du raisonnement. Le plan doit montrer comment chaque section contribue à la démonstration de la thèse.',
+    keyActivities: [
+      'Commencer par un plan grossier (les grands chapitres) puis le raffiner progressivement jusqu\'au niveau des paragraphes',
+      'Vérifier que chaque chapitre a un rôle spécifique dans la démonstration globale et qu\'il n\'y a pas de redondance',
+      'S\'assurer que la progression logique est claire : chaque chapitre doit s\'appuyer sur les précédents et préparer les suivants',
+      'Intégrer les résultats de votre revue de littérature dans le plan : où chaque source sera-elle mobilisée ?',
+      'Inclure les transitions prévues entre les sections pour assurer la fluidité de la lecture',
+      'Faire valider le plan détaillé par votre directeur avant de commencer la rédaction proprement dite',
+    ],
+    deliverables: [
+      'Un plan hiérarchique complet allant des chapitres jusqu\'aux sous-sections avec des descriptions de contenu',
+      'Un schéma de la progression logique montrant comment chaque chapitre s\'articule avec les autres',
+      'Une estimation du nombre de pages prévu pour chaque section afin de gérer l\'équilibre du manuscrit',
+    ],
+    commonPitfalls: [
+      'Rédiger sans plan, ce qui conduit à un texte désorganisé avec des répétitions et des ruptures logiques',
+      'Être trop rigide : un plan doit évoluer au fil de la recherche et de la rédaction, pas être gravé dans le marbre',
+      'Négliger les transitions entre les chapitres, ce qui donne l\'impression d\'une succession d\'essais déconnectés',
+    ],
+  },
+  {
+    id: 'rp-drafting',
+    title: 'Rédiger la première ébauche',
+    description: 'La rédaction de la première ébauche est souvent le moment le plus intimidant du processus, mais Turabian insiste sur un point crucial : la perfection est l\'ennemi de la production. L\'objectif de l\'ébauche est de mettre des mots sur le papier, pas de produire un texte final. Il vaut mieux rédiger un texte imparfait que de rester paralysé par l\'exigence de perfection. Les blocages d\'écriture sont normaux et gérables : ils signalent souvent que l\'on a besoin de clarifier sa pensée avant de continuer.',
+    keyActivities: [
+      'Se fixer un objectif d\'écriture quotidien réaliste (par exemple 500 mots par jour) et le respecter',
+      'Commencer par la section qui vous semble la plus facile ou la plus claire dans votre esprit, pas forcément l\'introduction',
+      'Rédiger sans se soucier du style ni des citations exactes : insérez des repères comme [CITER ICI] que vous complèterez plus tard',
+      'En cas de blocage, changer de section, rédiger une liste à puces, ou dicter vos idées à voix haute avant de les écrire',
+      'Maintenir un élan d\'écriture en terminant chaque session sur une note facile à reprendre la fois suivante',
+      'Résister à la tentation de réviser au fur et à mesure : la révision est une étape distincte qui vient après l\'ébauche',
+    ],
+    deliverables: [
+      'Une première ébauche complète, même imparfaite, couvrant l\'ensemble de la structure prévue',
+      'Des notes sur les sections qui nécessitent des recherches ou réflexions supplémentaires',
+      'Un suivi de votre rythme d\'écriture quotidien pour identifier vos moments de productivité',
+    ],
+    commonPitfalls: [
+      'Réviser chaque phrase au fur et à mesure, ce qui ralentit considérablement la production et brise l\'élan',
+      'Reporter le début de la rédaction indéfiniment en attendant de « tout comprendre », ce qui est rarement atteignable',
+      'Viser la perfection dès la première ébauche, ce qui génère de l\'anxiété et des blocages d\'écriture prolongés',
+    ],
+  },
+  {
+    id: 'rp-citations',
+    title: 'Maîtriser les citations',
+    description: 'La maîtrise du système de citation est un aspect non négociable de la rédaction académique. Turabian, éditrice du Manuel de Chicago, présente en détail les deux styles principaux : le système notes-bibliographie (notes de bas de page ou de fin avec bibliographie) et le système auteur-date (citations dans le texte avec bibliographie). Le choix du système dépend de votre discipline et des exigences de votre institution. Dans tous les cas, chaque emprunt textuel, idée ou donnée emprunté à un autre auteur doit être rigoureusement cité.',
+    keyActivities: [
+      'Identifier le système de citation requis par votre institution et votre discipline dès le début du projet',
+      'Maîtriser les règles de citation pour chaque type de source : livre, article, site web, communication orale, archive',
+      'Utiliser un gestionnaire de références bibliographiques (Zotero, Mendeley, EndNote) pour automatiser le formatage',
+      'Vérifier que chaque citation dans le texte correspond bien à une entrée dans la bibliographie et réciproquement',
+      'Connaître les règles spécifiques : quand citer un résumé, quand citer mot à mot, comment gérer les citations imbriquées',
+      'Prêter une attention particulière aux citations de sources secondaires : toujours privilégier la source primaire quand c\'est possible',
+    ],
+    deliverables: [
+      'Une bibliographie complète et correctement formatée selon le style requis',
+      'Des notes de bas de page ou des citations dans le texte cohérentes avec la bibliographie',
+      'Un fichier de gestion de références organisé et à jour avec toutes les sources consultées',
+    ],
+    commonPitfalls: [
+      'Mélanger plusieurs styles de citation au sein d\'un même manuscrit, ce qui signale un manque de rigueur',
+      'Oublier de citer des paraphrases ou des idées empruntées, ce qui constitue du plagiat même sans citation textuelle',
+      'Se fier uniquement au générateur automatique sans vérifier manuellement le formatage, car les erreurs sont fréquentes',
+    ],
+  },
+  {
+    id: 'rp-revising',
+    title: 'Réviser et éditer',
+    description: 'Turabian consacre deux chapitres à la révision, soulignant qu\'elle est au moins aussi importante que la rédaction elle-même. La révision opère à trois niveaux : le niveau global (la structure et l\'argumentation), le niveau du paragraphe (la cohérence et la progression) et le niveau de la phrase (la clarté, le style, la grammaire). Il est crucial de réviser dans cet ordre, du global vers le détaillé, car modifier la structure d\'un chapitre rend inutile la révision phrase par phrase de ce même chapitre.',
+    keyActivities: [
+      'Commencer par une révision structurelle : chaque chapitre contribue-t-il à la thèse ? L\'ordre est-il logique ?',
+      'Procéder ensuite à la révision paragraphique : chaque paragraphe a-t-il un topic sentence clair ? La progression est-elle cohérente ?',
+      'Enfin, réviser au niveau de la phrase : clarté, concision, précision du vocabulaire, correction grammaticale',
+      'Faire relire le manuscrit par au moins deux personnes : une pour le fond, une pour la forme',
+      'Lire le texte à voix haute pour détecter les phrases trop longues, les répétitions et les ruptures de rythme',
+      'Utiliser les retours de votre directeur de manière systématique en créant un plan de révision priorisé',
+    ],
+    deliverables: [
+      'Une version révisée du manuscrit avec des modifications structurelles, argumentatives et stylistiques',
+      'Une liste des corrections apportées et des justifications pour chaque modification majeure',
+      'Un texte final relu et corrigé, sans fautes d\'orthographe ni de grammaire',
+    ],
+    commonPitfalls: [
+      'Se limiter à la correction orthographique et négliger la révision structurelle et argumentative',
+      'Réviser immédiatement après la rédaction, sans prendre de distance, ce qui empêche de voir les défauts',
+      'Ignorer les retours du directeur ou les prendre personnellement au lieu de les traiter comme des contributions à la qualité du texte',
+    ],
+  },
+  {
+    id: 'rp-formatting',
+    title: 'Formater et présenter',
+    description: 'La troisième partie de l\'ouvrage de Turabian traite des normes de présentation qui, bien que souvent perçues comme secondaires, sont en réalité essentielles à la crédibilité professionnelle du manuscrit. L\'orthographe, la ponctuation, l\'usage des nombres, les abréviations, la présentation des tableaux et des figures suivent des conventions précises qui varient selon le style adopté. Une thèse bien formatée signale au lecteur que l\'auteur maîtrise non seulement le contenu mais aussi les codes formels de la communication académique.',
+    keyActivities: [
+      'Appliquer les règles de formatage de votre institution (marges, police, interligne, pagination) dès le premier jour et non à la fin',
+      'Normaliser l\'usage des nombres : écrire en lettres les nombres de zéro à dix en début de phrase, en chiffres au-delà',
+      'Vérifier la cohérence de la ponctuation, des abréviations et des symboles dans tout le manuscrit',
+      'Formater les tableaux et figures selon les normes : titre au-dessus du tableau, légende en dessous de la figure',
+      'Générer automatiquement la table des matières, la liste des figures et la liste des tableaux à partir des styles',
+      'Effectuer une vérification finale de la cohérence globale : un seul style de citation, un seul format de date, une seule police',
+    ],
+    deliverables: [
+      'Un manuscrit entièrement formaté selon les normes de votre institution et du style de citation choisi',
+      'Des tableaux et figures numérotés, titrés et référencés correctement dans le corps du texte',
+      'Une table des matières, une liste des figures et une liste des tableaux générées automatiquement et à jour',
+    ],
+    commonPitfalls: [
+      'Laisser le formatage pour la fin et découvrir qu\'il faut refaire des dizaines de pages, perdant un temps précieux',
+      'Mélanger les conventions de formatage (par exemple, abréviations anglaises et françaises dans un même texte)',
+      'Négliger les pages préliminaires (page de titre, résumé, remerciements) qui doivent être impeccables car elles donnent la première impression',
+    ],
+  },
+]
+
+// ─── Règles invisibles de la thèse (Brause, 2000) ─────────────────
+
+/** Règle invisible pour réussir sa thèse, d\'après Brause (2000) */
+export interface InvisibleRule {
+  id: string
+  title: string
+  description: string
+  practicalAdvice: string[]
+  metaphor: string
+}
+
+export const brauseInvisibleRules: InvisibleRule[] = [
+  {
+    id: 'ir-dissertation-vs-paper',
+    title: 'La thèse n\'est pas un long mémoire',
+    description: 'Brause ouvre son ouvrage en déconstruisant l\'idée reçue selon laquelle une thèse serait simplement un mémoire de master rallongé. En réalité, la thèse exige un niveau d\'originalité, de rigueur et de contribution intellectuelle fondamentalement différent. Le mémoire démontre que l\'on maîtrise un champ ; la thèse démontre que l\'on est capable de faire avancer ce champ. Cette distinction a des implications concrètes sur l\'ampleur de la recherche, la profondeur de l\'analyse et la nature du public auquel on s\'adresse.',
+    practicalAdvice: [
+      'Dès le départ, clarifiez en quoi votre travail apporte une contribution originale et non une simple synthèse de connaissances existantes',
+      'Concevez chaque chapitre comme une étape d\'un argumentaire global, et non comme un essai autonome',
+      'Adoptez le ton et le niveau d\'exigence d\'un chercheur qui s\'adresse à ses pairs, pas d\'un étudiant qui rend un devoir',
+      'Évaluez régulièrement si votre travail pourrait être publié sous forme d\'articles — c\'est un bon indicateur du niveau de thèse',
+      'Acceptez que la thèse est un projet public (évalué par un jury) et non un exercice privé entre vous et votre directeur',
+    ],
+    metaphor: 'La thèse n\'est pas une montagne plus haute que les autres, mais un sommet différent qu\'il faut atteindre par un chemin que personne n\'a encore tracé.',
+  },
+  {
+    id: 'ir-metaphors-matter',
+    title: 'Les métaphores guident l\'expérience',
+    description: 'Brause consacre un chapitre entier aux métaphores que les doctorants utilisent pour décrire leur expérience, car ces métaphores ne sont pas de simples figures de style : elles façonnent réellement la façon dont on vit le processus doctoral. Celui qui voit la thèse comme un voyage se prépare différemment de celui qui la voit comme un labyrinthe. Les métaphores révèlent des attitudes profondes face à l\'incertitude, à l\'effort et à la durée, et choisir consciemment une métaphore productive peut transformer l\'expérience.',
+    practicalAdvice: [
+      'Identifiez la métaphore dominante que vous utilisez inconsciemment pour penser votre thèse et évaluez si elle est aidante ou paralysante',
+      'Si votre métaphore est le labyrinthe (perdu, bloqué), essayez consciemment de la remplacer par celle du voyage (progression, découverte)',
+      'Partagez vos métaphores avec d\'autres doctorants pour prendre conscience de leur influence et découvrir des alternatives',
+      'Utilisez la métaphore de la danse pour penser les révisions : un mouvement créatif et ajusté, pas une correction punitive',
+      'Évitez la métaphore du marathon si elle vous pousse à l\'épuisement ; préférez celle de la marche à rythme régulier',
+      'Notez vos métaphores dans votre journal de bord pour suivre leur évolution au fil du processus doctoral',
+    ],
+    metaphor: 'La métaphore du labyrinthe vous fait voir chaque impasse comme un échec, tandis que celle du voyage vous fait voir chaque détour comme une découverte.',
+  },
+  {
+    id: 'ir-dependency',
+    title: 'Dépendre des autres sans se perdre',
+    description: 'Le doctorat est paradoxal : c\'est un travail profondément individuel qui dépend pourtant de nombreux autres acteurs. Brause analyse en détail les relations de dépendance avec le directeur de thèse, le comité de thèse, l\'institution et les pairs. La clé est de comprendre que cette dépendance n\'est pas une faiblesse mais une caractéristique structurelle du doctorat. Le défi est de construire ces relations de manière à ce qu\'elles soutiennent votre autonomie croissante plutôt qu\'elles ne la freinent.',
+    practicalAdvice: [
+      'Cartographiez dès le début toutes les personnes dont dépend votre avancement et identifiez leurs attentes respectives',
+      'Comprenez que le comité de thèse a un rôle de gardien (gate-keeping) institutionnel : ne le prenez pas personnellement',
+      'Anticipez les délais institutionnels (approbations éthiques, signatures administratives) car ils sont souvent plus longs que prévu',
+      'Cultivez des relations avec d\'autres doctorants qui comprennent vos défis — le soutien par les pairs est irremplaçable',
+      'Apprenez à demander de l\'aide de manière spécifique et proactive plutôt que d\'attendre que les problèmes s\'aggravent',
+    ],
+    metaphor: 'Le doctorant est comme un grimpeur de cordée : il dépend de ses partenaires de cordée, mais c\'est précisément cette dépendance qui lui permet d\'atteindre des sommets inaccessibles en solo.',
+  },
+  {
+    id: 'ir-choose-director',
+    title: 'Choisir et gérer la relation avec le directeur',
+    description: 'Le choix du directeur de thèse est, selon Brause, l\'une des décisions les plus importantes du doctorat, bien plus déterminante que le choix du sujet lui-même. La relation avec le directeur est une partenariat qui nécessite une communication ouverte, des attentes mutuelles claires et une capacité à naviguer les désaccords constructivement. Brause insiste sur le fait que cette relation évolue au fil du doctorat : le directeur passe progressivement du rôle de guide expert à celui de collègue qui commente le travail d\'un chercheur autonome.',
+    practicalAdvice: [
+      'Avant de vous engager, rencontrez plusieurs directeurs potentiels pour évaluer la compatibilité de vos styles de travail et de vos visions',
+      'Établissez dès le début un accord explicite sur la fréquence des rencontres, le mode de feedback et les délais de réponse',
+      'Préparez chaque rendez-vous avec un ordre du jour précis et des questions spécifiques pour maximiser la valeur de l\'échange',
+      'Apprenez à interpréter les retours de votre directeur : comprendre ce qu\'il veut dire, pas seulement ce qu\'il dit',
+      'Si la relation devient dysfonctionnelle, ne restez pas passif : cherchez des médiations institutionnelles avant qu\'il ne soit trop tard',
+    ],
+    metaphor: 'Le directeur de thèse est un coach d\'alpinisme : il connaît la montagne, il vous indique les voies possibles, mais c\'est vous qui devez grimper chaque mètre.',
+  },
+  {
+    id: 'ir-topic-ownership',
+    title: 'Devenir l\'expert de son sujet',
+    description: 'Un moment charnière du doctorat, selon Brause, est celui où le doctorant cesse d\'être un apprenant qui absorbe les connaissances d\'autrui et devient l\'expert de son propre sujet. Ce passage est progressif mais fondamental : il implique de prendre confiance dans sa propre capacité à évaluer les sources, à formuler des jugements et à identifier ce que les experts établis n\'ont pas encore vu. L\'appropriation du sujet n\'est pas de l\'arrogance mais une nécessité méthodologique pour produire une contribution originale.',
+    practicalAdvice: [
+      'Fixez-vous l\'objectif de devenir LA personne la plus informée au monde sur votre sujet précis — c\'est atteignable et nécessaire',
+      'Quand vous lisez un article, pratiquez la lecture critique active : qu\'est-ce que l\'auteur aurait pu faire différemment ?',
+      'Identifiez les points aveugles de la littérature existante : les questions que personne ne pose encore dans votre champ',
+      'Tenez un carnet où vous enregistrez vos propres idées et hypothèses au même titre que celles des auteurs que vous lisez',
+      'Présentez votre travail dans des séminaires et conférences pour tester votre expertise et recevoir des retours extérieurs',
+    ],
+    metaphor: 'Au début, vous êtes un visiteur dans la maison de la littérature ; à la fin, vous en êtes l\'architecte qui connaît chaque pièce et sait laquelle ajouter.',
+  },
+  {
+    id: 'ir-literate-review',
+    title: 'Maîtriser la littérature existante',
+    description: 'La revue de littérature n\'est pas un simple inventaire des travaux passés, mais un acte argumentatif qui établit la légitimité de votre propre recherche. Brause souligne que maîtriser la littérature, c\'est être capable de la cartographier, d\'en identifier les zones d\'ombre et de positionner son propre travail par rapport aux courants existants. Une revue de littérature réussie ne se contente pas de résumer : elle organise, évalue et critique pour faire émerger l\'espace intellectuel que votre thèse vient occuper.',
+    practicalAdvice: [
+      'Construisez une carte conceptuelle de votre champ de recherche identifiant les principaux courants théoriques et leurs relations',
+      'Pour chaque source clé, rédigez une note critique qui identifie ses forces, ses limites et sa relation avec votre question',
+      'Organisez votre revue de littérature thématiquement et non chronologiquement — la chronologie n\'est pas un argument',
+      'Identifiez explicitement les lacunes (gaps) dans la littérature que votre thèse se propose de combler',
+      'Lisez les revues de littérature de thèses récentes dans votre domaine pour vous inspirer des meilleures pratiques',
+    ],
+    metaphor: 'La revue de littérature est comme un portrait de famille : on ne se contente pas de lister les membres, on montre les ressemblances, les différences et les branches encore à explorer.',
+  },
+  {
+    id: 'ir-proposal-to-dissertation',
+    title: 'Du projet à la thèse',
+    description: 'La proposition de recherche (prospectus) est un point de départ essentiel, mais Brause avertit que la thèse finale différera presque toujours du projet initial, et c\'est une bonne chose. Le processus de recherche transforme la compréhension du doctorant, et cette transformation doit se refléter dans le manuscrit. La flexibilité n\'est pas un manque de rigueur mais une adaptation nécessaire aux découvertes faites en cours de route. Le projet fixe une direction, pas un itinéraire immuable.',
+    practicalAdvice: [
+      'Rédigez votre proposition de recherche avec soin, mais ne la considérez pas comme un contrat intangible avec votre comité',
+      'Documentez les écarts entre votre projet initial et votre travail final — ils sont souvent la marque d\'une maturation intellectuelle',
+      'Quand vous découvrez que vos hypothèses initiales sont fausses, ne paniquez pas : c\'est un résultat de recherche valide et précieux',
+      'Informez votre directeur des changements importants dans votre orientation au fur et à mesure, pas à la fin',
+      'Conservez votre proposition initiale comme point de comparaison pour rédiger la section « limites et perspectives » de votre conclusion',
+      'Prévoyez des jalons intermédiaires qui vous permettent de réévaluer la direction de votre recherche à intervalles réguliers',
+    ],
+    metaphor: 'Le projet de recherche est la boussole, pas le GPS : il vous indique le nord, mais le chemin exact se découvre en marchant.',
+  },
+  {
+    id: 'ir-writing-habits',
+    title: 'Écrire régulièrement et en quantité',
+    description: 'Brause consacre deux chapitres entiers aux habitudes d\'écriture, car elle considère que l\'écriture est le moteur même de la pensée doctorale, pas sa simple traduction. Écrire régulièrement et en quantité suffisante n\'est pas une question de discipline morale mais de stratégie intellectuelle : c\'est en écrivant qu\'on découvre ce qu\'on pense vraiment. Les blocages d\'écriture sont souvent le symptôme d\'un problème de pensée (une idée pas assez claire) plutôt que d\'un problème d\'expression.',
+    practicalAdvice: [
+      'Bloquez des créneaux d\'écriture fixes dans votre emploi du temps comme vous bloqueriez un rendez-vous médical — et respectez-les',
+      'Visez la régularité avant la quantité : 300 mots par jour tous les jours valent mieux que 3000 mots une fois par mois',
+      'Séparez radicalement le moment de la production (rédiger sans juger) du moment de la révision (juger sans rédiger)',
+      'Quand vous êtes bloqué, écrivez n\'importe quoi : une lettre à votre mère expliquant votre recherche, une liste de frustrations, un résumé en trois phrases — le blocage se dissipe par l\'action, pas par l\'attente',
+      'Tenez un registre de votre production quotidienne pour visualiser votre progression et maintenir votre motivation',
+    ],
+    metaphor: 'Écrire une thèse, c\'est comme construire un mur de pierres : chaque mot est une pierre, chaque jour ajoute une rangée, et la régularité compte plus que la vitesse.',
+  },
+  {
+    id: 'ir-emotional-journey',
+    title: 'Gérer la dimension émotionnelle',
+    description: 'Le doctorat est autant une épreuve émotionnelle qu\'intellectuelle, et Brause est l\'un des rares auteurs à aborder cette dimension ouvertement. Le syndrome de l\'imposteur, l\'anxiété de ne pas être à la hauteur, les doutes sur la pertinence de sa recherche et les phases de découragement sont des expériences universelles parmi les doctorants — pas des signaux de faiblesse personnelle. Reconnaître et normaliser ces émotions est la première étape pour les gérer efficacement et les transformer en moteur plutôt qu\'en frein.',
+    practicalAdvice: [
+      'Normalisez le syndrome de l\'imposteur : la quasi-totalité des doctorants l\'éprouvent, y compris ceux qui réussissent brillamment',
+      'Célébrez les petites victoires : un chapitre terminé, un retour positif, une citation acceptée dans une conférence',
+      'Créez un groupe de soutien avec d\'autres doctorants qui partagent les mêmes défis émotionnels',
+      'Quand le doute vous envahit, relisez vos notes de lecture et vos écrits antérieurs pour vous rappeler le chemin parcouru',
+      'Distinguez les doutes légitimes (qui appellent un travail supplémentaire) des peurs irrationnelles (qui appellent de la perspective)',
+      'Prenez soin de votre santé physique et mentale : le doctorat est un marathon, pas un sprint',
+    ],
+    metaphor: 'Le doctorant est un plongeur en haute mer : il y a des moments de panique à la surface et de calme dans les profondeurs, mais il ne faut jamais oublier que l\'on respire.',
+  },
+  {
+    id: 'ir-feedback-cycle',
+    title: 'Le cycle des retours et révisions',
+    description: 'Le processus de révision est au cœur du travail doctoral, et Brause décrit comment apprendre à recevoir et intégrer les retours est une compétence qui s\'acquiert avec le temps. Les retours du directeur et du comité ne sont pas des jugements personnels mais des contributions à l\'amélioration du texte. Savoir distinguer les retours essentiels (qui touchent à la structure et à l\'argumentation) des retours secondaires (qui concernent le style et la forme) permet de prioriser les révisions et de ne pas se sentir submergé.',
+    practicalAdvice: [
+      'Quand vous recevez un retour, prenez un jour pour le digérer avant de commencer à réviser — les réactions émotionnelles initiales faussent le jugement',
+      'Classez les retours en trois catégories : structurels (à traiter en priorité), argumentatifs (à traiter ensuite), stylistiques (à traiter en dernier)',
+      'Demandez des clarifications quand un retour est ambigu — ne devinez pas ce que votre directeur voulait dire',
+      'Ne prenez pas les retours personnellement : ils concernent le texte, pas vous en tant que personne ni en tant que chercheur',
+      'Gardez une trace de toutes les révisions effectuées et des raisons de vos choix quand vous ne suivez pas un retour',
+    ],
+    metaphor: 'Les retours sont comme les outils du sculpteur : ils enlèvent ce qui est superflu pour révéler la forme qui était cachée dans le marbre brut.',
+  },
+  {
+    id: 'ir-defense-prep',
+    title: 'Préparer la soutenance',
+    description: 'La soutenance est la dernière étape mais certainement pas la moins importante. Brause décrit la préparation de la soutenance comme un processus spécifique qui demande des compétences différentes de la rédaction. Il ne suffit pas de connaître son texte par cœur : il faut être capable de le présenter oralement de manière claire et convaincante, de répondre aux questions imprévues avec assurance et de montrer que l\'on maîtrise l\'ensemble du champ de recherche, pas seulement les aspects traités dans la thèse.',
+    practicalAdvice: [
+      'Préparez une présentation de 20 à 30 minutes qui met en évidence votre contribution originale, pas un résumé exhaustif de chaque chapitre',
+      'Anticipez les questions possibles en vous mettant à la place de chaque membre du jury et en identifiant les points faibles de votre travail',
+      'Pratiquez votre présentation devant un public test (collègues, amis, famille) et demandez-leur de poser des questions difficiles',
+      'Préparez des réponses courtes et précises pour les questions courantes : « Pourquoi cette méthodologie ? », « Quelle est votre contribution ? », « Quelles sont les limites ? »',
+      'Le jour de la soutenance, écoutez attentivement chaque question avant de répondre — ne vous précipitez pas, prenez quelques secondes pour réfléchir',
+    ],
+    metaphor: 'La soutenance est comme une représentation théâtrale : les répétitions déterminent la qualité de la prestation, mais l\'improvisation habile face à l\'imprévu est ce qui distingue les grands interprètes.',
+  },
+  {
+    id: 'ir-completion',
+    title: 'Passer de doctorant à docteur',
+    description: 'La dernière règle de Brause concerne la transformation identitaire que représente l\'obtention du doctorat. Devenir docteur n\'est pas seulement obtenir un diplôme mais changer de statut intellectuel et professionnel. Cette transition peut être déconcertante : après des années à se définir comme « doctorant », il faut se réinventer en tant que « docteur » et « chercheur ». Brause souligne l\'importance de planifier cette transition et de ne pas la subir passivement, car la période post-thèse est souvent vécue comme un vide aussi difficile que la thèse elle-même.',
+    practicalAdvice: [
+      'Commencez à planifier votre post-doctorat (emploi, post-doc, publications) au moins six mois avant la soutenance',
+      'Transformez votre thèse en articles publiables dès que possible pour capitaliser sur votre travail pendant qu\'il est encore frais',
+      'Réfléchissez à votre identité professionnelle post-thèse : quel chercheur voulez-vous devenir ? Dans quel domaine ? Avec quels collègues ?',
+      'Acceptez que la fin de la thèse est une perte (celle d\'un projet qui a structuré votre vie pendant des années) et donnez-vous le droit de la vivre',
+      'Célébrez votre accomplissement : vous avez mené à bien un projet intellectuel majeur, et cela mérite d\'être reconnu',
+      'Maintenez les liens avec votre réseau doctoral — vos collègues de promotion seront vos collègues professionnels pour les décennies à venir',
+    ],
+    metaphor: 'Le doctorant est une chenille qui a tissé son cocon pendant des années ; le docteur est le papillon qui doit apprendre à voler dans un ciel qu\'il n\'a pas encore exploré.',
+  },
+]
