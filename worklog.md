@@ -408,3 +408,33 @@ Stage Summary:
 - Murray "How to Write a Thesis" fully integrated as book #14
 - User's subdivision structure advice integrated into REDACTION_KNOWLEDGE
 - Knowledge base now covers 14 reference works with comprehensive French-language summaries
+---
+Task ID: 15
+Agent: main
+Task: Integrate and improve prompts from 3 uploaded PDFs into thesis-assistant-knowledge.ts
+
+Work Log:
+- Extracted text from 3 PDFs: prompts-researchers.txt (320 lines), prompts-51.txt (1331 lines), prompts-user.txt (384 lines)
+- Analyzed "10 Essential Prompts for Researchers" (Dr. Khaleel Mohsin): 10 research-specific prompts, all highly relevant
+- Analyzed "51 Prompts Géniaux" (Onur Karapinar): only 3 relevant out of 51 (tuteur d'écriture, académicien, essayiste)
+- Analyzed user's "prompt_pdf.pdf": super-agent modular architecture with 7 specialized agents, task routing, structured outputs
+- Improved all 12 selected prompts: translated to French, enriched with academic specificity, added structured output requirements, linked to knowledge base concepts (Murray, Holtom, etc.)
+- Created new SPECIALIZED_PROMPTS const with 12 improved prompts (P1-P12) + multi-agent architecture principles
+- Added SPECIALIZED_PROMPTS to all 7 modes in MODE_KNOWLEDGE
+- Updated general MODE_PROMPT to mention the 12-prompt toolbox and orchestrateur role
+- Lint: 0 errors. Browser: page loads without errors.
+
+Stage Summary:
+- P1: Planification de revue de littérature (→ bibliographie)
+- P2: Identification des lacunes de recherche (→ méthodologie/critique)
+- P3: Synthèse comparative d'études (→ bibliographie)
+- P4: Organisation thématique des références (→ bibliographie)
+- P5: Amélioration d'un paragraphe académique (→ correction/rédaction)
+- P6: Évaluation critique d'une méthodologie (→ critique/méthodologie)
+- P7: Reformulation de questions de recherche (→ méthodologie)
+- P8: Génération de cadre conceptuel (→ méthodologie)
+- P9: Simulation de relecture pré-publication (→ critique)
+- P10: Plan de travail hebdomadaire (→ suivi)
+- P11: Tuteur d'écriture académique (→ correction)
+- P12: Simulation de soutenance viva (→ suivi/critique)
+- Multi-agent architecture: 7 specialized agents + orchestrator pattern integrated
