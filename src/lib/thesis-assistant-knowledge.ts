@@ -41,6 +41,7 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 5. Brause, D. (2000). Write Your Dissertation in Fifteen Minutes a Day. Owl Books.
 6. Bailey, S. (2015). Academic Writing: A Handbook for International Students (4e éd.). Routledge.
 7. Beaud, M. & Gravier, M. (2019). L'art de la thèse (7e éd.). La Découverte.
+8. Munn, Z. et al. (2018). Systematic review or scoping review? BMC Medical Research Methodology, 18, 143.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 
@@ -221,7 +222,47 @@ CONSEILS BIBLIOGRAPHIQUES :
   - Si l'IA a été utilisée pour générer du texte, le signaler clairement
   - Vérifier systématiquement les faits et références générés par l'IA
   - Ne pas présenter le contenu généré par IA comme sien sans déclaration
-`
+
+◆ 10 TYPES DE REVUES DE LITTÉRATURE :
+  1. NARRATIVE REVIEW — vue d'ensemble large d'un sujet, tendances et perspectives clés
+  2. SYSTEMATIC REVIEW — méthodologie rigoureuse et préétablie pour identifier, évaluer et synthétiser les études pertinentes pour une question spécifique
+  3. META-ANALYSIS — combine statistiquement les résultats de plusieurs études quantitatives pour des conclusions plus robustes
+  4. SCOPING REVIEW — cartographie la littérature pour identifier concepts clés, types de preuves et lacunes dans un domaine large
+  5. INTEGRATIVE REVIEW — synthétise des études utilisant des méthodologies diverses pour générer de nouveaux cadres
+  6. CRITICAL REVIEW — évalue la qualité, forces et limites de la littérature en identifiant biais et incohérences
+  7. THEORETICAL REVIEW — examine et critique les théories et modèles conceptuels pour bâtir un fondement théorique
+  8. METHODOLOGICAL REVIEW — se concentre sur les méthodes de recherche utilisées dans les études antérieures
+  9. EMPIRICAL REVIEW — évalue et synthétise les preuves empiriques liées à la question de recherche
+  10. REALIST REVIEW — explore comment et pourquoi les interventions fonctionnent, pour qui et dans quelles circonstances
+
+◆ REVUE SYSTÉMATIQUE vs SCOPING REVIEW (Munn et al., 2018) :
+  - Revue systématique : répond à une question clinique/pratique précise, inclut l'évaluation critique (risk of bias), synthèse des résultats, implications pour la pratique
+  - Scoping review : cartographie un domaine, identifie les concepts et lacunes, PAS d'évaluation critique obligatoire (sauf besoin spécifique), portée plus large
+  - Indications pour une scoping review :
+    · Identifier les types de preuves disponibles dans un domaine
+    · Clarifier des concepts/définitions dans la littérature
+    · Examiner comment la recherche est conduite sur un sujet
+    · Identifier les caractéristiques clés liées à un concept
+    · Comme précurseur à une revue systématique
+    · Identifier et analyser les lacunes dans la base de connaissances
+  - Indications pour une revue systématique :
+    · Répondre à une question de faisabilité, pertinence, signification ou efficacité
+    · Confirmer/infirmer une pratique basée sur les preuves
+    · Identifier les conflits dans les résultats
+    · Produire des recommandations pour la prise de décision
+  - ATTENTION : ne pas choisir une scoping review pour éviter l'évaluation critique ou pour gagner du temps
+  - Différences clés :
+    · Protocole a priori : scoping (parfois), systématique (oui)
+    · Évaluation critique obligatoire : scoping (non), systématique (oui)
+    · Synthèse des résultats : scoping (non), systématique (oui)
+    · Question PCC vs PICO : scoping utilise Population-Concept-Contexte, systématique utilise PICO
+
+◆ REVUES DE LITTÉRATURE ET THÈSE :
+  - La revue de littérature d'une thèse est généralement une NARRATIVE ou INTEGRATIVE REVIEW
+  - Elle peut intégrer des éléments de SYSTEMATIC REVIEW si le domaine le justifie
+  - Dans les SHS, les revues théoriques et critiques sont les plus fréquentes
+  - Toujours justifier le type de revue choisi dans la section méthodologique
+  - Une revue de type scoping est pertinente si le champ est émergent ou mal délimité`
 
 const SUIVI_KNOWLEDGE = `
 CONSEILS DE SUIVI D'AVANCEMENT :
