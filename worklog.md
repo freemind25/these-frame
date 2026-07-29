@@ -339,3 +339,27 @@ Stage Summary:
 - Phase 1 complete: thesis AI assistant with 7 specialized modes, knowledge from 7 books, conversation memory
 - Browser-verified end-to-end: click sidebar button → Sheet opens → type question → AI responds with structured answer
 - Total new/modified code: ~600 lines across 5 files
+
+---
+Task ID: directeur-chatbot
+Agent: main
+Task: Create a conversational chatbot acting as "Directeur de thèse" (thesis director)
+
+Work Log:
+- Analyzed existing directeur infrastructure: directeur-prompt.ts (system prompt + types), /api/directeur (one-shot evaluation), directeur-tab.tsx (form-based UI)
+- Analyzed existing thesis-assistant-chat.tsx and /api/thesis-assistant for conversational API patterns
+- Created /api/directeur-chat/route.ts — conversational API with in-memory session store, enhanced DIRECTEUR_SYSTEM_PROMPT with conversational mode instructions, context injection (chapter content, thesis progress, problematique, hypothese)
+- Created src/components/thesis/directeur-chat.tsx — Sheet-based chat UI with amber/golden theme, DirecteurBubble component, context toggle, auto-scroll, Enter/Shift+Enter, "Nouvelle réunion" clear button
+- Modified src/components/thesis/workspace/tools-sidebar.tsx — added GraduationCap import, 'Directeur IA' tool button (key='directeur', positioned right after 'Assistant IA'), onOpenDirecteur prop
+- Modified src/app/page.tsx — imported DirecteurChat, added directeurOpen state, wired onOpenDirecteur prop, rendered DirecteurChat with full context props
+- Fixed unused SOUS_DOMAINES import in API route
+- Verified: lint passes (0 errors), dev server 200, Agent Browser confirms: button visible in sidebar, Sheet opens with amber theme, welcome message renders with bold formatting, chapter context indicator active, input/submit/clear all present
+
+Stage Summary:
+- 2 new files created, 2 existing files modified
+- Files: src/app/api/directeur-chat/route.ts (163 lines), src/components/thesis/directeur-chat.tsx (282 lines)
+- The directeur chatbot is conversational (unlike the existing one-shot /api/directeur form evaluation)
+- Uses the same demanding DIRECTEUR_SYSTEM_PROMPT persona but adds conversational behavior instructions
+- Amber/golden theme visually distinct from the green assistant chatbot
+- Context injection: chapter title, number, content (truncated 4k chars), thesis progress, title, field
+- Browser-verified: Sheet opens, welcome message renders correctly, all UI elements functional

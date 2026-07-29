@@ -16,6 +16,7 @@ import ProviderSettingsDialog from '@/components/thesis/workspace/provider-setti
 import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
 import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 import ThesisAssistantChat from '@/components/thesis/thesis-assistant-chat'
+import DirecteurChat from '@/components/thesis/directeur-chat'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -74,6 +75,7 @@ export default function Home() {
   const [harperOpen, setHarperOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [assistantOpen, setAssistantOpen] = useState(false)
+  const [directeurOpen, setDirecteurOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
@@ -586,6 +588,7 @@ export default function Home() {
           isMobile={isMobile}
           editorMode={editorMode}
           onOpenAssistant={() => setAssistantOpen(true)}
+          onOpenDirecteur={() => setDirecteurOpen(true)}
           onOpenRefs={() => setRefsOpen(true)}
           onOpenResources={() => setResourcesOpen(true)}
           onOpenExport={() => setExportOpen(true)}
@@ -736,6 +739,17 @@ export default function Home() {
             : text
           handleContentChange(newContent)
         }}
+      />
+
+      <DirecteurChat
+        open={directeurOpen}
+        onOpenChange={setDirecteurOpen}
+        chapterNumber={chapterMeta?.number || activeChapter?.number}
+        chapterTitle={chapterMeta?.title || activeChapter?.title}
+        chapterContent={activeChapter?.content}
+        chapters={thesis?.chapters}
+        thesisTitle={thesis?.title}
+        thesisField={thesis?.field}
       />
 
       <ProviderSettingsDialog

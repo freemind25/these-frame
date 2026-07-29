@@ -5,6 +5,7 @@ import {
   MessageSquare, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
+  GraduationCap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -12,6 +13,7 @@ import type { ThesisData } from '@/types/thesis'
 
 const TOOLS = [
   { icon: MessageSquare, label: 'Assistant IA', key: 'assistant' },
+  { icon: GraduationCap, label: 'Directeur IA', key: 'directeur' },
   { icon: Library, label: 'Références biblio.', key: 'refs' },
   { icon: BookOpen, label: 'Guide rédaction', key: 'resources' },
   { icon: Download, label: 'Export PDF', key: 'export' },
@@ -33,6 +35,7 @@ interface ToolsSidebarProps {
   isMobile: boolean
   editorMode: 'rich' | 'plain'
   onOpenAssistant: () => void
+  onOpenDirecteur: () => void
   onOpenRefs: () => void
   onOpenResources: () => void
   onOpenExport: () => void
@@ -52,7 +55,7 @@ interface ToolsSidebarProps {
 
 export default function ToolsSidebar({
   thesis, totalWords, sidebarOpen, onCloseSidebar, isMobile, editorMode,
-  onOpenAssistant, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
+  onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
   onToggleEditorMode, onSwitchMode, onOpenTemplates,
@@ -61,6 +64,7 @@ export default function ToolsSidebar({
 
   const toolActions: Record<string, () => void> = {
     assistant: onOpenAssistant,
+    directeur: onOpenDirecteur,
     refs: onOpenRefs,
     resources: onOpenResources,
     export: onOpenExport,
