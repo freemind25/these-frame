@@ -15,6 +15,7 @@ import HelpPanel from '@/components/thesis/workspace/help-panel'
 import ProviderSettingsDialog from '@/components/thesis/workspace/provider-settings-dialog'
 import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
 import TemplateDialog from '@/components/thesis/workspace/template-dialog'
+import ThesisAssistantChat from '@/components/thesis/thesis-assistant-chat'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -72,6 +73,7 @@ export default function Home() {
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [harperOpen, setHarperOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
@@ -583,6 +585,7 @@ export default function Home() {
           onCloseSidebar={() => setSidebarOpen(false)}
           isMobile={isMobile}
           editorMode={editorMode}
+          onOpenAssistant={() => setAssistantOpen(true)}
           onOpenRefs={() => setRefsOpen(true)}
           onOpenResources={() => setResourcesOpen(true)}
           onOpenExport={() => setExportOpen(true)}
@@ -715,6 +718,11 @@ export default function Home() {
         open={templateOpen}
         onOpenChange={setTemplateOpen}
         onApply={handleApplyTemplate}
+      />
+
+      <ThesisAssistantChat
+        open={assistantOpen}
+        onOpenChange={setAssistantOpen}
       />
 
       <ProviderSettingsDialog

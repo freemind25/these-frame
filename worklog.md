@@ -278,3 +278,64 @@ There IS an existing AI chat feature embedded in the HelpPanel:
 8. **Server has in-memory session store** for AI conversations (Map, no persistence)
 9. **Prisma DB** exists for thesis CRUD but not used for AI/conversations
 10. **TypeScript types** defined in `@/types/thesis` (ThesisData, ChatMsg, etc.)
+
+---
+Task ID: 3-chat-ui
+Agent: main
+Task: Create thesis-assistant-chat.tsx — full-featured chat UI component for thesis AI assistant
+
+Work Log:
+- Read worklog.md for prior context and project architecture understanding
+- Read src/lib/thesis-assistant-knowledge.ts to understand AssistantMode type, ASSISTANT_MODES config (7 modes with icon/color/label/description)
+- Read src/app/api/thesis-assistant/route.ts to understand API contract (POST with mode/message/sessionId, DELETE with sessionId query param)
+- Read src/components/ui/sheet.tsx and src/components/ui/scroll-area.tsx to understand component APIs
+- Read src/app/globals.css to check for no-scrollbar utility (not present, used as specified in requirements)
+- Created src/components/thesis/thesis-assistant-chat.tsx (327 lines) with all required features:
+  - Props: `{ open: boolean; onOpenChange: (open: boolean) => void }`
+  - Sheet from shadcn/ui, right side, dark theme (slate-950 bg, slate-800 border)
+  - ICON_MAP mapping 7 icon names to lucide-react components
+  - State: messages, input, loading, activeMode, sessionId
+  - Welcome message in French on mount
+  - Header with MessageSquare icon + "Assistant Thèse" title + custom X close button (hides SheetContent's auto close button)
+  - Horizontal scrollable mode selector bar with icon + label per mode, active mode uses bg-slate-800 + mode-specific color
+  - ScrollArea messages area with auto-scroll on message change
+  - User messages: emerald theme, right-aligned label "Vous", rounded-2xl with br-md notch
+  - Assistant messages: slate theme, left-aligned label "Assistant", ReactMarkdown with prose-invert styling
+  - Loading indicator with Loader2 spinner and "Réflexion en cours…"
+  - Auto-resizing textarea (max 4 rows / 96px) with dark theme
+  - Send button (emerald, disabled when empty/loading, shows spinner when loading)
+  - Enter to send, Shift+Enter for newline
+  - Bottom bar: message count + "Nouvelle conversation" button (Trash2 icon)
+  - Mode change confirmation via window.confirm when messages exist beyond welcome
+  - Clear conversation: DELETE to API, reset messages to welcome, generate new sessionId
+  - Error handling for API failures (shows error as assistant message)
+- Verified: lint passes (0 new errors/warnings), pre-existing TypeScript errors are unrelated
+
+Stage Summary:
+- File created: src/components/thesis/thesis-assistant-chat.tsx (327 lines)
+- Default export: ThesisAssistantChat component
+- Integrates with existing /api/thesis-assistant route and thesis-assistant-knowledge module
+- All 12 requirements implemented
+- No other files modified
+
+---
+Task ID: phase1-assistant
+Agent: main
+Task: Implement Phase 1 — Thesis AI Assistant (knowledge module + API + chat UI + sidebar integration)
+
+Work Log:
+- Analyzed Perplexity conversation (2970 lines, 10 exchanges) about multi-agent thesis assistant architecture
+- Provided detailed critical analysis: good vision but over-engineered, incompatible stack, no MVP path
+- Proposed pragmatic 5-phase implementation plan aligned with existing Next.js/TypeScript stack
+- Created `src/lib/thesis-assistant-knowledge.ts` — knowledge builder with 7 modes (general, redaction, correction, critique, methode, bibliographie, suivi), each with specialized system prompt + knowledge extracted from 7 academic books (Turabian, Murray, Brause, Bailey, Beaud & Gravier, etc.)
+- Created `src/app/api/thesis-assistant/route.ts` — API route with POST (chat with mode/message/sessionId, in-memory conversation history, z-ai SDK) and DELETE (clear history)
+- Created `src/components/thesis/thesis-assistant-chat.tsx` (327 lines) via Task agent — full chat UI with: Sheet overlay, 7 mode selector buttons, message list with ReactMarkdown, auto-scroll, loading indicator, auto-resize textarea, Enter/Shift+Enter, new conversation, mode change confirmation
+- Modified `src/components/thesis/workspace/tools-sidebar.tsx` — added 'Assistant IA' as first tool button with MessageSquare icon, added onOpenAssistant prop
+- Modified `src/app/page.tsx` — imported ThesisAssistantChat, added assistantOpen state, added onOpenAssistant prop to ToolsSidebar, rendered ThesisAssistantChat component
+- Verified: lint passes (0 errors), dev server compiles (GET / 200), Agent Browser confirms: button visible in sidebar, Sheet opens correctly, 7 mode buttons render, welcome message displayed, AI response received for test question
+
+Stage Summary:
+- 3 new files created, 2 existing files modified
+- Phase 1 complete: thesis AI assistant with 7 specialized modes, knowledge from 7 books, conversation memory
+- Browser-verified end-to-end: click sidebar button → Sheet opens → type question → AI responds with structured answer
+- Total new/modified code: ~600 lines across 5 files
