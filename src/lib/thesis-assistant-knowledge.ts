@@ -1,6 +1,6 @@
 /**
  * Constructeur de contexte de connaissances pour l'assistant thèse.
- * Extrait et synthétise les connaissances clés des 7 ouvrages de référence
+ * Extrait et synthétise les connaissances clés des 13 ouvrages de référence
  * pour injection dans le prompt système de l'assistant.
  */
 
@@ -42,6 +42,11 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 6. Bailey, S. (2015). Academic Writing: A Handbook for International Students (4e éd.). Routledge.
 7. Beaud, M. & Gravier, M. (2019). L'art de la thèse (7e éd.). La Découverte.
 8. Munn, Z. et al. (2018). Systematic review or scoping review? BMC Medical Research Methodology, 18, 143.
+9. Holtom, D. & Fisher, E. (1999). Enjoy Writing Your Science Thesis or Dissertation. Imperial College Press.
+10. Pearce, L. (2005). How To Examine A Thesis. SRHE & Open University Press.
+11. Carter, S., Kelly, F. & Brailsford, I. (2012). Structuring Your Research Thesis. Palgrave Macmillan.
+12. Mars, N. (2020). Academic Writing: Research: How to Write a Good, Strong, Important and Interesting Thesis.
+13. Andrews, G. (2019). Your Thesis: Writing Strengths and Challenges. Essay and Thesis Writing Series.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 
@@ -88,6 +93,74 @@ CONSEILS DE RÉDACTION :
   - Utiliser des connecteurs logiques explicites (cependant, en revanche, par conséquent, en effet)
   - Varier la longueur des phrases pour le rythme
   - Éviter les adverbes emphatiques (très, vraiment, absolument)
+
+◆ Structure en entonnoir de l'Introduction (Holtom & Fisher) :
+  - Début : contexte large et scene-setting
+  - Milieu : domaine de spécialité, travaux antérieurs pertinents
+  - Fin : objectif/question précise + aperçu de l'approche expérimentale
+  - L'Introduction va du large vers l'étroit.
+
+◆ Structure en trompette inversée de la Discussion (Holtom & Fisher) :
+  - Début : rappel de l'objectif
+  - Milieu : discussion point par point des résultats + mise en contexte + traitement immédiat des objections
+  - Fin : conclusion + suggestions pour travaux futurs (toujours positif)
+  - La Discussion va de l'étroit vers le large — structure miroir de l'Introduction.
+
+◆ Proportions optimales d'une thèse scientifique (Holtom & Fisher) :
+  - Introduction : 20-30%
+  - Matériel & Méthodes : 10-20%
+  - Résultats : 35-45% (le cœur du document)
+  - Discussion : 20-25%
+
+◆ Signposting et fluidité (Holtom & Fisher) :
+  - Utiliser des mots de transition pour « lubrifier » le texte : therefore, however, in particular
+  - Reprendre un mot-clé de la fin d'un paragraphe au début du suivant
+  - Chaque paragraphe = une seule idée principale, introduite par une phrase-topic
+
+◆ « Dégonfler » involontairement son argument (Holtom & Fisher) :
+  - « Personnellement, je pense que... » = admet que d'autres seraient en désaccord
+  - Utiliser « définitivement » trop souvent = suggère que le reste ne l'est pas
+  - Les formulations qui sapent involontairement le propos doivent être systématiquement traquées.
+
+◆ La « thésité » — thesisliness (Carter et al.) :
+  - Une thèse doit ressembler à, et être reconnue comme, une thèse authentique.
+  - Trois dimensions de la structure opèrent simultanément :
+    · Ordonnancement (l'ordre des parties)
+    · Mise en relief/proportion (l'espace accordé à chaque élément = importance perçue)
+    · Cohésion (les liens entre parties)
+  - Le premier et le dernier élément d'une liste sont surévalués par le lecteur.
+
+◆ Modèles de structure de thèse (Carter et al.) :
+  - Modèle scientifique classique : Introduction → Revue → Méthodologie → Résultats → Discussion → Conclusion
+  - Modèle thématique (pivot de la grille) : remplacer l'organisation par données par des thèmes dynamiques
+  - Modèle en « ouverture » de Dunleavy : brève revue d'ouverture, cœur = travail original, analyse littéraire approfondie en fin
+  - Modèle mnémonique/spatial : concevoir la thèse comme un bâtiment dont on fait la visite guidée
+
+◆ Sémiotique cachée de la structure (Carter et al.) :
+  - Plus d'espace accordé à un sujet = plus d'importance perçue par le lecteur
+  - Les lecteurs déduisent l'importance de la quantité d'espace alloué
+  - La structure est un système sémiotique : les choix structurels révèlent les valeurs de l'auteur
+  - Les sous-titres doivent porter des idées (l'étincelle) plutôt que des faits inertes
+
+◆ Front stage / back stage (Carter et al., Eik-Nes) :
+  - Front stage : l'argument de l'auteur, au premier plan
+  - Back stage : la littérature secondaire, les notes de terrain, en arrière-plan
+  - Ne pas laisser la littérature étouffer l'argument propre
+
+◆ La séquence de planification paradoxale (Holtom & Fisher) :
+  - Planifier dans l'ordre : M&M → Références → Résultats → Introduction → Discussion → Résumé
+  - Permet de découvrir ce qui a été réellement accompli avant de reformuler l'objectif
+  - L'écriture incrémentale dès le premier jour : rédiger M&M et entrer les références immédiatement
+
+◆ Éviter la « mesmerisation par ses propres mots » (Holtom & Fisher) :
+  - Un texte imprimé joliment donne l'illusion d'être correct
+  - Les examinateurs ne seront pas aussi indulgents
+  - Planifier d'abord pour éviter douloureusement de supprimer des passages entiers
+
+◆ Treatment immédiat des contre-arguments (Holtom & Fisher) :
+  - Les objections alternatives doivent être traitées point par point au fur et à mesure
+  - Ne JAMAIS les présenter en bloc puis les réfuter — sinon le lecteur « fermente » l'objection
+  - Mieux vaut les aborder dans le corps du texte que les esquiver
 `
 
 const CORRECTION_KNOWLEDGE = `
@@ -154,7 +227,35 @@ CONSEILS D'ANALYSE CRITIQUE :
   - Le blocage d'écriture est normal — ne pas le dramatiser
   - La perfection est l'ennemi de la thèse — viser «assez bon pour avancer»
   - Les retours négatifs sont des opportunités d'amélioration
-`
+
+◆ Ce que les examinateurs recherchent (Pearce) :
+  - Originalité de la contribution : quelque chose de nouveau (méthode, données, cadre conceptuel, argument)
+  - Connaissance approfondie du champ : maîtrise de la littérature pertinente et des débats en cours
+  - Réponse aux objectifs déclarés : accomplir ce qui est annoncé dans l'introduction et l'abstract
+  - Qualité méthodologique : adéquation entre méthode et question, justification théorique
+  - Cohérence argumentative : la thèse doit tenir logiquement de l'introduction à la conclusion
+  - Potentiel de publication : du matériel de qualité suffisante pour une publication savante
+  - Authenticité : vérification que la thèse est le propre travail du candidat
+
+◆ Dynamiques de pouvoir invisibles lors de la soutenance (Pearce) :
+  - L'examen doctoral est un terrain politique, pas purement académique
+  - Les relations de pouvoir entre examinateurs, directeurs et candidats façonnent le résultat
+  - L'examinateur externe est l'autorité intellectuelle dominante
+  - La « viva » ressemble plus à un interrogatoire qu'à une défense publique
+  - L'originalité reste le critère-roi mais varie selon disciplines et établissements
+  - Le « picotage » (nit-picking) détruit la confiance du candidat sans évaluer la thèse
+  - La présentation impeccable est un bouclier contre le nit-picking
+
+◆ La réflexivité comme qualité (Pearce) :
+  - Si un objectif déclaré n'est pas atteint, le reconnaître est une qualité, pas un défaut
+  - Les limites du travail doivent être discutées ouvertement
+  - La capacité à défendre ses choix méthodologiques est évaluée
+
+◆ L'abstract comme point d'entrée critique (Pearce & Holtom) :
+  - Souvent la première chose lue par l'examinateur
+  - Doit tenir sur une seule page sans headings
+  - Répondre à quatre questions : quelle question ? quel système ? quels résultats ? quelle réponse ?
+  - Doit être un compte rendu fidèle et complet de la thèse`
 
 const METHODOLOGIE_KNOWLEDGE = `
 CONSEILS MÉTHODOLOGIQUES :
@@ -191,7 +292,43 @@ CONSEILS MÉTHODOLOGIQUES :
   - L'écriture est à la fois personnelle et académique
   - Les textes les plus clairs sont souvent les plus difficiles à écrire
   - Il faut écrire seul mais dans un dialogue constant avec la littérature
-`
+
+◆ La « recette » méthodologique (Holtom & Fisher) :
+  - La section Matériel & Méthodes n'est PAS un récit mais une recette exacte
+  - Inclure pH, fabricants, numéros de modèle, tout ce qui permet la reproduction
+  - Ne JAMAIS inclure de résultats dans la section des méthodes (erreur la plus grave)
+  - Conserver les mêmes échantillons dans le même ordre logique sur toutes les figures
+
+◆ Les trois grandes familles méthodologiques (Mars) :
+  - Quantitative : mesurable et statistique
+  - Qualitative : observation directe et discernement subjectif
+  - Mixte : combinant les deux pour mesurer des interactions sociales complexes
+
+◆ La nécessité de la surprise dans la méthodologie (Mars) :
+  - Une bonne méthodologie ne doit PAS rendre les résultats prévisibles dès le départ
+  - Les résultats doivent guider le chercheur de manière aussi indépendante que possible
+  - Si la méthodologie contrôle trop, les résultats perdent leur valeur scientifique
+
+◆ La dimension éthique de la recherche (Mars) :
+  - Aucune recherche ne doit être dépourvue de moralité, d'éthique ou de justice sociale
+  - Le chercheur doit minimiser les risques et maximiser l'importance potentielle pour la société
+  - Toute méthodologie reposant sur des préjugés (racisme, stratification de classes) est invalide
+
+◆ La triade de la réussite analytique (Mars) :
+  1. Contrôle du processus (prédiction de l'issue)
+  2. Développement des compétences (la pratique d'une technique efficace)
+  3. Étude systématique des similarités et différences
+
+◆ Responsabilité absolue du chercheur (Mars) :
+  - En écriture académique, on est responsable de tout ce qu'on affirme
+  - Fournir des preuves ou justifications pour absolument tout ce qu'on produit
+  - La capacité de fournir des preuves est la meilleure défense
+
+◆ La section M&M comme « recette de reproduction » (Holtom & Fisher) :
+  - La règle fondamentale : quiconque doit pouvoir reproduire le travail à l'identique
+  - Distinguer entre conventions (à découvrir en consultant des thèses récentes) et règles institutionnelles
+  - Vérifier les règles institutionnelles AVANT de commencer à écrire
+  - Résultats négatifs : les inclure si ils aident à discuter de la méthodologie ou à avertir d'autres chercheurs`
 
 const BIBLIOGRAPHIE_KNOWLEDGE = `
 CONSEILS BIBLIOGRAPHIQUES :
@@ -305,6 +442,48 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   5. Révision et reformulation
   6. Mise en forme et normalisation
   7. Préparation de la soutenance
+
+◆ Les 10 composantes de la réussite thésardale (Andrews) :
+  1. Motivation — la force motrice initiale
+  2. Endurance mentale — capacité à produire sur de longues sessions
+  3. Confiance — potentiellement le facteur le plus déterminant
+  4. Connaissances — maîtrise du domaine
+  5. Congruence — alignement entre aptitudes, intérêts et domaine
+  6. Soutien social — famille, amis, directeur, groupe de pairs
+  7. Curiosité intellectuelle — moteur de la recherche
+  8. Ténacité (grit) — persévérance à long terme
+  9. Santé mentale — souvent négligée mais critique
+  10. Aptitude à l'écriture — compétence technique et créative
+
+◆ Le syndrome de l'imposteur (Andrews) :
+  - Très répandu chez les universitaires, y compris les chercheurs de haut niveau
+  - Ce n'est PAS un signe d'incompétence mais une réaction normale au milieu académique
+  - Le fait d'avoir été accepté dans le programme signifie que vous êtes largement capable
+  - Les autres chercheurs ne réussissent pas sans difficulté — cette croyance est toxique
+  - Le taux d'abandon en doctorat atteint 50 % : les difficultés sont structurelles
+
+◆ Planification ultra-détaillée (Andrews) :
+  - Aller bien au-delà de la proposition de recherche
+  - Quels articles lire quels jours, quelles sections avec objectif de mots précis
+  - Tenir un « journal de thèse » de 15 min/jour : progrès, frustrations, objectifs
+  - Participer à des séances d'écriture collective (type « Shut Up and Write »)
+  - Fréquenter séminaires et conférences pour renforcer confiance et légitimité
+
+◆ Gestion stratégique des tâches (Holtom & Fisher) :
+  - Alterner tâches fastidieuses et stimulantes
+  - Sortir se promener quand bloqué — « le cerveau trouvera la réponse si on le laisse en roue libre »
+  - Garder un carnet d'idées avec un stylo à côté du lit
+  - Laisser au moins une nuit entre l'écriture et la relecture d'un brouillon
+  - Relire sur papier, jamais à l'écran
+  - Conserver au minimum trois copies de sauvegarde + impressions datées régulières
+
+◆ Vérifications finales systématiques (Holtom & Fisher) :
+  - Lancer une recherche de mots vagues : quick, very, sufficiently, appropriate, less
+  - Lancer une recherche de contractions : it's, lab, there's
+  - Vérifier que chaque numéro de page final est supérieur au numéro initial dans les références
+  - Parcourir la version finale en cochant chaque citation dans la liste de références
+  - Ne JAMAIS mal orthographier le nom d'un examinateur cité en référence
+  - Numéroter les figures à l'avance, les étiqueter au dos
 `
 
 const MODE_KNOWLEDGE: Record<AssistantMode, string> = {

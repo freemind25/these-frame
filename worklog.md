@@ -363,3 +363,25 @@ Stage Summary:
 - Amber/golden theme visually distinct from the green assistant chatbot
 - Context injection: chapter title, number, content (truncated 4k chars), thesis progress, title, field
 - Browser-verified: Sheet opens, welcome message renders correctly, all UI elements functional
+
+---
+Task ID: add-5-books-knowledge
+Agent: main
+Task: Extract, analyze and integrate 5 new academic books into thesis-assistant-knowledge.ts
+
+Work Log:
+- Extracted text from 5 uploaded files: Holtom & Fisher (PDF, 10482 lines), Pearce (PDF, 6298 lines), Carter et al. (PDF, 4059 lines), Neil Mars (EPUB, 367 lines), Grant Andrews (EPUB, 161 lines)
+- Launched 5 parallel subagents to analyze each book's key concepts, practical tips, pitfalls, and notable quotes in French
+- Updated SOURCES ACADÉMIQUES list from 8 to 13 references in BASE_KNOWLEDGE
+- Added to REDACTION_KNOWLEDGE: Holtom & Fisher (funnel/trumpet structure, proportions, signposting, deflating arguments, paradoxical planning sequence, mesmerization), Carter et al. (thesisliness, 3 structural dimensions, 4 thesis structure models, semiotics of structure, front/back stage)
+- Added to CRITIQUE_KNOWLEDGE: Pearce (7 examiner criteria, power dynamics, reflexivity as quality, abstract as critical entry point)
+- Added to METHODOLOGIE_KNOWLEDGE: Holtom & Fisher (M&M as recipe, reproducibility), Mars (3 methodological families, necessity of surprise, ethical dimension, analytical triad, absolute researcher responsibility)
+- Added to SUIVI_KNOWLEDGE: Andrews (10 success components, imposter syndrome, ultra-detailed planning, Shut Up and Write), Holtom & Fisher (strategic task management, systematic final checks)
+- Updated file header comment (7 → 13 ouvrages)
+- Verified: lint passes (0 errors), dev server 200
+
+Stage Summary:
+- 1 file modified: src/lib/thesis-assistant-knowledge.ts (was 478 lines, now ~580 lines)
+- 5 new books integrated: Holtom & Fisher, Pearce, Carter et al., Mars, Andrews
+- Knowledge distributed across all 4 mode-specific sections (redaction, critique, methode, suivi)
+- Total academic sources in system prompt: 13 (was 8)
