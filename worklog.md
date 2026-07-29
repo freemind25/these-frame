@@ -586,3 +586,20 @@ Stage Summary:
 - All requested work completed successfully
 - 5 new prompts from tobitresearchconsulting.com integrated (P13-P17)
 - Total: 17 specialized prompts across 7 modes
+
+---
+Task ID: 16
+Agent: main
+Task: Enrichir la base de connaissances avec 3 sites web
+
+Work Log:
+- Lu thesis-assistant-knowledge.ts actuel (P1-P17)
+- Fetché 3 sites via z-ai web-reader
+- Analysé 42 prompts vs 17 existants
+- Enrichi 11 prompts existants (P2,P5,P6,P7,P8,P10,P12,P13,P15,P16,P17)
+- Ajouté 22 nouveaux prompts (P18-P39)
+- Lint : 0 erreurs
+
+Stage Summary:
+- Base P1-P17 etendue a P1-P39 (+129%%)
+- Fichier : src/lib/thesis-assistant-knowledge.ts (886->974 lignes)
