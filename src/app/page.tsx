@@ -723,6 +723,19 @@ export default function Home() {
       <ThesisAssistantChat
         open={assistantOpen}
         onOpenChange={setAssistantOpen}
+        chapterNumber={chapterMeta?.number || activeChapter?.number}
+        chapterTitle={chapterMeta?.title || activeChapter?.title}
+        chapterContent={activeChapter?.content}
+        chapters={thesis?.chapters}
+        thesisTitle={thesis?.title}
+        thesisField={thesis?.field}
+        onInsertText={(text: string) => {
+          const currentContent = activeChapter?.content || ''
+          const newContent = currentContent
+            ? currentContent + '\n\n' + text
+            : text
+          handleContentChange(newContent)
+        }}
       />
 
       <ProviderSettingsDialog

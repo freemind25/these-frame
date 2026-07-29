@@ -7,14 +7,85 @@ const VALID_MODES: AssistantMode[] = ['general', 'redaction', 'correction', 'cri
 // In-memory conversation store
 const conversations = new Map<string, Array<{ role: string; content: string }>>()
 
+interface ChapterProgress {
+  number: string
+  title: string
+  wordCount: number
+  status: string
+}
+
+function buildContextBlock(body: Record<string, unknown>): string {
+  const parts: string[] = []
+
+  // Chapter context
+  const chapterNumber = body.chapterNumber as string | undefined
+  const chapterTitle = body.chapterTitle as string | undefined
+  const chapterContent = body.chapterContent as string | undefined
+
+  if (chapterTitle) {
+    parts.push(`CONTEXTE ACTUEL :\nLe doctorant travaille sur le ${chapterNumber ? `Chapitre ${chapterNumber}` : 'chapitre courant'} : « ${chapterTitle} ».`)
+  }
+
+  if (chapterContent && chapterContent.trim().length > 0) {
+    // Truncate to ~3000 chars to stay within token limits
+    const truncated = chapterContent.length > 3000
+      ? chapterContent.slice(0, 3000) + '\n[... texte tronqué ...]'
+      : chapterContent
+    // Strip markdown headings for cleaner context
+    const cleaned = truncated
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/\n{3,}/g, '\n\n')
+    parts.push(`CONTENU DU CHAPITRE (extrait) :\n${cleaned}`)
+  }
+
+  // Thesis progress (for suivi mode or general awareness)
+  const thesisProgress = body.thesisProgress as ChapterProgress[] | undefined
+  if (thesisProgress && thesisProgress.length > 0) {
+    const totalWords = thesisProgress.reduce((s, c) => s + c.wordCount, 0)
+    const progressLines = thesisProgress
+      .map(c => `  - Chap. ${c.number} ${c.title} : ${c.wordCount} mots [${c.status}]`)
+      .join('\n')
+    parts.push(`PROGRESSION GLOBALE DE LA THÈSE (${totalWords.toLocaleString()} mots) :\n${progressLines}`)
+  }
+
+  return parts.length > 0 ? parts.join('\n\n') : ''
+}
+
+function enrichSystemPrompt(basePrompt: string, mode: AssistantMode, contextBlock: string, body: Record<string, unknown>): string {
+  if (!contextBlock) return basePrompt
+
+  const thesisTitle = body.thesisTitle as string | undefined
+  const thesisField = body.thesisField as string | undefined
+
+  const headerParts: string[] = []
+  if (thesisTitle) headerParts.push(`Titre de la thèse : ${thesisTitle}`)
+  if (thesisField) headerParts.push(`Domaine : ${thesisField}`)
+
+  const header = headerParts.length > 0
+    ? `INFORMATIONS SUR LA THÈSE :\n${headerParts.join('\n')}`
+    : ''
+
+  return [header, basePrompt, contextBlock].filter(Boolean).join('\n\n')
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { mode, message, sessionId, clearHistory } = body as {
+    const {
+      mode, message, sessionId, clearHistory,
+      chapterTitle, chapterNumber, chapterContent,
+      thesisProgress, thesisTitle, thesisField,
+    } = body as {
       mode?: string
       message?: string
       sessionId?: string
       clearHistory?: boolean
+      chapterTitle?: string
+      chapterNumber?: string
+      chapterContent?: string
+      thesisProgress?: ChapterProgress[]
+      thesisTitle?: string
+      thesisField?: string
     }
 
     const currentMode = (mode || 'general') as AssistantMode
@@ -36,12 +107,20 @@ export async function POST(request: NextRequest) {
       conversations.delete(sid)
     }
 
-    const systemPrompt = buildSystemPrompt(currentMode)
+    // Build context from thesis data
+    const contextBlock = buildContextBlock(body)
+    const systemPrompt = enrichSystemPrompt(
+      buildSystemPrompt(currentMode),
+      currentMode,
+      contextBlock,
+      body,
+    )
+
     let history = conversations.get(sid) || [
       { role: 'system', content: systemPrompt }
     ]
 
-    // If switching modes, reset with new system prompt
+    // If switching modes or context changed, reset with new system prompt
     if (history[0]?.content !== systemPrompt) {
       history = [{ role: 'system', content: systemPrompt }]
     }
