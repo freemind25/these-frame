@@ -385,3 +385,26 @@ Stage Summary:
 - 5 new books integrated: Holtom & Fisher, Pearce, Carter et al., Mars, Andrews
 - Knowledge distributed across all 4 mode-specific sections (redaction, critique, methode, suivi)
 - Total academic sources in system prompt: 13 (was 8)
+---
+Task ID: 14
+Agent: main
+Task: Integrate new resources into thesis-assistant-knowledge.ts (Murray "How to Write a Thesis" + user's subdivision .md)
+
+Work Log:
+- Discovered all files in /upload directory (30+ files: PDFs, epubs, .md, images, JSON)
+- Identified new book: Rowena Murray, "How to Write a Thesis" (2nd ed., 2006) — different from existing Murray entry
+- Extracted text from Murray PDF via pdftotext (14034 lines)
+- Read user's .md files: subdivision.md (thesis structure advice), res.1-11.md (NotebookLM research prompts), Mon dev.md (comprehensive thesis assistant prompt)
+- Used subagent to analyze full Murray book text and extract structured knowledge
+- Integrated Murray knowledge into thesis-assistant-knowledge.ts:
+  - Added book #14 to source list
+  - Updated header comment: 13 → 14 ouvrages
+  - REDACTION_KNOWLEDGE: freewriting, generative writing, writing in layers, scaffolding, serial writing, writing to prompts, 9-step literature review, subdivision model
+  - CRITIQUE_KNOWLEDGE: revision strategies (repetition, forecasting, signalling, signposting, reconceptualization)
+  - SUIVI_KNOWLEDGE: research journal, study buddy, fast-track 10 steps, writer's block strategies, 7 supervisor roles, viva preparation, thesis completion advice, 5-part generic structure
+- Ran lint: 0 errors (1 pre-existing warning)
+
+Stage Summary:
+- Murray "How to Write a Thesis" fully integrated as book #14
+- User's subdivision structure advice integrated into REDACTION_KNOWLEDGE
+- Knowledge base now covers 14 reference works with comprehensive French-language summaries

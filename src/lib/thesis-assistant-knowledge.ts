@@ -1,6 +1,6 @@
 /**
  * Constructeur de contexte de connaissances pour l'assistant thèse.
- * Extrait et synthétise les connaissances clés des 13 ouvrages de référence
+ * Extrait et synthétise les connaissances clés des 14 ouvrages de référence
  * pour injection dans le prompt système de l'assistant.
  */
 
@@ -47,6 +47,7 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 11. Carter, S., Kelly, F. & Brailsford, I. (2012). Structuring Your Research Thesis. Palgrave Macmillan.
 12. Mars, N. (2020). Academic Writing: Research: How to Write a Good, Strong, Important and Interesting Thesis.
 13. Andrews, G. (2019). Your Thesis: Writing Strengths and Challenges. Essay and Thesis Writing Series.
+14. Murray, R. (2006). How to Write a Thesis (2e éd.). Open University Press / McGraw-Hill.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 
@@ -227,6 +228,14 @@ CONSEILS D'ANALYSE CRITIQUE :
   - Le blocage d'écriture est normal — ne pas le dramatiser
   - La perfection est l'ennemi de la thèse — viser «assez bon pour avancer»
   - Les retours négatifs sont des opportunités d'amélioration
+
+◆ Stratégies de révision (Murray) :
+  - Répétition : utiliser la répétition des termes clés pour montrer les liens entre phrases
+  - Forecasting (anticipation) : vérifier que l'introduction de la thèse réfère à TOUS les chapitres, et que l'intro de chaque chapitre annonce TOUTES les sections
+  - Signalling (signalisation) : ajouter des signaux explicites du développement de l'argument (« Cet exemple montre... », « Cette découverte suggère que... »)
+  - Signposting (repères) : rendre impossible pour le lecteur de se perdre — table des matières exacte, titres clairs, sous-titres cohérents
+  - Reconceptualisation : « Ce qui semble être de la clarification peut en fait vous faire reconceptualiser » — les révisions apparentément simples peuvent provoquer un changement profond
+  - 6 techniques de liaison : point-virgule, pronom, « For example », « Similarly », répétition du sujet, « Moreover »
 
 ◆ Ce que les examinateurs recherchent (Pearce) :
   - Originalité de la contribution : quelque chose de nouveau (méthode, données, cadre conceptuel, argument)
@@ -443,6 +452,30 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   6. Mise en forme et normalisation
   7. Préparation de la soutenance
 
+◆ Préparation de la soutenance — Viva (Murray) :
+  - « Survivre à la soutenance dépend fondamentalement de la préparation et de la capacité à démystifier la procédure » (Burnham 1994)
+  - Préparer un résumé de 2 min ET de 10 min — « Résumez votre thèse » = la question la plus probable
+  - Anticiper les questions pour CHAQUE chapitre (générales ET spécifiques)
+  - Pratiquer oralement : sessions d'une heure avec amis, collègues, puis mock viva
+  - Connaître les 5 personnes clés du domaine et leur influence sur votre travail
+  - Connaître les faiblesses de la thèse et les limites par design — ne pas les cacher
+  - Écrire des « narratives positives » : visualiser une soutenance réussie
+  - Pendant la viva : être robuste mais pas dogmatique, noter les questions, utiliser le langage du débat
+  - « Les examinateurs sont impressionnés par les candidats réfléchis, capables de prendre en compte la critique constructive »
+  - Après : s'attendre à des révisions/corrections — « La plupart des gens en font. Cela ne constitue pas un échec. »
+  - Clarifier exactement ce qui est demandé : révisions ou corrections ? Combien ?
+
+◆ Structure générique de thèse en 5 parties (Murray) :
+  1. Introduction / Contexte / Revue de littérature
+  2. Théorie / Approche / Méthode / Matériaux
+  3. Analyse / Résultats
+  4. Interprétation / Discussion
+  5. Conclusions / Implications / Recommandations
+  - Autres structures possibles : thématique, narrative, étude de cas, chronologique, synthèse
+  - Décider de la longueur (en mots) de chaque chapitre en fonction de son importance
+  - Chaque chapitre commence par « Ce chapitre [verbe actif]... » : discutera, définira, évaluera, décrira
+  - Passer de « Qu'est-ce qu'il y a dans ce chapitre ? » à « Qu'est-ce que j'essaie d'accomplir ? »
+
 ◆ Les 10 composantes de la réussite thésardale (Andrews) :
   1. Motivation — la force motrice initiale
   2. Endurance mentale — capacité à produire sur de longues sessions
@@ -477,6 +510,66 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   - Relire sur papier, jamais à l'écran
   - Conserver au minimum trois copies de sauvegarde + impressions datées régulières
 
+◆ Les trois principes fondamentaux de la thèse (Murray) :
+  - L'apprentissage vient par l'écriture (learning comes through writing)
+  - La qualité vient par la révision (quality comes through revision)
+  - L'écriture régulière développe la fluidité (regular writing develops fluency)
+
+◆ Freewriting — écriture libre (Murray) :
+  - Écrire de façon continue, sans s'arrêter, pendant 5-10 minutes
+  - Ne pas corriger, ne pas réfléchir, ne pas consulter de sources
+  - Objectif : faire taire l'éditeur interne et générer du texte sans censure
+  - Utiliser : au début du processus, en cas de blocage, quand la pensée est floue, comme échauffement
+
+◆ Generative writing — écriture générative (Murray) :
+  - Écrire de façon ciblée à partir d'un prompt précis, en phrases complètes
+  - Plus proche de l'écriture académique structurée que le freewriting
+  - Freewriting → produits bruts ; Generative writing → texte plus focalisé
+
+◆ Writing in layers — écriture en couches (Murray, inspiré d'Orna & Stevens) :
+  - Construire la thèse par étapes successives, du macro au micro :
+    1) Plan des chapitres → 2) Phrases sur le contenu → 3) Titres de sections → 4) Notes → 5) Paragraphes introductifs → 6) Brouillon avec compteur de mots et date
+  - Utile quand on se sent dépassé par la tâche globale
+
+◆ Scaffolding — l'échafaudage argumentatif (Murray) :
+  - Structure en 4 étapes pour chaque paragraphe :
+    1) Décider du point principal (phrase-topic)
+    2) Définir / élaborer
+    3) Illustrer / preuve / exemple
+    4) Discuter l'illustration pour montrer comment elle appuie le point
+  - ATTENTION : « Beaucoup de rédacteurs s'arrêtent à l'étape 3. Présenter une preuve ne suffit pas ; il faut montrer comment on a construit son interprétation. »
+
+◆ Serial writing — écriture en série (Murray) :
+  - Écrire régulièrement, par petites incréments, en développant l'habitude
+  - Le « serial writer » intègre l'écriture dans un emploi du temps chargé
+  - S'oppose au « binge writing » (sessions longues, irrégulières, avec hypomanie et précipitation)
+  - Compter les mots = prendre son pouls : 1000 mots/jour = 5000 mots en fin de semaine
+
+◆ Writing to prompts — écrire à partir de déclencheurs (Murray) :
+  - Utiliser des questions prédéfinies comme déclencheurs d'écriture
+  - Exemples : « Quelles précautions prendrez-vous contre les biais probables ? »
+  - One-minute paper (Harwood 1996) : en 1 minute, écrire le sujet principal et une question clé
+
+◆ Structure de la revue de littérature en 9 étapes (Murray) :
+  1. Définir les termes clés
+  2. Justifier la sélection de la littérature
+  3. Justifier les omissions
+  4. Annoncer/prévoir les sections de la revue
+  5. Signaler la structure (chronologique, thématique)
+  6. Lier votre travail à la littérature
+  7. Critiquer la littérature
+  8. Définir le vide (the gap)
+  9. Utiliser la structure « Nom + date + verbe » pour synthétiser
+
+◆ Subdivision de la thèse — modèle en parties et chapitres :
+  - Plan classique doctorat : 2-3 grandes Parties, chacune avec 2-3 Chapitres
+  - Partie I : Cadre théorique et état de l'art (Intro/problématique + Revue de littérature)
+  - Partie II : Approche méthodologique et terrain (Cadre méthodologique + Présentation du terrain)
+  - Partie III : Analyse, Discussion et Perspectives (Analyse des résultats + Discussion et limites)
+  - Respecter le principe de symétrie : équilibrer le volume des sections
+  - Le chapitre = unité de pensée avec intro propre, corps, conclusion de transition
+  - Valider le squelette du plan par le directeur AVANT de rédiger
+
 ◆ Vérifications finales systématiques (Holtom & Fisher) :
   - Lancer une recherche de mots vagues : quick, very, sufficiently, appropriate, less
   - Lancer une recherche de contractions : it's, lab, there's
@@ -484,6 +577,50 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   - Parcourir la version finale en cochant chaque citation dans la liste de références
   - Ne JAMAIS mal orthographier le nom d'un examinateur cité en référence
   - Numéroter les figures à l'avance, les étiqueter au dos
+
+◆ Le journal de recherche — research journal (Murray) :
+  - Tenir un journal écrit : réflexions, décisions, notes de réunions, idées fragmentaires
+  - Un « moteur d'idées » et un « enregistrement de décisions » (Moon 1999)
+  - Écrire la tâche de demain AVANT de finir la journée d'aujourd'hui (Bolker 1998)
+
+◆ Le study buddy — partenaire d'étude (Murray) :
+  - Pair avec qui se réunir régulièrement (30 min) pour écrire ensemble et discuter
+  - Agenda type : 5 min écriture sur ce qu'on a fait → 10 min écriture privée → 10 min discussion → 5 min prochain objectif
+
+◆ Le mode accéléré en 10 étapes — fast-track (Murray) :
+  1. Faire le point (Take stock)
+  2. Commencer à écrire — freewriting 10 min, one-minute paper
+  3. Planifier la thèse — 30 min sur 7 prompts génériques
+  4. Programme d'écriture — plan à long terme + court terme
+  5. Communiquer avec le superviseur — soumettre des drafts partiels régulièrement
+  6. Planifier chaque chapitre — développer les sous-titres
+  7. Écrire régulièrement — compter les mots, jeter les vieux drafts
+  8. Réviser — répondre au feedback, avancer et réviser en parallèle
+  9. Assembler le tout — combiner et relier les chapitres
+  10. Tâches finales — format, reliure, soumission
+
+◆ Vaincre le blocage d'écriture (Murray) :
+  - Causes : perte du sens du projet, isolement, perfectionnisme, éditeur interne
+  - « Nous avons tous écrit du fumier » (Palumbo 2000, citant Ben Hecht) : normaliser le mauvais écrit
+  - Stratégies : freewriting, mind-mapping, verbal rehearsal, écrire sur le blocage lui-même, « write scared » (Bolker 1998)
+  - « Le premier pas pour devenir écrivain est de faire taire votre plus grand critique — vous-même » (Carlson)
+  - Changer de lieu, d'heure ou de routine pour débloquer
+
+◆ Les 7 rôles du directeur de thèse (Murray) :
+  - Director/Guide : donne la direction générale
+  - Teacher : enseigne les compétences de haut niveau
+  - Facilitator : facilite l'accès aux ressources et opportunités
+  - Advisor : conseille sur les décisions académiques
+  - Critic : donne un feedback rigoureux
+  - Manager : gère le processus, aide à respecter les délais
+  - Freedom Giver : laisse l'étudiant trouver sa propre voie
+  - « Ne vous inquiétez pas si vos directeurs posent des questions difficiles ; inquiétez-vous s'ils n'en posent pas. »
+
+◆ Le dernier 385 yards — terminer la thèse (Murray) :
+  - « Done-ness is all » : l'objectif est de finir, d'arrêter d'écrire
+  - « Enough is enough » : décider qu'on a fait suffisamment
+  - La thèse est « assez bonne » quand : l'argument est plausible et cohérent, la contribution est reconnaissable, les objectifs sont atteints, le superviseur valide
+  - Bien-être : inclure du temps non-travail (gym, amis, pauses) sans culpabilité
 `
 
 const MODE_KNOWLEDGE: Record<AssistantMode, string> = {
