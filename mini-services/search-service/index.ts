@@ -79,4 +79,5 @@ app.get('/search', async (c) => {
 
 app.get('/', (c) => c.json({ service: 'ThesisFrame Search', status: 'ok', documents: documents.length }))
 
-export default { port: 3031, fetch: app.fetch }
+const searchApp = { port: 3031, fetch: app.fetch }
+export default searchApp

@@ -33,6 +33,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -54,21 +55,59 @@ tool-results/
 # Skills directory
 /skills/
 
-# Electron (legacy, keep ignored)
+# Z.ai internal
+.zscripts/
+worklog.md
+
+# ─── Tauri (removed — web-only app) ───
+/src-tauri/
+TAURI_README.md
+
+# ─── Upload & source materials (not for production) ───
+/upload/
+/hayton-chapters/
+
+# ─── Scripts (legacy) ───
+/scripts/
+
+# ─── Supabase (unused) ───
+/supabase/
+
+# ─── Root junk ───
+*.zbak
+*.bak
+/package-lock.json
+/start.sh
+/start-dev.sh
+/keep-dev-alive.sh
+/keepalive.sh
+/run-browser.sh
+/Caddyfile
+
+# ─── Root screenshots & images (use /public/ for assets) ───
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.svg
+!public/
+
+# ─── Root JSON scratch files ───
+/*.json
+!package.json
+!components.json
+!tsconfig.json
+!vercel.json
+!tailwind.config.ts
+!postcss.config.mjs
+!eslint.config.mjs
+
+# ─── Database files (generated) ───
+/db/*.db
+/db/*.db-journal
+/db/*.db-wal
+
+# ─── Electron (legacy, keep ignored) ───
 /dist-electron/
 /build-tools/
 /electron-app/
-
-# Tauri build artifacts
-src-tauri/target/
-src-tauri/gen/
-*.exe
-*.msi
-*.deb
-*.AppImage
-*.dmg
-app-icon.png
-app-icon-real.png
-download/
-tmp-pack/
-src-tauri/resources/

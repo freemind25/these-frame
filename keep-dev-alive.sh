@@ -1,6 +1,0 @@
-#!/bin/bash
-while true; do
-  bun run dev >> /home/z/my-project/dev.log 2>&1
-  echo "[watchdog] Server died, restarting in 2s..." >> /home/z/my-project/dev.log
-  sleep 2
-done
