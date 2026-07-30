@@ -10,9 +10,7 @@
 name: Deploy to Infomaniak VPS
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:  # Déclenchement manuel uniquement — activez après avoir configuré les secrets
 
 concurrency:
   group: deploy
