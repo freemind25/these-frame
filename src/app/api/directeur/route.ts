@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { DIRECTEUR_SYSTEM_PROMPT, buildDirecteurPrompt, type DirecteurParams } from '@/data/directeur-prompt'
+import { getCadrageForDirecteur } from '@/lib/cadrage-bridge'
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,11 +55,21 @@ export async function POST(request: NextRequest) {
       contraintesMethodologiques: contraintesMethodologiques || '',
     })
 
+    // Injecter le cadrage validé en lecture seule si disponible
+    const thesisId = body.thesisId
+    let cadrageContext = ''
+    if (thesisId) {
+      const cadrageText = await getCadrageForDirecteur(thesisId)
+      if (cadrageText) {
+        cadrageContext = '\n\n' + cadrageText
+      }
+    }
+
     const zai = await getZAI()
     const completion = await zai.chat.completions.create({
       messages: [
         { role: 'assistant', content: DIRECTEUR_SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
+        { role: 'user', content: userPrompt + cadrageContext },
       ],
       thinking: { type: 'disabled' },
     })

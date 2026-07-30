@@ -17,6 +17,7 @@ import FeatureDialogs from '@/components/thesis/workspace/feature-dialogs'
 import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 import ThesisAssistantChat from '@/components/thesis/thesis-assistant-chat'
 import DirecteurChat from '@/components/thesis/directeur-chat'
+import CadragePanel from '@/components/thesis/cadrage-panel'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -76,6 +77,7 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [assistantOpen, setAssistantOpen] = useState(false)
   const [directeurOpen, setDirecteurOpen] = useState(false)
+  const [cadrageOpen, setCadrageOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
@@ -600,6 +602,7 @@ export default function Home() {
           onOpenGrammar={() => setGrammarOpen(true)}
           onOpenHarper={() => setHarperOpen(true)}
           onOpenSearch={() => setSearchOpen(true)}
+          onOpenCadrage={() => setCadrageOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -750,6 +753,12 @@ export default function Home() {
         chapters={thesis?.chapters}
         thesisTitle={thesis?.title}
         thesisField={thesis?.field}
+      />
+
+      <CadragePanel
+        open={cadrageOpen}
+        onOpenChange={setCadrageOpen}
+        thesisId={thesis?.id || 'local-thesis-001'}
       />
 
       <ProviderSettingsDialog

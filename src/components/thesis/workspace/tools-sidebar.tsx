@@ -5,13 +5,14 @@ import {
   MessageSquare, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
-  GraduationCap,
+  GraduationCap, Compass,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import type { ThesisData } from '@/types/thesis'
 
 const TOOLS = [
+  { icon: Compass, label: 'Cadrage projet', key: 'cadrage' },
   { icon: MessageSquare, label: 'Assistant IA', key: 'assistant' },
   { icon: GraduationCap, label: 'Directeur IA', key: 'directeur' },
   { icon: Library, label: 'Références biblio.', key: 'refs' },
@@ -47,6 +48,7 @@ interface ToolsSidebarProps {
   onOpenGrammar: () => void
   onOpenHarper: () => void
   onOpenSearch: () => void
+  onOpenCadrage: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -58,7 +60,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
-  onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -76,6 +78,7 @@ export default function ToolsSidebar({
     grammar: onOpenGrammar,
     harper: onOpenHarper,
     search: onOpenSearch,
+    cadrage: onOpenCadrage,
   }
 
   const handleToolClick = (key: string) => {

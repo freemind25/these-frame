@@ -81,3 +81,33 @@ Stage Summary:
 - 15 nouveaux prompts (P40-P54) ajoutés, total 54 prompts
 - 0 erreurs lint, fichier compile correctement
 - Fichier principal : src/lib/thesis-assistant-knowledge.ts (1343 lignes)
+---
+Task ID: 1-7
+Agent: Main
+Task: Build complete "Cadrage préalable" (ThesisFrame) module
+
+Work Log:
+- Fixed Prisma schema (sqlite provider, removed directUrl)
+- Added ThesisCadrage, ThesisCadrageField, ThesisCadrageVersion models
+- Created /src/types/cadrage.ts with 12 field definitions, types, and section groups
+- Created /src/lib/cadrage-prompt.ts with system prompt, JSON schema, and prompt builders
+- Created /src/components/thesis/cadrage-panel.tsx (Sheet panel, 2 tabs, 3 accordion sections, 12 fields)
+- Created /src/app/api/cadrage/route.ts (GET/PUT CRUD)
+- Created /src/app/api/cadrage/generate/route.ts (AI generation from pitch)
+- Created /src/app/api/cadrage/reformulate/route.ts (per-field AI reformulation)
+- Created /src/app/api/cadrage/verify/route.ts (coherence check)
+- Created /src/app/api/cadrage/validate/route.ts (versioned validation)
+- Created /src/lib/cadrage-bridge.ts (director integration, read-only cadrage injection)
+- Modified /src/app/api/directeur/route.ts to inject cadrage context
+- Integrated into tools-sidebar.tsx (Compass icon, first position)
+- Integrated into page.tsx (state, props, component mount)
+- ESLint: 0 errors
+- Agent Browser verified: panel opens, all 12 fields visible, 2 tabs, 4 steps, progress indicator
+
+Stage Summary:
+- Full CRUD + AI generation module operational
+- 7 new files created, 3 existing files modified
+- Separation of concerns: cadrage proposes, directeur critiques
+- Versioned validation with snapshot history
+- Director reads cadrage in read-only mode for coherence checking
+

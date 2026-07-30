@@ -4,9 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -75,6 +74,7 @@ model Thesis {
   updatedAt     DateTime  @updatedAt
   chapters      Chapter[]
   parts         Part[]
+  cadrage       ThesisCadrage?
 }
 
 model Chapter {
@@ -152,4 +152,44 @@ model NotebookEntry {
   answer    String
   sourceIds String   @default("")
   createdAt DateTime @default(now())
+}
+
+// ─── Cadrage préalable (ThesisFrame) ──────────────────────────
+
+model ThesisCadrage {
+  id        String    @id @default(cuid())
+  thesisId  String    @unique
+  status    String    @default("provisoire") // provisoire | valide | revise
+  version   Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  thesis    Thesis    @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  fields    ThesisCadrageField[]
+  versions  ThesisCadrageVersion[]
+}
+
+model ThesisCadrageField {
+  id             String         @id @default(cuid())
+  cadrageId      String
+  fieldKey       String         // thematique, problematique, questions_recherche, etc.
+  fieldValue     String         @default("")
+  fieldMeta      String?        // JSON blob for sub-fields (objectives, methodology, etc.)
+  isAiSuggestion Boolean        @default(false)
+  editedByUser   Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  cadrage        ThesisCadrage  @relation(fields: [cadrageId], references: [id], onDelete: Cascade)
+
+  @@unique([cadrageId, fieldKey])
+}
+
+model ThesisCadrageVersion {
+  id        String         @id @default(cuid())
+  cadrageId String
+  version   Int
+  snapshot  String         // JSON snapshot of all fields
+  createdAt DateTime       @default(now())
+  cadrage   ThesisCadrage  @relation(fields: [cadrageId], references: [id], onDelete: Cascade)
+
+  @@unique([cadrageId, version])
 }
