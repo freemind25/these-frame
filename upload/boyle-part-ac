@@ -1,0 +1,300 @@
+and, probably inevitably, there comes a time when you want it to be over. But I think it’s important to remember the b
+igger picture – the monograph you’re writing is your contribution to science, synthesising a few years of hard work,
+ of which you should be proud. Although now ‘just’ a proud item in my bookshelf at home, I regularly picked up the h
+ard copy of my thesis during my postdoctoral years to look something up – finding errors or typos once in a while – 
+to the point that it has almost fallen apart. Bart Verberck (Regional Executive Editor, Nature Research )
+CHAPTER 3 Refining and Articulating Your Research Question Scientific investigation is usually taught as being based on 
+a hypothesis. The main aim of this chapter is to show you that it’s not crucial to start with a hypothesis right from 
+the very beginning, nor even to have an overarching one at all, ever . We’ll explain the difference between a hypothes
+is and a research question , and we’ll show you the merits of hypothesis-led research and compare it with the merits o
+f hypothesis-less research. This chapter will also put those concepts into some context, given that the type of scientif
+ic research conducted around the world today is very different from the research carried out by the pioneers from histor
+y who set out the original rules of science, whose style of work still forms the basis of most people’s perceptions. L
+arge datasets are publicly available for interrogation after the fact; researchers are not just investigating the fundam
+entals of how things work, but developing more and more applied solutions to problems; abstract and theoretical sciences
+ don’t always pertain to immediately testable concepts – the list of reasons to operate without a hypothesis is long
+. Of course, we’re not saying you should necessarily aim to proceed without an overarching hypothesis, but we’ll sho
+w you how to design the type of project that doesn’t have a well-developed one at the start. You’ll probably find it
+ useful to return to the latter part of this chapter after your first several months of research (or beyond). It is prob
+ably more common than not for project plans to change, and so you’ll almost certainly find yourself refining and final
+ising the research question(s) you’ll present in your thesis months – or even years – after your PhD begins. The (
+un)importance of starting with a defined project plan There are two aspects to consider when looking at PhD studentship 
+positions: what the project will involve, and where the money will come from. These are closely related, as the decision
+s about the broad research direction are often – but not always – shaped at the time of applying for the money. Depe
+nding on the PhD you apply for, you may be required to think up your own project, or you may be joining a project that i
+s already underway. If a PhD supervisor has already secured funding and is advertising the position, then it’s very li
+kely that the project’s goals will have been written for you already. In this case, it would be up to you to take thos
+e plans and start to act upon them. Although your supervisor will have read the literature to inform their plan, you may
+ find that there has been new literature published in the time since they submitted their grant proposal. You might then
+ have to make significant refinements to their plan, in which case the first steps you planned for your research project
+ may have to change. For example, someone may have recently published something that answers part of the question you in
+tended to ask. (For more on being ‘scooped’ and how to deal with it, see Chapter 4 , p. 52.) If, on the other hand, 
+you’ve secured a stipend to cover your living costs and you now need to find a supervisor to take you on, the challeng
+e of writing a research proposal will probably become more of your own responsibility, at least to begin with. Research 
+questions vs. hypotheses In short: a hypothesis is a statement that can be tested; a research question is not. Research 
+questions , in contrast to hypotheses, aren’t testable statements of fact. They should be phrased as questions, with q
+uestion marks at the end. For example, if you’d simply like to test the impact of carrying out a procedure, a research
+ question might be the more appropriate way to define your project’s initial aims. Do proteins X, Y and Z from dog sal
+iva have an impact on the speed of human wound healing? Can aeroplane wing stability be improved by the application of [
+a piece of knowledge from a related piece of existing work]? This allows you the freedom to try to apply the knowledge i
+n various ways; ways that might not occur to you until you are, for example, in the lab holding a model of an aeroplane 
+wing and considering the actual ways in which you could reasonably modify it with the tools available to you at the time
+. Another reason for leading with an open-ended research question might be that you have a large dataset and you want to
+ interrogate it to check for new connections. For example, anonymised genetic data from various populations is available
+ on a large scale from commercial companies and national health boards. With the appropriate ethical application clearan
+ce, you could interrogate these repositories of genetic markers to search for correlations between the genes and various
+ health outcomes. You might find a relationship between three different genes that have a combined effect on the likelih
+ood of developing one certain health problem. In this case, you would have had no plausible way to formulate a hypothesi
+s in advance, but as a [disease X] researcher, interrogating the data would be a perfectly valid scientific way to appro
+ach a more open research question like this: Do any relationships exist between genetic markers in a population of Latin
+ American women and their likelihood of developing [disease X] between the ages of 25 and 50? Similarly, research questi
+ons are more suitable for complex problems with huge internal variability. For example, a researcher in the field of pub
+lic health may have read that family-based educational programmes and school-based educational programmes have both had 
+moderate success in improving obesity rates in adolescents in various pilot studies. They might reasonably conclude that
+ a combination of the two approaches might have a better effect than either one on its own, but people make hugely varia
+ble samples. It would be very difficult to formulate a hypothesis about how much weight loss could be achieved, and diff
+icult even to know how to quantify it. (Average weight lost per person? Number of adolescents who achieved significant w
+eight loss? Length of time each adolescent’s weight loss persisted after the end of the intervention?) Instead, it wou
+ld be more sensible to start with a research question that encompasses all of these possibilities, and more: Does provid
+ing healthy diet and lifestyle information to overweight adolescents through a combination of home and school interventi
+ons at a national level lead to a meaningful reduction in obesity levels in the UK? Hypotheses , on the other hand, are 
+less open-ended than research questions, and should be written in the form of testable statements of truth. Applying che
+mical X to sample Y will result in a reduction of 50% in measurable quantity A. There may be more than one plausible hyp
+othesis; in this example, ‘50%’ could only be one possible prediction based on various models of how the system shou
+ld perform. Formulating several hypotheses before you start is not just a useful intellectual exercise, but it can help 
+you to predict what possible next steps you might need to take in your experiments. For example, if the experiment was r
+un once and 50% wasn’t achieved, would you consider that to be a failure in your lab set-up, or would you be satisfied
+ to record the number and move on? What if you could have changed something and 50% was then achieved? Creating sub-hypo
+theses about how various elements of the process might work can help clarify your project plans. This can help you prepa
+re the relevant materials to investigate these options in advance, or to pre-emptively book extra time on the relevant p
+ieces of instrumentation. In addition, the null hypothesis (H 0 ) is the one that predicts your intervention will have n
+o impact. It is a statistical tool that functions as a sort of threshold for the impact of your intervention. If the var
+iations in measurements can be attributed to random fluctuation, the null hypothesis holds. If the variations can’t be
+ explained by the expected natural variation, scientists talk of ‘rejecting the null hypothesis’ – that is, their 
+intervention caused the result. (We won’t go any further into statistics here, as it is too broad a field in its own r
+ight to adequately introduce many meaningful concepts within the remit of this book. We recommend that you consult your 
+university doctoral training resources or your university library for more specific guidance.) Hypotheses should be as s
+pecific as possible. This means including – as much as you reasonably can – the defining characteristics of the peop
+le or the things under examination (the ‘population group’), the defining details of the experimental intervention (
+e.g. concentrations, durations, temperatures, etc.), and specifics about the outcome measure (or measures) that you’re
+ interested in. H 0 : Adding chemical X will have no impact on outcome A. H 1 : Adding chemical X will cause a 50% reduc
+tion in outcome A. H 2 : Adding chemical X will cause a 75% reduction in outcome A. Hypotheses can never be proven (exce
+pt in very specific circumstances – see below). They can only ever be supported or disproven . Part of operating by th
+e scientific method is avoiding claims that cannot be backed up by empirical evidence. ‘Proof’ is a protected term i
+n science, and if something is ‘proven’ then it must be literally, absolutely true in all cases at all times to be a
+warded that status. Take the structure of this very simple hypothesis: Mixing equal volumes of an acid of pH 6 and an al
+kaline solution of pH 8 will result in complete neutralisation (i.e. pH 7) within 10 seconds. It’s a good hypothesis i
+n that it’s testable . It may also be true enough for all practical laboratory purposes, but there may be molecules of
+ the reactants that haven’t been converted to products by the end of the 10 seconds. These may not be detectable by ou
+r techniques today, but there’s a very real possibility that detection might be possible in the future. We would there
+fore avoid saying that the hypothesis had been proven , as we can already see limitations that prevent us from making su
+ch a confident assertion. Consider also that there’s vagueness in the phrasing of the hypothesis itself that prevents 
+it from being applied in all situations, or prevents the results being interpreted equivalently by all readers. In order
+ for all of the products to react with each other, there must be sufficient mixing after they’re poured into the same 
+vessel. With a small volume of reactants in a desktop beaker, 10 seconds might be a reasonable timescale, especially if 
+the solution was to be stirred. Mixing equal volumes of acid and alkali in an industrial tank, on the other hand, is lik
+ely to take much longer to reach equilibrium. It’s therefore not possible to say we’ve proven this hypothesis when w
+e can already see that the phrasing is vague enough to include situations that would actually behave differently from ou
+r experimental set-up in the lab. Finally, the laws of probability simply interfere with our ability to be certain. It�
+�s highly improbable that a small volume of the two solutions would fail to mix thoroughly in a small benchtop beaker, b
+ut that doesn’t mean that it’s impossible . If the experiment was to be repeated thousands of times, there could con
+ceivably be a situation where most of the acidic molecules would partition on one side of the beaker and most of the alk
+aline ones on the other side, and that they would take a long time to mix. We therefore can’t say that the hypothesis 
+has been proven in every possible situation . This means it’s not technically a statement of pure, objective fact, so 
+we should avoid saying it’s been proven at all. In each of these cases, we can only say that the hypothesis has been s
+upported (or, alternatively, not yet disproven ). The exception to this might be when a hypothesis defines very narrow e
+xperimental conditions, for example to a specific period in time: [Radical child support policy change X] will decrease 
+the number of mis-filed applications for child support by 10% within the first year. In this case, if it turned out that
+ wrongly filed applications did go down by 10%, then we could say that the hypothesis was indeed proven to be accurate, 
+as the chance for it to have been disproven would have passed. Note that this is different from saying something like: S
+hining a torch into a dark pond will stimulate an aversion response that increases the proportion of fish hiding under v
+egetation by 10% within the first minute. Although this animal behaviour experiment is also time-limited, the number of 
+opportunities to repeat the experiment are un- limited. In other words, it is not linked to a specific point in time, it
+ could be repeated, and it could therefore conceivably be disproven at some point in the future. Terminology note: hypot
+hesis vs. theory Theory is a protected word in academia. In common usage, it simply means a prediction. In academic circ
+les, it means a collection of observations and conclusions that combine to create a sub-field of study. Evolutionary the
+ory, quantum theory, atomic theory, molecular orbital theory – these are all examples of well-established scientific t
+heories, but none of them are equivalent to hypotheses. They are frameworks of existing knowledge that allow us to synth
+esise and develop further assertions and testable predictions on each of those topics. Which one should you choose when 
+you write your thesis? Hypotheses are well-suited to situations where a rich enough set of background information exists
+ to make predictions possible. They are also common in quantitative research, where it is easier to create defined numer
+ical cut-offs to go into your predictions. Hypotheses don’t suit every type of research, though. The more complex a sy
+stem is, that is, the more variables it has or the more stochasticity (‘randomness’) is inherent in it, the more dif
+ficult it can be to formulate a meaningful hypothesis. Hypotheses are also easier to write when you have a narrowly defi
+ned scientific problem to tackle. Research questions, on the other hand, are more suitable when you have a general goal 
+in mind but you’re less sure of the best way to achieve it. You needn’t actually pick one over the other, though. As
+ you’ll see below, a good project that begins with a main research question might then be broken down into several sub
+-sections, each of which is led by a testable hypothesis. Why is all of this important? On a basic level, it’s importa
+nt for your own credibility to be able to use the correct terminology. On a more practical level, a PhD progress committ
+ee might ask for your working hypotheses or your research question, and it’s important that you can supply the right t
+ype of information. How do they relate to each other? Having one doesn’t mean you can’t have the other. Perhaps you 
+have a research question that defines your overarching PhD project. It’s possible that your next steps once you get st
+arted on your research would be to break it down into sub-experiments, each of which has a testable hypothesis associate
+d with it. In this way, the relationship between a research question and a set of hypotheses is sometimes similar to the
+ relationship between a methodology , which describes the general type of research, and individual methods , which provi
+de details of what you did at a level that someone else could use to repeat your processes. Don’t expect that your pro
+ject’s goals will stay unchanged This is a concept that may be very familiar to you if you’ve completed an undergrad
+uate or a master’s dissertation. Initial plans might have to be changed because you find that the literature or the ra
+w material to analyse simply don’t exist in the right quantity or the right state to be useful. Perhaps you find that 
+the answer was massively more simple than you originally expected, and now you need to find something else to fill your 
+PhD with. On the other hand, perhaps the answer is much more complicated and unexpected. None of these situations is rar
+e. Don’t worry, though, as nobody will be surprised. Finding that your results don’t turn out as expected is probabl
+y the most common reason for updating a research question. A PhD isn’t a test of your ability to find the answer to yo
+ur original question, though. It is a training programme designed to train you in how to design experiments, interpret r
+esults, think about how they fit with the wider field of knowledge, and then decide what to do next. Scientific experime
+ntation is an inherently cyclical process, so you should expect to be re-designing your plans a lot (see Figure 1 ). A s
+lightly different reason for changing your project plan is that you might find someone else has answered the same resear
+ch question you were working on (in other words, you’ve been ‘scooped’ – for more on this, see Chapter 4 , p. 52
+). Figure 1: The Cyclical Nature of the Research Process Whether you’re scooped or not, and whether your experiments g
+o well or not, the nature of working at the cutting edge of human knowledge is that things are unpredictable. Your super
+visor won’t be disappointed in you if things don’t go as planned, but part of the personal development expected of y
+ou throughout your PhD is the ability to become an independent researcher. What they will want from you is some suggesti
+on on what you think you should do with the research direction. Hopefully this chapter has given you the tools and the f
+ramework to formulate your own research questions.
+CHAPTER 4 Finding Literature This chapter is intended to give you a very practical guide on how to carry out a thorough 
+and rigorous literature search. Going from your undergraduate dissertation, through the process of a master’s, and on 
+to writing a PhD thesis, involves learning to handle an order of magnitude more references than you used in the former (
+that is, your total number will involve using an extra digit – ‘35’ might now be ‘250’; a typical scientific P
+hD thesis might have 200–300 references), and so it’s important that you have a system for handling these. You might
+ read some of them once in your initial literature review phase, and then once several years later when you write up you
+r thesis. If you don’t have a system to organise and take notes on them, your sources might start to feel like a messy
+ collection of texts that you avoid going back to again, but which you know you’ll have to one day. We’ll go into mo
+re detail on organisation strategies in the next chapter, but having a good search strategy in the first place will help
+ you lay the groundwork for keeping a systematic collection of your sources. This chapter will also feature advice from 
+the experts on information searching and curation – university librarians. These aren’t the people who help keep the
+ library operating smoothly by putting the books back on the shelves and helping users with queries; these are the peopl
+e who run the library. They communicate regularly with publishers of academic literature, and decide what books are wort
+h buying and what databases and journals are worth subscribing to. They have the most up-to-date knowledge of the tools 
+available to researchers for accessing the world of academic publishing. If you’ve never made use of your own universi
+ty’s subject librarians, check your institution’s website to find out what they can do for you. You might find they 
+have web pages or other guides dedicated to helping you navigate your own local set of subscription services. You’ll a
+lmost certainly be able to email them to ask for advice. You might even find that they have 1:1 appointments or workshop
+s where you can bring your work along for a personalised session on how to find and collate relevant resources from the 
+literature. Insights from a researcher I started with an extended literature review at the beginning that took about thr
+ee months. Sometimes I thought I should get started on experiments rather than read. In hindsight I really benefited fro
+m this initial summary in the final stage. I also used referencing software and kept PDF copies of all relevant papers o
+rganised in categories. As I am not a 100% digital person I printed off a lot of papers and added notes by hand. Now, I 
+would rather use a tablet (or the like) to mark up and comment directly in the PDFs. It makes searching for relevant sec
+tions much easier later. Finding a good, authoritative, wide-reaching (yet subject-focused) database The advantage of us
+ing a database rather than a journal’s own search page is that you get to interrogate many, many different journals wi
+th just one search. There are tens, if not hundreds, of good academic databases available online at the time of writing.
+ Each one is tailored for a specific set of subject disciplines, but many overlap with each other in the materials they 
+cover, or ‘index’. As well as indexing different sources, different databases will offer different functionality. It
+’s important to distinguish between academic databases and more general ones. At the time of writing, Google Scholar i
+s a popular database that offers an academic search service, but we would strongly advise against using it . Bear in min
+d that ‘academic’ does not equal ‘scientific’ , and the details of which sources Google Scholar pulls on and how
+ it carries out its searches are not as transparent as they are for other providers. You should start by finding databas
+es that are specific to your field. There’s a greater chance that these will cover the sources that you need to find, 
+and that they will be powerful enough with specialised search tools for you to be able to conduct a rigorous, repeatable
+, reliable search for which you define all of the parameters yourself. We’ll first explain what exactly a database doe
+s for you, then we’ll give you some criteria to help you judge which ones will be best for your project. How does an a
+cademic database work? Just like any online search engine, an academic database automatically collects information about
+ the contents of a range of sources. This is referred to as ‘indexing’. In academia, these indexed materials could b
+e journal articles, reviews, patents, books and more niche sub-areas of these information types, such as how many times 
+an article has been cited in other works. Academic databases exist for all subject areas, but it’s generally the case 
+that scientific databases offer much greater functionality than those covering the arts and humanities (so if you’re m
+oving from an undergraduate course in something like history into a PhD in something like archaeology, you might find th
+at searching these new databases means you need to develop a very different type of skill). Using the database can be as
+ simple as entering a single keyword, or as complex as entering a list of keywords connected by various commands (‘ope
+rators’) and applying a host of filters to narrow down the results. We’ll explain more about these below. How do you
+ choose the best database(s)? The precise details of how each commercial database works can be a bit of a trade secret, 
+as each one wants to be able to retain a competitive edge so that consumers continue to choose to use them. The two most
+ important factors in choosing the databases you’ll use – and these will be where you turn for the whole duration of
+ your PhD, so it’s worth investing some time thinking about these – are indexing coverage and search functionality .
+ Indexing coverage Generally speaking, major databases will provide a list of which sources they index so that you can d
+ecide how relevant they are to you and your research. You might even find that your subject librarians have already list
+ed all of the databases that you subscribe to and organised them by discipline already. Check your library webpages or c
+ontact your librarians to see if this is the case. If you’re not sure whether a database is going to be optimal for yo
+u, investigate their home pages to see if they tell you which journals etc. they index. If you can spot some obvious gap
+s, perhaps you’ll choose to use that database in combination with another one, or perhaps you’ll decide there are si
+mply others that are better. Don’t worry if you can’t spot these gaps immediately – it’ll take some time before 
+you become familiar enough with your field to know what the most central journals for your subject are. There’s no gua
+rantee that there will be one single database with the best list of indexed sources for your research project. It’s go
+od practice to think about a balance between two important concepts in information retrieval, each of which is something
+ of a contrast to the other: sensitivity and specificity . Sensitivity: The ability to find all of the relevant source m
+aterials that are relevant to your search term. Specificity: The ability to eliminate search results that are only very 
+slightly related and not of interest to your project. It’s important to have sensitivity because you don’t want to m
+iss an article that contains the answer to the research question you’re about to invest time and money in. It’s impo
+rtant to have specificity because you don’t want to spend unnecessary hours reading literature from subject areas that
+ use the same words as you, but which mean a different thing in a different subject context. We’ll return to these con
+cepts later in the section on ‘Constructing a rigorous search’ on p. 43). For now, it means you should think about c
+hoosing an appropriate range of databases to make sure you have enough sensitivity that you don’t miss any important j
+ournals or sub-fields within your research area, but not so many that you sacrifice specificity by returning results tha
+t are actually from completely outside of your field. Functionality Any good database will let you filter and sort your 
+results on a range of criteria. Filtering: Narrowing your search results on the basis of the criteria you select. Sortin
+g: Deciding on the order in which the results are shown to you. Filtering options might be available when you’re typin
+g in your search terms at the start, or after you’ve seen the results – or both. For a good range of criteria, searc
+h for databases that let you filter/sort based on: –  publication year –  source type (article, review, book, go
+vernment policy document, etc.) –  language –  citation count (the number of times a source has been referenced 
+in someone else’s work) –  research area –  whether open access or not. Really good databases will let you cre
+ate an account and save the results of your search so that you can return to them later, and they’ll also let you expo
+rt the citation information for the results you want to use. These citation details will be very useful when it comes to
+ curating your reference list, as it removes a lot of the drudgery of typing things out by hand. For more detail on this
+ stage, see Chapter 5 – ‘Organising and Keeping Track of the Literature’. Finally, the best databases will let you
+ browse your search term history so that you can combine prior searches into one final master search. For example, you m
+ight experiment with eight or nine different variations on a list of terms in the search box before you decide which one
+s give the best results (i.e. the best balance between sensitivity and specificity ). If you are able to see your search
+ history, along with the number of results each search generated, you will be in a better position to choose the final c
+ombination of words and criteria to use. For a worked example of this kind of functionality, see below. Discuss which da
+tabases are most relevant with your supervisor. As with any supervisory meeting, it’s probably a good idea to show you
+r own initiative by researching the available topic on your own first, perhaps with the help of your library resources a
+s we mentioned above. You can then ask your supervisor what they think of your plan, rather than simply asking them what
+ they would do if they were in your position. Constructing a rigorous search We mentioned above that it is important to 
+think about sensitivity and specificity with any search you carry out. We’ve created a hypothetical search scenario to
+ show you how this works in practice. Keywords: efficiency photovoltaic polymer Search Results: 17,094 The default way a
+ search engine will interpret your search string is to assume you want to find articles that contain all of these words.
+ This is far too many hits for you to be satisfied with your search (see the section on ‘How many results should you a
+im to get?’ on p. 48), but before we can discuss what to do with such a large result, we need to look at the concept o
+f Boolean operators . Boolean operators In logic and in computing science, these are the extra commands that determine w
+hether your words are interpreted separately or together. The three classical Boolean operators – AND – OR – NOT I
+f you don’t use any at all, the algorithm will usually assume you want to include an AND between each term. Results of
+ multi-word searches like the one on the previous page will be more specific than the combined results of searching for 
+each of those three terms separately: Individual search term Number of results efficiency 5,417,349 photovoltaic 269,989
+ polymer 2,067,012 Combined results: 7,754,350 This doesn’t make either strategy inherently better or worse than the o
+ther, as that depends on your purpose. If you are already certain you want to find articles where all of these three ter
+ms are included, then go with the first search approach (to include an AND between each word, or to leave nothing betwee
+n the words, in which case the algorithm will assume this on your behalf). If you want to experiment with the best word 
+to use in each position, however, stick to separate searches for each word and combine them later. Why would you need to
+ experiment with the best word to use? ‘Photovoltaic’ might be a term you use in your research project, but there ar
+e many other words researchers could use for the same concept. To capture more of these, you can use the OR operator. Ke
+ywords: photovoltaic OR photoelectric OR optoelectronic Search Results : 561,522 The OR operator means that articles wit
+h any of these three terms will produce a result. As you can see, the number of results using this approach is greater t
+han the search for ‘photovoltaic’ alone (269,989 hits – so this is now more than double), and so we can say the se
+arch has become more sensitive . The NOT operator can be used in a similar way to exclude results that contain specific 
+words. Keywords: polymer NOT “plastic products” Search Results : 1,781,597 As you saw before, searching for ‘polym
+er’ on its own returned 2,067,012 results, so this NOT function has reduced the number of irrelevant results that ment
+ion polymers in a fairly common context that we’re not actually interested in. (Note that the search algorithm can’t
+ distinguish whether or not the word ‘polymer’ is used in an article to mean a plastic product; it simply rejects an
+y results where the phrase ‘plastic product’ is also mentioned .) Note the position of quotation marks here. This is
+ crucial when you want the search engine to interpret the words as part of a complete phrase. As we showed you above, if
+ you simply don’t put any operators between your terms then the algorithm is likely to interpret them as having an AND
+ between them, which could create unintended results. Depending on the database you’re using, you might need to use si
+ngle quotation marks, double quotation marks or brackets. Check for specific instructions on your database’s help page
+s. Combining separate terms To revisit our initial example, we might now have decided that the best terms to use are: po
+lymer NOT “plastic products” photovoltaic OR photoelectric OR optoelectronic efficiency If the database allows you t
+o enter these as separate search strings which it will combine into one search, then you can do so. If not, you need to 
+enter them all in one box and tell the search engine where one search term ends and the next begins. Just as in mathemat
+ical expressions, you can do this with brackets: (polymer NOT “plastic products”) AND (photovoltaic OR photoelectric
+ OR optoelectronic) AND efficiency So, in summary, here are the various search strings we’ve mentioned, and the number
+ of results they return on our database of choice, at the time of writing. We’ve ordered them in a way that this time 
+might represent the developing thought process of a researcher approaching the search phase by trial and error, as is no
+rmal. (Note that none of these are what we would regard as a finished search strategy , as all of the results are still 
+too numerous for you to scan through. For more on this, see the section ‘How many results should you aim to get?’ on
+ p. 48.) Individual search term Number of results Comments Efficiency 5,417,349 Initial searches, allowing you to gauge 
+how many articles exist on each sub-topic Photovoltaic 269,989 Polymer 2,067,012 (Combined results of the three above) (
+7,754,350) (Too many to read) Polymer NOT “plastic products” 1,781,597 Improves the specificity of the polymer searc
+h term Photovoltaic OR photoelectric OR optoelectronic 561,522 Improves the sensitivity of the photovoltaic search term 
+Efficiency photovoltaic polymer ( i.e. algorithm assumes an AND between each word ) 17,094 Our first demonstration; too 
+vague (polymer NOT “plastic products”) AND (photovoltaic OR photoelectric OR optoelectronic) AND efficiency 21,088 O
+ur last example; much more robust Bonus search tools You’ll probably find that your database allows you to use a few e
+xtra operators, but the specific usage rules surrounding these tend to vary from database to database. Check the instruc
+tions for each specific one to find out precisely how to use each function. Truncation/wildcards: Useful for finding any
+ words that start/end/contain a string of letters. If you want to find articles that mention either synthesis, synthetic
+, synthesise, and the spelling variant synthesise, you can usually shorten the word to the common letters and use a spec
+ial character to represent any other combination of letters. In this case, the three letters syn are present in every va
+riant. If the asterisk symbol was the wildcard for your database, typing syn* would return articles that include all of 
+the words mentioned above. However, it would also include any other words that start the same way (synergy, synesthesia,
+ syndicate, etc.), so be careful how liberally you use this option. A search string such as synthe* would be a better ex
+ample of good truncation here. Proximity: Useful for finding pairs of words that are close to each other but not directl
+y adjacent. The final version of the search we showed you in the worked example above would return lots of irrelevant ar
+ticles about completely different topics as long as they mention both of the words ‘photovoltaic’ and ‘efficiency�

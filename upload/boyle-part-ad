@@ -1,0 +1,300 @@
+�� anywhere at all. To reduce the number of these spurious search results, some databases allow you to specify that your
+ search terms must appear within a certain distance from each other. For example, photovoltaic NEAR(9) efficiency would 
+only return results where these two words were no more than nine words apart. Thus, phrases such as ‘ photovoltaic com
+ponent efficiency ’, ‘ the efficiency of such photovoltaic components ’ and ‘ efficiency is an important conside
+ration when selecting a photovoltaic material ’ would all trigger hits. Articles where the words ‘photovoltaic’ an
+d ‘efficiency’ were always separated by more than nine words, however, would not. The precise characters to use for 
+truncation and proximity searches will vary from database to database, for example NEAR/9 or NEAR[9] , so check the guid
+elines for yours carefully. How many results should you aim to get? We’ve become accustomed to general internet search
+ results that number in the millions. Out of those millions, how many results do you actually look at before you decide 
+which page to go to? This is fine for everyday searching because we rely on the algorithms to prioritise the most releva
+nt results first. Academic databases don’t work this way . Their default is usually to return the most recent results 
+first. If you’re used to scanning the first two or three pages of results before moving on, you’re likely just findi
+ng articles that are about to be printed, and those that have come from the last few months. There’s absolutely no rea
+son to think that these are the only relevant articles. In academic searching, you should aim to generate a small enough
+ number of results that you can realistically scan through all the titles , along with the abstracts of the more promisi
+ng ones, and mark some of them for a proper follow-up. How many titles could you evaluate in half an hour? Thirty minute
+s of reading several hundred article titles might sound like a lot of repetitious work, but the stakes are high. Success
+ in your PhD is based partly on having a solid base of literature, so you should make the time to dedicate to searching 
+like this. Documenting your search strategy For PhD theses in some disciplines – particularly those where an analysis 
+of literature is the research – it can be very important to record how you collected your sample of sources. Tradition
+al laboratory research is documented in a methodology that makes it possible for future researchers to replicate an inve
+stigation. Documenting a search strategy is the equivalent when the research is based mainly on the published findings o
+f others. This type of research includes: –  extended literature reviews/library research projects –  systematic
+ reviews –  meta-analyses. Each of these is essentially an extra layer of scientific analysis laid on top of all of 
+the individual journal articles published to date on a particular topic. It won’t be possible for an author to review 
+every single article in their field, so they’ll choose criteria to narrow the scope of their investigation. Choosing t
+hese criteria forms part of their methods. Exclusion criteria They might decide on their search terms as described above
+, and then choose to eliminate some articles from the pool of results because those studies have relatively small sample
+ sizes. They might choose to eliminate articles based on a particular treatment protocol, for example, if a drug was adm
+inistered and the effects were monitored for varying lengths of times in different articles, the reviewer might exclude 
+any that measured the effects for less than six hours, or that did not control their experimental design for other drugs
+ that they suspect could interfere with its action. A helpful example of a specialised principle There are a handful of 
+widely known strategies that make good sense for ensuring a search is sensible, thorough and focused. One of these is kn
+own by the acronym PICO: PICO (Problem/Intervention/Comparison/Outcome) It’s a checklist to help you think about the d
+ifferent elements of a study you might want to search for when constructing your search terms, and it works well for any
+ research where you’re trying to investigate a cause-and-effect relationship. (It generalises nicely across the scienc
+es, but if you’re in medicine, where PICO originates, note that the P can also stand for Patient or Population, and th
+e I can also stand for Indicator.) Examples of research questions Do six-monthly check-ups improve five-year survival ra
+tes for prostate cancer in men in Brazil? Does over-activation of small heat shock proteins improve heat tolerance in st
+aple crops, such as rice? Does the use of an ultrafiltration step in bone collagen pre-treatment improve the accuracy of
+ stable carbon and nitrogen isotope measurements? The research question would first be broken down into its four PICO el
+ements as follows: You would then list all the search terms you think would apply to each element. For example, ‘impro
+ved thermotolerance’, from the biology example, might be covered adequately by: thermotolerant OR thermotolerance ‘h
+eat tolerance’ OR ‘tolerant of heat’ OR ‘high temperature tolerance’ OR ‘tolerance of high temperature’ OR
+ ‘tolerance of high temperatures’ OR ‘heat stress’ OR ‘thermal stress’ OR ‘high temperature stress’ You 
+can see that this list is quite long, and we certainly haven’t included every term that might signify the same concept
+. Don’t worry about including too many search terms, though; the search algorithm doesn’t care how many you use. (No
+te: we haven’t used truncation in this example, because we want to emphasise just how widely you should think about ca
+sting your net when you create a good academic search. If you missed our explanation of truncation section, you’ll fin
+d it above.) Adding more terms will make your search more sensitive . Just be mindful of balancing this against specific
+ity . Sensitivity is achieved in part by combining all of these terms, which only represent the O in PICO for this parti
+cular scenario, with the rest of them in the following format: (all your ‘P’ terms) AND (all your ‘I’ terms) AND
+ (all your ‘C’ terms) AND (all your ‘O’ terms) As we mentioned above, your aim should be to bring the number of 
+article titles returned to a number that you can realistically read. You could probably scan through 200–300 article t
+itles in half an hour , deciding as you go whether to mark them for follow-up. Searching beyond the literature review Re
+gular searching is a useful habit to develop. Perhaps once every month or two, spend half an hour at your computer check
+ing to see if anything new has been published in your field. This is basic good practice because it might give you new i
+deas about how to develop your research, but it’ll also help soften the effect of every PhD student’s worst nightmar
+e: being scooped . This is when someone else publishes an article dealing with the same research question as you. The im
+pact can range from a minor emotional inconvenience, because you’ll arrive at your viva and you’ll be presenting som
+ething that isn’t an entirely novel contribution to the field anymore (though this won’t necessarily be regarded as 
+your fault), through to undermining your ability to publish a paper, because it’s already been done. If someone scoops
+ you at the end of your PhD, your examiners will understand that there’s not much anyone could have done. Your assessm
+ent won’t be affected by it and you’ll still be evaluated on the basis of your progress as a trainee in your scienti
+fic field. If, on the other hand, someone publishes an article on your topic one month after you complete your literatur
+e review, it’ll be significantly more embarrassing and your examiners might doubt your credibility as a researcher. It
+ certainly isn’t the end of the world (or your academic career), but it’s obviously something to try to pre-empt by 
+checking your academic databases regularly to stay abreast of new developments. Automated search alerts There are a vari
+ety of automated ways you can stay up to date. Major journals will often let you sign up to a mailing list, providing yo
+u with a table of contents for each new issue. Some databases will let you save a search configuration, enter your email
+ address and email you with new results at regular intervals. As with all mailing lists, though, human nature is often t
+o de-prioritise opening these messages. We’ve just described how the stakes with this are high, though, so if you set 
+up automated alerts, schedule some regular time to read them. Insights from a researcher My supervisor started me off wi
+th a library of papers by sharing it through Endnote. I then used Pubcrawler to get weekly updates on publications relev
+ant to my research. Attending conferences also helped me to identify groups to follow and revealed competitors and colla
+borators. MeSH headings (medicine and biomedical sciences) There are almost always several different words for the same 
+concept. Each scientific field then comes with its own set of terminology for the substances, procedures and theories th
+at exist within it. In the biomedical sciences, however, there is also a hugely expanded vocabulary to describe drugs, t
+reatments, anatomy, biological processes and demographics. This vocabulary is often derived from a combination of Greek 
+and Latin prefixes and suffixes, all of which makes it even more difficult to anticipate all of the appropriate synonyms
+ to use in a database search. To help address this difficulty, the curators of PubMed (one of the most popular medical d
+atabases, short for Public MEDLINE) have created a system of categorising keywords into a master database containing all
+ of the synonyms you might want to use. This system is known as MeSH – Medical Subject Headings . If you enter your fi
+rst, most obvious search term and then ask the database to map this against the MeSH headings, you’ll be able to inclu
+de all of these synonyms at once. The system is organised hierarchically in a tree structure, meaning your chosen search
+ term might have lots of sub-headings within that area of research, and those might also have sub-sub-headings, too. If 
+you wish, you can fine-tune the search to exclude a specific branch of the hierarchy to increase the specificity of your
+ search. This means you get to save lots of time that you would otherwise have spent thinking of search lists. Since the
+ terminology for various medical concepts can vary from country to country (e.g. drug names), it also means you can worr
+y a little less about missing out an important synonym you were unaware of. Keeping abreast of new literature You should
+ think about returning to carry out your most useful or productive searches again later in your PhD. Your literature rev
+iew is probably one of the first tasks you’ll be asked to do, but if you never return to find new articles until it’
+s time to finish in the lab and focus solely on writing up, you’ll have missed a few years’ worth of new development
+s. These could have been useful (or even vital) for the success of your research, and your prospects of getting any publ
+ications out of your work depend partly on spotting when someone else publishes something very similar to what you plan 
+to publish. Hopefully, this chapter will have given you enough advice that you can create good searches, save the best o
+nes and return to re-run them at several points throughout your PhD. Insights from a researcher If I could go back in ti
+me and talk to myself during the first year of my PhD I would tell her to sign up for literature alerts, and to write a 
+few sentences summarising every relevant paper she read and to add it to a referencing tool that she was familiar with (
+like EndNote) as she went along. Insights from a researcher For me it was definitely organic. I knew a lot of the litera
+ture anyway because I had been to conferences or knew the authors. I had also previously done a master’s in a related 
+area so that helped. Twitter is also a great source of papers. As part of our doctoral training, we did get taught how t
+o use library databases, which was useful. The main problem is when your institution doesn’t have access to the papers
+ you need. That slows things down a bit.
+CHAPTER 5 Organising and Keeping Track of the Literature Writing your PhD thesis is probably going to be the largest sin
+gle exercise in handling numerous sources that you ever carry out (perhaps topped only by the process of writing review 
+articles, if you progress in academia). It’s important, then, to make sure you have a system of not just collecting re
+ference details, but also of collating them. The difference is that by collating them, you create a system of organising
+ and annotating the entries such that it’s easier to find specific ones again later. If you annotate well, it also mea
+ns you’ll be able to come back months or years later to use one in your writing without necessarily having to read the
+ whole article again to remind yourself of its main points. As you’ll become aware, it’s usual for your lab material
+s to stay with your lab after you complete the project so that the next person to pick it up can continue where you left
+ off, so a third benefit of good annotation might be that your lab colleagues and supervisor(s) will be able to make bet
+ter use of your materials after you leave. We’ll describe how reference management software can help you build a libra
+ry of the sources you’ve read, organise them and automate the process of getting those references into your written wo
+rk. The technical elements are one side of the task, but the choices surrounding how to sort and group your references n
+eed to be made by you. We’ll describe some commonly used strategies that we’ve seen PhD students use. We’ll descri
+be what we can see as the pros and cons of each, and we won’t recommend any as the single best way; we want to give yo
+u the tools to be able to design your own approach to reference management given the specific nuances and requirements o
+f your project. Ultimately, the purpose of managing your referencing information is to help you build and weave a well-s
+upported argument through your thesis. Whether you read just our advice on the technical tools or just our advice on the
+ strategies for grouping and categorising your readings, bear in mind that this should always be your overarching goa wh
+ile you figure out what works for you. Insights from a researcher My strategy for dealing with literature varied dependi
+ng on what I needed. I mainly collected papers as PDFs and used software to annotate them. Broadly, I saved them in fold
+ers and subfolders relating to the different sections and subsections of my introduction. These also correlated to the s
+tructures of my results chapters. I used a different approach when I was writing about different DNA assembly methods an
+d trying to find examples of research in which these DNA assembly methods had been used. I searched a literature databas
+e and skimmed a lot of papers to find answers to specific questions: what did they assemble; and what did they use it fo
+r? It would have been a waste of time to save all of these papers as PDFs so I wrote down the references and answers in 
+a notebook by hand. It felt organic at the time, but I had a minor panic when I thought I had lost my notebook. I should
+ have made a record of them in reference managing software at the time. General principles of collecting reference infor
+mation There are different pieces of terminology we could choose to talk about this process. For the sake of clarity, we
+’ll use collecting sources to mean the act of recording the referencing information that goes with your source materia
+ls somewhere. We’ll use the term database to refer to any place you choose to store the referencing information itself
+, which could be on paper, in a card index, in a text document, in a spreadsheet, in a table embedded in a file somewher
+e, in an app or in dedicated database software. The reasons for referencing in academia will most likely have been cover
+ed extensively in your earlier degree(s), so we won’t spend long in this section talking about the rationale for doing
+ it. We do want to recap the reasons for including some of the more obscure elements that go into a reference list entry
+, though. You don’t want to accidentally leave any of them out during your collection phase only to realise later that
+ those particular elements were going to be of use to you, at the re-reading and editing stage, or to a reader, who may 
+or may not have access to the material in the same format as you. Surnames To indicate authorship, in a pre-defined orde
+r indicative of level of contribution to the article First names/initials only/ middle initials To differentiate between
+ academic authors with the same surname Article name To describe the content of the article Journal To provide the first
+ level of information about where to find the article; also carries implicit information about the impact of the article
+ Volume number To help readers navigate the back catalogue of a journal, based on year Issue number To help readers navi
+gate the back catalogue of a journal, based on the multiple volumes that were created within that year Page number(s) To
+ help readers with access to a whole issue quickly navigate to a specific article Digital Object Identifier (DOI) To all
+ow quick and simple online access to an article without relying on more conventional online identifiers, such as a web a
+ddress, which could change and thus would not be futureproof.* *For this reason, URLs are not normally used in referenci
+ng unless your source exists only in web page form. Note that articles downloaded from journal websites do not fit this 
+description. Newer online-only journals are something of a mixed case, but they will usually closely follow the traditio
+nal academic referencing format. Use all of the volume and issue information that they supply, just as you would with an
+y other article. Reading an article today and writing about it in three years is a challenge of organisation and of memo
+ry. Future-you will appreciate the efforts of present-you in recording all of these referencing details now, as there’
+s no guarantee that shortcuts such as bookmarks to specific web pages will still work that far into the future. When dec
+iding where to collect and record all this information, think about the way you’re likely to want to think of the arti
+cles later. •  Do you tend to remember articles based on the name of the lead author? •  Do you care about which
+ articles are the most up to date? •  Do you categorise articles on the basis of the journal they were published in?
+ •  Do you remember articles by their titles? •  Are you more likely to remember them by pieces of their content
+s, that is, by words and phrases that might not appear anywhere in the referencing information at all? If you’re going
+ to create an index of your articles, we’d strongly suggest that the most useful format would be one that will let you
+ sort, filter and group the entries. A text document is searchable, but it’s not easily sortable. A spreadsheet is sor
+table, but it comes with limitations to how much information you can see at a glance when everything is stored in rows a
+nd columns of fixed width. Database software will let you sort and filter in the ways we mentioned above, but it’ll al
+so have a much more user-friendly interface than a spreadsheet. Although you might not think of it as a database, refere
+nce management software – or simply a reference manager – is this kind of solution. Reference management software Th
+ere are many different individual pieces of referencing software on the market. Some are free, some will have plugins fo
+r word-processing software, and some are more well-supported by their developers than others. We don’t want to recomme
+nd a specific company’s product, but we do want to outline what features you might want to take into consideration, an
+d how you should use it. Good practice when using a reference manager Reference managers exist primarily to store all of
+ your referencing entries for you to access later. Each time you choose to read a source, we recommend that you store it
+s reference information immediately , even before you sit down to read it. You might not decide that the article is rele
+vant today, but your project might eventually develop into an area where you realise it becomes useful later. If you hav
+e all of the source’s details recorded in your reference manager, you’ll be in a better position to find it again at
+ that point when all you can vaguely remember is the author’s name or one of the words in the title. Searching your re
+ference manager’s library will be much more efficient than searching an online database’s entire indexed collection.
+ Getting information about your sources into your reference manager When you enter details of a source into a reference 
+manager, you won’t be able to simply type in the whole reference in the form you’d use at the end of your thesis, fo
+r example: Singh, V. and Mayer, P. (2014) Scientific writing: Strategies and tools for students and advisors, Biochemist
+ry and Molecular Biology Education , 42, 5, pp. 405–413. Reference managers need each piece of information separately.
+ In database terms, each field needs to be entered on its own. This allows you to sort and filter your list of reference
+s, and it also means the software can reformat the data to produce a reference list in whichever referencing style you n
+eed. For example, if you use the Harvard format while drafting your work and then discover later that your department wo
+uld prefer you to use Vancouver, a reference manager can take care of this for you – but only because it stores all of
+ the information in separate database fields. There are various methods to actually get a reference into your manager. Y
+ou’ll be able to type it in directly by creating a new entry in your database (usually called a library by the softwar
+e). Typing the information yourself is the most time-consuming method, but also sometimes the most reliable, as other me
+thods rely on data being transferred from one computer system to another. These automated methods can sometimes introduc
+e errors in interpretation, for example when one system outputs data in a format that doesn’t match what the other sys
+tem expects. When you enter it by yourself, field by field, you can be sure that all of the relevant information is capt
+ured (as long as you don’t make any typos…). You’ll probably also be able to import the referencing information by
+ supplying the reference manager with a file. These files are the ones you’ll find as downloads from the webpages of j
+ournals. When you’ve found an article you want to read and you see the ‘download PDF’ option, look for another one
+ close by called something like ‘export citation’. The file you’ll get contain all the fields your reference manag
+er needs to create an entry in your library, encoded in a way that easily identifies each separate element/field of the 
+reference. When you hit that download button, you’ll usually then be asked which format you need. Different reference 
+management software companies have created their own standards over the years, and you’ll need to find out which forma
+t your own reference manager expects you to work with. To illustrate the differences, here’s the referencing informati
+on for the article we mentioned above formatted in three of the common formats at the time of writing: BibTex format @ar
+ticle{singh2014scientific, title={Scientific writing: strategies and tools for students and advisors}, author={Singh, Vi
+kash and Mayer, Philipp}, journal={Biochemistry and Molecular Biology Education}, volume={42}, number={5}, pages={405–
+413}, year={2014}, publisher={Wiley Online Library} } EndNote format %0 Journal Article %T Scientific writing: strategie
+s and tools for students and advisors %A Singh, Vikash %A Mayer, Philipp %J Biochemistry and Molecular Biology Education
+ %V 42 %N 5 %P 405–413 %@ 1539–3429 %D 2014 %I Wiley Online Library RefMan format TY – JOUR T1 – Scientific writ
+ing: strategies and tools for students and advisors A1 – Singh, Vikash A1 – Mayer, Philipp JO – Biochemistry and M
+olecular Biology Education VL – 42 IS – 5 SP – 405 EP – 413 SN – 1539–3429 Y1 – 2014 PB – Wiley Online L
+ibrary You don’t need to know these formats, but you’ll see that there are clearly differences that’ll cause probl
+ems if you download your data in a format that your reference manager isn’t designed to understand. If you’re workin
+g with sources that aren’t academic journals, you probably won’t have the luxury of these industry standard citation
+ files. In those cases, you’ll probably have to enter the details by hand. Some software will let you do things like e
+nter the ISBN of a book, or scan its barcode to find the publishing information. Some reference managers also have plugi
+ns for web browsers that scrape information from webpages, for example an online shopping page where a book is listed. W
+hichever method you use to get data in , it’s important to manually check that the information’s complete and correc
+t before you move on. Checking your reference manager’s library is complete and accurate You don’t want to proceed a
+ll the way to printing and binding your thesis before discovering that you’ve only got partial information for some of
+ your several hundred references. Even if you’ve properly downloaded and imported a citation file into your reference 
+manager, there’s no guarantee that the file’s information was entered properly and completely by the staff at the jo
+urnal. Think about the pieces of information you’ll need when you create your reference list: •  Do you have the a
+uthors’ first names, or only their initials ? •  Has the journal’s name been given in the abbreviated form , for
+ example Int. J. Theor. Phys , instead of International Journal of Theoretical Physics ? Will you need to use the full v
+ersion of the title to satisfy your university’s requirements? • Is every word in the title capitalised ( title case
+ ) or is it only the first word ( sentence case )? Does this match the format you need to use in your thesis? •  Do 
+you have the page range for the article, or only the number of the first page ? Books and other source types will requir
+e other reference elements (other fields in the database, or library). We won’t go into the finer details of how to re
+ference every type of source, as these rules will vary based on the referencing style that your institution wants you to
+ use (Harvard, Vancouver, APA, etc.), and we simply can’t cover them all. Further, some of these styles are overseen b
+y professional bodies and are updated every few years to take account of new types of sources (e.g. APA style, which is 
+dictated by the American Psychological Association). Our advice would therefore eventually go out of date. In contrast, 
+some styles are very common yet not actually centrally maintained (e.g. Harvard), and so very many variants on a central
+ theme can exist. Rather than taking our recommendation, check first with your department to see if they have any rules.
+ If they don’t, ask your supervisor which style they would recommend. You’ll find a thorough explanation of various 
+different citation styles in the excellent Cite Them Right: The Essential Referencing Guide (Pears and Shields, 2019), a
+nd the accompanying website, www.citethemrightonline.com . If your university tells you that the choice is yours, pick w
+hichever you think most closely represents your membership of a particular academic field based on the style’s prevale
+nce in the literature you read (or simply pick the one you think is clearest and most useful for your reader!) Getting r
+eferences back out As with getting data into your database, there are numerous different ways that your specific referen
+ce management software could be designed to give you the data back out at the end. Rather than trying to give you a step
+-by-step walk-through, we want to make you aware of the key general benefits they should be able to bring. Creating a re
+ference list Your thesis will have several hundred references, which will take several hours of your life to type correc
+tly if you do it by hand. The primary benefit of using a manager is that you don’t need to type out every single refer
+ence into your thesis by hand. Keeping the list in order Adding references as you write will mean finding precisely the 
+right place for them in the growing list, which introduces the possibility of human error. This is especially important 
+if you’re using a numbered system, as any late additions will mean changing the number of every reference that follows
+. If you’ve to use a numbered format, we’d argue that this benefit alone is enough to justify the time it takes to l
+earn how to use a reference manager. Making reference lists from only some entries in your database If you’re diligent
+, your reference library might end up containing details of every source you read during the course of your PhD. You obv
+iously won’t be including all of them, as some won’t have been as relevant or as useful as you thought they might be
+. Rather than deleting details of the articles you choose not to incorporate into your thesis, your manager will let you
+ select a subset of your library when you make a reference list. Alternatively, you might be able to group and label the
+ references in your library by the chapter or topic that they’re most relevant to. You can then use these groups or la
+bels to make a formatted reference list from only the subset of your library you want to use. Reformatting references in
+ a different style Will you use an alphabetical referencing format (e.g. Harvard or APA), or will you use a numerical on
+e (e.g. Vancouver)? If you start in one format and realise later that you have to use the other, your reference manager 
+can take care of the reformatting for you. Inserting citations into your thesis as you write You might find that your re
+ference manager has a plugin for your text editor of choice. These plugins let you hit a button, search for a reference,
+ and incorporate it into your document wherever your cursor is at that moment in time. This hugely simplifies the proces
+s of inserting details of sources, as both the in-text citation and the full reference at the end will be managed and ma
+intained by the computer. Again, hopefully you can see that the minute or two (or five) that it might take you to manual
+ly incorporate one source by hand quickly multiplies up into several hours of your life over the course of a whole thesi
+s, making automation a worthwhile investment of your time. Annotating and grouping your references Once you’ve got a r
+eference stored in the management software, you’ll probably want to start annotating and categorising it. You should b
+e able to file each entry under a different grouping. You could do this on the basis of scientific topics or themes. If 
+your project has several strands to it, you may plan to have a different chapter for each one. Your reference group them
+es might then reflect the structure of your PhD. Alternatively, you could group them on the basis of the techniques they
+ describe. Your methodology section will probably end up with sub-sections to describe the various different types of wo
+rk you carried out. You might have a section for lab methodologies and another for fieldwork methodologies (this means y
+ou can group individual methods in a logical, sequential order, thus helping your reader follow your processes more easi
+ly). Each of the methods (the individual processes) might be adapted from literature you’ve read. Grouping those liter
+ature references in your database on the basis of these two broad methodology sections would make your life easier when 
+browsing your library and deciding which articles you need to use as references in your thesis. The alternative would be
+ to read through the titles and abstracts in your reference manager one-by-one until you identified all the articles you
+ thought were relevant. This might not be obvious from the titles alone, particularly if the titles have nothing to do w
+ith the techniques they describe inside, which might be the only reason you downloaded the article in the first place. A
+nother method might be to group them on the basis of how reliable you found their contents – though we’d suggest tha
+t this shouldn’t be a primary way to group them. Reliability is of course important, but we propose that it’d be mor
+e useful to use a categorisation that describes the science they contain.
+CHAPTER 6 Reading and Critiquing the Literature This chapter relates to one of the biggest challenges of doing a PhD: en
+gaging critically with the literature. Aside from committing to an independent management of your workload, this is perh
+aps the biggest step change expected of you from your previous studies, whether that was at master’s or undergraduate 
+degree level. Each of those two words – engaging critically – deserves to be examined separately. Engaging means not
+ just reporting what’s been found in other sources, but working this into the flow of your own academic argument. It�
+�s not enough to present a series of pieces of evidence from your sources and expect that your reader will reach the sam
+e conclusion as you do; your job as a writer is to show the reader how these pieces relate to each other, and to demonst
+rate your ability to synthesise these as part of a coherent and novel contribution to the wider academic discussion (i.e
+. your thesis). Critically means demonstrating your ability to judge each of these pieces of published evidence in relat
+ion to each other. Is one piece of evidence more strong than another? Has something been carried out particularly well? 
+Are there shortcomings in one experiment and, crucially, can you suggest what could have been done to improve it? Simply
+ collecting and reporting what’s been discovered is a job better suited to a junior research assistant. It involves re
+cognising that material is relevant to a topic, but it doesn’t require any deeper analysis of it. Your responsibility 
+is to show your reader how it informs or gives context to the primary research you carry out for your doctorate. In this
+ chapter, we’ll examine what the concept of critical analysis means. We’ll also discuss the features your examiners 
+will be interested in seeing, and we’ll give you some practical pointers on how to develop your skill in it. Reading s
+trategies Most academics will tell you that they rarely read articles from start to finish. They’re also probably in t
+he habit of looking for different types of articles depending on which stage of the research process they’re at, or ho
+w familiar they already are with the topic. This section will give you some brief guidance on how you can make life easi
+er for yourself by being strategic about what you read, when you read it, and how you decide what to do with the knowled
+ge you glean. Choosing which type of articles to read first If you’re at the start of a project, you might want to sta
+rt by focusing on reading review articles, as these are the publications that can give you an overview of a topic. They�
+��ll probably be much longer than any primary research papers (i.e. articles that focus on one specific investigation; �
+��primary’ refers to the level of separation between the author and the events being recorded, with review articles fa
