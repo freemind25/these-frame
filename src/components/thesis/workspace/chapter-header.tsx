@@ -5,6 +5,7 @@ import {
   FileText, BookOpen, FlaskConical, BarChart3, MessageSquare, GraduationCap,
   Menu, Loader2, Check, PanelRightOpen, PanelRightClose, Sparkles,
 } from 'lucide-react'
+import DictationButton from './dictation-button'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChapterData, PartData } from '@/types/thesis'
@@ -39,10 +40,11 @@ interface ChapterHeaderProps {
   saveStatus: 'idle' | 'saving' | 'saved' | 'error'
   helpOpen: boolean
   onToggleHelp: () => void
+  onDictated?: (text: string) => void
 }
 
 export default function ChapterHeader({
-  isMobile, onOpenSidebar, chapterMeta, colors, activeChapter, activePart, saveStatus, helpOpen, onToggleHelp,
+  isMobile, onOpenSidebar, chapterMeta, colors, activeChapter, activePart, saveStatus, helpOpen, onToggleHelp, onDictated,
 }: ChapterHeaderProps) {
   const isPartsMode = !!activePart
   const isCustom = !chapterMeta
@@ -122,6 +124,9 @@ export default function ChapterHeader({
           </div>
         )}
       </div>
+
+      {/* Dictation button */}
+      <DictationButton onTranscribed={onDictated || (() => {})} />
 
       {/* Help panel toggle */}
       <button

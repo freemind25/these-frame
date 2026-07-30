@@ -253,6 +253,14 @@ export default function Home() {
     }, 2000)
   }, [activeChapter, activeChapterId])
 
+  // ─── Dictation handler ───────────────────────────────
+  const handleDictated = useCallback((text: string) => {
+    if (!activeChapter) return
+    const current = thesis?.chapters.find(c => c.id === activeChapter.id)
+    const separator = current?.content && current.content.trim().length > 0 ? ' ' : ''
+    handleContentChange((current?.content || '') + separator + text)
+  }, [activeChapter, thesis, handleContentChange])
+
   // ─── Chapter management (with local fallback) ───────────
   const refreshThesis = useCallback(async () => {
     try {
@@ -626,6 +634,7 @@ export default function Home() {
           saveStatus={saveStatus}
           helpOpen={helpOpen}
           onToggleHelp={() => setHelpOpen(!helpOpen)}
+          onDictated={handleDictated}
         />
 
           {/* ═══ HORIZONTAL CHAPTER TABS ═══ */}
