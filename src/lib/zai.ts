@@ -30,8 +30,8 @@ function ensureConfigFile(): void {
   }
 
   // No valid config file found — build one from env vars
-  const baseUrl = process.env.ZAI_BASE_URL
-  const apiKey = process.env.ZAI_API_KEY
+  const baseUrl = process.env.AI_BASE_URL || process.env.ZAI_BASE_URL
+  const apiKey = process.env.AI_API_KEY || process.env.ZAI_API_KEY
 
   if (!baseUrl || !apiKey) return // nothing to write
 
@@ -70,7 +70,7 @@ export async function getZAI() {
   } catch (err) {
     initError =
       'Configuration IA non trouvée. ' +
-      'Sur Vercel, ajoutez les variables d\'environnement : ZAI_BASE_URL, ZAI_API_KEY.'
+      'Sur Vercel, ajoutez les variables d\'environnement : AI_BASE_URL, AI_API_KEY.'
     console.error('Failed to initialize ZAI:', err)
     throw new Error(initError)
   }
@@ -81,7 +81,7 @@ export async function getZAI() {
  */
 export function isZAIConfigured(): boolean {
   // Check environment variables
-  if (process.env.ZAI_BASE_URL && process.env.ZAI_API_KEY) return true
+  if ((process.env.AI_BASE_URL && process.env.AI_API_KEY) || (process.env.ZAI_BASE_URL && process.env.ZAI_API_KEY)) return true
 
   // Check file system
   try {
