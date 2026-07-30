@@ -18,6 +18,7 @@ import TemplateDialog from '@/components/thesis/workspace/template-dialog'
 import ThesisAssistantChat from '@/components/thesis/thesis-assistant-chat'
 import DirecteurChat from '@/components/thesis/directeur-chat'
 import CadragePanel from '@/components/thesis/cadrage-panel'
+import OfficeExportTab from '@/components/thesis/office-export-tab'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -78,6 +79,7 @@ export default function Home() {
   const [assistantOpen, setAssistantOpen] = useState(false)
   const [directeurOpen, setDirecteurOpen] = useState(false)
   const [cadrageOpen, setCadrageOpen] = useState(false)
+  const [officeOpen, setOfficeOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
@@ -603,6 +605,7 @@ export default function Home() {
           onOpenHarper={() => setHarperOpen(true)}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenCadrage={() => setCadrageOpen(true)}
+          onOpenOffice={() => setOfficeOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -711,6 +714,8 @@ export default function Home() {
         setHarperOpen={setHarperOpen}
         searchOpen={searchOpen}
         setSearchOpen={setSearchOpen}
+        officeOpen={officeOpen}
+        setOfficeOpen={setOfficeOpen}
         activeChapter={activeChapter}
         onContentChange={handleContentChange}
         onSelectChapter={setActiveChapterId}

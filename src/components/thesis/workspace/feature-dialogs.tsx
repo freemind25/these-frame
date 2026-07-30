@@ -13,6 +13,8 @@ import ExcalidrawTab from '@/components/thesis/excalidraw-tab'
 import GrammarChecker from '@/components/thesis/grammar-checker'
 import HarperChecker from '@/components/thesis/harper-checker'
 import ThesisSearch from '@/components/thesis/thesis-search'
+import OfficeExportTab from '@/components/thesis/office-export-tab'
+import { FileSpreadsheet } from 'lucide-react'
 import type { ThesisData, ChapterData } from '@/types/thesis'
 
 interface FeatureDialogsProps {
@@ -39,6 +41,8 @@ interface FeatureDialogsProps {
   setHarperOpen: (v: boolean) => void
   searchOpen: boolean
   setSearchOpen: (v: boolean) => void
+  officeOpen: boolean
+  setOfficeOpen: (v: boolean) => void
   activeChapter: ChapterData | undefined
   onContentChange: (content: string) => void
   onSelectChapter: (id: string) => void
@@ -56,6 +60,7 @@ export default function FeatureDialogs({
   grammarOpen, setGrammarOpen,
   harperOpen, setHarperOpen,
   searchOpen, setSearchOpen,
+  officeOpen, setOfficeOpen,
   activeChapter, onContentChange, onSelectChapter, editorMode, onToggleEditorMode,
   s2ApiKey, consensusApiKey,
 }: FeatureDialogsProps) {
@@ -171,6 +176,16 @@ export default function FeatureDialogs({
             <DialogTitle className="flex items-center gap-2 text-base"><PenTool className="h-4 w-4 text-emerald-600" />Recherche plein texte — MeiliSearch</DialogTitle>
           </DialogHeader>
           <ThesisSearch thesis={thesis} onSelectChapter={(id) => { onSelectChapter(id); setSearchOpen(false) }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Office Export (Word + PowerPoint) ── */}
+      <Dialog open={officeOpen} onOpenChange={setOfficeOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><FileSpreadsheet className="h-4 w-4 text-emerald-600" />Export Office — Word &amp; PowerPoint</DialogTitle>
+          </DialogHeader>
+          {thesis && <OfficeExportTab thesis={thesis} activeChapter={activeChapter || null} />}
         </DialogContent>
       </Dialog>
     </>
