@@ -1,0 +1,65 @@
+# ─── ThesisFrame — Caddy Production Config ─────────────────────────
+# Caddy obtient automatiquement un certificat TLS via Let's Encrypt.
+# Remplacez thesisframe.votre-domaine.ch par votre vrai domaine.
+#
+# Routing XTransformPort :
+#   Le frontend fait fetch('/...?XTransformPort=PORT') et Caddy
+#   redirige vers le bon service Docker selon le port.
+#   → 3031 = search-service
+#   → autre  = app Next.js (port 3000)
+
+# ═══════════════════════════════════════════════════════════════════
+# PRODUCTION — avec domaine + TLS automatique
+# ═══════════════════════════════════════════════════════════════════
+thesisframe.votre-domaine.ch {
+
+	# ─── Sécurité ───────────────────────────────────────
+	header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	header X-Content-Type-Options "nosniff"
+	header X-Frame-Options "SAMEORIGIN"
+	header Referrer-Policy "strict-origin-when-cross-origin"
+
+	# ─── Mini-services (XTransformPort routing) ─────────
+	# Routes les requêtes avec XTransformPort vers le bon conteneur.
+	@search_query query XTransformPort=3031*
+	handle @search_query {
+		uri strip_query XTransformPort*
+		reverse_proxy search-service:3031
+	}
+
+	# ─── App Next.js (défaut) ───────────────────────────
+	handle {
+		reverse_proxy app:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# DÉVELOPPEMENT / TEST — sans domaine (HTTP seul, port 80)
+# Décommentez ce bloc et commentez le bloc ci-dessus si vous
+# testez sans domaine configuré.
+# ═══════════════════════════════════════════════════════════════════
+# :80 {
+#
+#	header X-Content-Type-Options "nosniff"
+#	header X-Frame-Options "SAMEORIGIN"
+#
+#	@search_query query XTransformPort=3031*
+#	handle @search_query {
+#		uri strip_query XTransformPort*
+#		reverse_proxy search-service:3031
+#	}
+#
+#	handle {
+#		reverse_proxy app:3000 {
+#			header_up Host {host}
+#			header_up X-Forwarded-For {remote_host}
+#			header_up X-Forwarded-Proto {scheme}
+#			header_up X-Real-IP {remote_host}
+#		}
+#	}
+# }

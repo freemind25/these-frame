@@ -177,3 +177,26 @@ Work Log:
 Stage Summary:
 - 3 files modified: agent-orchestration.ts (+108 lines), execute/route.ts (+267 lines, rewritten), automation-panel.tsx (+294 lines, rewritten)
 - 4 agent-teams-ai patterns successfully integrated into web-based thesis assistant
+
+---
+Task ID: 1
+Agent: main
+Task: Créer l'infrastructure de déploiement Docker pour Infomaniak VPS
+
+Work Log:
+- Analysé l'architecture ThesisFrame : Next.js 16 standalone, SQLite/Prisma, search-service Bun/Hono (port 3031), Caddy gateway avec XTransformPort routing
+- Créé .dockerignore (exclut node_modules, uploads, dev files, docker/)
+- Créé Dockerfile multi-stage (deps → build → runner) avec Node.js 22 slim, tini, non-root user, healthcheck
+- Créé mini-services/search-service/Dockerfile (Bun Alpine + Hono)
+- Créé docker-compose.yml : 3 services (app, search-service, caddy), 5 volumes (db, uploads, officecli, caddy-data, caddy-config), resource limits, healthcheck
+- Créé docker/Caddyfile production : TLS automatique Let's Encrypt, XTransformPort routing vers search-service:3031, headers sécurité, mode HTTP fallback commenté
+- Créé docker/.env.production template (DATABASE_URL, ZAI_BASE_URL, ZAI_API_KEY, OAuth, kDrive)
+- Créé docker/deploy.sh script complet : first_install, --update, --backup, --logs, --status, --stop, --start, --restart, --help
+- Créé .github/workflows/deploy.yml : CI/CD GitHub Actions → SCP + SSH + docker compose sur VPS Infomaniak
+- Vérifié : lint 0 erreurs, dev server HTTP 200
+
+Stage Summary:
+- 7 fichiers créés : Dockerfile, .dockerignore, docker-compose.yml, docker/Caddyfile, docker/.env.production, docker/deploy.sh, .github/workflows/deploy.yml
+- 2 fichiers créés : mini-services/search-service/Dockerfile, mini-services/search-service/.dockerignore
+- Déploiement complet en 2 commandes : git clone + ./docker/deploy.sh
+- CI/CD automatique via GitHub Actions (push sur main = déploiement)

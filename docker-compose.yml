@@ -1,0 +1,100 @@
+# ─── ThesisFrame — Docker Compose (Infomaniak VPS) ──────────────────
+# Usage:
+#   docker compose up -d          # démarrer
+#   docker compose logs -f app    # logs en temps réel
+#   docker compose down            # arrêter
+#   docker compose up -d --build   # reconstruire après changement
+#
+# Prérequis:
+#   1. Copier docker/.env.production → .env.production et remplir les valeurs
+#   2. Avoir un nom de domaine pointant vers l'IP du VPS
+
+services:
+  # ═══════════════════════════════════════════════════════════════════
+  # APP — Next.js 16 (standalone)
+  # ═══════════════════════════════════════════════════════════════════
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: thesisframe-app
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      - DATABASE_URL=file:/app/data/thesis.db
+    volumes:
+      # Persistance SQLite
+      - thesisframe-db:/app/data
+      # OfficeCLI binaire (optionnel — si installé manuellement)
+      - officecli-bin:/app/bin:ro
+      # Uploads (optionnel)
+      - thesisframe-uploads:/app/upload
+    expose:
+      - "3000"
+    depends_on:
+      search-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/ai-status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+
+  # ═══════════════════════════════════════════════════════════════════
+  # SEARCH — Mini-service de recherche全文 (Bun + Hono)
+  # ═══════════════════════════════════════════════════════════════════
+  search-service:
+    build:
+      context: ./mini-services/search-service
+      dockerfile: Dockerfile
+    container_name: thesisframe-search
+    restart: unless-stopped
+    expose:
+      - "3031"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ═══════════════════════════════════════════════════════════════════
+  # CADDY — Reverse proxy + TLS automatique (Let's Encrypt)
+  # ═══════════════════════════════════════════════════════════════════
+  caddy:
+    image: caddy:2-alpine
+    container_name: thesisframe-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+volumes:
+  thesisframe-db:
+    driver: local
+  thesisframe-uploads:
+    driver: local
+  officecli-bin:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local

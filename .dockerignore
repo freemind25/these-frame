@@ -1,0 +1,60 @@
+# ─── Dependencies ────────────────────────────────────────
+node_modules
+.bun
+
+# ─── Build outputs ────────────────────────────────────────
+.next
+out
+dist
+*.tsbuildinfo
+
+# ─── Database ─────────────────────────────────────────────
+db/*.db
+db/*.db-journal
+
+# ─── Upload & temp files ──────────────────────────────────
+upload/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.epub
+!public/resources/*.jpg
+
+# ─── Dev / IDE ────────────────────────────────────────────
+.git
+.gitignore
+.tauri/
+src-tauri/
+*.log
+dev.log
+
+# ─── Search caches ────────────────────────────────────────
+*.json
+!package.json
+!package-lock.json
+!bun.lock
+!components.json
+!tsconfig.json
+!next.config.ts
+!postcss.config.mjs
+!tailwind.config.ts
+!eslint.config.mj
+
+# ─── Docker ───────────────────────────────────────────────
+docker/
+Dockerfile*
+docker-compose*
+
+# ─── Misc ─────────────────────────────────────────────────
+*.md
+!README.md
+start.sh
+start-dev.sh
+keep-dev-alive.sh
+keepalive.sh
+run-browser.sh
+scripts/
+*.bak
+*.zbak
+Caddyfile
