@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Write It Up\n\nPreface",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785403359,
+  "id": "2026073017223004855bf18d8a4d0f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026073017223004855bf18d8a4d0f",
+  "usage": {
+    "completion_tokens": 7,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 22834,
+    "prompt_tokens_details": {
+      "cached_tokens": 1
+    },
+    "total_tokens": 22841
+  }
+}

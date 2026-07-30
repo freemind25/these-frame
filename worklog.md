@@ -52,3 +52,32 @@ Stage Summary:
 - Release v1.3.0 publiee sur GitHub
 - Notice d utilisation : upload/notice-utilisation.pdf + .html
 - Couvre toutes les fonctionnalites de l application
+
+---
+Task ID: 18
+Agent: main
+Task: Integrer 9 livres + 2 ressources dans la base de connaissances (v1.4.0)
+
+Work Log:
+- Extrait le texte de 9 livres (PDF et EPUB) : McMillan & Weyers, Saramaki, Roda et al., de Jong, Thomas, Boyle & Ramsay, Firth, Sonneveld, Hayton
+- Analyse parallele de chaque livre par sous-agents specialises pour identifier concepts uniques, conseils cles, idees de prompts
+- Analyse du PDF image-based de Silvia "Write It Up" (APA, 2019) via VLM/OCR
+- Analyse de semantic.jpg (infographie "How to Write Discussion Part for Systematic Literature Review") via VLM
+- Integre 10 nouvelles references (14 -> 24 ouvrages) dans BASE_KNOWLEDGE
+- Enrichit REDACTION_KNOWLEDGE : sablier abstract, hyperlien mental, positions de stress, lede, 4P intro, oui-mais, concrétisation, ancien-nouveau, noms abstraits, hedging, paragraphe 5 composants, ecriture defensive, 4 types paragraphes
+- Enrichit CORRECTION_KNOWLEDGE : test by zombies, verbes nominalises, ban "tres", mots-alarmes, revision 4 elements, 3 balayages, 5 operations remédiation, edition vs polissage, 3 passes scientifiques
+- Enrichit CRITIQUE_KNOWLEDGE : paragraphe bloque, modele Oost, piege descriptif, 7 types questions, triade NRO, biblio vs revue, 5 points analyse, bord pas vide, these=programme, entite duale, Frankenstein
+- Enrichit METHODOLOGIE_KNOWLEDGE : PICO, sensibilite vs specificite, replicas vs echantillon, optimisations, recherche sans hypothese, retournement structure, practicum questions, ancrage disciplinaire, planification iterative, preuve protegee
+- Enrichit BIBLIOGRAPHIE_KNOWLEDGE : citer de ses yeux, collecter vs collationner, notes 5 colonnes, lecture niveau 1/2, resultats avant discussion, procedure-processus-produit, ponctuation Silvia, raisons d'ecrire
+- Enrichit SUIVI_KNOWLEDGE : cycle avec recharge, eparpilleurs vs empileurs, done lists, type A/B, attention vs temps, productivite vs creativite, point de bascule, 80% pret, machine trick, JOMA, levain, victoires faciles, arreter avant epuisement, structure Discussion revue systematique
+- Ajoute 15 nouveaux prompts specialises (P40-P54) : P40 narration scientifique, P41 abstract sablier, P42 revision 3 balayages, P43 selecteur questions, P44 scanner vague, P45 reverse outlining, P46 synthese revue, P47 architecture paragraphe, P48 coherence proposition, P49 blocage ecriture, P50 preparation soutenance, P51 productivite vs creativite, P52 portee expressive, P53 coherence ancien-nouveau, P54 ecriture defensive
+- Mis a jour le compteur de prompts : 39 -> 54 (P1-P54)
+- Fichier passe de 974 a 1343 lignes
+- Lint : 0 erreurs
+
+Stage Summary:
+- Base de connaissances enrichie de 14 -> 24 ouvrages + 1 infographie
+- 6 sections de connaissances enrichies avec contenu de 9 nouveaux livres
+- 15 nouveaux prompts (P40-P54) ajoutés, total 54 prompts
+- 0 erreurs lint, fichier compile correctement
+- Fichier principal : src/lib/thesis-assistant-knowledge.ts (1343 lignes)

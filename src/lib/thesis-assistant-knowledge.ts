@@ -1,6 +1,6 @@
 /**
  * Constructeur de contexte de connaissances pour l'assistant thèse.
- * Extrait et synthétise les connaissances clés des 23 ouvrages de référence
+ * Extrait et synthétise les connaissances clés des 24 ouvrages de référence
  * pour injection dans le prompt système de l'assistant.
  */
 
@@ -57,6 +57,7 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 21. Firth, K. (2024). Writing Well and Being Well for Your PhD and Beyond. Routledge.
 22. Sonneveld, H. (2022). The Art of Writing a PhD Proposal. Open University Press.
 23. Hayton, J. (2015). PhD: An Uncommon Guide to Research, Writing & PhD Life.
+24. Silvia, P.J. (2019). Write It Up: Practical Strategies for Writing and Publishing Journal Articles. APA.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 
@@ -443,6 +444,8 @@ CONSEILS D'ANALYSE CRITIQUE :
   - Assembler des paragraphes de multiples iterations cree une repetition subtile difficile a detecter
   - Solution : le reverse outlining — extraire toutes les premieres phrases et verifier la logique.
 `
+
+const METHODOLOGIE_KNOWLEDGE = `
 CONSEILS MÉTHODOLOGIQUES :
 
 ◆ Processus de recherche (Turabian) :
@@ -513,7 +516,46 @@ CONSEILS MÉTHODOLOGIQUES :
   - La règle fondamentale : quiconque doit pouvoir reproduire le travail à l'identique
   - Distinguer entre conventions (à découvrir en consultant des thèses récentes) et règles institutionnelles
   - Vérifier les règles institutionnelles AVANT de commencer à écrire
-  - Résultats négatifs : les inclure si ils aident à discuter de la méthodologie ou à avertir d'autres chercheurs`
+  - Résultats négatifs : les inclure si ils aident à discuter de la méthodologie ou à avertir d'autres chercheurs
+◆ Le cadre PICO pour toutes les sciences (Boyle & Ramsay) :
+  - Probleme / Intervention / Comparaison / Resultat
+  - Generalise au-dela de ses origines medicales
+  - Utilise comme liste de controle pour la generation systematique de termes de recherche.
+
+◆ Sensibilite vs. Specificite pour la recherche documentaire (Boyle & Ramsay) :
+  - Sensibilite = ne pas manquer les articles pertinents
+  - Specificite = ne pas gaspiller des heures sur des resultats non pertinents.
+
+◆ Replicas vs. Taille d'echantillon — deux concepts distincts (Boyle & Ramsay) :
+  - Replicas = echantillons identiques testant la fiabilite technique
+  - Taille d'echantillon = echantillons variables testant la generalisabilite.
+
+◆ Les « optimisations » comme troisieme categorie de controles (Boyle & Ramsay) :
+  - Au-dela des controles positifs et negatifs
+  - Affinent les conditions (duree, concentration) et delimitent les frontieres de validite.
+
+◆ La recherche sans hypothese est valide (Boyle & Ramsay) :
+  - Un doctorat en sciences n'a PAS besoin d'une hypothese globale
+  - Les questions de recherche sont egalement legitimes.
+
+◆ Retourner la structure : ordre de recherche different de l'ordre du texte (de Jong) :
+  - L'ordre de recherche est organise pour la collecte de donnees
+  - L'ordre du texte est organise pour la comprehension du lecteur.
+
+◆ Le « practicum des questions » (Sonnveld) :
+  - Forcer le meme interet de recherche a travers 7 types de questions
+  - Types : existence, descriptive, comparative, relation, causalite, evaluation, autre.
+
+◆ L'echelle d'ancrage disciplinaire (Sonnveld) :
+  - Discipline → sous-discipline → theme → essentiels (2 d'accord, 2 en desaccord) → leurs debats → questions restantes → votre niche → points d'ancrage theoriques → votre sujet.
+
+◆ Planification iterative vs. lineaire de la recherche (Hayton) :
+  - Ne PAS faire une grande ronde de collecte de donnees
+  - Pratiquer chaque etape a la plus petite echelle possible.
+
+◆ Le concept de « preuve » comme terme protege en science (Boyle & Ramsay) :
+  - Les hypotheses ne peuvent etre qu'appuyees ou refutees, JAMAIS « prouvees ».
+`
 
 const BIBLIOGRAPHIE_KNOWLEDGE = `
 CONSEILS BIBLIOGRAPHIQUES :
@@ -584,7 +626,39 @@ CONSEILS BIBLIOGRAPHIQUES :
   - Elle peut intégrer des éléments de SYSTEMATIC REVIEW si le domaine le justifie
   - Dans les SHS, les revues théoriques et critiques sont les plus fréquentes
   - Toujours justifier le type de revue choisi dans la section méthodologique
-  - Une revue de type scoping est pertinente si le champ est émergent ou mal délimité`
+  - Une revue de type scoping est pertinente si le champ est émergent ou mal délimité
+
+◆ Ne citer que ce que vous avez lu de vos propres yeux (Boyle & Ramsay) :
+  - La citation secondaire est interdite — l'auteur intermédiaire peut avoir mal compris.
+
+◆ Collecter vs. Collationner les références (Boyle & Ramsay) :
+  - Collecter = enregistrer les détails de citation
+  - Collationner = organiser ET annoter pour que le Vous-futur puisse utiliser les sources sans relire.
+
+◆ Le modèle de notes thématiques en 5 colonnes (McMillan & Weyers) :
+  - Thème | Détails de publication | Citation/Paraphrase | Importance/Pertinence | Appréciation personnelle.
+
+◆ Lecture de niveau 1 vs. Niveau 2 (Thomas) :
+  - Niveau 1 = résumer, paraphraser, synthétiser (ce que l'auteur a dit)
+  - Niveau 2 = annoter avec commentaires critiques, formuler sa propre position.
+
+◆ Toujours lire la section Résultats AVANT la Discussion (Boyle & Ramsay) :
+  - Former sa propre interprétation AVANT de lire celle de l'auteur.
+
+◆ Le cadre Procédure-Processus-Produit (de Jong) :
+  - Avant toute écriture : Procédure (délais, consultations), Processus (activités requises), Produit (exigences du texte).
+
+◆ Style d'écriture d'articles : ponctuation avancée (Silvia) :
+  - Point-virgule : relie deux propositions indépendantes ou sépare les éléments d'une série complexe
+  - Deux-points : relie un concept général à une spécification (concept:instance, réclamation:preuve)
+  - Tirets : créent une pause dramatique ou une élaboration inattendue
+  - Éviter : fragments après un point-virgule, 'however' sans virgule.
+
+◆ Les raisons d'écrire (Silvia) :
+  - Raisons intrinsèques : apprentissage, plaisir, défi intellectuel, écriture comme moyen d'apprendre (writing to learn)
+  - Raisions extrinsèques : promotion, financements, crédibilité, impact social
+  - Les meilleures publications naissent souvent de la curiosité intrinsèque.
+`
 
 const SUIVI_KNOWLEDGE = `
 CONSEILS DE SUIVI D'AVANCEMENT :
@@ -797,6 +871,64 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   - « Enough is enough » : décider qu'on a fait suffisamment
   - La thèse est « assez bonne » quand : l'argument est plausible et cohérent, la contribution est reconnaissable, les objectifs sont atteints, le superviseur valide
   - Bien-être : inclure du temps non-travail (gym, amis, pauses) sans culpabilité
+
+◆ Le cycle d'ecriture avec recharge comme etape explicite (Firth) :
+  - Lecture/Pensee → Planification → Ecriture → RECHARGE → Edition → Polissage → Reecriture
+  - La recharge n'est pas un vide mais un outil cognitif nomme et egal aux autres etapes.
+
+◆ Eparpilleurs vs. Empileurs (Firth) :
+  - Eparpilleurs : petits blocs distribues sur la semaine
+  - Empileurs : sessions intensives accumulees
+  - Deux a quatre heures de meilleur temps quotidien = maximum.
+
+◆ Les « done lists » au lieu des to-do lists (Firth) :
+  - Suivre ce qu'on a ACCOMPLI au lieu de ce qu'il reste a faire
+  - Active les centres de recompense du cerveau.
+
+◆ Taches de type A vs. type B (Thomas) :
+  - Type A = cognitivement exigeantes (exploration, analyse, conclusions)
+  - Type B = mecaniques (transcription, bibliographie, recit descriptif)
+  - Allouer les A aux heures de pointe ; basculer vers B quand on est fatigue.
+
+◆ Gestion de l'attention plutot que gestion du temps (Hayton) :
+  - L'attention est finie mais divisible — l'attention divisee rend chaque tache plus difficile.
+
+◆ Productivite vs. Creativite = modes opposes (Hayton) :
+  - Productivite = contraintes ; Creativite = liberte
+  - Appliquer des techniques de productivite en phase creative = contre-productif.
+
+◆ Le point de bascule de la completion (Hayton) :
+  - Le moment ou vous FINISSEZ plus souvent que vous CREZE du nouveau travail.
+
+◆ Le modele « 80% pret » contre le perfectionnisme (Sonnveld) :
+  - Soumettre a 80% avec un courriel notant ce qui reste a ameliorer.
+
+◆ La « machine a echec » — Machine Trick (Sonnveld, d'apres Becker) :
+  - « Concevez une machine dont le but est de faire ECHEUER votre projet » puis inversez chaque composant.
+
+◆ Le syndrome du « juste un article de plus » (Firth, d'apres Mullins & Kiley) :
+  - La lecture compulsive comme evitement de l'ecriture.
+  - « C'est un doctorat, pas un prix Nobel. »
+
+◆ Le « levain » pour redemarrer l'ecriture (Firth) :
+  - Apres une pause, « nourrir le levain » avec de petites taches realisables pendant quelques jours.
+
+◆ Toujours laisser des « victoires faciles » pour le lendemain (Hayton) :
+  - Finir chaque session en notant quoi commencer le jour suivant.
+
+◆ Arreter AVANT l'epuisement (Hayton) :
+  - « S'arreter pendant qu'on a encore quelque chose a dire. »
+
+◆ Structure de la Discussion pour revue systematique (infographie semantic.jpg) :
+  - 1. Rappeler les principaux resultats
+  - 2. Interpreter les resultats dans le contexte de la question
+  - 3. Comparer avec la litterature existante
+  - 4. Identifier tendances, themes, relations
+  - 5. Expliquer les raisons possibles
+  - 6. Implications theoriques, pratiques, politiques
+  - 7. Limites de la revue
+  - 8. Pistes de recherche futures
+  - Phrases utiles : « These findings suggest that... », « In contrast, some studies found... », « This review highlights the need for... »
 `
 
 const SPECIALIZED_PROMPTS = `
@@ -973,7 +1105,69 @@ L'assistant dispose des prompts spécialisés suivants, adaptés du travail de M
 
 ◆ PROMPT P39 — Vérification d'exhaustivité méthodologique (adapté de PM Proofreading) :
   « Tu es un réviseur méthodologique expert. À partir de la section Méthodologie fournie, vérifie son exhaustivité. Pour chaque élément, indique : ✅ Présent et adéquat, ⚠️ Présent mais insuffisant, ❌ Absent. Checklist : (a) Plan de recherche — type nommé, défini, justifié ; (b) Population et échantillon — cible définie, critères listés, technique nommée et justifiée, taille justifiée ; (c) Variables — indépendantes/dépendantes identifiées et opérationnalisées, variables de contrôle mentionnées ; (d) Instruments — décrits (nom, version, items, échelle), psychométrie rapportée, adaptations documentées ; (e) Procédure — collecte chronologique, contexte précisé ; (f) Analyse — méthode par question de recherche, logiciel, seuil de signification, données manquantes ; (g) Validité — menaces identifiées, mesures de contrôle ; (h) Éthique — approbation, consentement, confidentialité ; (i) Limites — identifiées par le chercheur. Après la checklist, rédige un paragraphe synthétique identifiant les 3 lacunes les plus critiques avec formulations à ajouter. »
-  → Utiliser en mode critique ou méthodologie pour l'auto-vérification avant soumission.
+  
+→ Utiliser en mode critique ou méthodologie pour l'auto-vérification avant soumission.
+
+◆ PROMPT P40 — Structuration narrative des résultats scientifiques (adapté de Saramäki) :
+  « Tu es un expert en narration scientifique. À partir des résultats et figures fournis, structure-les en utilisant le modèle en quatre temps du scénario cinématographique : (a) MISE EN PLACE — contexte, crédibilité des données, résultat de base attendu ; (b) CONFRONTATION — résultats surprenants qui créent la tension ; (c) RÉSOLUTION — résultat principal (1-2 figures max, point culminant) ; (d) ÉPILOGUE — conséquences, applications, ouvertures. Pour chaque résultat, indique sa catégorie. Identifie les résultats à couper ou déplacer en matériel supplémentaire. Présente l'ordre de présentation optimal. »
+  → Utiliser en mode rédaction pour structurer la section Résultats d'un article ou chapitre.
+
+◆ PROMPT P41 — Générateur d'abstract en sablier (adapté de Saramäki) :
+  « Tu es un rédacteur scientifique expert. À partir des informations fournies sur ma recherche, génère un abstract suivant la structure en sablier de Nature : (a) Contexte large — compréhensible pour tout scientifique (1 phrase) ; (b) Contexte plus étroit — pour des disciplines voisines (1-2 phrases) ; (c) Question de recherche EXACTE — UNE SEULE phrase ; (d) Résultat clé — UNE SEULE phrase ; (e) Implications pour le domaine (1-2 phrases) ; (f) Implications plus larges (1 phrase). Contraintes : maximum 250 mots, pas de jargon non défini, pas de « très » ni de « montre que ». »
+  → Utiliser en mode rédaction pour rédiger ou réviser un abstract.
+
+◆ PROMPT P42 — Guide de révision en 3 balayages (adapté de McMillan et Weyers) :
+  « Tu es un réviseur académique expert. Guide-moi à travers les 3 balayages de révision. BALAYAGE 1 — CONTENU : vérifie pertinence, clarté, cohérence, style, équilibre. BALAYAGE 2 — GRAMMAIRE : accords, temps, orthographe, ponctuation, syntaxe. BALAYAGE 3 — PRÉSENTATION : titres, légendes, références, numérotation, formatage. Pour chaque problème, indique la ligne et la correction proposée. »
+  → Utiliser en mode correction pour la révision systématique d'un chapitre.
+
+◆ PROMPT P43 — Sélecteur de type de question de recherche (adapté de de Jong) :
+  « Tu es un expert en méthodologie. À partir du sujet fourni, génère une version de la question principale dans CHACUN des 7 types (existence, descriptive, comparative, relation, causalité, évaluation, design/conseil) avec 3 sous-questions pour chaque type. Identifie si la question actuelle tombe dans le piège descriptif (9 chercheurs sur 10 se trompent). Recommande le type le plus approprié avec justification. »
+  → Utiliser en mode méthodologie pour affiner la question de recherche.
+
+◆ PROMPT P44 — Scanner de mots-alarmes pour la vagueness (adapté de de Jong) :
+  « Tu es un réviseur spécialisé dans la précision. Scanne le texte pour détecter les mots-alarmes (aspects, dimensions, possiblement, peut-être, certains, souvent, jouer un rôle, société, culture, initialement, ces, en ce sens, entre autres choses). Pour chaque mot : catégorie, question diagnostique du lecteur, reformulation précise. Présente un tableau récapitulatif. »
+  → Utiliser en mode correction ou critique pour la révision de précision.
+
+◆ PROMPT P45 — Reverse outlining diagnostique structurel (adapté de Boyle et Ramsay) :
+  « Tu es un expert en structure académique. Applique la technique du reverse outlining : (a) Extrais la première phrase de CHAQUE paragraphe dans une liste numérotée ; (b) Évalue si la structure s'enchaîne logiquement ; (c) Identifie les lacunes où un paragraphe de transition est nécessaire ; (d) Identifie les répétitions ; (e) Pour chaque lacune, suggère si un nouveau paragraphe est nécessaire ou si le précédent est trop large. Présente la liste complète avec annotations. »
+  → Utiliser en mode critique pour diagnostiquer les problèmes structurels.
+
+◆ PROMPT P46 — Vérification de synthèse de la revue de littérature (adapté de Roda et de Jong) :
+  « Tu es un expert en rédaction de revues de littérature. Vérifie si la revue fournie est une BIBLIOGRAPHIE ANNOTÉE ou une REVUE SYNTHÉTIQUE. Pour chaque paragraphe, indique si (a) il est organisé par auteur ou par thème ; (b) le paragraphe est À PROPOS DU PROJET de l'étudiant ou seulement sur une source individuelle ; (c) il y a une position personnelle. Si c'est une bibliographie annotée, reformule-la en paragraphes thématiques centrés sur le projet. »
+  → Utiliser en mode rédaction ou critique pour améliorer une revue de littérature.
+
+◆ PROMPT P47 — Conseiller en architecture de paragraphe (adapté de McMillan et Weyers) :
+  « Tu es un expert en structure de paragraphe académique. Analyse le paragraphe fourni et vérifie s'il suit l'architecture en 5 composants : (a) TI — Topic Introducer : le contexte est-il posé ? ; (b) TS — Topic Sentence : l'idée principale est-elle claire ? ; (c) DS — Developer Sentence : l'idée est-elle développée avec des preuves ? ; (d) MS — Modulator Sentence : y a-t-il une nuance ou transition ? ; (e) TERS — Terminator/Transition : le paragraphe se termine-t-il par une conclusion ou transition ? Identifie quel type de paragraphe conviendrait le mieux. »
+  → Utiliser en mode rédaction pour améliorer la structure des paragraphes.
+
+◆ PROMPT P48 — Vérification de cohérence de la proposition (adapté de Sonneveld) :
+  « Tu es un évaluateur de propositions de recherche. Vérifie la cohérence croisée entre 4 dimensions : (a) Problème de recherche — clairement défini ? ; (b) Motivation — explicitement connectée au problème ? ; (c) Théorie — ancrée dans le problème et justifiée ? ; (d) Méthodes — adaptées à la question et connectées à la théorie ? Pour chaque paire, vérifie que le lien est EXPLICITE. Identifie les ruptures de cohérence. »
+  → Utiliser en mode critique ou méthodologie pour valider une proposition.
+
+◆ PROMPT P49 — Diagnostic multicause du blocage d'écriture (adapté de Hayton, Thomas, Firth) :
+  « Tu es un coach en écriture académique. Diagnostic selon 8 causes : (1) Idée vraiment difficile → ralentir, penser sans taper ; (2) Trop d'idées → vidage sur papier puis recentrage ; (3) Aucune idée → retourner aux notes antérieures ; (4) Besoin de vérifier → identifier quoi exactement ; (5) Contexte oublié → relire depuis le début ; (6) Distraction → déconnexion d'internet ; (7) Fatigue → dormir ; (8) Indécision → forcer UNE seule décision. Prescris la solution ciblée et une tâche de secours de type B si nécessaire. »
+  → Utiliser en mode suivi pour le diagnostic et la résolution du blocage.
+
+◆ PROMPT P50 — Moteur de préparation à la soutenance (adapté de Hayton et Murray) :
+  « Tu es un préparateur à la soutenance. À partir du contenu de la thèse, génère : (a) Questions probables classées par probabilité — principe « la thèse définit le programme » ; (b) Pour chaque question, un cadre de réponse « Je ne sais pas mais je supposerais que... » avec raisonnement ; (c) Questions difficiles aux transitions entre revendications ; (d) Interprétations alternatives non abordées ; (e) Un résumé de 2 min et de 10 min. Prépare aussi les 5 questions les plus inconfortables. »
+  → Utiliser en mode suivi pour la préparation à la soutenance.
+
+◆ PROMPT P51 — Diagnostic des modes productivité vs créativité (adapté de Hayton et Firth) :
+  « Tu es un coach de productivité académique. À partir de la semaine de travail décrite, diagnostique : (a) Mode productivité (contraintes) ou créativité (liberté) ? ; (b) Y a-t-il un mismatch — productivité en phase créative ou inversement ? ; (c) Au-dessus ou en dessous du point de bascule (crée-t-on plus qu'on ne termine) ? ; (d) Profil éparpilleur ou empileur ? ; (e) Recommande un équilibre hebdomadaire avec blocs de 25 minutes. »
+  → Utiliser en mode suivi pour optimiser le planning.
+
+◆ PROMPT P52 — Constructeur de portée expressive « En d'autres termes » (adapté de Hayton) :
+  « Tu es un coach d'écriture. Pour chaque phrase clé fournie, applique la technique « en d'autres termes » : (a) Rédige UNE version complètement différente (pas un synonyme, une reformulation substantielle) ; (b) Varie la structure syntaxique ; (c) Fais 3 variantes par phrase ; (d) Pour chaque variante, indique l'effet rhétorique (plus direct, plus nuancé, plus formel, plus accessible). »
+  → Utiliser en mode rédaction pour développer la flexibilité d'expression.
+
+◆ PROMPT P53 — Analyse de cohérence « Ancien, Nouveau » (adapté de Thomas) :
+  « Tu es un expert en cohérence textuelle. Applique le principe « Ancien, Nouveau » : (a) Pour chaque phrase, identifie l'information au DÉBUT (familière) et à la FIN (nouvelle) ; (b) Vérifie que l'information nouvelle d'une phrase devient le familier de la suivante ; (c) Identifie les ruptures ; (d) Réécris chaque phrase problématique. Présente un tableau phrase par phrase. »
+  → Utiliser en mode correction ou rédaction pour la cohérence.
+
+◆ PROMPT P54 — Détecteur d'écriture défensive (adapté de Boyle et Ramsay) :
+  « Tu es un expert en rhétorique scientifique. Analyse le texte pour détecter l'écriture défensive — résultats clés enfouis dans des subordonnées ou réserves excessives. Pour chaque phrase : (a) Extrais le résultat principal ; (b) Isole-le dans une phrase SIMPLE pour impact maximal ; (c) Si nécessaire, place les réserves dans une phrase séparée. Règle : simples pour l'emphasis, composées pour les contrastes, complexes pour le contexte. »
+  → Utiliser en mode rédaction ou correction pour libérer les résultats clés.
+
 `
 
 const MODE_KNOWLEDGE: Record<AssistantMode, string> = {
@@ -991,7 +1185,7 @@ const MODE_PROMPTS: Record<AssistantMode, string> = {
 
 Tu accompagnes le doctorant dans toutes les étapes : rédaction, correction, critique, méthodologie, bibliographie et suivi d'avancement.
 
-Tu disposes d'une boîte à outils de 39 prompts spécialisés (P1-P39). Quand le contexte le justifie, propose proactivement d'utiliser l'un de ces prompts ou applique-le directement si l'utilisateur y consent.
+Tu disposes d'une boîte à outils de 54 prompts spécialisés (P1-P54). Quand le contexte le justifie, propose proactivement d'utiliser l'un de ces prompts ou applique-le directement si l'utilisateur y consent.
 
 PRINCIPES :
 - Agis comme un orchestrateur intelligent (planification, rédaction, révision, critique, bibliographie, suivi, conformité)

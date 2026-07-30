@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "⚠️ Research Writing Series - Day 10 ⚠️\nHow to Write DISCUSSION Part\n✦ for Systematic Literature Review\n\nPurpose: To interpret the findings, explain their meaning, compare with existing knowledge and highlight implications for research and practice.\n\n• Structure of Discussion\n① Restate Main Findings\n• Briefly remind the key results of your review.\n② Interpret the Findings\n• Explain what the results mean in the context of your research question.\n③ Compare with Existing Literature\n• Show how your findings agree, differ or extend earlier studies.\n④ Identify Patterns, Themes & Relationships\n• Highlight major trends, gaps, contradictions or inconsistencies.\n⑤ Explain Possible Reasons\n• Discuss why these findings may have occurred.\n⑥ Implications\n• Theoretical, Practical, Policy and Social implications.\n⑦ Limitations of the Review\n• Acknowledge limitations in included studies and in your review process.\n⑧ Future Research Directions\n• Suggest areas that need further exploration.\n\nWriting Tips\n* Don't just repeat results – interpret them.\n* Use evidence from included studies to support your points.\n* Be critical but balanced.\n* Link back to your research question and objectives.\n* Use strong transitions and logical flow.\n* End with a clear take-home message.\n\nUseful Phrases\n• The findings suggest that...\n• This result is consistent with...\n• In contrast, some studies found...\n• This difference may be due to...\n• These findings imply...\n• This review highlights the need for...\n\nQuick Checklist\n☐ Have I answered my research question?\n☐ Have I interpreted the main findings?\n☐ Have I compared with existing studies?\n☐ Have I discussed implications?\n☐ Have I mentioned limitations?\n☐ Have I suggested future directions?\n\n★ Take-away: A strong Discussion explains the \"WHY\" behind the findings and shows their \"SIGNIFICANCE\".\n\n——— ♥ Good Discussion = Strong Impact! ♥ ———",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785403296,
+  "id": "202607301721309790e521e5b24d55",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607301721309790e521e5b24d55",
+  "usage": {
+    "completion_tokens": 393,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3389,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 3782
+  }
+}

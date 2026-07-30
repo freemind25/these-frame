@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Full Title:** Write It Up\n\n**Subtitle:** Practical Strategies for Writing and Publishing Journal Articles\n\n**Author:** Paul J. Silvia, PhD\n\n**Publisher:** Not visible on the cover (though the logo in the bottom left corner suggests it is likely APA - American Psychological Association)\n\n**Year:** Not visible on the cover\n\n**Other Visible Text:**\n- None other than the title, subtitle, and author name listed above.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785403342,
+  "id": "2026073017221318c238d0eb834d18",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026073017221318c238d0eb834d18",
+  "usage": {
+    "completion_tokens": 89,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5793,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 5882
+  }
+}
