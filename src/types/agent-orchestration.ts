@@ -1,10 +1,81 @@
 // ─── Agent Orchestration Types ───
 // Inspired by agent-teams-ai: multi-agent roles, kanban task lifecycle,
 // structured task references, and per-agent workflow prompts.
+// Extended with: Nudge System, Review State Machine, Failure Classifier, Exactly-Once Guards.
 
 export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'needs_fix' | 'completed'
 export type AgentRole = 'redacteur' | 'directeur' | 'chercheur'
 export type AgentStatus = 'idle' | 'working' | 'done' | 'error'
+
+// ═══════════════════════════════════════════════════════════
+// REVIEW STATE MACHINE (inspired by agent-teams-ai reviewMutationStateMachine)
+// Forward-only: draft → ai_reviewed → student_revised → director_approved → final
+// ═══════════════════════════════════════════════════════════
+
+export type ReviewPhase = 'draft' | 'ai_reviewed' | 'student_revised' | 'director_approved' | 'final'
+
+export const REVIEW_PHASES: { key: ReviewPhase; label: string; color: string }[] = [
+  { key: 'draft', label: 'Brouillon', color: 'slate' },
+  { key: 'ai_reviewed', label: 'Révisé par IA', color: 'violet' },
+  { key: 'student_revised', label: 'Révisé par étudiant', color: 'sky' },
+  { key: 'director_approved', label: 'Approuvé', color: 'amber' },
+  { key: 'final', label: 'Final', color: 'emerald' },
+]
+
+const NEXT_REVIEW_PHASE: Partial<Record<ReviewPhase, ReviewPhase>> = {
+  draft: 'ai_reviewed',
+  ai_reviewed: 'student_revised',
+  student_revised: 'director_approved',
+  director_approved: 'final',
+}
+
+export function getNextReviewPhase(current: ReviewPhase): ReviewPhase | null {
+  return NEXT_REVIEW_PHASE[current] ?? null
+}
+
+export function isValidReviewTransition(from: ReviewPhase, to: ReviewPhase): boolean {
+  return getNextReviewPhase(from) === to
+}
+
+// ═══════════════════════════════════════════════════════════
+// FAILURE CLASSIFIER (inspired by agent-teams-ai RuntimeFailureClassifier)
+// ═══════════════════════════════════════════════════════════
+
+export type FailureDisposition = 'retry_transient' | 'retry_at_reset' | 'observe_only' | 'manual'
+
+export interface ClassifiedError {
+  reasonCode: string
+  disposition: FailureDisposition
+  normalizedDetail: string
+  retryAfterMs?: number
+  actionRequired?: string
+}
+
+// ═══════════════════════════════════════════════════════════
+// NUDGE SYSTEM (inspired by agent-teams-ai MemberWorkSyncNudge)
+// ═══════════════════════════════════════════════════════════
+
+export type NudgeReason =
+  | 'chapter_empty_after_draft'
+  | 'chapter_still_needs_fix'
+  | 'review_overdue'
+  | 'low_word_count'
+  | 'pipeline_complete_pending'
+
+export interface ChapterNudge {
+  chapterId: string
+  chapterNumber: number
+  chapterTitle: string
+  reason: NudgeReason
+  message: string
+  fingerprint: string
+  createdAt: string
+  dismissed: boolean
+}
+
+// ═══════════════════════════════════════════════════════════
+// AGENTS
+// ═══════════════════════════════════════════════════════════
 
 export interface ThesisAgent {
   role: AgentRole
@@ -34,7 +105,7 @@ RÈGLES :
 4. Inclus des références [Auteur, Année] pour marquer les citations à insérer
 5. Utilise des connecteurs logiques (cependant, néanmoins, en revanche)
 6. Évite le plagiat : génère du contenu original et argumenté
-7. Adapte le ton et le contenu au type de chapitre (intro, revue, méthodo, résultats, discussion, conclusion)`
+7. Adapte le ton et le contenu au type de chapitre (intro, revue, méthodo, résultats, discussion, conclusion)`,
   },
   {
     role: 'directeur',
@@ -57,7 +128,7 @@ CRITÈRES D'ÉVALUATION :
 3. Style académique (langue, registre, clarté)
 4. Originalité et contribution (apport, positionnement)
 
-FORMAT DE RÉPONSE : Réponds en JSON structuré avec score et remarques détaillées.`
+FORMAT DE RÉPONSE : Réponds en JSON structuré avec score et remarques détaillées.`,
   },
   {
     role: 'chercheur',
@@ -74,9 +145,13 @@ RÔLE :
 - Suggère des connexions inter-chapitres
 - Recommande des revues systématiques ou méta-analyses pertinentes
 
-FORMAT : Pour chaque suggestion, indique [Auteur, Année] avec un résumé d'une phrase de la contribution.`
+FORMAT : Pour chaque suggestion, indique [Auteur, Année] avec un résumé d'une phrase de la contribution.`,
   },
 ]
+
+// ═══════════════════════════════════════════════════════════
+// TASKS & RUNS
+// ═══════════════════════════════════════════════════════════
 
 export interface OrchestrationTask {
   id: string
@@ -94,9 +169,13 @@ export interface OrchestrationTask {
   completedAt?: string
   output?: string
   error?: string
-  // Review results
   score?: number
   remarks?: { type: string; severity: string; text: string }[]
+  // Extended: review phase & error classification
+  reviewPhase?: ReviewPhase
+  classifiedError?: ClassifiedError
+  // Exactly-once provenance
+  idempotencyKey?: string
 }
 
 export interface OrchestrationRun {
@@ -106,6 +185,9 @@ export interface OrchestrationRun {
   tasks: OrchestrationTask[]
   agents: { role: AgentRole; status: AgentStatus; tasksCompleted: number }[]
   summary: string
+  // Extended fields
+  nudges?: ChapterNudge[]
+  runToken?: string  // exactly-once guard token
 }
 
 // Kanban column definitions
