@@ -1,58 +1,138 @@
-import ZAI from 'z-ai-web-dev-sdk'
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { homedir, tmpdir } from 'os'
 
-// Singleton SDK instance
-let zaiInstance: Awaited<ReturnType<typeof ZAI.create>> | null = null
+// ─── Types (mirror SDK interface) ─────────────────────────────────
+
+interface ChatMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+interface CreateChatCompletionBody {
+  messages: ChatMessage[]
+  model?: string
+  temperature?: number
+  วาป_max_tokens?: number
+  max_tokens?: number
+  thinking?: { type: string }
+  stream?: boolean
+}
+
+interface ChatCompletionResponse {
+  choices: Array<{
+    message: { role: string; content: string }
+    finish_reason: string
+    index: number
+  }>
+}
+
+// ─── Lightweight fetch-based client (works with Mistral, OpenAI, etc.) ──
+
+class FetchAI {
+  private baseUrl: string
+  private apiKey: string
+
+  constructor(baseUrl: string, apiKey: string) {
+    this.baseUrl = baseUrl.replace(/\/+$/, '')
+    this.apiKey = apiKey
+  }
+
+  get chat() {
+    return {
+      completions: {
+        create: async (body: CreateChatCompletionBody): Promise<ChatCompletionResponse> => {
+          const { thinking, stream, ...payload } = body as any
+          const res = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+            body: JSON.stringify({
+              model: payload.model || 'mistral-large-latest',
+              ...payload,
+            }),
+          })
+          if (!res.ok) {
+            const text = await res.text()
+            throw new Error(`AI API ${res.status}: ${text}`)
+          }
+          return res.json()
+        },
+      },
+    }
+  }
+
+  get audio() {
+    return {
+      asr: {
+        create: async (params: { file_base64: string }): Promise<{ text: string }> => {
+          throw new Error('ASR (speech-to-text) requires the Z.ai platform. Not available with external AI providers.')
+        },
+      },
+    }
+  }
+
+  get functions() {
+    return {
+      invoke: async (_name: string, _args: any): Promise<any> => {
+        throw new Error('AI functions (web_search, page_reader) require the Z.ai platform.')
+      },
+    }
+  }
+
+  get images() {
+    return {
+      generations: {
+        create: async (_params: any): Promise<any> => {
+          throw new Error('Image generation requires the Z.ai platform.')
+        },
+      },
+    }
+  }
+}
+
+// ─── Singleton ─────────────────────────────────────────────────────
+
+let zaiInstance: any = null
 let initAttempted = false
 let initError: string | null = null
 
 /**
- * Ensure a .z-ai-config file exists for the SDK to read.
- * On Vercel / serverless, the SDK can't find the file by default,
- * so we write it from env vars to /tmp (writable on Vercel).
+ * Read config from env vars or .z-ai-config file.
  */
-function ensureConfigFile(): void {
-  // Check all standard paths first
-  const stdPaths = [
+function readConfig(): { baseUrl: string; apiKey: string } | null {
+  // 1. Environment variables
+  const baseUrl = process.env.AI_BASE_URL || process.env.ZAI_BASE_URL
+  const apiKey = process.env.AI_API_KEY || process.env.ZAI_API_KEY
+  if (baseUrl && apiKey) return { baseUrl, apiKey }
+
+  // 2. Config file
+  const paths = [
     '.z-ai-config',
     join(homedir(), '.z-ai-config'),
     '/etc/.z-ai-config',
+    join(tmpdir(), '.z-ai-config'),
   ]
-  for (const p of stdPaths) {
-    if (existsSync(p)) {
-      try {
-        const data = JSON.parse(readFileSync(p, 'utf-8'))
-        if (data.baseUrl && data.apiKey) return // config found, no-op
-      } catch { /* corrupted, try env vars */ }
-    }
-  }
-
-  // No valid config file found — build one from env vars
-  const baseUrl = process.env.AI_BASE_URL || process.env.ZAI_BASE_URL
-  const apiKey = process.env.AI_API_KEY || process.env.ZAI_API_KEY
-
-  if (!baseUrl || !apiKey) return // nothing to write
-
-  // Write to /tmp so the SDK can find it via HOME override or direct read
-  const tmpConfigPath = join(tmpdir(), '.z-ai-config')
-  try {
-    writeFileSync(tmpConfigPath, JSON.stringify({ baseUrl, apiKey }), 'utf-8')
-    // Override HOME so the SDK's ~/ check resolves to /tmp
-    process.env.HOME = tmpdir()
-    process.env.USERPROFILE = tmpdir()
-  } catch {
-    // /tmp not writable (very rare), try current directory
+  for (const p of paths) {
     try {
-      writeFileSync('.z-ai-config', JSON.stringify({ baseUrl, apiKey }), 'utf-8')
-    } catch { /* give up */ }
+      if (existsSync(p)) {
+        const data = JSON.parse(readFileSync(p, 'utf-8'))
+        if (data.baseUrl && data.apiKey) return { baseUrl: data.baseUrl, apiKey: data.apiKey }
+      }
+    } catch { /* skip */ }
   }
+
+  return null
 }
 
 /**
- * Get a ready-to-use ZAI SDK instance.
- * Auto-creates .z-ai-config from env vars on Vercel.
+ * Get a ready-to-use AI client.
+ *
+ * - In dev (Z.ai config file): uses the full z-ai-web-dev-sdk
+ * - On Vercel / with env vars: uses a lightweight fetch-based client
+ *   compatible with Mistral, OpenAI, and any OpenAI-compatible API.
  */
 export async function getZAI() {
   if (zaiInstance) return zaiInstance
@@ -62,42 +142,51 @@ export async function getZAI() {
   }
 
   initAttempted = true
+  const config = readConfig()
 
-  try {
-    ensureConfigFile()
-    zaiInstance = await ZAI.create()
-    return zaiInstance
-  } catch (err) {
+  if (!config) {
     initError =
       'Configuration IA non trouvée. ' +
-      'Sur Vercel, ajoutez les variables d\'environnement : AI_BASE_URL, AI_API_KEY.'
-    console.error('Failed to initialize ZAI:', err)
+      'Ajoutez AI_BASE_URL et AI_API_KEY dans les variables d\'environnement.'
     throw new Error(initError)
   }
+
+  // Try native SDK first (works in dev with Z.ai internal API)
+  if (!process.env.AI_BASE_URL && !process.env.ZAI_BASE_URL) {
+    try {
+      const ZAI = (await import('z-ai-web-dev-sdk')).default
+      zaiInstance = await ZAI.create()
+      return zaiInstance
+    } catch (err) {
+      console.warn('SDK failed, falling back to fetch client:', err)
+    }
+  }
+
+  // Fetch-based client for external APIs (Mistral, OpenAI, etc.)
+  zaiInstance = new FetchAI(config.baseUrl, config.apiKey)
+  return zaiInstance
 }
 
 /**
- * Check if ZAI is likely configured (for UI status display).
+ * Check if AI is configured.
  */
 export function isZAIConfigured(): boolean {
-  // Check environment variables
-  if ((process.env.AI_BASE_URL && process.env.AI_API_KEY) || (process.env.ZAI_BASE_URL && process.env.ZAI_API_KEY)) return true
+  if (process.env.AI_BASE_URL && process.env.AI_API_KEY) return true
+  if (process.env.ZAI_BASE_URL && process.env.ZAI_API_KEY) return true
 
-  // Check file system
-  try {
-    const paths = [
-      '.z-ai-config',
-      join(homedir(), '.z-ai-config'),
-      '/etc/.z-ai-config',
-      join(tmpdir(), '.z-ai-config'),
-    ]
-    for (const p of paths) {
+  const paths = [
+    '.z-ai-config',
+    join(homedir(), '.z-ai-config'),
+    '/etc/.z-ai-config',
+    join(tmpdir(), '.z-ai-config'),
+  ]
+  for (const p of paths) {
+    try {
       if (existsSync(p)) {
         const data = JSON.parse(readFileSync(p, 'utf-8'))
         if (data.baseUrl && data.apiKey) return true
       }
-    }
-  } catch { /* ignore */ }
-
+    } catch { /* skip */ }
+  }
   return false
 }
