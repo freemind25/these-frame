@@ -1,6 +1,6 @@
 /**
  * Constructeur de contexte de connaissances pour l'assistant thèse.
- * Extrait et synthétise les connaissances clés des 14 ouvrages de référence
+ * Extrait et synthétise les connaissances clés des 23 ouvrages de référence
  * pour injection dans le prompt système de l'assistant.
  */
 
@@ -48,6 +48,15 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 12. Mars, N. (2020). Academic Writing: Research: How to Write a Good, Strong, Important and Interesting Thesis.
 13. Andrews, G. (2019). Your Thesis: Writing Strengths and Challenges. Essay and Thesis Writing Series.
 14. Murray, R. (2006). How to Write a Thesis (2e éd.). Open University Press / McGraw-Hill.
+15. McMillan, K. & Weyers, J. (2020). How to Research & Write a Successful PhD. SAGE.
+16. Saramäki, J. (2024). How to Write a Scientific Paper. Springer.
+17. Roda, A., Saunders, L. & Anderson, K. (2020). PhDone. University of Michigan Press.
+18. de Jong, J. (2017). Effective Strategies for Academic Writing. Coutinho.
+19. Thomas, D. (2021). The PhD Writing Handbook. Routledge.
+20. Boyle, J. & Ramsay, S. (2019). Writing a Science PhD. Palgrave Macmillan.
+21. Firth, K. (2024). Writing Well and Being Well for Your PhD and Beyond. Routledge.
+22. Sonneveld, H. (2022). The Art of Writing a PhD Proposal. Open University Press.
+23. Hayton, J. (2015). PhD: An Uncommon Guide to Research, Writing & PhD Life.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 
@@ -162,6 +171,70 @@ CONSEILS DE RÉDACTION :
   - Les objections alternatives doivent être traitées point par point au fur et à mesure
   - Ne JAMAIS les présenter en bloc puis les réfuter — sinon le lecteur « fermente » l'objection
   - Mieux vaut les aborder dans le corps du texte que les esquiver
+
+◆ Structure en sablier de l’abstract (Saramäki, adapté de Nature) :
+  - Contexte large (compréhensible pour tout scientifique)
+  - Contexte plus étroit (pour des disciplines voisines)
+  - Question de recherche exacte (UNE seule phrase)
+  - Résultat clé (UNE seule phrase)
+  - Implications pour le domaine
+  - Implications plus larges
+  - L’abstract lui-même est un sablier : large → étroit → large.
+  - Écrire l’abstract EN PREMIER comme test d’acide : si vous ne pouvez pas l’écrire, votre storyline n’est pas prête.
+
+◆ La règle du « hyperlien mental » pour les figures (Saramäki) :
+  - Ne JAMAIS commencer une phrase par « Dans la Figure 1, nous voyons que... »
+  - Toujours placer la référence à la figure à la FIN de la phrase
+  - Le lecteur traite la phrase avant de sauter vers la figure.
+
+◆ Positions de stress dans les phrases et paragraphes (Saramäki) :
+  - Les derniers mots d’une phrase et d’un paragraphe portent un poids supplémentaire
+  - Les pauses donnent au lecteur plus de temps de traitement
+  - Placer le contenu le plus important dans ces positions naturelles de stress.
+
+◆ Le concept de « lede » appliqué aux ouvertures scientifiques (Saramäki) :
+  - La première phrase est la plus lue de tout l’article — l’attrition est phrase par phrase
+  - Utiliser le contraste, la tension, les cliffhangers pour ralentir l’attrition.
+
+◆ Template d’introduction en 4 paragraphes (Saramäki) :
+  - P1 : contexte large + lacune de connaissances (structure entonnoir, se termine par un contraste)
+  - P2 : zoom vers la question de recherche spécifique
+  - P3 : approche et méthodes (le plus développé)
+  - P4 : résultats clés (COURT pour un contraste maximum avec P3).
+
+◆ « Oui, mais » au lieu de « mais, oui » pour les limites (Saramäki, d’après Schimel) :
+  - « Même si notre résolution est limitée, nos résultats sont néanmoins convaincants »
+  - Et non : « Nos résultats seraient plus clairs si nous avions une meilleure résolution. »
+
+◆ Le test de « concrétisation » pour les fins de Discussion (Saramäki) :
+  - Ne JAMAIS terminer par « des recherches supplémentaires sont nécessaires » (platitude)
+  - Terminer par : « Grâce à X, nous sommes maintenant en mesure d’aborder le problème Y. »
+
+◆ Le principe « Ancien, Nouveau » dans chaque phrase (Thomas) :
+  - Début de phrase = information familière/déjà mentionnée
+  - Fin de phrase = information nouvelle, surprenante ou significative
+  - L’information nouvelle d’une phrase devient le familier de la suivante.
+
+◆ L’inhumation des noms abstraits (Thomas) :
+  - « La motivation de la correction d’erreurs » → « Motiver les apprenants lors de la correction »
+  - Rechercher les noms en « -tion », « -ment », « -ence » contenant des verbes piégés.
+
+◆ Le « confiantement incertain » — hedging expert (Thomas) :
+  - Le hedging n’est pas une faiblesse, c’est être explicite sur le degré de certitude
+  - On peut être confiant dans l’aveu d’incertitude sans être vague.
+
+◆ Architecture du paragraphe en 5 composants (McMillan & Weyers) :
+  - TI (Topic Introducer) → TS (Topic Sentence) → DS (Developer Sentence) → MS (Modulator Sentence) → TERS (Terminator/Transition)
+  - 12 modèles : décrire, définir, classer, comparer, opposer, cause-effet, etc.
+
+◆ Écriture défensive et enfouissement des résultats clés (Boyle & Ramsay) :
+  - Les doctorants sur-protègent avec des réserves et subordonnées
+  - Extraire le résultat principal et le placer dans une phrase simple pour un impact maximal
+  - Phrases simples pour l’emphasis, composées pour les contrastes, complexes pour le contexte.
+
+◆ Quatre types de paragraphes scientifiques (Boyle & Ramsay) :
+  - Argument, Processus, Contraste/Comparaison, Détail
+  - Chacun avec une anatomie : phrase-topic → élaboration → preuve → conclusion.
 `
 
 const CORRECTION_KNOWLEDGE = `
@@ -193,6 +266,54 @@ CONSEILS DE CORRECTION LINGUISTIQUE :
   - En ce qui concerne, s'agissant de, eu égard à
   - Dans cette perspective, dans ce cadre, sous cet angle
   - Corréler, articuler, catégoriser, nuancer
+
+◆ Le test « by zombies » pour la voix passive (Saramäki) :
+  - Insérer « par des zombies » après le verbe — si c'est grammatical, c'est passif
+  - Convertir en voix active pour plus de clarté et de concision.
+
+◆ Sauvetage des verbes nominalisés (Saramäki) :
+  - Chercher les noms en « -ion », « -ment », « -ence » contenant des verbes piégés
+  - « Nous avons effectué une comparaison » → « Nous avons comparé » (gagne 21 caractères)
+  - Libérer les verbes des adjectifs en « -ive » : « X est indicatif de Y » → « X indique que Y. »
+
+◆ Bannir le mot « très » (Saramäki) :
+  - On n'en a jamais besoin. Quand on est tenté, sauter directement au mot suivant.
+
+◆ Mots-alarmes pour la vagueness (de Jong) :
+  - Termes abstraits : aspects, dimensions
+  - Quantificateurs vagues : possiblement, peut-être, peut, certains, souvent
+  - Expressions imprécises : jouer un rôle, en partie
+  - Grands mots : société, culture
+  - Expressions vides : initialement
+  - Références floues : ces, ceux, en ce sens
+  - Chaque mot-alarme déclenche une question diagnostique spécifique.
+
+◆ Procédure de révision en 4 éléments (de Jong) :
+  - Décrire → Évaluer → Expliquer → Améliorer
+  - L'étape « Expliquer » est distinctive : pourquoi le problème existe-t-il (processus) et pas seulement ce qui ne va pas (produit)
+  - Appliquer systématiquement à : information, argumentation, cohésion, hiérarchie, séquence.
+
+◆ Modèle de révision en 3 balayages (McMillan & Weyers) :
+  - Balayage 1 : contenu/pertinence/clarté/style/cohérence
+  - Balayage 2 : correction grammaticale
+  - Balayage 3 : présentation/formatage
+  - Ne jamais commencer par la grammaire — le contenu peut être supprimé ou déplacé.
+
+◆ Cinq opérations de remédiation pour phrases difficiles (Thomas) :
+  1. Identifier et scinder les structures complexes
+  2. Remplacer le jargon par des mots simples
+  3. Convertir les noms abstraits en verbes
+  4. Simplifier les noms abstraits restants
+  5. Éliminer la redondance.
+
+◆ Ne JAMAIS fusionner les étapes d'édition et de polissage (Firth) :
+  - Restructurer d'abord (macro/méso), puis polir (micro)
+  - Polir du texte qui sera supprimé = travail gaspillé.
+
+◆ Réviser en 3 passes pour un article scientifique (Saramäki) :
+  - Passe 1 : structure/contenu (logique du récit, équilibre des sections)
+  - Passe 2 : phrases/mots (clarté, concision, voix active)
+  - Passe 3 : raccourcissement (supprimer chaque mot inutile).
 `
 
 const CRITIQUE_KNOWLEDGE = `
@@ -264,9 +385,64 @@ CONSEILS D'ANALYSE CRITIQUE :
   - Souvent la première chose lue par l'examinateur
   - Doit tenir sur une seule page sans headings
   - Répondre à quatre questions : quelle question ? quel système ? quels résultats ? quelle réponse ?
-  - Doit être un compte rendu fidèle et complet de la thèse`
+  - Doit etre un compte rendu fidele et complet de la these
 
-const METHODOLOGIE_KNOWLEDGE = `
+◆ Le "paragraphe bloque = comprehension manquante" (Saramaki) :
+  - Si un paragraphe ne vient pas, ce n'est pas un probleme d'ecriture — c'est un probleme de pensee
+  - Il manque une comprehension, pas des mots. Arreter d'ecrire et aller chercher la comprehension.
+
+◆ Le modele Oost du probleme de recherche (de Jong) :
+  - 5 elements interconnectes : Discipline → Probleme → Question → Reponse → Strategie
+  - Chaque changement d'un element necessite de verifier tous les autres (fleches bidirectionnelles)
+  - Utiliser comme document vivant : remplir en planification, reevaluer apres collecte, verifier avant redaction.
+
+◆ Le piege de la question descriptive (de Jong) :
+  - 9 chercheurs sur 10 identifient a tort leur question comme « descriptive »
+  - Les questions purement descriptives n'ont pas de point d'arret naturel ni de logique de question a reponse
+  - La question principale doit aller plus loin : comparative, evaluative, explicative, ou de design.
+
+◆ Les 7 types de questions de recherche (de Jong) :
+  1. Existence — est-ce que X existe ?
+  2. Description — a quoi ressemble X ?
+  3. Comparaison — en quoi X et Y different-ils ?
+  4. Relation — comment X et Y sont-ils lies ?
+  5. Causalite — est-ce que X cause Y ?
+  6. Evaluation — dans quelle mesure X est-il efficace ?
+  7. Design/conseil — comment devrait-on concevoir X ?
+
+◆ La triade NRO pour l'evaluation de these (McMillan & Weyers) :
+  - Novelty (originalite) : demontree dans l'Introduction et les Conclusions
+  - Reliability (fiabilite) : demontree dans les Methodes et les Resultats
+  - Ownership (appropriation) : demontree dans tous les chapitres via la declaration et les references.
+
+◆ La revue de litterature n'est PAS une bibliographie annotee (Roda et al.) :
+  - Bibliographie annotee = « poutres et montants nus »
+  - Revue de litterature = « la maison finie »
+  - Chaque paragraphe doit etre A PROPOS DE VOTRE PROJET, pas de sources individuelles.
+
+◆ Cadre d'analyse critique en 5 points pour articles (Boyle & Ramsay) :
+  1. Taille d'echantillon et replication — n est-il suffisant ? Replicas vs. taille d'echantillon distingues ?
+  2. Pertinence du design — la methodologie a-t-elle le pouvoir de repondre a la question ?
+  3. Controles — positifs et negatifs presents et appropries ?
+  4. Optimisations — les auteurs expliquent-ils pourquoi des conditions specifiques ont ete choisies ?
+  5. Actualite — l'article s'appuie-t-il sur une litterature recente ?
+
+◆ « Trouver un bord, pas un vide » pour l'originalite (Hayton) :
+  - Au lieu de chercher un vide ou rien n'existe, chercher le bord des connaissances existantes a repousser
+  - Tester les hypotheses non verifiees devenues acceptees par citation repetee sans verification systematique.
+
+◆ « La these definit le programme » de la soutenance (Hayton) :
+  - Les examinateurs forment des questions EN REPONSE a votre ecriture
+  - Vous controlez les sujets de discussion par la selection du contenu.
+
+◆ La revue de litterature = entite duale : processus ET produit (Thomas) :
+  - Comme processus : explorer, tester, examiner des contre-arguments, definir, explorer des methodologies
+  - Comme produit : chapitre introductif, chapitre designe, sections integrees, ou chapitres separes par etude.
+
+◆ Le phenomene du « monstre de Frankenstein » (Boyle & Ramsay) :
+  - Assembler des paragraphes de multiples iterations cree une repetition subtile difficile a detecter
+  - Solution : le reverse outlining — extraire toutes les premieres phrases et verifier la logique.
+`
 CONSEILS MÉTHODOLOGIQUES :
 
 ◆ Processus de recherche (Turabian) :
