@@ -19,6 +19,7 @@ import ThesisAssistantChat from '@/components/thesis/thesis-assistant-chat'
 import DirecteurChat from '@/components/thesis/directeur-chat'
 import CadragePanel from '@/components/thesis/cadrage-panel'
 import OfficeExportTab from '@/components/thesis/office-export-tab'
+import AutomationPanel from '@/components/thesis/automation-panel'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -80,6 +81,7 @@ export default function Home() {
   const [directeurOpen, setDirecteurOpen] = useState(false)
   const [cadrageOpen, setCadrageOpen] = useState(false)
   const [officeOpen, setOfficeOpen] = useState(false)
+  const [automationOpen, setAutomationOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
   const [desktopMode, setDesktopMode] = useState(false)
@@ -606,6 +608,7 @@ export default function Home() {
           onOpenSearch={() => setSearchOpen(true)}
           onOpenCadrage={() => setCadrageOpen(true)}
           onOpenOffice={() => setOfficeOpen(true)}
+          onOpenAutomation={() => setAutomationOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -764,6 +767,12 @@ export default function Home() {
         open={cadrageOpen}
         onOpenChange={setCadrageOpen}
         thesisId={thesis?.id || 'local-thesis-001'}
+      />
+
+      <AutomationPanel
+        open={automationOpen}
+        onOpenChange={setAutomationOpen}
+        thesis={thesis}
       />
 
       <ProviderSettingsDialog

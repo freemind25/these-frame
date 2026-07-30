@@ -111,3 +111,29 @@ Stage Summary:
 - Versioned validation with snapshot history
 - Director reads cadrage in read-only mode for coherence checking
 
+---
+Task ID: 1
+Agent: main
+Task: Analyze OfficeCLI and Orca repos, design and implement Automation module
+
+Work Log:
+- Read OfficeCLI repo README and SKILL.md via curl (web-reader failed)
+- Read Orca repo README via curl
+- Installed OfficeCLI v1.0.143 at ~/.local/bin/officecli
+- Analyzed existing project architecture (tool panel pattern, Sheet/Dialog components, API routes)
+- Designed Automation module with 2 tabs: Exports + Pipeline IA
+- Created /api/office/export-xlsx/route.ts - Excel tracking spreadsheet generation
+- Created /api/automation/pipeline/route.ts - AI draft generation + auto-review pipeline
+- Created automation-panel.tsx - Sheet-based panel with 2 tabs, stats dashboard, batch export
+- Added Automation tool to tools-sidebar.tsx (Zap icon)
+- Wired up in page.tsx (state, import, prop, component mount)
+- Fixed getZAI import path (zai-client → zai)
+- ESLint: 0 errors
+- Dev server compiles successfully, page renders with automation content
+
+Stage Summary:
+- 3 new files: automation-panel.tsx, export-xlsx/route.ts, pipeline/route.ts
+- 2 modified files: tools-sidebar.tsx, page.tsx
+- OfficeCLI v1.0.143 installed and functional
+- Automation panel features: batch export (DOCX+PPTX+XLSX), AI draft generation pipeline, auto-review pipeline, progress visualization
+
