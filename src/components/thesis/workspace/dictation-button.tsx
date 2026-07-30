@@ -300,7 +300,7 @@ export default function DictationButton({ onTranscribed, disabled }: DictationBu
             onContextMenu={toggleMode}
             disabled={disabled || state === 'requesting'}
             className={cn(
-              'relative flex items-center justify-center w-8 h-8 rounded-full transition-all',
+              'relative flex items-center justify-center w-9 h-9 rounded-full transition-all',
               isRecording
                 ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/30'
                 : state === 'transcribing'

@@ -126,7 +126,10 @@ export default function ChapterHeader({
       </div>
 
       {/* Dictation button */}
-      <DictationButton onTranscribed={onDictated || (() => {})} />
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span className="text-[10px] text-slate-400 hidden md:inline">Dictée</span>
+        <DictationButton onTranscribed={onDictated || (() => {})} />
+      </div>
 
       {/* Help panel toggle */}
       <button
