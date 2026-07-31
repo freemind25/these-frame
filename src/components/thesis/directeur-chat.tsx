@@ -51,6 +51,7 @@ interface DirecteurChatProps {
   chapters?: ChapterData[]
   thesisTitle?: string
   thesisField?: string
+  activeBookIds?: string[]
 }
 
 function generateSessionId() {
@@ -100,6 +101,7 @@ export default function DirecteurChat({
   chapters,
   thesisTitle,
   thesisField,
+  activeBookIds,
 }: DirecteurChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: WELCOME_MESSAGE },
@@ -161,6 +163,7 @@ export default function DirecteurChat({
         }
         if (thesisTitle) reqBody.thesisTitle = thesisTitle
         if (thesisField) reqBody.thesisField = thesisField
+        if (activeBookIds && activeBookIds.length > 0) reqBody.activeBookIds = activeBookIds
       }
 
       const res = await fetch('/api/directeur-chat', {
@@ -190,7 +193,7 @@ export default function DirecteurChat({
     } finally {
       setLoading(false)
     }
-  }, [input, loading, sessionId, chapterTitle, chapterNumber, chapterContent, chapters, thesisTitle, thesisField, contextEnabled])
+  }, [input, loading, sessionId, chapterTitle, chapterNumber, chapterContent, chapters, thesisTitle, thesisField, contextEnabled, activeBookIds])
 
   const clearConversation = useCallback(async () => {
     try {
@@ -283,6 +286,16 @@ export default function DirecteurChat({
             >
               activer
             </button>
+          </div>
+        )}
+
+        {/* Active books indicator */}
+        {activeBookIds && activeBookIds.length > 0 && (
+          <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-950/40 border-b border-emerald-800/20 shrink-0">
+            <BookOpen className="size-3 text-emerald-500/70 shrink-0" />
+            <span className="text-[11px] text-emerald-300/70 truncate">
+              {activeBookIds.length} livre{activeBookIds.length !== 1 ? 's' : ''}-compétence{activeBookIds.length !== 1 ? 's' : ''} actif{activeBookIds.length !== 1 ? 's' : ''}
+            </span>
           </div>
         )}
 

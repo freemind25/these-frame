@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   Sparkles, ShieldCheck, Send, Loader2, ClipboardList, ListChecks, Lightbulb, Settings, FileText,
-  PenLine, AlertTriangle, ChevronDown, BookOpen, Target, Info,
+  PenLine, AlertTriangle, ChevronDown, BookOpen, Target, Info, BookMarked,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import { writingSources } from '@/data/thesis-writing-guide'
+import { getBookSkillsForChapter } from '@/data/book-skills'
+import { RESOURCES } from '@/data/resources'
 import { RHETORICAL_CHECKLISTS, SEVERITY_COLORS, SEVERITY_LABELS } from '@/data/rhetorical-checklist'
 import type { RhetoricalMove } from '@/data/rhetorical-checklist'
 import type { ChapterData, ThesisData, ChatMsg } from '@/types/thesis'
@@ -60,6 +62,7 @@ export default function HelpPanel({
   const [checkedMoves, setCheckedMoves] = useState<Set<string>>(new Set())
   const [expandedTip, setExpandedTip] = useState<string | null>(null)
 
+  const recommendedBooks = chapterMeta ? getBookSkillsForChapter(chapterMeta.number).slice(0, 3) : []
   const rhetoricalMoves = chapterMeta ? RHETORICAL_CHECKLISTS[chapterMeta.number] ?? [] : []
   const checkedCount = rhetoricalMoves.filter(m => checkedMoves.has(m.id)).length
 
@@ -154,6 +157,34 @@ export default function HelpPanel({
                   ))}
                 </ul>
               </div>
+
+              {/* Livres recommandés */}
+              {recommendedBooks.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+                      <BookMarked className="h-3.5 w-3.5 text-emerald-600" />
+                      Livres recommandés pour ce chapitre
+                    </h3>
+                    <div className="space-y-1.5">
+                      {recommendedBooks.map((book) => {
+                        const resource = RESOURCES.find(r => r.id === book.id)
+                        const relevance = book.relevance.find(r => r.chapterType === chapterMeta?.number || r.chapterType === 'all')
+                        return (
+                          <div key={book.id} className="text-[11px] text-slate-700 bg-emerald-50/50 border border-emerald-100 rounded-md px-2.5 py-2 leading-relaxed">
+                            <p className="font-semibold text-emerald-800">{book.title}</p>
+                            <p className="text-slate-500 text-[10px]">{book.author}{resource ? ` (${resource.year})` : ''}</p>
+                            {relevance && (
+                              <p className="text-emerald-700/80 text-[10px] mt-1 italic">{relevance.reason}</p>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Moves rhétoriques */}
               <Separator />

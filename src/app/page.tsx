@@ -23,6 +23,7 @@ import IthyResearchPanel from '@/components/thesis/ithy-research'
 import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
 import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
+import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -88,6 +89,25 @@ export default function Home() {
   const [ithyResearchOpen, setIthyResearchOpen] = useState(false)
   const [agileRoadmapOpen, setAgileRoadmapOpen] = useState(false)
   const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
+  const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
+  const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tf_activeBookIds')
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  })
+
+  const toggleActiveBook = useCallback((bookId: string) => {
+    setActiveBookIds(prev => {
+      const next = prev.includes(bookId)
+        ? prev.filter(id => id !== bookId)
+        : prev.length >= 3 ? prev : [...prev, bookId]
+      localStorage.setItem('tf_activeBookIds', JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
 
@@ -618,6 +638,7 @@ export default function Home() {
           onOpenIthyResearch={() => setIthyResearchOpen(true)}
           onOpenAgileRoadmap={() => setAgileRoadmapOpen(true)}
           onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
+          onOpenBookSkills={() => setBookSkillsOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -769,6 +790,7 @@ export default function Home() {
         chapters={thesis?.chapters}
         thesisTitle={thesis?.title}
         thesisField={thesis?.field}
+        activeBookIds={activeBookIds}
       />
 
       <CadragePanel
@@ -819,6 +841,14 @@ export default function Home() {
       <ResourcesPanel
         open={resourcesOpen}
         onOpenChange={setResourcesOpen}
+      />
+
+      <BookSkillsPanel
+        open={bookSkillsOpen}
+        onOpenChange={setBookSkillsOpen}
+        chapterNumber={chapterMeta?.number}
+        activeBookIds={activeBookIds}
+        onToggleBook={toggleActiveBook}
       />
 
       <ProviderSettingsDialog

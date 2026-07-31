@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
+import { getBookSkillSummary } from '@/data/book-skills'
 
 // In-memory conversation store
 const conversations = new Map<string, Array<{ role: string; content: string }>>()
@@ -29,6 +30,7 @@ function buildDirecteurChatSystemPrompt(ctx: {
   problematique?: { quoi: string; comment: string; pourquoi: string }
   hypothese?: string
   userMessage?: string
+  activeBookIds?: string[]
 }): string {
   const parts: string[] = []
 
@@ -114,6 +116,14 @@ Format en conversation :
     parts.push(`\n## BASE DE CONNAISSANCE CONTEXTUELLE\n\n${ficheTexts}\n\nUtilise cette base de connaissance pour fonder tes critiques et tes conseils. Ces critères sont explicites et vérifiables — s'appuyer dessus rend ton évaluation plus précise et plus justifiable.`)
   }
 
+  // ── Active book skills injection ──
+  if (ctx.activeBookIds && ctx.activeBookIds.length > 0) {
+    const bookSummary = getBookSkillSummary(ctx.activeBookIds)
+    if (bookSummary) {
+      parts.push(`\n${bookSummary}\n\nTu peux référencer ces cadres, principes et techniques dans tes retours au doctorant. Nomme-les explicitement quand ils sont pertinents.`)
+    }
+  }
+
   return parts.join('\n')
 }
 
@@ -133,6 +143,7 @@ export async function POST(request: NextRequest) {
       sousDomaine,
       problematique,
       hypothese,
+      activeBookIds,
     } = body as {
       message?: string
       sessionId?: string
@@ -146,6 +157,7 @@ export async function POST(request: NextRequest) {
       sousDomaine?: string
       problematique?: { quoi: string; comment: string; pourquoi: string }
       hypothese?: string
+      activeBookIds?: string[]
     }
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -171,6 +183,7 @@ export async function POST(request: NextRequest) {
       problematique,
       hypothese,
       userMessage: trimmedMessage,
+      activeBookIds,
     })
 
     let history = conversations.get(sid) || [
