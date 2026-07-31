@@ -193,3 +193,38 @@ model ThesisCadrageVersion {
 
   @@unique([cadrageId, version])
 }
+
+// ─── Agile Roadmap (Sprints & Stories) ────────────────────────
+
+model AgileSprint {
+  id          String   @id @default(cuid())
+  thesisId    String
+  sprintNumber Int      @unique
+  phase        String   // "phase_0" | "phase_1" | "phase_2" | "phase_3" | "phase_4"
+  title       String
+  description  String   @default("")
+  deliverable String   @default("")
+  status      String   @default("todo") // todo | in_progress | done
+  startedAt   DateTime?
+  completedAt DateTime?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  stories     AgileStory[]
+
+  @@index([thesisId, phase])
+}
+
+model AgileStory {
+  id          String   @id @default(cuid())
+  sprintId    String
+  title       String
+  description  String   @default("")
+  status      String   @default("todo") // todo | in_progress | done
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sprint      AgileSprint @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  @@index([sprintId, status])
+}

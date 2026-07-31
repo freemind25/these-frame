@@ -1,10 +1,9 @@
 'use client'
 
-import { Library, Download, BookOpen, Cloud, Scale, Search, Newspaper, PenLine, SpellCheck, ShieldCheck, PenTool } from 'lucide-react'
+import { Library, Download, Cloud, Scale, Search, Newspaper, PenLine, SpellCheck, ShieldCheck, PenTool } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import ReferencesTab from '@/components/thesis/references-tab'
 import ExportPdfContent from '@/components/thesis/export-pdf-tab'
-import ArticlesGuideContent from '@/components/thesis/articles-tab'
 import LiteratureSearch from '@/components/thesis/literature-search'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import CloudDriveBackup from '@/components/thesis/cloud-drive-backup'
@@ -23,8 +22,6 @@ interface FeatureDialogsProps {
   setRefsOpen: (v: boolean) => void
   exportOpen: boolean
   setExportOpen: (v: boolean) => void
-  resourcesOpen: boolean
-  setResourcesOpen: (v: boolean) => void
   cloudDriveOpen: boolean
   setCloudDriveOpen: (v: boolean) => void
   balanceOpen: boolean
@@ -53,7 +50,7 @@ interface FeatureDialogsProps {
 }
 
 export default function FeatureDialogs({
-  thesis, refsOpen, setRefsOpen, exportOpen, setExportOpen, resourcesOpen, setResourcesOpen,
+  thesis, refsOpen, setRefsOpen, exportOpen, setExportOpen,
   cloudDriveOpen, setCloudDriveOpen, balanceOpen, setBalanceOpen, literatureOpen, setLiteratureOpen,
   journalFinderOpen, setJournalFinderOpen,
   excalidrawOpen, setExcalidrawOpen,
@@ -81,15 +78,6 @@ export default function FeatureDialogs({
             <DialogTitle className="flex items-center gap-2 text-base"><Download className="h-4 w-4 text-emerald-600" />Export PDF</DialogTitle>
           </DialogHeader>
           <ExportPdfContent />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={resourcesOpen} onOpenChange={setResourcesOpen}>
-        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base"><BookOpen className="h-4 w-4 text-emerald-600" />Guide de redaction scientifique</DialogTitle>
-          </DialogHeader>
-          <ArticlesGuideContent />
         </DialogContent>
       </Dialog>
 

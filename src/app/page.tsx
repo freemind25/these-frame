@@ -20,6 +20,8 @@ import CadragePanel from '@/components/thesis/cadrage-panel'
 import OfficeExportTab from '@/components/thesis/office-export-tab'
 import AutomationPanel from '@/components/thesis/automation-panel'
 import IthyResearchPanel from '@/components/thesis/ithy-research'
+import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
+import ResourcesPanel from '@/components/thesis/resources-panel'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -83,6 +85,7 @@ export default function Home() {
   const [officeOpen, setOfficeOpen] = useState(false)
   const [automationOpen, setAutomationOpen] = useState(false)
   const [ithyResearchOpen, setIthyResearchOpen] = useState(false)
+  const [agileRoadmapOpen, setAgileRoadmapOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
 
@@ -611,6 +614,7 @@ export default function Home() {
           onOpenOffice={() => setOfficeOpen(true)}
           onOpenAutomation={() => setAutomationOpen(true)}
           onOpenIthyResearch={() => setIthyResearchOpen(true)}
+          onOpenAgileRoadmap={() => setAgileRoadmapOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -702,8 +706,6 @@ export default function Home() {
         setRefsOpen={setRefsOpen}
         exportOpen={exportOpen}
         setExportOpen={setExportOpen}
-        resourcesOpen={resourcesOpen}
-        setResourcesOpen={setResourcesOpen}
         cloudDriveOpen={cloudDriveOpen}
         setCloudDriveOpen={setCloudDriveOpen}
         balanceOpen={balanceOpen}
@@ -791,6 +793,16 @@ export default function Home() {
             : text
           handleContentChange(newContent)
         }}
+      />
+
+      <AgileRoadmapPanel
+        open={agileRoadmapOpen}
+        onOpenChange={setAgileRoadmapOpen}
+      />
+
+      <ResourcesPanel
+        open={resourcesOpen}
+        onOpenChange={setResourcesOpen}
       />
 
       <ProviderSettingsDialog
