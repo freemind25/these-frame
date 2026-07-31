@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   Sparkles, ShieldCheck, Send, Loader2, ClipboardList, ListChecks, Lightbulb, Settings, FileText,
-  PenLine, AlertTriangle, ChevronDown, BookOpen,
+  PenLine, AlertTriangle, ChevronDown, BookOpen, Target, Info,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import ChapterBalance from '@/components/thesis/chapter-balance'
 import { writingSources } from '@/data/thesis-writing-guide'
+import { RHETORICAL_CHECKLISTS, SEVERITY_COLORS, SEVERITY_LABELS } from '@/data/rhetorical-checklist'
+import type { RhetoricalMove } from '@/data/rhetorical-checklist'
 import type { ChapterData, ThesisData, ChatMsg } from '@/types/thesis'
 import type { ChapterStructure } from '@/data/chapters-structure'
 
@@ -55,6 +57,20 @@ export default function HelpPanel({
   onDirectorSubmit, directorLoading, directorFeedback,
 }: HelpPanelProps) {
   const [sourcesOpen, setSourcesOpen] = useState(false)
+  const [checkedMoves, setCheckedMoves] = useState<Set<string>>(new Set())
+  const [expandedTip, setExpandedTip] = useState<string | null>(null)
+
+  const rhetoricalMoves = chapterMeta ? RHETORICAL_CHECKLISTS[chapterMeta.number] ?? [] : []
+  const checkedCount = rhetoricalMoves.filter(m => checkedMoves.has(m.id)).length
+
+  const toggleMove = (id: string) => {
+    setCheckedMoves(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   return (
     <aside className="w-[340px] border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-hidden">
@@ -137,6 +153,94 @@ export default function HelpPanel({
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              {/* Moves rhétoriques */}
+              <Separator />
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mb-1.5">
+                  <Target className="h-3.5 w-3.5 text-emerald-600" />
+                  Moves rhétoriques
+                </h3>
+                {rhetoricalMoves.length > 0 ? (
+                  <>
+                    {/* Progress bar */}
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                          style={{ width: rhetoricalMoves.length > 0 ? `${(checkedCount / rhetoricalMoves.length) * 100}%` : '0%' }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-medium tabular-nums whitespace-nowrap">
+                        {checkedCount}/{rhetoricalMoves.length} vérifié(s)
+                      </span>
+                    </div>
+                    {/* Grouped by severity */}
+                    {(['critical', 'important', 'recommended'] as const).map(severity => {
+                      const moves = rhetoricalMoves.filter(m => m.severity === severity)
+                      if (moves.length === 0) return null
+                      return (
+                        <div key={severity} className="mb-2.5 last:mb-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className={cn('h-2 w-2 rounded-full shrink-0', SEVERITY_COLORS[severity])} />
+                            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                              {SEVERITY_LABELS[severity]}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {moves.map((move: RhetoricalMove) => {
+                              const isChecked = checkedMoves.has(move.id)
+                              const isExpanded = expandedTip === move.id
+                              return (
+                                <div
+                                  key={move.id}
+                                  className={cn(
+                                    'rounded-md border px-2.5 py-1.5 transition-colors',
+                                    isChecked
+                                      ? 'bg-emerald-50/70 border-emerald-200'
+                                      : 'bg-white border-slate-150 hover:border-slate-200',
+                                  )}
+                                >
+                                  <label className="flex items-start gap-2 cursor-pointer select-none">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => toggleMove(move.id)}
+                                      className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mt-0.5 accent-emerald-600 shrink-0"
+                                    />
+                                    <span className={cn(
+                                      'text-[11px] leading-relaxed',
+                                      isChecked ? 'text-slate-500 line-through' : 'text-slate-700',
+                                    )}>
+                                      {move.label}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        setExpandedTip(isExpanded ? null : move.id)
+                                      }}
+                                      className="shrink-0 ml-auto mt-0.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                      title={move.tip}
+                                    >
+                                      <Info className="h-3 w-3" />
+                                    </button>
+                                  </label>
+                                  {isExpanded && (
+                                    <p className="text-[10px] text-slate-500 leading-relaxed mt-1 ml-5.5 pl-0.5 border-l-2 border-slate-200">
+                                      {move.tip}
+                                    </p>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </>
+                ) : null}
               </div>
 
               {/* Sources */}

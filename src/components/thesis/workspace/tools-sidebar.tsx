@@ -5,7 +5,7 @@ import {
   MessageSquare, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
-  GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map,
+  GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -30,6 +30,7 @@ const TOOLS = [
   { icon: Zap, label: 'Automatisation', key: 'automation' },
   { icon: Brain, label: 'Recherche Agrégée', key: 'ithyResearch' },
   { icon: Map, label: 'Route Agile', key: 'agileRoadmap' },
+  { icon: PencilRuler, label: 'Déblocage écriture', key: 'writingUnblock' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -57,6 +58,7 @@ interface ToolsSidebarProps {
   onOpenAutomation: () => void
   onOpenIthyResearch: () => void
   onOpenAgileRoadmap: () => void
+  onOpenWritingUnblock: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -68,7 +70,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -91,6 +93,7 @@ export default function ToolsSidebar({
     automation: onOpenAutomation,
     ithyResearch: onOpenIthyResearch,
     agileRoadmap: onOpenAgileRoadmap,
+    writingUnblock: onOpenWritingUnblock,
   }
 
   const handleToolClick = (key: string) => {

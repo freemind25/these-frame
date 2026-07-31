@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
+import { getGuidanceForContext } from '@/data/guidance-fiches'
 
 // In-memory conversation store
 const conversations = new Map<string, Array<{ role: string; content: string }>>()
@@ -27,6 +28,7 @@ function buildDirecteurChatSystemPrompt(ctx: {
   sousDomaine?: string
   problematique?: { quoi: string; comment: string; pourquoi: string }
   hypothese?: string
+  userMessage?: string
 }): string {
   const parts: string[] = []
 
@@ -99,6 +101,19 @@ Format en conversation :
     parts.push(`\n## CONTEXTE DE LA THÈSE\n\n${contextParts.join('\n\n')}`)
   }
 
+  // ── Contextual guidance knowledge base ──
+  let guidanceResult
+  if (ctx.chapterTitle) {
+    guidanceResult = getGuidanceForContext({ chapterTitle: ctx.chapterTitle, signal: 'chapter-structure' })
+  } else if (ctx.userMessage) {
+    guidanceResult = getGuidanceForContext({ userMessage: ctx.userMessage, signal: 'auto' })
+  }
+
+  if (guidanceResult && guidanceResult.fiches.length > 0) {
+    const ficheTexts = guidanceResult.fiches.map(f => `### ${f.title}\n\n${f.content}`).join('\n\n---\n\n')
+    parts.push(`\n## BASE DE CONNAISSANCE CONTEXTUELLE\n\n${ficheTexts}\n\nUtilise cette base de connaissance pour fonder tes critiques et tes conseils. Ces critères sont explicites et vérifiables — s'appuyer dessus rend ton évaluation plus précise et plus justifiable.`)
+  }
+
   return parts.join('\n')
 }
 
@@ -155,6 +170,7 @@ export async function POST(request: NextRequest) {
       sousDomaine,
       problematique,
       hypothese,
+      userMessage: trimmedMessage,
     })
 
     let history = conversations.get(sid) || [

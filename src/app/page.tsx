@@ -21,6 +21,7 @@ import OfficeExportTab from '@/components/thesis/office-export-tab'
 import AutomationPanel from '@/components/thesis/automation-panel'
 import IthyResearchPanel from '@/components/thesis/ithy-research'
 import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
+import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
@@ -86,6 +87,7 @@ export default function Home() {
   const [automationOpen, setAutomationOpen] = useState(false)
   const [ithyResearchOpen, setIthyResearchOpen] = useState(false)
   const [agileRoadmapOpen, setAgileRoadmapOpen] = useState(false)
+  const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
 
@@ -615,6 +617,7 @@ export default function Home() {
           onOpenAutomation={() => setAutomationOpen(true)}
           onOpenIthyResearch={() => setIthyResearchOpen(true)}
           onOpenAgileRoadmap={() => setAgileRoadmapOpen(true)}
+          onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -798,6 +801,19 @@ export default function Home() {
       <AgileRoadmapPanel
         open={agileRoadmapOpen}
         onOpenChange={setAgileRoadmapOpen}
+      />
+
+      <WritingUnblockPanel
+        open={writingUnblockOpen}
+        onOpenChange={setWritingUnblockOpen}
+        chapterTitle={chapterMeta?.title || activeChapter?.title}
+        onInsertText={(text: string) => {
+          const currentContent = activeChapter?.content || ''
+          const newContent = currentContent
+            ? currentContent + '\n\n' + text
+            : text
+          handleContentChange(newContent)
+        }}
       />
 
       <ResourcesPanel
