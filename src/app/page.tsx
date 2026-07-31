@@ -19,6 +19,7 @@ import DirecteurChat from '@/components/thesis/directeur-chat'
 import CadragePanel from '@/components/thesis/cadrage-panel'
 import OfficeExportTab from '@/components/thesis/office-export-tab'
 import AutomationPanel from '@/components/thesis/automation-panel'
+import IthyResearchPanel from '@/components/thesis/ithy-research'
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -81,6 +82,7 @@ export default function Home() {
   const [cadrageOpen, setCadrageOpen] = useState(false)
   const [officeOpen, setOfficeOpen] = useState(false)
   const [automationOpen, setAutomationOpen] = useState(false)
+  const [ithyResearchOpen, setIthyResearchOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<'rich' | 'plain'>('rich')
   const isMobile = useIsMobile()
 
@@ -608,6 +610,7 @@ export default function Home() {
           onOpenCadrage={() => setCadrageOpen(true)}
           onOpenOffice={() => setOfficeOpen(true)}
           onOpenAutomation={() => setAutomationOpen(true)}
+          onOpenIthyResearch={() => setIthyResearchOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -773,6 +776,21 @@ export default function Home() {
         open={automationOpen}
         onOpenChange={setAutomationOpen}
         thesis={thesis}
+      />
+
+      <IthyResearchPanel
+        open={ithyResearchOpen}
+        onOpenChange={setIthyResearchOpen}
+        thesisTitle={thesis?.title}
+        thesisField={thesis?.field}
+        chapterTitle={chapterMeta?.title || activeChapter?.title}
+        onInsertText={(text: string) => {
+          const currentContent = activeChapter?.content || ''
+          const newContent = currentContent
+            ? currentContent + '\n\n' + text
+            : text
+          handleContentChange(newContent)
+        }}
       />
 
       <ProviderSettingsDialog

@@ -5,7 +5,7 @@ import {
   MessageSquare, X, Library, BookOpen, Download, Search,
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
-  GraduationCap, Compass, FileSpreadsheet, Zap,
+  GraduationCap, Compass, FileSpreadsheet, Zap, Brain,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -28,6 +28,7 @@ const TOOLS = [
   { icon: PenTool, label: 'Recherche thèse', key: 'search' },
   { icon: FileSpreadsheet, label: 'Export Word/PPT', key: 'office' },
   { icon: Zap, label: 'Automatisation', key: 'automation' },
+  { icon: Brain, label: 'Recherche Agrégée', key: 'ithyResearch' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -53,6 +54,7 @@ interface ToolsSidebarProps {
   onOpenCadrage: () => void
   onOpenOffice: () => void
   onOpenAutomation: () => void
+  onOpenIthyResearch: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -64,7 +66,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -85,6 +87,7 @@ export default function ToolsSidebar({
     cadrage: onOpenCadrage,
     office: onOpenOffice,
     automation: onOpenAutomation,
+    ithyResearch: onOpenIthyResearch,
   }
 
   const handleToolClick = (key: string) => {
