@@ -56,12 +56,13 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [selectedSources, setSelectedSources] = useState<string[]>(['crossref', 'hal', 'semantic_scholar', 'doaj', 'core'])
+  const [selectedSources, setSelectedSources] = useState<string[]>(['openalex', 'crossref', 'hal', 'semantic_scholar', 'doaj'])
   const [expandedIdx, setExpandedIdx] = useState<number | string | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | string | null>(null)
   const [totalResults, setTotalResults] = useState(0)
   const [sourceErrors, setSourceErrors] = useState<string[]>([])
   const [searchMode, setSearchMode] = useState<'search' | 'doi' | 'recommend' | 'consensus'>('search')
+  const [langFilter, setLangFilter] = useState<string>('all')
 
   // DOI lookup state
   const [doiInput, setDoiInput] = useState('')
@@ -108,7 +109,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
       const res = await fetch('/api/literature-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim(), sources: selectedSources, limit: 10, s2ApiKey }),
+        body: JSON.stringify({ query: query.trim(), sources: selectedSources, limit: 10, s2ApiKey, lang: langFilter }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -464,7 +465,7 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
 
           <Separator />
 
-          {/* Search input */}
+          {/* Language filter (for OpenAlex) + Search input */}
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -476,6 +477,21 @@ export default function LiteratureSearch({ s2ApiKey, consensusApiKey }: Literatu
                 className="pl-9 h-10 text-sm"
               />
             </div>
+            <select
+              value={langFilter}
+              onChange={e => setLangFilter(e.target.value)}
+              className="h-10 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              title="Filtrer par langue (OpenAlex)"
+            >
+              <option value="all">🌐 Toutes langues</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="pt">🇧🇷 Português</option>
+              <option value="ar">🇸🇦 العربية</option>
+              <option value="zh">🇨🇳 中文</option>
+            </select>
             <Button onClick={handleSearch} disabled={!query.trim() || selectedSources.length === 0 || loading} className="h-10 px-4">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               <span className="ml-1.5 text-sm">Chercher</span>

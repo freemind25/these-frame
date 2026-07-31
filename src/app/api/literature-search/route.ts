@@ -50,8 +50,22 @@ async function searchSemanticScholar(query: string, limit: number, apiKey?: stri
 }
 
 // ─── OpenAlex (no key, generous, 250M+ works) ───────────────
-async function searchOpenAlex(query: string, limit: number): Promise<SearchResult[]> {
-  const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per_page=${limit}&select=id,title,authorships,publication_year,cited_by_count,doi,primary_location,type,open_access,is_retracted`
+function invertAbstractIndex(index: Record<string, Record<string, number>>): string {
+  if (!index) return ''
+  const tokens: string[] = []
+  for (const [word, positions] of Object.entries(index)) {
+    for (const pos of Object.keys(positions)) {
+      tokens[parseInt(pos)] = word
+    }
+  }
+  return tokens.join(' ')
+}
+
+async function searchOpenAlex(query: string, limit: number, lang?: string): Promise<SearchResult[]> {
+  let url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per_page=${limit}&select=id,title,authorships,publication_year,cited_by_count,doi,primary_location,type,open_access,is_retracted,abstract_inverted_index,topics,language`
+  if (lang && lang !== 'all') {
+    url += `&filter=language:${lang}`
+  }
   const res = await fetchWithRetry(url, { headers: UA })
   if (!res.ok) return []
   const data = await res.json()
@@ -62,13 +76,19 @@ async function searchOpenAlex(query: string, limit: number): Promise<SearchResul
     const source = (loc.source as Record<string, string>) || {}
     const oa = (r.open_access as Record<string, string>) || {}
     const doi = (r.doi as string)?.replace('https://doi.org/', '') || undefined
+    // Extract abstract from inverted index
+    const abstract = invertAbstractIndex(r.abstract_inverted_index as Record<string, Record<string, number>>)
+    // Best PDF URL: oa_url > primary_location.pdf_url > landing_page
+    const pdfUrl = (loc as any).pdf_url || oa.oa_url || undefined
+    const landingUrl = (loc as any).landing_page_url || (r.doi as string) || undefined
     const result: SearchResult = {
       title: String(r.title || ''),
       authors,
       year: String(r.publication_year || ''),
       source: 'OpenAlex',
       doi,
-      url: oa.oa_url || (r.doi as string) || undefined,
+      url: pdfUrl || landingUrl,
+      abstract: abstract || undefined,
       citationCount: (r.cited_by_count as number) || 0,
       journal: source.display_name || undefined,
       isPreprint: (r.type as string) === 'preprint',
@@ -485,7 +505,7 @@ function deduplicateResults(results: SearchResult[]): SearchResult[] {
 // ─── Main Route ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    const { query, sources = ['openalex', 'crossref'], limit = 10, s2ApiKey } = await request.json()
+    const { query, sources = ['openalex', 'crossref', 'hal', 'semantic_scholar', 'doaj'], limit = 10, s2ApiKey, lang } = await request.json()
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 })
@@ -497,7 +517,7 @@ export async function POST(request: NextRequest) {
     const searches: Promise<SearchResult[]>[] = []
 
     if (sources.includes('semantic_scholar')) searches.push(searchSemanticScholar(query, safeLimit, s2ApiKey as string | undefined))
-    if (sources.includes('openalex')) searches.push(searchOpenAlex(query, safeLimit))
+    if (sources.includes('openalex')) searches.push(searchOpenAlex(query, safeLimit, lang as string | undefined))
     if (sources.includes('crossref')) searches.push(searchCrossref(query, safeLimit))
     if (sources.includes('arxiv')) searches.push(searchArxiv(query, safeLimit))
     if (sources.includes('pubmed')) searches.push(searchPubmed(query, safeLimit))
