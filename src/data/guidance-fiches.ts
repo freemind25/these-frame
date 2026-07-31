@@ -1,4 +1,4 @@
-// Guidance Knowledge Base — 5 fiches for the Directeur IA
+// Guidance Knowledge Base — 7 fiches for the Directeur IA
 // Each fiche is a focused, self-contained knowledge card.
 
 // ─────────────────────────────────────────────
@@ -211,6 +211,115 @@ Les exigences de mise en forme (Chicago/Turabian) sont des conventions nord-amé
 }
 
 // ─────────────────────────────────────────────
+// FICHE 6: Études bibliométriques
+// ─────────────────────────────────────────────
+export const FICHE_BIBLIOMETRIE = {
+  id: 'fiche-bibliometrie',
+  title: 'Études bibliométriques : conduire et interpréter',
+  content: `# Études bibliométriques : conduire et interpréter
+
+Guide pratique pour concevoir, mener et interpréter une étude bibliométrique dans le cadre doctoral.
+
+## Quand l'utiliser
+
+Quand le doctorant doit : positionner son champ de recherche quantitativement, analyser la production scientifique d'un domaine, identifier les auteurs/institutions/pays clés, ou évaluer l'impact de revues.
+
+## Étapes d'une étude bibliométrique
+
+1. **Définir la question de recherche bibliométrique** : que mesure-t-on et pourquoi ? (productivité, collaboration, impact, thématiques émergentes)
+2. **Choisir la/les base(s) de données** : WoS, Scopus, Google Scholar — chacune a sa couverture, ses forces et ses limites. Le choix dépend de la discipline et du type d'analyse.
+3. **Construire la requête documentaire** : mots-clés, opérateurs booléens, troncature, champs. Documenter la requête pour reproductibilité.
+4. **Exporter et nettoyer les données** : éliminer les doublons, vérifier les affiliations, normaliser les noms d'auteurs.
+5. **Analyser** : choisir les indicateurs pertinents (pas tous) selon la question.
+6. **Interpréter avec nuance** : un indicateur seul ne suffit jamais — le croisement est nécessaire.
+
+## Indicateurs clés et quand les utiliser
+
+- **Productivité temporelle** : nombre de publications par an → tendance d'un champ, point de bascule
+- **Productivité par auteur/institution/pays** : qui publie le plus → identification des acteurs clés
+- **Indice de collaboration** : proportion de publications co-écrites → densité du réseau collaboratif
+- **Réseaux de co-auteurs** : cartographie des collaborations → structure communautaire
+- **Facteur d'impact (JCR)** : citations reçues / articles publiés (2 ans) → visibilité d'une revue. Attention : ne pas comparer facteurs d'impact entre disciplines
+- **Facteur d'impact à 5 ans** : même calcul sur 5 ans → plus stable pour les domaines à citation lente
+- **Indice h** : nombre d'articles avec h citations chacun → productivité + impact combinés d'un chercheur
+- **Publication Efficiency Index (PEI)** : (citations du pays / citations totales) / (publications du pays / publications totales) → l'impact correspond-il à l'effort ?
+- **Half-life des citations** : durée médiane pour qu'un article soit cité → vitesse de diffusion
+
+## Pièges courants
+
+- Comparer des indicateurs entre disciplines (le facteur d'impact en mathématiques ≠ en biomédecine)
+- Utiliser un seul indicateur pour tirer une conclusion
+- Ignorer les biais de base de données (couverture disciplinaire, langue, zone géographique)
+- Ne pas documenter la requête de recherche (perte de reproductibilité)
+- Confondre nombre de citations et qualité intrinsèque
+
+## Comment utiliser avec un étudiant
+
+1. Toujours commencer par la question : qu'est-ce qu'on veut mesurer et pourquoi ?
+2. Choisir max 3-4 indicateurs pertinents, pas tout le catalogue
+3. Rappeler qu'une étude bibliométrique ne remplace pas une revue de littérature qualitative — elle la complète`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE 7: Stratégies de recherche documentaire
+// ─────────────────────────────────────────────
+export const FICHE_RECHERCHE_DOCUMENTAIRE = {
+  id: 'fiche-recherche-documentaire',
+  title: 'Stratégies de recherche documentaire',
+  content: `# Stratégies de recherche documentaire
+
+Méthodes systématiques pour chercher, sélectionner et suivre la littérature scientifique.
+
+## Quand l'utiliser
+
+Quand le doctorant débute sa revue de littérature, a du mal à trouver des sources pertinentes, ou doit mettre en place une veille documentaire.
+
+## Développer une requête de recherche efficace
+
+1. **Identifier les aspects principaux** du sujet (décomposer en 2-4 concepts)
+2. **Lister les synonymes et termes alternatifs** pour chaque concept (anglais/français, abréviations, termes voisins)
+3. **Appliquer les techniques de recherche** :
+    - **Recherche de phrase** : guillemets doubles pour chercher une expression exacte ("climate change")
+    - **Troncature** : astérisque pour les variantes d'un mot (environment* → environment, environments, environmental)
+    - **Caractère générique** : point d'interrogation pour une lettre (colo?r → color, colour)
+    - **Opérateurs booléens** : AND (restreindre), OR (élargir), NOT (exclure — utiliser avec prudence)
+4. **Combiner** : (concept1 OR synonyme1) AND (concept2 OR synonyme2)
+
+## Bases de données : choisir la bonne
+
+- **Google Scholar** : bon point de départ, couverture large mais inégale, pas de contrôle de qualité. Permet les alertes et les profils auteurs
+- **WoS / Scopus** : bases de données disciplinaires avec métadonnées structurées, indicateurs de citation, filtrage avancé. Essentielles pour une revue systématique
+- **Bases de données spécialisées** : chaque discipline a ses bases (PubMed, PsycINFO, IEEE Xplore, etc.) — consulter les guides de la bibliothèque
+- **Google avancé** : utile pour la littérature grise, rapports institutionnels, données gouvernementales
+
+## Citer ses sources dès le départ
+
+- Utiliser un gestionnaire de références (Zotero, Mendeley, EndNote) DÈS les premières recherches
+- Exporter systématiquement les résultats de recherche vers le gestionnaire
+- Les métadonnées exportées incluent généralement : auteur, titre, journal, année, DOI — vérifier leur exactitude
+
+## Revue systématique : les exigences supplémentaires
+
+- Protocole écrit AVANT la recherche (question PICO/PCC, critères d'inclusion/exclusion)
+- Recherche documentée et reproductible dans au moins 2 bases de données
+- Tamisage en deux étapes : titre/résumé puis texte intégral
+- Évaluation critique des articles retenus (grilles validées)
+- Synthèse : qualitative (thématique) ou quantitative (méta-analyse)
+
+## Veille documentaire
+
+- Configurer des **alertes de recherche** dans Google Scholar, WoS, Scopus — recevoir les nouveaux articles par email
+- Créer un **profil ORCID** : identifiant pérenne, suivi des publications, liaison avec les systèmes institutionnels
+- Suivre les **revues clés** du domaine (abonnement aux tables des matières)
+
+## Comment utiliser avec un étudiant
+
+1. Faire décomposer le sujet en concepts AVANT de lancer la moindre recherche
+2. Vérifier que la requête booléenne est correcte : trop de résultats = élargir les synonymes ; trop peu = vérifier les termes
+3. Insister sur le gestionnaire de références dès le départ — la reconstruction de bibliographie en fin de parcours est un cauchemar`,
+}
+
+// ─────────────────────────────────────────────
 // All fiches index
 // ─────────────────────────────────────────────
 export const ALL_FICHES = [
@@ -219,6 +328,8 @@ export const ALL_FICHES = [
   FICHE_RHETORIQUE,
   FICHE_INSTITUTIONNELLE,
   FICHE_NORMES,
+  FICHE_BIBLIOMETRIE,
+  FICHE_RECHERCHE_DOCUMENTAIRE,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -227,7 +338,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -244,6 +355,8 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'chapter-structure': [FICHE_RHETORIQUE],
   'institutional': [FICHE_INSTITUTIONNELLE],
   'formatting': [FICHE_NORMES],
+  'bibliometrie': [FICHE_BIBLIOMETRIE],
+  'recherche-doc': [FICHE_RECHERCHE_DOCUMENTAIRE],
 }
 
 // ─────────────────────────────────────────────
@@ -308,6 +421,16 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     patterns: [/structure\s+de\s*chapitre/i, /qu\'est\-ce\s*qui\s*doit/i, /dans\s*mon\s*intro/i, /introduction/i, /revue\s+de/i, /méthodologie/i],
     fiche: FICHE_RHETORIQUE,
     reason: 'Question sur la structure rhétorique détectée dans le message',
+  },
+  {
+    patterns: [/bibliomé/i, /bibliometric/i, /facteur\s+d['\x27]impact/i, /impact\s+factor/i, /indice\s+h/i, /h\-index/i, /citation/i, /productivité\s+scientifique/i],
+    fiche: FICHE_BIBLIOMETRIE,
+    reason: 'Mots-clés bibliométriques détectés dans le message',
+  },
+  {
+    patterns: [/recherche\s+documentaire/i, /littérature/i, /litterature/i, /bases\s+de\s+données/i, /google\s+scholar/i, /scopus/i, /web\s+of\s+science/i, /revue\s+systématique/i, /veille/i, /gestionnaire\s+de\s+référence/i, /zotero/i, /endnote/i, /mendeley/i, /orcid/i],
+    fiche: FICHE_RECHERCHE_DOCUMENTAIRE,
+    reason: 'Mots-clés de recherche documentaire détectés dans le message',
   },
 ]
 

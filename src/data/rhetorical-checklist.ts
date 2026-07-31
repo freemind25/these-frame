@@ -138,9 +138,23 @@ export const RHETORICAL_CHECKLISTS: Record<string, RhetoricalMove[]> = {
     {
       id: 'II-transitions',
       label: 'Phrases de transition entre sections reliant le contenu à votre propre recherche',
-      category: 'style',
-      severity: 'recommended',
+      category: 'style' as const,
+      severity: 'recommended' as const,
       tip: 'Des paragraphes de synthèse entre chaque section montrent les liens logiques et tensions entre courants.',
+    },
+    {
+      id: 'II-biblio-strategie-recherche',
+      label: 'Requête documentaire documentée (bases de données, opérateurs booléens, synonymes)',
+      category: 'structure' as const,
+      severity: 'important' as const,
+      tip: "La stratégie de recherche doit être reproductible : bases consultées, requêtes exactes, périodes. Cela fait partie d'une revue de littérature de qualité.",
+    },
+    {
+      id: 'II-biblio-gestionnaire-ref',
+      label: 'Système de gestion des références utilisé (Zotero, Mendeley, EndNote)',
+      category: 'form' as const,
+      severity: 'recommended' as const,
+      tip: 'Un gestionnaire de références évite la reconstruction laborieuse de la bibliographie en fin de parcours et assure la cohérence des citations.',
     },
   ],
 
