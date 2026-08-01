@@ -24,6 +24,9 @@ import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
 import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
+import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { KeyRound } from 'lucide-react'
 
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
@@ -91,6 +94,7 @@ export default function Home() {
   const [agileRoadmapOpen, setAgileRoadmapOpen] = useState(false)
   const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
   const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
+  const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tf_activeBookIds')
@@ -639,6 +643,7 @@ export default function Home() {
           onOpenAgileRoadmap={() => setAgileRoadmapOpen(true)}
           onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
           onOpenBookSkills={() => setBookSkillsOpen(true)}
+          onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -850,6 +855,19 @@ export default function Home() {
         activeBookIds={activeBookIds}
         onToggleBook={toggleActiveBook}
       />
+
+      {/* ═══ LICENSE ADMIN DIALOG ═══ */}
+      <Dialog open={licenseAdminOpen} onOpenChange={setLicenseAdminOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <KeyRound className="h-4 w-4" />
+              Gestion des licences
+            </DialogTitle>
+          </DialogHeader>
+          <LicenseAdminPanel />
+        </DialogContent>
+      </Dialog>
 
       <ProviderSettingsDialog
         open={providerSettingsOpen}

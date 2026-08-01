@@ -1,14 +1,12 @@
 'use client'
 
-import { GraduationCap, Settings, Trash2, Check, Brain, Zap, ExternalLink, KeyRound } from 'lucide-react'
+import { GraduationCap, Settings, Trash2, Check, Brain, Zap, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useState } from 'react'
-import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 
 interface ProviderSettingsDialogProps {
   open: boolean
@@ -33,11 +31,8 @@ export default function ProviderSettingsDialog({
   open, onOpenChange, aiProvider, setAiProvider, aiApiKey, setAiApiKey, aiBaseUrl, setAiBaseUrl,
   aiModel, setAiModel, s2ApiKey, setS2ApiKey, consensusApiKey, setConsensusApiKey, onSave, onClear,
 }: ProviderSettingsDialogProps) {
-  const [showAdmin, setShowAdmin] = useState(false)
-
   return (
-    <>
-    <Dialog open={open && !showAdmin} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
@@ -184,17 +179,6 @@ export default function ProviderSettingsDialog({
 
           <Separator className="my-1" />
 
-          {/* License Admin */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full text-xs gap-1.5 text-muted-foreground"
-            onClick={() => setShowAdmin(true)}
-          >
-            <KeyRound className="h-3.5 w-3.5" />
-            Gestion des licences (admin)
-          </Button>
-
           <div className="flex items-center justify-between pt-2">
             <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={onClear}>
               <Trash2 className="h-3 w-3 mr-1" />Réinitialiser
@@ -206,19 +190,5 @@ export default function ProviderSettingsDialog({
         </div>
       </DialogContent>
     </Dialog>
-
-    {/* Admin License Panel (separate dialog) */}
-    <Dialog open={showAdmin} onOpenChange={setShowAdmin}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base">
-            <KeyRound className="h-4 w-4" />
-            Gestion des licences
-          </DialogTitle>
-        </DialogHeader>
-        <LicenseAdminPanel />
-      </DialogContent>
-    </Dialog>
-    </>
   )
 }

@@ -6,6 +6,7 @@ import {
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
+  KeyRound,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -32,6 +33,7 @@ const TOOLS = [
   { icon: Map, label: 'Route Agile', key: 'agileRoadmap' },
   { icon: PencilRuler, label: 'Déblocage écriture', key: 'writingUnblock' },
   { icon: BookCheck, label: 'Livres-compétences', key: 'bookSkills' },
+  { icon: KeyRound, label: 'Licences', key: 'licenseAdmin' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -61,6 +63,7 @@ interface ToolsSidebarProps {
   onOpenAgileRoadmap: () => void
   onOpenWritingUnblock: () => void
   onOpenBookSkills: () => void
+  onOpenLicenseAdmin: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -72,7 +75,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenLicenseAdmin, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -97,6 +100,7 @@ export default function ToolsSidebar({
     agileRoadmap: onOpenAgileRoadmap,
     writingUnblock: onOpenWritingUnblock,
     bookSkills: onOpenBookSkills,
+    licenseAdmin: onOpenLicenseAdmin,
   }
 
   const handleToolClick = (key: string) => {
