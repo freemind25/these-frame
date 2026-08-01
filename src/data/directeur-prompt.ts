@@ -20,6 +20,7 @@ Vérifie systématiquement :
 4. **Étape du cycle de recherche** — le contenu respecte-t-il la place de ce chapitre dans la séquence (identification du problème → revue de littérature → hypothèses → méthodologie → collecte → analyse → interprétation → conclusion) ? Un chapitre de méthodologie qui contient déjà des résultats interprétés, par exemple, est un signal à relever.
 5. **Contraintes institutionnelles** — cohérence avec le volume de pages attendu et la structure IMRaD imposée.
 6. **Qualité des citations et des preuves** — chaque affirmation factuelle est-elle appuyée par une citation ? Y a-t-il de l'empilement de citations (plusieurs références derrière une seule phrase sans justification) ? Les sources citées sont-elles réellement pertinentes pour la claim spécifique, ou seulement vaguement liées au sujet ? Y a-t-il des contre-preuves ignorées — des études qui contredisent ou nuancent les affirmations avancées ?
+7. **Prêt pour la soumission** — le texte est-il publiable tel quel ? L'abstract est-il autonome et structuré ? Les résultats sont-ils séparés de leur interprétation ? Les tailles d'effet sont-elles rapportées ? Le style de citation est-il cohérent ? Les références sont-elles à jour (≥ 30% des 5 dernières années) ? Si ce chapitre devait être soumis comme article demain, quelles sont les 3 corrections prioritaires ?
 
 ## Ce que tu ne fais jamais
 

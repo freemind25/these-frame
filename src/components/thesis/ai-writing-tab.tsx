@@ -34,6 +34,9 @@ import {
   Key,
   Server,
   FileCheck,
+  BookA,
+  LineChart,
+  BadgeCheck,
   type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -67,6 +70,7 @@ const iconMap: Record<string, LucideIcon> = {
   BookOpenText, ScanSearch, Languages, ScrollText, Lightbulb,
   Sparkles, Loader2, RotateCcw, Target, Mic, Presentation, Network,
   Settings2, Key, Server, Eye, EyeOff, FileCheck,
+  BookA, LineChart, BadgeCheck,
 }
 
 // ─── AI Providers ─────────────────────────────────────────────────
@@ -143,6 +147,9 @@ const WRITING_MODES = [
   { id: 'theory-building', label: 'Construction théorique', description: 'Construire un cadre conceptuel et intégrer les théories', icon: 'Network', color: 'fuchsia' },
   { id: 'supervision-document', label: 'Plan de supervision', description: 'Générer un document de supervision personnalisé pour votre thèse', icon: 'ClipboardList', color: 'indigo' },
   { id: 'conference-presentation', label: 'Présentation & Soutenance', description: 'Préparer slides, script et gestion du jury', icon: 'Presentation', color: 'cyan' },
+  { id: 'text-explainer', label: 'Expliquateur de texte', description: 'Décomposer et comprendre un passage académique complexe (SciSpace)', icon: 'BookA', color: 'stone' },
+  { id: 'data-analysis-guide', label: 'Guide analyse de données', description: 'Concevoir et interpréter des analyses quantitatives/qualitatives (Julius AI)', icon: 'LineChart', color: 'green' },
+  { id: 'submission-check', label: 'Audit pré-soumission', description: 'Vérification complète en 8 dimensions avant soumission (Paperpal)', icon: 'BadgeCheck', color: 'yellow' },
 ] as const
 
 const MODE_COLORS: Record<string, string> = {
@@ -157,6 +164,9 @@ const MODE_COLORS: Record<string, string> = {
   indigo: 'border-indigo-200 bg-indigo-50 text-indigo-700',
   cyan: 'border-cyan-200 bg-cyan-50 text-cyan-700',
   lime: 'border-lime-200 bg-lime-50 text-lime-700',
+  stone: 'border-stone-200 bg-stone-50 text-stone-700',
+  green: 'border-green-200 bg-green-50 text-green-700',
+  yellow: 'border-yellow-200 bg-yellow-50 text-yellow-700',
 }
 
 const MODE_ACCENT: Record<string, string> = {
@@ -164,6 +174,7 @@ const MODE_ACCENT: Record<string, string> = {
   violet: 'bg-violet-500', rose: 'bg-rose-500', orange: 'bg-orange-500',
   teal: 'bg-teal-500', fuchsia: 'bg-fuchsia-500', indigo: 'bg-indigo-500',
   cyan: 'bg-cyan-500', lime: 'bg-lime-500',
+  stone: 'bg-stone-500', green: 'bg-green-500', yellow: 'bg-yellow-500',
 }
 
 const MODE_TEXT_ACCENT: Record<string, string> = {
@@ -171,6 +182,7 @@ const MODE_TEXT_ACCENT: Record<string, string> = {
   violet: 'text-violet-600', rose: 'text-rose-600', orange: 'text-orange-600',
   teal: 'text-teal-600', fuchsia: 'text-fuchsia-600', indigo: 'text-indigo-600',
   cyan: 'text-cyan-600', lime: 'text-lime-600',
+  stone: 'text-stone-600', green: 'text-green-600', yellow: 'text-yellow-600',
 }
 
 const MODE_BG_LIGHT: Record<string, string> = {
@@ -178,6 +190,7 @@ const MODE_BG_LIGHT: Record<string, string> = {
   violet: 'bg-violet-100', rose: 'bg-rose-100', orange: 'bg-orange-100',
   teal: 'bg-teal-100', fuchsia: 'bg-fuchsia-100', indigo: 'bg-indigo-100',
   cyan: 'bg-cyan-100', lime: 'bg-lime-100',
+  stone: 'bg-stone-100', green: 'bg-green-100', yellow: 'bg-yellow-100',
 }
 
 const PROVIDER_ACCENT: Record<string, string> = {

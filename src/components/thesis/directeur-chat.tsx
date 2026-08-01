@@ -18,6 +18,9 @@ import {
   Wrench,
   Search,
   FileCheck,
+  Map,
+  PenLine,
+  Layers,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
@@ -45,7 +48,7 @@ interface ChapterProgress {
   status: string
 }
 
-type DirecteurMode = 'stress-test' | 'remediation' | 'gap-finding' | 'lr-audit'
+type DirecteurMode = 'stress-test' | 'remediation' | 'gap-finding' | 'lr-audit' | 'cartographie' | 'writing-coach' | 'source-synthesis'
 
 const MODE_CONFIG: { id: DirecteurMode; label: string; icon: typeof Zap; description: string }[] = [
   {
@@ -71,6 +74,24 @@ const MODE_CONFIG: { id: DirecteurMode; label: string; icon: typeof Zap; descrip
     label: 'Audit LR',
     icon: FileCheck,
     description: 'Vérifie si votre revue correspond au type déclaré (narrative / SLR / méta-analyse)',
+  },
+  {
+    id: 'cartographie',
+    label: 'Cartographie',
+    icon: Map,
+    description: 'Mappez votre paysage de recherche : clusters, connexions, zones blanches',
+  },
+  {
+    id: 'writing-coach',
+    label: 'Coach rédaction',
+    icon: PenLine,
+    description: 'Retour rédactionnel : structure, argumentation, flux, hedging académique',
+  },
+  {
+    id: 'source-synthesis',
+    label: 'Synthèse sources',
+    icon: Layers,
+    description: 'Synthèse croisée ancrée dans vos sources fournies',
   },
 ]
 
