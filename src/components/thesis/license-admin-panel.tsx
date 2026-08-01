@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
   DialogContent,
@@ -71,25 +70,16 @@ export default function LicenseAdminPanel() {
   // Generate dialog state
   const [genType, setGenType] = useState('standard')
   const [genCount, setGenCount] = useState(1)
-  const [genNote, setGenNote] = useState('')
   const [genLoading, setGenLoading] = useState(false)
   const [genResult, setGenResult] = useState<string[]>([])
   const [genDialogOpen, setGenDialogOpen] = useState(false)
-
-  // Database is created at server startup via dev script
-
 
   const fetchKeys = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/auth/admin/keys', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action: 'list', adminSecret }),
-      })
+      // GET with secret in URL path — nothing for the proxy to strip
+      const res = await fetch(`/api/admin/${encodeURIComponent(adminSecret)}/keys`)
       let data: Record<string, unknown>
       try {
         data = await res.json()
@@ -106,7 +96,7 @@ export default function LicenseAdminPanel() {
       } else {
         const parts = [data.error || 'Erreur']
         if (data.debug) parts.push(`[${data.debug}]`)
-        if (res.status) parts.push(`(HTTP ${res.status})`)
+        parts.push(`(HTTP ${res.status})`)
         setError(parts.join(' '))
         setAuthenticated(false)
       }
@@ -127,13 +117,10 @@ export default function LicenseAdminPanel() {
     setGenLoading(true)
     setGenResult([])
     try {
-      const res = await fetch('/api/auth/admin/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ licenseType: genType, count: genCount, note: genNote, adminSecret }),
-      })
+      // GET with secret in path, type and count in query
+      const res = await fetch(
+        `/api/admin/${encodeURIComponent(adminSecret)}/generate?type=${genType}&count=${genCount}`
+      )
       const data = await res.json()
       if (data.success) {
         setGenResult(data.keys)
@@ -150,13 +137,10 @@ export default function LicenseAdminPanel() {
 
   const handleAction = async (keyId: string, action: string) => {
     try {
-      const res = await fetch('/api/auth/admin/keys', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ keyId, action, adminSecret }),
-      })
+      const actionParam = action === 'reset-activations' ? 'reset' : action
+      const res = await fetch(
+        `/api/admin/${encodeURIComponent(adminSecret)}/${actionParam}/${keyId}`
+      )
       const data = await res.json()
       if (data.success) fetchKeys()
       else setError(data.error || 'Erreur')
@@ -244,14 +228,6 @@ export default function LicenseAdminPanel() {
                   max={50}
                   value={genCount}
                   onChange={(e) => setGenCount(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Note (optionnel)</label>
-                <Input
-                  placeholder="Ex: Licence pour labo X"
-                  value={genNote}
-                  onChange={(e) => setGenNote(e.target.value)}
                 />
               </div>
               {genResult.length > 0 && (
