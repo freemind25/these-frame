@@ -154,6 +154,37 @@ model NotebookEntry {
   createdAt DateTime @default(now())
 }
 
+// ─── License & Activation ────────────────────────────────────
+
+model LicenseKey {
+  id              String   @id @default(cuid())
+  keyHash         String   @unique          // SHA-256 hash of the license key
+  keyPrefix       String                     // First 8 chars in clear for admin display
+  licenseType     String   @default("standard") // standard | academic | premium | trial
+  status          String   @default("active")    // active | revoked | expired
+  maxActivations  Int      @default(3)
+  currentActivations Int    @default(0)
+  note            String?
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+  activations     Activation[]
+}
+
+model Activation {
+  id           String     @id @default(cuid())
+  licenseKeyId String
+  sessionToken String     @unique          // Token stored in cookie
+  deviceName   String?
+  deviceFingerprint String?
+  ipAddress    String?
+  activatedAt  DateTime   @default(now())
+  lastSeenAt   DateTime   @default(now())
+  licenseKey   LicenseKey @relation(fields: [licenseKeyId], references: [id], onDelete: Cascade)
+
+  @@index([sessionToken])
+  @@index([licenseKeyId])
+}
+
 // ─── Cadrage préalable (ThesisFrame) ──────────────────────────
 
 model ThesisCadrage {
