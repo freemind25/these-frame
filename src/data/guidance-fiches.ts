@@ -320,6 +320,162 @@ Quand le doctorant débute sa revue de littérature, a du mal à trouver des sou
 }
 
 // ─────────────────────────────────────────────
+// FICHE 8: Les 10 composantes du protocole de recherche
+// ─────────────────────────────────────────────
+export const FICHE_COMPOSANTES_RECHERCHE = {
+  id: 'fiche-composantes-recherche',
+  title: 'Les 10 composantes du protocole de recherche',
+  content: `# Les 10 composantes du protocole de recherche
+
+Référentiel structuré pour évaluer la complétude et la cohérence d'un protocole ou d'une proposition de recherche.
+
+## 1. Titre de recherche
+
+Le titre est le premier contact avec le lecteur — il doit refléter le contenu avec précision.
+
+**Composantes obligatoires :**
+- Variable indépendante (VI)
+- Variable dépendante (VD)
+- Relation entre les deux (si applicable)
+- Contexte/population d'étude (optionnel mais recommandé)
+
+**Critères de qualité :**
+- Clair, spécifique, exprime l'objectif
+- 10–20 mots maximum
+- Éviter les formules vagues : « étude sur », « recherche en », « analyse de »
+- Exemples de bonnes formulations :
+  - « L'impact du leadership transformationnel sur la performance au travail : le rôle médiateur de la satisfaction professionnelle »
+
+## 2. Problème de recherche
+
+Le problème est le cœur de l'étude — la lacune cognitive que le chercheur cherche à combler.
+
+**Définition :** une situation, un phénomène ou un ensemble de questions non résolus dans la réalité ou dans les études antérieures.
+
+**Critères de formulation :**
+- Il doit être **clair et spécifique** — pas une question vague
+- Il doit exprimer une **lacune réelle** dans la littérature ou la pratique
+- Il est le fondement sur lequel sont construits les objectifs, hypothèses et méthodologie
+- Il doit refléter un **besoin scientifique légitime** de mener l'étude
+
+**Vérification :** demander au doctorant « pourquoi cette question n'a-t-elle pas encore été résolue ? » — s'il ne peut pas répondre, le problème est mal formulé.
+
+## 3. Objectifs de recherche
+
+Les objectifs sont les résultats spécifiques que le chercheur vise à atteindre.
+
+**Caractéristiques :**
+- Clairs et vérifiables
+- Mesurables et testables
+- Réalisables avec les ressources disponibles
+- En lien direct avec le problème de recherche
+
+**Types :**
+- **Objectif général** : l'ambition globale de l'étude
+- **Objectifs spécifiques** : les sous-résultats qui composent l'objectif général (répondre aux sous-questions)
+
+**Erreur fréquente :** confondre objectif (ce qu'on veut atteindre) et activité (ce qu'on va faire).
+
+## 4. Questions de recherche
+
+Les questions décomposent le problème en interrogations auxquelles l'étude doit répondre.
+
+**Types :**
+1. **Questions descriptives** : décrire un phénomène ou un sujet
+2. **Questions explicatives** : expliquer les relations entre variables
+3. **Questions comparatives** : comparer des groupes ou des individus
+4. **Questions exploratoires** : explorer un domaine peu documenté
+
+**Critères de qualité :**
+- Chaque question doit être directement liée à un objectif
+- Formulées de manière ouverte (pas de yes/no)
+- Nombre limité (3–5 questions principales)
+
+## 5. Hypothèses de recherche
+
+Une hypothèse est une réponse provisoire à une question de recherche, testable statistiquement.
+
+**Caractéristiques :**
+- Claires et spécifiques
+- Testables empiriquement
+- Mesurables via les données collectées
+- Formulent une relation entre deux variables ou plus
+- Dérivées de la théorie et des études antérieures
+
+**Types :**
+- H1 (hypothèse principale) : relation directe entre VI et VD
+- H2, H3… (sous-hypothèses) : relations spécifiques ou médiations
+- H0 (hypothèse nulle) : absence de relation
+
+## 6. Signification/Importance de la recherche
+
+La valeur scientifique et pratique que la recherche ajoute.
+
+**4 dimensions :**
+1. **Scientifique (académique)** : contribution au développement de la connaissance
+2. **Pratique (appliquée)** : solutions ou recommandations applicables
+3. **Sociale** : amélioration de l'environnement ou des pratiques
+4. **Économique** : amélioration de l'efficience ou réduction des coûts
+
+## 7. Limites de la recherche
+
+Les limites définissent le périmètre de l'étude et protègent contre les critiques hors-sujet.
+
+**2 catégories :**
+- **Limites subjectives** : le sujet, la population, les variables, les hypothèses, les outils — ce que le chercheur a choisi d'inclure
+- **Limites objectives** : le temps, le lieu, l'échantillon — les contraintes réelles
+
+**Piège :** ne pas confondre limites (ce qu'on ne fait pas) et faiblesses (ce qu'on aurait dû faire).
+
+## 8. Méthodologie de recherche
+
+La méthodologie est le plan d'action pour atteindre les objectifs.
+
+**Composantes :**
+1. **Type de recherche** : descriptive, analytique, expérimentale, quasi-expérimentale, corrélationnelle, qualitative, mixte
+2. **Population d'étude** : l'ensemble des individus ou unités concernés
+3. **Échantillon** : la partie représentative de la population (taille, méthode d'échantillonnage)
+4. **Outil de collecte** : questionnaire, entretien, observation, analyse de contenu, tests
+5. **Méthode d'analyse** : statistiques descriptives, inférentielles, analyse thématique, analyse de contenu
+
+**Règle d'or :** chaque choix méthodologique doit être justifié par une citation méthodologique — pas seulement décrit.
+
+## 9. Variables et cadre conceptuel
+
+**Types de variables :**
+1. **Variable indépendante (VI)** : celle qui varie de manière autonome, dont l'effet est étudié
+2. **Variable dépendante (VD)** : celle qui change en conséquence de la VI
+3. **Variable médiatrice** : transmet l'effet de la VI vers la VD
+4. **Variable modératrice** : modifie la force ou la direction de la relation VI→VD
+
+**Cadre conceptuel :** schéma qui visualise les relations hypothétisées entre toutes les variables. Il doit être :
+- Ancré dans la théorie existante
+- Explicitement connecté à chaque hypothèse
+- Distinguant clairement antécédents, médiateurs, modérateurs et résultats
+
+## 10. Résultats, discussion, conclusions et recommandations
+
+**Présentation des résultats :**
+- Utiliser les outils statistiques appropriés
+- Présenter via tableaux et graphiques clairs
+- Ne pas interpréter dans cette section — seulement rapporter
+
+**Discussion :**
+- Interpréter les résultats en lien avec les objectifs et la littérature
+- Comparer avec les études antérieures (convergence ou divergence)
+- Évaluer l'originalité et la contribution
+- Discuter les implications théoriques et pratiques
+
+**Conclusions :**
+- Répondre à chaque question de recherche
+- Synthétiser sans introduire de nouvelles informations
+
+**Recommandations :**
+- Pour la pratique professionnelle
+- Pour les futures recherches (ouvrir vers les lacunes identifiées)`,
+}
+
+// ─────────────────────────────────────────────
 // All fiches index
 // ─────────────────────────────────────────────
 export const ALL_FICHES = [
@@ -330,6 +486,7 @@ export const ALL_FICHES = [
   FICHE_NORMES,
   FICHE_BIBLIOMETRIE,
   FICHE_RECHERCHE_DOCUMENTAIRE,
+  FICHE_COMPOSANTES_RECHERCHE,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -338,7 +495,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -357,6 +514,7 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'formatting': [FICHE_NORMES],
   'bibliometrie': [FICHE_BIBLIOMETRIE],
   'recherche-doc': [FICHE_RECHERCHE_DOCUMENTAIRE],
+  'methodologie': [FICHE_COMPOSANTES_RECHERCHE],
 }
 
 // ─────────────────────────────────────────────
@@ -372,8 +530,12 @@ const CHAPTER_KEYWORDS: Array<{ patterns: RegExp[]; fiche: { id: string; title: 
     fiche: FICHE_RHETORIQUE,
   },
   {
+    patterns: [/problémat/i, /problématique/i, /hypothèse/i, /hypothese/i, /variable/i, /protocole/i, /objectif/i, /échantill/i],
+    fiche: FICHE_COMPOSANTES_RECHERCHE,
+  },
+  {
     patterns: [/méthod/i, /methodo/i, /methodolog/i],
-    fiche: FICHE_RHETORIQUE,
+    fiche: FICHE_COMPOSANTES_RECHERCHE,
   },
   {
     patterns: [/résultat/i, /resultat/i, /résult/i, /result/i],
@@ -423,7 +585,12 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     reason: 'Question sur la structure rhétorique détectée dans le message',
   },
   {
-    patterns: [/bibliomé/i, /bibliometric/i, /facteur\s+d['\x27]impact/i, /impact\s+factor/i, /indice\s+h/i, /h\-index/i, /citation/i, /productivité\s+scientifique/i],
+    patterns: [/variable\s+(indep|dépen|médiat|modérat)/i, /cadre\s+conceptuel/i, /hypoth[eè]s/i, /probl[eè]me\s+de\s+recherche/i, /objectif\s+de\s+recherche/i, /question\s+de\s+recherche/i, /signification\s+de\s+la\s+recherche/i, /limite\s+de\s+la\s+recherche/i, /échantill/i, /protocole\s+de\s+recherche/i, /méthodolog/i, /méthode\s+d['\x27]analyse/i, /population\s+d['\x27][ée]tude/i],
+    fiche: FICHE_COMPOSANTES_RECHERCHE,
+    reason: 'Mots-clés de méthodologie et composantes de recherche détectés',
+  },
+  {
+    patterns: [/bibliomé/i, /bibliometric/i, /facteur\s+d['\x27]impact/i, /impact\s+factor/i, /indice\s+h/i, /h\-index/i, /productivité\s+scientifique/i],
     fiche: FICHE_BIBLIOMETRIE,
     reason: 'Mots-clés bibliométriques détectés dans le message',
   },
