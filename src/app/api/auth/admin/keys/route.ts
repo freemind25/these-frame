@@ -41,8 +41,9 @@ export async function GET(req: NextRequest) {
       })),
     })
   } catch (error) {
-    console.error('[auth/admin/keys] Error:', error)
-    return NextResponse.json({ success: false, error: 'Erreur interne' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[auth/admin/keys] Error:', msg, error)
+    return NextResponse.json({ success: false, error: 'Erreur interne du serveur', debug: msg }, { status: 500 })
   }
 }
 
@@ -90,7 +91,8 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: false, error: 'Action non reconnue' }, { status: 400 })
   } catch (error) {
-    console.error('[auth/admin/keys DELETE] Error:', error)
-    return NextResponse.json({ success: false, error: 'Erreur interne' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[auth/admin/keys DELETE] Error:', msg, error)
+    return NextResponse.json({ success: false, error: 'Erreur interne du serveur', debug: msg }, { status: 500 })
   }
 }

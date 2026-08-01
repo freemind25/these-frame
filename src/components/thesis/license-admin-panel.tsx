@@ -87,11 +87,12 @@ export default function LicenseAdminPanel() {
         setAuthenticated(true)
         localStorage.setItem('tf_admin_secret', adminSecret)
       } else {
-        setError(data.error || 'Non autorisé')
+        const debugMsg = data.debug ? ` (${data.debug})` : ''
+        setError(data.error || 'Non autorisé' + debugMsg)
         setAuthenticated(false)
       }
     } catch {
-      setError('Erreur de connexion')
+      setError('Erreur de connexion au serveur')
       setAuthenticated(false)
     } finally {
       setLoading(false)
