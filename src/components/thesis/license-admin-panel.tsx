@@ -88,9 +88,17 @@ export default function LicenseAdminPanel() {
         },
         body: JSON.stringify({ action: 'list' }),
       })
-      const data = await res.json()
+      let data: Record<string, unknown>
+      try {
+        data = await res.json()
+      } catch {
+        const text = await res.text().catch(() => '')
+        setError(`Réponse invalide (HTTP ${res.status}) : ${text.slice(0, 200)}`)
+        setAuthenticated(false)
+        return
+      }
       if (data.success) {
-        setKeys(data.keys)
+        setKeys(data.keys as LicenseKeyEntry[])
         setAuthenticated(true)
         localStorage.setItem('tf_admin_secret', adminSecret)
       } else {
