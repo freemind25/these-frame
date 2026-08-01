@@ -93,8 +93,11 @@ function ChapterTab({
 
   return (
     <div ref={tabRef} className="relative shrink-0 group/tab px-1">
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onSelect}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect() } }}
         className={cn(
           'relative flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left transition-all duration-200 cursor-pointer border',
           isActive
@@ -147,7 +150,7 @@ function ChapterTab({
         {isActive && (
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-current opacity-40" />
         )}
-      </button>
+      </div>
 
       {/* Dropdown menu */}
       {showMenu && (

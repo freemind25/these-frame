@@ -107,7 +107,11 @@ export async function POST(req: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('[auth/activate] Error:', error)
-    return NextResponse.json({ success: false, error: 'Erreur interne du serveur' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[auth/activate] Error:', msg, error)
+    return NextResponse.json(
+      { success: false, error: 'Erreur interne du serveur', debug: process.env.NODE_ENV !== 'production' ? msg : undefined },
+      { status: 500 },
+    )
   }
 }
