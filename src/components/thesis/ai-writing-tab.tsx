@@ -33,6 +33,7 @@ import {
   EyeOff,
   Key,
   Server,
+  FileCheck,
   type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -65,7 +66,7 @@ const iconMap: Record<string, LucideIcon> = {
   MessageSquare, CheckCircle2, PenTool, FileText, GraduationCap,
   BookOpenText, ScanSearch, Languages, ScrollText, Lightbulb,
   Sparkles, Loader2, RotateCcw, Target, Mic, Presentation, Network,
-  Settings2, Key, Server, Eye, EyeOff,
+  Settings2, Key, Server, Eye, EyeOff, FileCheck,
 }
 
 // ─── AI Providers ─────────────────────────────────────────────────
@@ -133,6 +134,7 @@ function saveProviderConfig(cfg: ProviderConfig) {
 const WRITING_MODES = [
   { id: 'scientific-writing', label: 'Rédaction scientifique', description: 'Rédiger ou améliorer une section de thèse selon les normes IMRaD', icon: 'PenTool', color: 'emerald' },
   { id: 'literature-review', label: 'Revue de littérature', description: 'Synthétiser des travaux, identifier les lacunes et structurer une revue', icon: 'BookOpenText', color: 'sky' },
+  { id: 'systematic-review', label: 'Revue systématique & MA', description: 'Planifier et rédiger une SLR/méta-analyse conforme PRISMA 2020', icon: 'FileCheck', color: 'lime' },
   { id: 'peer-review', label: 'Relecture critique', description: 'Évaluer la rigueur, la clarté et la cohérence de votre texte', icon: 'ScanSearch', color: 'amber' },
   { id: 'paraphrase', label: 'Paraphrase & Amélioration', description: 'Reformuler, enrichir le vocabulaire et corriger le style', icon: 'Languages', color: 'violet' },
   { id: 'abstract', label: 'Résumé & Abstract', description: 'Générer un résumé structuré ou un abstract en français/anglais', icon: 'ScrollText', color: 'rose' },
@@ -154,27 +156,28 @@ const MODE_COLORS: Record<string, string> = {
   fuchsia: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
   indigo: 'border-indigo-200 bg-indigo-50 text-indigo-700',
   cyan: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+  lime: 'border-lime-200 bg-lime-50 text-lime-700',
 }
 
 const MODE_ACCENT: Record<string, string> = {
   emerald: 'bg-emerald-500', sky: 'bg-sky-500', amber: 'bg-amber-500',
   violet: 'bg-violet-500', rose: 'bg-rose-500', orange: 'bg-orange-500',
   teal: 'bg-teal-500', fuchsia: 'bg-fuchsia-500', indigo: 'bg-indigo-500',
-  cyan: 'bg-cyan-500',
+  cyan: 'bg-cyan-500', lime: 'bg-lime-500',
 }
 
 const MODE_TEXT_ACCENT: Record<string, string> = {
   emerald: 'text-emerald-600', sky: 'text-sky-600', amber: 'text-amber-600',
   violet: 'text-violet-600', rose: 'text-rose-600', orange: 'text-orange-600',
   teal: 'text-teal-600', fuchsia: 'text-fuchsia-600', indigo: 'text-indigo-600',
-  cyan: 'text-cyan-600',
+  cyan: 'text-cyan-600', lime: 'text-lime-600',
 }
 
 const MODE_BG_LIGHT: Record<string, string> = {
   emerald: 'bg-emerald-100', sky: 'bg-sky-100', amber: 'bg-amber-100',
   violet: 'bg-violet-100', rose: 'bg-rose-100', orange: 'bg-orange-100',
   teal: 'bg-teal-100', fuchsia: 'bg-fuchsia-100', indigo: 'bg-indigo-100',
-  cyan: 'bg-cyan-100',
+  cyan: 'bg-cyan-100', lime: 'bg-lime-100',
 }
 
 const PROVIDER_ACCENT: Record<string, string> = {

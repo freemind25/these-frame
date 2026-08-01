@@ -17,6 +17,7 @@ import {
   Zap,
   Wrench,
   Search,
+  FileCheck,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
@@ -44,7 +45,7 @@ interface ChapterProgress {
   status: string
 }
 
-type DirecteurMode = 'stress-test' | 'remediation' | 'gap-finding'
+type DirecteurMode = 'stress-test' | 'remediation' | 'gap-finding' | 'lr-audit'
 
 const MODE_CONFIG: { id: DirecteurMode; label: string; icon: typeof Zap; description: string }[] = [
   {
@@ -64,6 +65,12 @@ const MODE_CONFIG: { id: DirecteurMode; label: string; icon: typeof Zap; descrip
     label: 'Lacunes',
     icon: Search,
     description: 'Identifie les lacunes empiriques, théoriques et méthodologiques',
+  },
+  {
+    id: 'lr-audit',
+    label: 'Audit LR',
+    icon: FileCheck,
+    description: 'Vérifie si votre revue correspond au type déclaré (narrative / SLR / méta-analyse)',
   },
 ]
 

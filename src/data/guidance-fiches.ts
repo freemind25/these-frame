@@ -476,6 +476,77 @@ La méthodologie est le plan d'action pour atteindre les objectifs.
 }
 
 // ─────────────────────────────────────────────
+// FICHE 9: Typologie des revues de littérature
+// ─────────────────────────────────────────────
+export const FICHE_REVUE_LITTERATURE = {
+  id: 'fiche-revue-litterature',
+  title: 'Typologie des revues de littérature : narrative, systématique, méta-analyse',
+  content: `# Typologie des revues de littérature
+
+Trois types distincts de revue, avec des niveaux de rigueur, des objectifs et des méthodologies différents.
+
+## 1. Revue de littérature narrative
+
+**Objectif :** Vue d'ensemble complète et analyse critique pour cartographier l'état des connaissances, identifier les lacunes et offrir des perspectives.
+
+**Méthodologie :** Processus souple, inclusion basée sur la pertinence et le jugement du chercheur.
+
+**Synthèse :** Narrative et critique — organisation thématique, chronologique ou conceptuelle.
+
+**Format :** Article de revue, chapitre de thèse, section introductive.
+
+**Pièges courants :**
+- Empiler des résumés sans synthèse critique
+- Absence de fil conducteur logique
+- Ignorer les contre-preuves
+
+## 2. Revue systématique de littérature (SLR)
+
+**Objectif :** Répondre à une question de recherche spécifique de manière rigoureuse et reproductible.
+
+**Méthodologie :** Processus exhaustif et hautement structuré (PRISMA), critères d'inclusion/exclusion stricts et cohérents.
+
+**Synthèse :** Narrative hautement structurée et qualitative.
+
+**Format :** Article de revue ou de recherche, lignes directrices PRISMA.
+
+**Pièges courants :**
+- Appeler « systématique » sans suivre PRISMA
+- Critères d'éligibilité vagues
+- Absence de flow diagram
+- Pas d'évaluation du risque de biais
+
+## 3. Méta-analyse
+
+**Objectif :** Produire une estimation quantitative précise d'un effet (taille d'effet) au sein d'une revue systématique.
+
+**Méthodologie :** Processus exhaustif (comme SLR) + analyse statistique des données collectées.
+
+**Synthèse :** Qualitative ET quantitative — tailles d'effet pondérées, test d'hétérogénéité (I²), forêt plot.
+
+**Format :** Au sein d'une revue systématique ou article quantitatif autonome.
+
+**Pièges courants :**
+- Combiner des études hétérogènes (I² > 50%) sans justification
+- Ne pas rapporter l'hétérogénéité
+- Oublier l'analyse de biais de publication (funnel plot)
+- Ne pas utiliser GRADE
+
+## Distinction clé
+
+- Toute méta-analyse est incluse dans une revue systématique, mais toute revue systématique ne contient pas de méta-analyse.
+- Une revue narrative ne peut PAS être qualifiée de « systématique » — ce sont des méthodes différentes.
+- Si le doctorant hésite, la revue narrative est le défaut raisonnable pour un chapitre de thèse ; la SLR/méta-analyse sont des publications à part entière.
+
+## Quand rediriger vers quel type ?
+
+- Chapitre de thèse standard → Revue narrative
+- Article méthodologique avec question PICO → SLR
+- Données quantitatives comparables across études → Méta-analyse
+- Le doctorant dit « revue systématique » mais la méthode est narrative → Le signaler`,
+}
+
+// ─────────────────────────────────────────────
 // All fiches index
 // ─────────────────────────────────────────────
 export const ALL_FICHES = [
@@ -487,6 +558,7 @@ export const ALL_FICHES = [
   FICHE_BIBLIOMETRIE,
   FICHE_RECHERCHE_DOCUMENTAIRE,
   FICHE_COMPOSANTES_RECHERCHE,
+  FICHE_REVUE_LITTERATURE,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -495,7 +567,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -515,6 +587,7 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'bibliometrie': [FICHE_BIBLIOMETRIE],
   'recherche-doc': [FICHE_RECHERCHE_DOCUMENTAIRE],
   'methodologie': [FICHE_COMPOSANTES_RECHERCHE],
+  'revue-litterature': [FICHE_REVUE_LITTERATURE],
 }
 
 // ─────────────────────────────────────────────
@@ -524,6 +597,10 @@ const CHAPTER_KEYWORDS: Array<{ patterns: RegExp[]; fiche: { id: string; title: 
   {
     patterns: [/intro/i],
     fiche: FICHE_RHETORIQUE,
+  },
+  {
+    patterns: [/revue\s+de\s+litt[ée]rature/i, /revue\s+syst[ée]matique/i, /m[ée]ta-analyse/i, /meta-analysis/i],
+    fiche: FICHE_REVUE_LITTERATURE,
   },
   {
     patterns: [/revue/i, /littérature/i, /litterature/i, /bibliograph/i],
@@ -598,6 +675,11 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     patterns: [/recherche\s+documentaire/i, /littérature/i, /litterature/i, /bases\s+de\s+données/i, /google\s+scholar/i, /scopus/i, /web\s+of\s+science/i, /revue\s+systématique/i, /veille/i, /gestionnaire\s+de\s+référence/i, /zotero/i, /endnote/i, /mendeley/i, /orcid/i],
     fiche: FICHE_RECHERCHE_DOCUMENTAIRE,
     reason: 'Mots-clés de recherche documentaire détectés dans le message',
+  },
+  {
+    patterns: [/revue\s+de\s+litt[ée]rature/i, /revue\s+syst[ée]matique/i, /m[ée]ta-analyse/i, /meta-analysis/i, /PRISMA/i, /prisma/i, /PICO/i, /pico/i, /flow\s+diagram/i, /GRADE/i, /hétérog[ée]n[ée]it[ée]/i, /taille\s+d[\x27']effet/i, /funnel\s+plot/i, /for[êe]t\s+plot/i],
+    fiche: FICHE_REVUE_LITTERATURE,
+    reason: 'Mots-clés de typologie de revue de littérature détectés dans le message',
   },
 ]
 

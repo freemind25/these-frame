@@ -3,6 +3,7 @@ import { getZAI } from '@/lib/zai'
 import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
 import { getBookSkillSummary } from '@/data/book-skills'
+import { LR_DIMENSIONS, LR_TYPE_PROFILE } from '@/data/lr-typology'
 
 // ── Specialized mode instructions ──
 const MODE_INSTRUCTIONS: Record<string, string> = {
@@ -11,6 +12,33 @@ const MODE_INSTRUCTIONS: Record<string, string> = {
   'remediation': `\n## MODE SPÉCIAL : REMÉDIATION DE SECTION FAIBLE\n\nLe doctorant te demande de l'aider à remédier une section qui a été jugée faible. Applique ce protocole :\n1. Analyser les faiblesses signalées (par un directeur, un comité, ou un reviewer).\n2. Ne PAS proposer un simple copy-edit — identifier ce qui manque fondamentalement (preuves insuffisantes, argumentation circulaire, absence de contre-preuves).\n3. Pour chaque faiblesse, indiquer :\n   - Ce qui manque précisément\n   - Le type de source ou de preuve qui permettrait de combler la lacune\n   - Si la faiblesse est rédactionnelle (structurer mieux) ou évidentielle (manque de sources)\n4. Produire un plan d'action concret avec des étapes numérotées.\n5. L'approche de remédiation doit repartir de la découverte (nouvelles preuves), pas d'un simple ré-écriture.\n\nNe rédige jamais de texte de thèse — guide le travail de remédiation.`,
 
   'gap-finding': `\n## MODE SPÉCIAL : ANALYSE DE LACUNES (GAP-FINDING)\n\nLe doctorant te demande d'analyser les lacunes dans un domaine de recherche. Applique ce protocole :\n1. Identifier ce qui a été largement étudié dans le domaine (consensus établi, revues systématiques existantes).\n2. Identifier les populations, contextes ou méthodologies sous-représentés.\n3. Chercher les déclarations explicites du type « future research should… » dans les travaux récents.\n4. Distinguer trois types de lacunes :\n   - **Lacune empirique** : ce qui n'a pas encore été mesuré ou testé\n   - **Lacune théorique** : ce qui manque dans les cadres conceptuels existants\n   - **Lacune méthodologique** : les designs, instruments ou approches non encore appliqués à cette question\n5. Conclure par la lacune la plus prometteuse pour le doctorant, en justifiant pourquoi elle est à la fois faisable et scientifiquement pertinente.\n\nNe rédige jamais de texte de thèse — identifie et évalue les lacunes.`,
+
+  'lr-audit': `
+## MODE SPÉCIAL : AUDIT TYPOLOGIQUE DE REVUE DE LITTÉRATURE
+
+Le doctorant te demande d'auditer une revue de littérature pour vérifier si sa méthode correspond au type de revue déclaré.
+
+RÉFÉRENTIEL DE COMPARAISON (6 dimensions) :
+${LR_DIMENSIONS.map(d => `**${d.label}**
+  - Narrative : ${d.narrative}\n  - SLR : ${d.systematic}\n  - Méta-analyse : ${d.metaAnalysis}`).join('\n\n')}
+
+PROTOCOLE D'AUDIT :
+1. **Identifier le type déclaré** — Le doctorant qualifie-t-il sa revue de « narrative », « systématique » ou « méta-analyse » ? Si aucun type n'est déclaré, identifier le type le plus probable d'après le contenu.
+2. **Auditer chaque dimension** — Pour les 6 dimensions ci-dessus, vérifier si le contenu du doctorant correspond au profil attendu du type déclaré :
+   - **Objectif** : la revue répond-elle à une question ciblée ou offre-t-elle un panorama large ?
+   - **Périmètre** : est-il cohérent avec le type ?
+   - **Processus de recherche** : y a-t-il un protocole structuré (PRISMA) ou une approche souple ?
+   - **Critères d'inclusion** : sont-ils stricts et justifiés ou basés sur la discrétion ?
+   - **Synthèse** : narrative, narrative structurée, ou quantitative (tailles d'effet) ?
+   - **Format** : est-il adapté au type ?
+3. **Pièges spécifiques par type** :
+   - Pour SLR : absence de flow diagram, critères non justifiés, pas de risk of bias, pas de protocole PRISMA
+   - Pour méta-analyse : hétérogénéité non rapportée, pas de forêt plot, pas de funnel plot, pas de GRADE
+   - Pour narrative : erreur de se qualifier de « systématique » sans le être
+4. **Verdict** — Classer chaque dimension comme : ✅ conforme, ⚠️ partiellement conforme, ❌ non conforme.
+5. **Recommandation** — Si le type déclaré ne correspond pas au contenu, proposer de requalifier la revue OU de renforcer la méthodologie pour correspondre au type déclaré.
+
+Ne rédige jamais de texte de thèse — audite et recommande.`,
 }
 
 // In-memory conversation store
@@ -158,7 +186,7 @@ export async function POST(request: NextRequest) {
       message?: string
       sessionId?: string
       clearHistory?: boolean
-      mode?: 'stress-test' | 'remediation' | 'gap-finding'
+      mode?: 'stress-test' | 'remediation' | 'gap-finding' | 'lr-audit'
       chapterTitle?: string
       chapterNumber?: string
       chapterContent?: string
