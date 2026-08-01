@@ -5,18 +5,20 @@ import { addDays } from 'date-fns'
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'tf-admin-2024'
 
+function checkAuth(req: NextRequest, body?: Record<string, unknown>): boolean {
+  const headerAuth = req.headers.get('authorization')
+  const bodySecret = (body?.adminSecret as string) || ''
+  if (headerAuth === `Bearer ${ADMIN_SECRET}` || bodySecret === ADMIN_SECRET) return true
+  const url = new URL(req.url)
+  return url.searchParams.get('admin_secret') === ADMIN_SECRET
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Auth check: header, body, or query param
-    const headerAuth = req.headers.get('authorization')
-    const bodySecret = body.adminSecret || ''
-    const url = new URL(req.url)
-    const querySecret = url.searchParams.get('admin_secret') || ''
-
-    if (headerAuth !== `Bearer ${ADMIN_SECRET}` && bodySecret !== ADMIN_SECRET && querySecret !== ADMIN_SECRET) {
-      return NextResponse.json({ success: false, error: 'Non autorisé' }, { status: 401 })
+    if (!checkAuth(req, body)) {
+      return NextResponse.json({ success: false, error: 'Non autorise' }, { status: 401 })
     }
 
     const licenseType = body.licenseType || 'standard'

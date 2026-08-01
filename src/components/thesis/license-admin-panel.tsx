@@ -80,7 +80,14 @@ export default function LicenseAdminPanel() {
  setLoading(true)
     setError('')
     try {
-      const res = await fetch(`/api/auth/admin/keys?admin_secret=${encodeURIComponent(adminSecret)}`)
+      const res = await fetch('/api/auth/admin/keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminSecret}`,
+        },
+        body: JSON.stringify({ action: 'list' }),
+      })
       const data = await res.json()
       if (data.success) {
         setKeys(data.keys)
@@ -109,8 +116,11 @@ export default function LicenseAdminPanel() {
     try {
       const res = await fetch('/api/auth/admin/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminSecret, licenseType: genType, count: genCount, note: genNote }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminSecret}`,
+        },
+        body: JSON.stringify({ licenseType: genType, count: genCount, note: genNote }),
       })
       const data = await res.json()
       if (data.success) {
@@ -130,8 +140,11 @@ export default function LicenseAdminPanel() {
     try {
       const res = await fetch('/api/auth/admin/keys', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminSecret, keyId, action }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminSecret}`,
+        },
+        body: JSON.stringify({ keyId, action }),
       })
       const data = await res.json()
       if (data.success) fetchKeys()
