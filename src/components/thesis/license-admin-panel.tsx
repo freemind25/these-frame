@@ -94,12 +94,15 @@ export default function LicenseAdminPanel() {
         setAuthenticated(true)
         localStorage.setItem('tf_admin_secret', adminSecret)
       } else {
-        const debugMsg = data.debug ? ` (${data.debug})` : ''
-        setError(data.error || 'Non autorisé' + debugMsg)
+        const parts = [data.error || 'Erreur']
+        if (data.debug) parts.push(`[${data.debug}]`)
+        if (res.status) parts.push(`(HTTP ${res.status})`)
+        setError(parts.join(' '))
         setAuthenticated(false)
       }
-    } catch {
-      setError('Erreur de connexion au serveur')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      setError(`Connexion échouée : ${msg}`)
       setAuthenticated(false)
     } finally {
       setLoading(false)
