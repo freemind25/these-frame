@@ -1,37 +1,19 @@
 import { PrismaClient } from '@prisma/client'
-import { execSync } from 'child_process'
 import { existsSync, mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 
-// ─── Ensure DATABASE_URL is set and DB file exists ───
+// ─── Fallback DATABASE_URL if not set (e.g. Preview Panel without .env) ───
 const dbUrl = process.env.DATABASE_URL || 'file:./db/custom.db'
 if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
   process.env.DATABASE_URL = dbUrl
 }
 
-// Extract file path from file: URL
+// Ensure db directory exists
 const dbFilePath = dbUrl.replace(/^file:/, '')
 const absoluteDbPath = dbFilePath.startsWith('/') ? dbFilePath : join(process.cwd(), dbFilePath)
 const dbDir = dirname(absoluteDbPath)
-
-// Create db directory if it doesn't exist
 if (!existsSync(dbDir)) {
   mkdirSync(dbDir, { recursive: true })
-}
-
-// Auto-push schema if DB file doesn't exist (e.g. fresh Preview Panel)
-if (!existsSync(absoluteDbPath)) {
-  try {
-    console.log('[db] Database file not found, running prisma db push...')
-    execSync('npx prisma db push --skip-generate --accept-data-loss 2>&1', {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-      timeout: 30000,
-    })
-    console.log('[db] Schema pushed successfully.')
-  } catch (err) {
-    console.error('[db] Auto prisma db push failed:', err)
-  }
 }
 
 // ─── Prisma Client (SQLite) ───
@@ -45,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = db
 }
 
-// ─── ensureDb() ─────────────────────────────────────────
+// ─── ensureDb() - auto-creates tables via raw SQL if needed ───
 let _ensured = false
 
 export async function ensureDb() {

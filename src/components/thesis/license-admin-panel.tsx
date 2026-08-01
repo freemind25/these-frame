@@ -76,10 +76,18 @@ export default function LicenseAdminPanel() {
   const [genResult, setGenResult] = useState<string[]>([])
   const [genDialogOpen, setGenDialogOpen] = useState(false)
 
+  // Ensure database exists on first render
+  useEffect(() => {
+    fetch('/api/setup', { method: 'POST' }).catch(() => {})
+  }, [])
+
   const fetchKeys = useCallback(async () => {
- setLoading(true)
+    setLoading(true)
     setError('')
     try {
+      // Ensure DB is ready
+      await fetch('/api/setup', { method: 'POST' }).catch(() => {})
+
       const res = await fetch('/api/auth/admin/keys', {
         method: 'POST',
         headers: {
@@ -171,7 +179,7 @@ export default function LicenseAdminPanel() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  // ─── Auth Gate ───
+  // Auth Gate
   if (!authenticated) {
     return (
       <Card>
@@ -203,7 +211,6 @@ export default function LicenseAdminPanel() {
 
   return (
     <div className="space-y-4">
-      {/* Header + Generate Button */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold flex items-center gap-2">
@@ -286,7 +293,6 @@ export default function LicenseAdminPanel() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {/* Keys List */}
       <div className="space-y-2 max-h-96 overflow-y-auto">
         {keys.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">Aucune licence créée.</p>
