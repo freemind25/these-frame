@@ -4,6 +4,15 @@ import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
 import { getBookSkillSummary } from '@/data/book-skills'
 
+// ── Specialized mode instructions ──
+const MODE_INSTRUCTIONS: Record<string, string> = {
+  'stress-test': `\n## MODE SPÉCIAL : STRESS-TEST D'UNE AFFIRMATION\n\nLe doctorant te demande de stress-tester une claim. Applique ce protocole :\n1. Identifier l'affirmation centrale dans le passage fourni.\n2. Pour chaque affirmation, chercher activement des contre-preuves : résultats contraires, conditions limites, populations ou contextes où la conclusion ne tient pas.\n3. Ne pas te contenter de confirmer — tu dois chercher la contradiction ou la nuance.\n4. Présenter les résultats sous cette forme :\n   - **Claim identifiée** : [reformulation]\n   - **Force de la claim** : [ce qui la soutient]\n   - **Faiblesses / contre-preuves** : [ce qui la conteste ou la nuance]\n   - **Verdict** : la claim tient-elle, doit-elle être nuancée, ou est-elle insoutenable ?\n   - **Question exigeante** : une question que le doctorant doit pouvoir répondre pour défendre cette claim devant un jury.\n\nNe rédige jamais de texte de thèse — évalue et questionne.`,
+
+  'remediation': `\n## MODE SPÉCIAL : REMÉDIATION DE SECTION FAIBLE\n\nLe doctorant te demande de l'aider à remédier une section qui a été jugée faible. Applique ce protocole :\n1. Analyser les faiblesses signalées (par un directeur, un comité, ou un reviewer).\n2. Ne PAS proposer un simple copy-edit — identifier ce qui manque fondamentalement (preuves insuffisantes, argumentation circulaire, absence de contre-preuves).\n3. Pour chaque faiblesse, indiquer :\n   - Ce qui manque précisément\n   - Le type de source ou de preuve qui permettrait de combler la lacune\n   - Si la faiblesse est rédactionnelle (structurer mieux) ou évidentielle (manque de sources)\n4. Produire un plan d'action concret avec des étapes numérotées.\n5. L'approche de remédiation doit repartir de la découverte (nouvelles preuves), pas d'un simple ré-écriture.\n\nNe rédige jamais de texte de thèse — guide le travail de remédiation.`,
+
+  'gap-finding': `\n## MODE SPÉCIAL : ANALYSE DE LACUNES (GAP-FINDING)\n\nLe doctorant te demande d'analyser les lacunes dans un domaine de recherche. Applique ce protocole :\n1. Identifier ce qui a été largement étudié dans le domaine (consensus établi, revues systématiques existantes).\n2. Identifier les populations, contextes ou méthodologies sous-représentés.\n3. Chercher les déclarations explicites du type « future research should… » dans les travaux récents.\n4. Distinguer trois types de lacunes :\n   - **Lacune empirique** : ce qui n'a pas encore été mesuré ou testé\n   - **Lacune théorique** : ce qui manque dans les cadres conceptuels existants\n   - **Lacune méthodologique** : les designs, instruments ou approches non encore appliqués à cette question\n5. Conclure par la lacune la plus prometteuse pour le doctorant, en justifiant pourquoi elle est à la fois faisable et scientifiquement pertinente.\n\nNe rédige jamais de texte de thèse — identifie et évalue les lacunes.`,
+}
+
 // In-memory conversation store
 const conversations = new Map<string, Array<{ role: string; content: string }>>()
 
@@ -134,6 +143,7 @@ export async function POST(request: NextRequest) {
       message,
       sessionId,
       clearHistory,
+      mode,
       chapterTitle,
       chapterNumber,
       chapterContent,
@@ -148,6 +158,7 @@ export async function POST(request: NextRequest) {
       message?: string
       sessionId?: string
       clearHistory?: boolean
+      mode?: 'stress-test' | 'remediation' | 'gap-finding'
       chapterTitle?: string
       chapterNumber?: string
       chapterContent?: string
@@ -172,6 +183,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the system prompt with all available context
+    const modeInstruction = mode && MODE_INSTRUCTIONS[mode] ? MODE_INSTRUCTIONS[mode] : ''
     const systemPrompt = buildDirecteurChatSystemPrompt({
       thesisTitle,
       thesisField,
@@ -184,13 +196,13 @@ export async function POST(request: NextRequest) {
       hypothese,
       userMessage: trimmedMessage,
       activeBookIds,
-    })
+    }) + modeInstruction
 
     let history = conversations.get(sid) || [
       { role: 'system', content: systemPrompt },
     ]
 
-    // If context changed, reset with new system prompt
+    // If context or mode changed, reset with new system prompt
     if (history[0]?.content !== systemPrompt) {
       history = [{ role: 'system', content: systemPrompt }]
     }

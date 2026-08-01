@@ -14,6 +14,9 @@ import {
   Check,
   BookOpen,
   Eye,
+  Zap,
+  Wrench,
+  Search,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
@@ -40,6 +43,29 @@ interface ChapterProgress {
   wordCount: number
   status: string
 }
+
+type DirecteurMode = 'stress-test' | 'remediation' | 'gap-finding'
+
+const MODE_CONFIG: { id: DirecteurMode; label: string; icon: typeof Zap; description: string }[] = [
+  {
+    id: 'stress-test',
+    label: 'Stress-test',
+    icon: Zap,
+    description: 'Cherche les contre-preuves et les limites d\'une affirmation',
+  },
+  {
+    id: 'remediation',
+    label: 'Remédiation',
+    icon: Wrench,
+    description: 'Analyse une section faible et propose un plan de reconstruction',
+  },
+  {
+    id: 'gap-finding',
+    label: 'Lacunes',
+    icon: Search,
+    description: 'Identifie les lacunes empiriques, théoriques et méthodologiques',
+  },
+]
 
 interface DirecteurChatProps {
   open: boolean
@@ -110,6 +136,7 @@ export default function DirecteurChat({
   const [loading, setLoading] = useState(false)
   const [sessionId, setSessionId] = useState(generateSessionId)
   const [contextEnabled, setContextEnabled] = useState(true)
+  const [activeMode, setActiveMode] = useState<DirecteurMode | null>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -127,8 +154,8 @@ export default function DirecteurChat({
     }
   }, [messages, loading])
 
-  const sendMessage = useCallback(async () => {
-    const trimmed = input.trim()
+  const sendMessage = useCallback(async (overrideMessage?: string, overrideMode?: DirecteurMode) => {
+    const trimmed = (overrideMessage || input).trim()
     if (!trimmed || loading) return
 
     const userMessage: ChatMessage = { role: 'user', content: trimmed }
@@ -142,10 +169,12 @@ export default function DirecteurChat({
     }
 
     try {
+      const effectiveMode = overrideMode || activeMode
       const reqBody: Record<string, unknown> = {
         message: trimmed,
         sessionId,
       }
+      if (effectiveMode) reqBody.mode = effectiveMode
 
       // Inject chapter context if enabled and available
       if (contextEnabled) {
@@ -193,7 +222,7 @@ export default function DirecteurChat({
     } finally {
       setLoading(false)
     }
-  }, [input, loading, sessionId, chapterTitle, chapterNumber, chapterContent, chapters, thesisTitle, thesisField, contextEnabled, activeBookIds])
+  }, [input, loading, sessionId, chapterTitle, chapterNumber, chapterContent, chapters, thesisTitle, thesisField, contextEnabled, activeBookIds, activeMode])
 
   const clearConversation = useCallback(async () => {
     try {
@@ -205,7 +234,12 @@ export default function DirecteurChat({
     }
     setMessages([{ role: 'assistant', content: WELCOME_MESSAGE }])
     setSessionId(generateSessionId())
+    setActiveMode(null)
   }, [sessionId])
+
+  const handleModeClick = useCallback((mode: DirecteurMode) => {
+    setActiveMode(prev => prev === mode ? null : mode)
+  }, [])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -356,6 +390,32 @@ export default function DirecteurChat({
               )}
             </div>
           </ScrollArea>
+        </div>
+
+        {/* Mode selector */}
+        <div className="shrink-0 border-t border-slate-800/50 px-4 py-2">
+          <div className="flex gap-1.5 overflow-x-auto">
+            {MODE_CONFIG.map((m) => {
+              const Icon = m.icon
+              const isActive = activeMode === m.id
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => handleModeClick(m.id)}
+                  title={m.description}
+                  className={cn(
+                    'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors shrink-0',
+                    isActive
+                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/40'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {m.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Input area */}
