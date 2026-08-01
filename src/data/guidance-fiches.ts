@@ -1,4 +1,5 @@
-// Guidance Knowledge Base — 7 fiches for the Directeur IA
+// Guidance Knowledge Base — 9 generic + 7 discipline-specific fiches for the Directeur IA
+// Discipline-specific fiches are imported from fiches-archi-urba.ts
 // Each fiche is a focused, self-contained knowledge card.
 
 // ─────────────────────────────────────────────
@@ -549,6 +550,16 @@ Trois types distincts de revue, avec des niveaux de rigueur, des objectifs et de
 // ─────────────────────────────────────────────
 // All fiches index
 // ─────────────────────────────────────────────
+import {
+  FICHE_PARADIGMES_COHERENCE,
+  FICHE_RECHERCHE_DESIGN,
+  FICHE_ANALYSE_SPATIALE,
+  FICHE_METHODES_MIXTES,
+  FICHE_ARTICULATION_DIMENSIONS,
+  FICHE_RL_ENVIRONNEMENT_BATI,
+  FICHE_MODELES_STRUCTURE_THESE,
+} from './fiches-archi-urba'
+
 export const ALL_FICHES = [
   FICHE_ETAPES,
   FICHE_ECRITURE,
@@ -559,6 +570,13 @@ export const ALL_FICHES = [
   FICHE_RECHERCHE_DOCUMENTAIRE,
   FICHE_COMPOSANTES_RECHERCHE,
   FICHE_REVUE_LITTERATURE,
+  FICHE_PARADIGMES_COHERENCE,
+  FICHE_RECHERCHE_DESIGN,
+  FICHE_ANALYSE_SPATIALE,
+  FICHE_METHODES_MIXTES,
+  FICHE_ARTICULATION_DIMENSIONS,
+  FICHE_RL_ENVIRONNEMENT_BATI,
+  FICHE_MODELES_STRUCTURE_THESE,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -567,7 +585,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'archi-urba' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -588,6 +606,7 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'recherche-doc': [FICHE_RECHERCHE_DOCUMENTAIRE],
   'methodologie': [FICHE_COMPOSANTES_RECHERCHE],
   'revue-litterature': [FICHE_REVUE_LITTERATURE],
+  'archi-urba': [FICHE_PARADIGMES_COHERENCE],
 }
 
 // ─────────────────────────────────────────────
