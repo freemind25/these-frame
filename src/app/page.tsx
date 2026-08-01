@@ -24,34 +24,7 @@ import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
 import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
-import LicenseActivation from '@/components/thesis/license-activation'
 
-// ─── Activation State ─────────────────────────────────────────
-function useLicenseActivation() {
-  const [activated, setActivated] = useState(false)
-  const [licenseInfo, setLicenseInfo] = useState<{licenseType?: string; licenseTypeLabel?: string; expiresAt?: string} | null>(null)
-  const [checking, setChecking] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/auth/status')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.activated) {
-          setActivated(true)
-          setLicenseInfo(data)
-        }
-        setChecking(false)
-      })
-      .catch(() => setChecking(false))
-  }, [])
-
-  const handleActivated = useCallback((info: {licenseType?: string; licenseTypeLabel?: string; expiresAt?: string}) => {
-    setActivated(true)
-    setLicenseInfo(info)
-  }, [])
-
-  return { activated, licenseInfo, checking, handleActivated }
-}
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -85,9 +58,6 @@ function createLocalThesis(): ThesisData {
 
 // ─── Component ─────────────────────────────────────────────────
 export default function Home() {
-  // License activation gate
-  const { activated, licenseInfo, checking, handleActivated } = useLicenseActivation()
-
   // Initialize with local mock data IMMEDIATELY — no loading state needed
   const localThesis = useRef<ThesisData>(createLocalThesis())
   const [thesis, setThesis] = useState<ThesisData>(localThesis.current)
@@ -630,33 +600,8 @@ export default function Home() {
   }, [aiInput, aiLoading, aiMessages, aiMode, aiProvider, aiApiKey, aiBaseUrl, aiModel])
 
   // ─── Render ─────────────────────────────────────────────
-  // Page always renders — thesis is initialized with local data
-  if (!activated && !checking) {
-    return <LicenseActivation onActivated={handleActivated} />
-  }
-  if (checking) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Vérification de la licence...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
-      {/* ── LICENSE TYPE BADGE ── */}
-      <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-1 flex items-center justify-between text-[11px] text-emerald-700 shrink-0">
-        <span>Licence {licenseInfo?.licenseTypeLabel || licenseInfo?.licenseType || 'active'} {licenseInfo?.expiresAt ? `· expire le ${new Date(licenseInfo.expiresAt).toLocaleDateString('fr-FR')}` : '· durée illimitée'}</span>
-        <button
-          onClick={async () => { await fetch('/api/auth/deactivate', { method: 'POST' }); window.location.reload() }}
-          className="underline hover:no-underline"
-        >
-          Déconnecter
-        </button>
-      </div>
       {/* ── API OFFLINE BANNER ── */}
       {apiStatus === 'offline' && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center gap-2 text-[11px] text-amber-700 shrink-0">
