@@ -80,7 +80,7 @@ export default function LicenseActivation({
           expiresAt: data.expiresAt,
         })
       } else {
-        setError(data.error || 'Erreur lors de l\'activation')
+        setError(data.error || data.debug || 'Erreur lors de l\'activation')
       }
     } catch {
       setError('Erreur de connexion au serveur')
