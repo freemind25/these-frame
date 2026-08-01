@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { KeyRound, Plus, Trash2, RefreshCw, Ban, Copy, Check, Loader2, Shield, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -76,25 +76,19 @@ export default function LicenseAdminPanel() {
   const [genResult, setGenResult] = useState<string[]>([])
   const [genDialogOpen, setGenDialogOpen] = useState(false)
 
-  // Ensure database exists on first render
-  useEffect(() => {
-    fetch('/api/setup', { method: 'POST' }).catch(() => {})
-  }, [])
+  // Database is created at server startup via dev script
+
 
   const fetchKeys = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      // Ensure DB is ready
-      await fetch('/api/setup', { method: 'POST' }).catch(() => {})
-
       const res = await fetch('/api/auth/admin/keys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminSecret}`,
         },
-        body: JSON.stringify({ action: 'list' }),
+        body: JSON.stringify({ action: 'list', adminSecret }),
       })
       let data: Record<string, unknown>
       try {
@@ -137,9 +131,8 @@ export default function LicenseAdminPanel() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminSecret}`,
         },
-        body: JSON.stringify({ licenseType: genType, count: genCount, note: genNote }),
+        body: JSON.stringify({ licenseType: genType, count: genCount, note: genNote, adminSecret }),
       })
       const data = await res.json()
       if (data.success) {
@@ -161,9 +154,8 @@ export default function LicenseAdminPanel() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminSecret}`,
         },
-        body: JSON.stringify({ keyId, action }),
+        body: JSON.stringify({ keyId, action, adminSecret }),
       })
       const data = await res.json()
       if (data.success) fetchKeys()

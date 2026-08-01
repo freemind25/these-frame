@@ -1,20 +1,14 @@
 import { NextResponse } from 'next/server'
-import { execSync } from 'child_process'
+import { db } from '@/lib/db'
 
 export async function POST() {
   try {
-    // Run prisma db push to ensure schema is created
-    const output = execSync('npx prisma db push --skip-generate --accept-data-loss 2>&1', {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-      timeout: 30000,
-    })
-    const msg = output.toString().trim()
-    console.log('[setup] prisma db push output:', msg)
-    return NextResponse.json({ success: true, message: msg || 'Database ready' })
+    // Simple DB connectivity check – no execSync needed
+    await db.$queryRaw`SELECT 1`
+    return NextResponse.json({ success: true, message: 'Database ready' })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('[setup] Failed:', msg)
+    console.error('[setup] DB check failed:', msg)
     return NextResponse.json({ success: false, error: msg }, { status: 500 })
   }
 }

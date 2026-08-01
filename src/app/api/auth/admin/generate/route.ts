@@ -6,9 +6,13 @@ import { addDays } from 'date-fns'
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'tf-admin-2024'
 
 function checkAuth(req: NextRequest, body?: Record<string, unknown>): boolean {
-  const headerAuth = req.headers.get('authorization')
+  // Body-based auth (most reliable through proxies)
   const bodySecret = (body?.adminSecret as string) || ''
-  if (headerAuth === `Bearer ${ADMIN_SECRET}` || bodySecret === ADMIN_SECRET) return true
+  if (bodySecret === ADMIN_SECRET) return true
+  // Header-based auth
+  const headerAuth = req.headers.get('authorization')
+  if (headerAuth === `Bearer ${ADMIN_SECRET}`) return true
+  // Query param fallback
   const url = new URL(req.url)
   return url.searchParams.get('admin_secret') === ADMIN_SECRET
 }
