@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { KeyRound, Plus, Trash2, RefreshCw, Ban, Copy, Check, Loader2, Shield, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,6 +58,27 @@ const TYPE_COLORS: Record<string, string> = {
   premium: 'bg-amber-100 text-amber-800',
 }
 
+/** Read response body as text, with fallback for consumed streams */
+async function safeReadBody(res: Response): Promise<string> {
+  try {
+    return await res.text()
+  } catch {
+    return '(corps de réponse indisponible)'
+  }
+}
+
+/** Fetch with retry on 500 errors (route compilation timeout in dev mode) */
+async function fetchWithRetry(url: string, retries = 2, delay = 1500): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(url)
+    if (res.status !== 500 || attempt === retries) return res
+    // Wait and retry — Next.js dev mode may need time to compile the route
+    await new Promise((r) => setTimeout(r, delay * (attempt + 1)))
+  }
+  // Unreachable, but TypeScript needs it
+  return await fetch(url)
+}
+
 export default function LicenseAdminPanel() {
   const [adminSecret, setAdminSecret] = useState(() => localStorage.getItem('tf_admin_secret') || '')
   const [authenticated, setAuthenticated] = useState(false)
@@ -66,6 +87,7 @@ export default function LicenseAdminPanel() {
   const [error, setError] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const retryCountRef = useRef(0)
 
   // Generate dialog state
   const [genType, setGenType] = useState('standard')
@@ -78,17 +100,20 @@ export default function LicenseAdminPanel() {
     setLoading(true)
     setError('')
     try {
-      // GET with secret in URL path — nothing for the proxy to strip
-      const res = await fetch(`/api/admin/${encodeURIComponent(adminSecret)}/keys`)
+      const url = `/api/admin/${encodeURIComponent(adminSecret)}/keys`
+      const res = await fetchWithRetry(url)
+      const text = await safeReadBody(res)
+
+      // Try to parse JSON from the text we already read
       let data: Record<string, unknown>
       try {
-        data = await res.json()
+        data = JSON.parse(text)
       } catch {
-        const text = await res.text().catch(() => '')
-        setError(`Réponse invalide (HTTP ${res.status}) : ${text.slice(0, 200)}`)
+        setError(`Réponse invalide (HTTP ${res.status}) : ${text.slice(0, 300)}`)
         setAuthenticated(false)
         return
       }
+
       if (data.success) {
         setKeys(data.keys as LicenseKeyEntry[])
         setAuthenticated(true)
@@ -117,13 +142,19 @@ export default function LicenseAdminPanel() {
     setGenLoading(true)
     setGenResult([])
     try {
-      // GET with secret in path, type and count in query
-      const res = await fetch(
+      const res = await fetchWithRetry(
         `/api/admin/${encodeURIComponent(adminSecret)}/generate?type=${genType}&count=${genCount}`
       )
-      const data = await res.json()
+      const text = await safeReadBody(res)
+      let data: Record<string, unknown>
+      try {
+        data = JSON.parse(text)
+      } catch {
+        setError(`Réponse invalide (HTTP ${res.status}) : ${text.slice(0, 300)}`)
+        return
+      }
       if (data.success) {
-        setGenResult(data.keys)
+        setGenResult(data.keys as string[])
         fetchKeys()
       } else {
         setError(data.error || 'Erreur')
@@ -138,10 +169,17 @@ export default function LicenseAdminPanel() {
   const handleAction = async (keyId: string, action: string) => {
     try {
       const actionParam = action === 'reset-activations' ? 'reset' : action
-      const res = await fetch(
+      const res = await fetchWithRetry(
         `/api/admin/${encodeURIComponent(adminSecret)}/${actionParam}/${keyId}`
       )
-      const data = await res.json()
+      const text = await safeReadBody(res)
+      let data: Record<string, unknown>
+      try {
+        data = JSON.parse(text)
+      } catch {
+        setError(`Réponse invalide (HTTP ${res.status}) : ${text.slice(0, 300)}`)
+        return
+      }
       if (data.success) fetchKeys()
       else setError(data.error || 'Erreur')
     } catch {

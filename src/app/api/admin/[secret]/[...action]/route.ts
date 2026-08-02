@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import {
-  generateLicenseKey, hashKey, keyPrefix,
-  LICENSE_TYPE_LABELS, LICENSE_TYPE_LIMITS, LICENSE_TYPE_DURATIONS,
-} from '@/lib/license'
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'tf-admin-2024'
+
+/** Lazy-import db to avoid module-level crash if Prisma init fails */
+async function getDb() {
+  const { db } = await import('@/lib/db')
+  return db
+}
+
+/** Lazy-import license helpers */
+async function getLicenseHelpers() {
+  const m = await import('@/lib/license')
+  return m
+}
 
 function daysFromNow(days: number): string | null {
   const d = new Date()
@@ -18,7 +25,7 @@ function mapKey(k: { id: string; keyPrefix: string; licenseType: string; status:
     id: k.id,
     keyPrefix: k.keyPrefix,
     licenseType: k.licenseType,
-    licenseTypeLabel: LICENSE_TYPE_LABELS[k.licenseType] || k.licenseType,
+    licenseTypeLabel: k.licenseType,
     status: k.status,
     maxActivations: k.maxActivations,
     currentActivations: k.currentActivations,
@@ -47,13 +54,17 @@ export async function GET(
     const op = action[0] || 'keys'
     const keyId = action[1] || ''
 
+    // Lazy-load heavy deps only after auth passes
+    const db = await getDb()
+    const { generateLicenseKey, hashKey, keyPrefix, LICENSE_TYPE_LABELS, LICENSE_TYPE_LIMITS, LICENSE_TYPE_DURATIONS } = await getLicenseHelpers()
+
     // ── LIST KEYS ──
     if (op === 'keys' || op === 'list') {
       const keys = await db.licenseKey.findMany({
         orderBy: { createdAt: 'desc' },
         include: { activations: { orderBy: { activatedAt: 'desc' } } },
       })
-      return NextResponse.json({ success: true, keys: keys.map(mapKey) })
+      return NextResponse.json({ success: true, keys: keys.map((k) => ({ ...mapKey(k), licenseTypeLabel: LICENSE_TYPE_LABELS[k.licenseType] || k.licenseType })) })
     }
 
     // ── GENERATE KEYS ──
