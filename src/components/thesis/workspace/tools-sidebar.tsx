@@ -19,6 +19,7 @@ const TOOLS = [
   { icon: Library, label: 'Références biblio.', key: 'refs' },
   { icon: BookOpen, label: 'Guide rédaction', key: 'resources' },
   { icon: Download, label: 'Export PDF', key: 'export' },
+  { icon: KeyRound, label: 'Licences', key: 'licenseAdmin' },
   { icon: Search, label: 'Recherche litt.', key: 'literature' },
   { icon: Scale, label: 'Équilibre chapitres', key: 'balance' },
   { icon: Cloud, label: 'Sauvegarde cloud', key: 'cloudDrive' },
@@ -33,7 +34,6 @@ const TOOLS = [
   { icon: Map, label: 'Route Agile', key: 'agileRoadmap' },
   { icon: PencilRuler, label: 'Déblocage écriture', key: 'writingUnblock' },
   { icon: BookCheck, label: 'Livres-compétences', key: 'bookSkills' },
-  { icon: KeyRound, label: 'Licences', key: 'licenseAdmin' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -142,7 +142,7 @@ export default function ToolsSidebar({
           <div className="shrink-0 px-3 pt-2 pb-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Outils</span>
           </div>
-          <div className="shrink-0 px-2 pb-3 space-y-0.5">
+          <div className="flex-1 overflow-y-auto min-h-0 px-2 pb-3 space-y-0.5">
             {TOOLS.map(t => (
               <button key={t.key} onClick={() => handleToolClick(t.key)} className="w-full p-2 flex items-center gap-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all text-xs">
                 <t.icon className="h-3.5 w-3.5" /><span>{t.label}</span>
