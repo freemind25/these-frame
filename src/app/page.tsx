@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { WifiOff } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { CHAPTERS, CHAPTER_COLORS } from '@/data/chapters-structure'
 import type { ThesisData, ChatMsg } from '@/types/thesis'
@@ -66,7 +65,7 @@ export default function Home() {
   const [thesis, setThesis] = useState<ThesisData>(localThesis.current)
   const [activeChapterId, setActiveChapterId] = useState<string>(localThesis.current.chapters[0]?.id || '')
   const [loading, setLoading] = useState(false)
-  const [apiStatus, setApiStatus] = useState<'unknown' | 'connected' | 'offline'>('unknown')
+  const [apiStatus, setApiStatus] = useState<'unknown' | 'connected'>('unknown')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   // UI state
@@ -210,11 +209,9 @@ export default function Home() {
           }
           setApiStatus('connected')
         }
-      } catch (err) {
-        if (!cancelled) {
-          console.warn('API unavailable, using local data:', err)
-          setApiStatus('offline')
-        }
+      } catch {
+        // API unavailable — silently use local data
+        if (!cancelled) setApiStatus('unknown')
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -607,12 +604,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
       {/* ── API OFFLINE BANNER ── */}
-      {apiStatus === 'offline' && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center gap-2 text-[11px] text-amber-700 shrink-0">
-          <WifiOff className="h-3 w-3 shrink-0" />
-          <span>Mode hors-ligne — les données sont locales et non synchronisées.</span>
-        </div>
-      )}
+
 
       <div className="flex flex-1 min-h-0">
         {/* ═══ TOOLS SIDEBAR (left, tools only) ═══ */}
