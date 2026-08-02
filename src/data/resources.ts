@@ -180,6 +180,18 @@ export const RESOURCES: Resource[] = [
     category: 'methodologie',
     coverColor: 'from-lime-500 to-green-600',
   },
+  {
+    id: 'departing-radically-academic-writing',
+    title: 'Departing Radically in Academic Writing (DRAW)',
+    author: 'Elizabeth Mackinlay, Karen Madden (eds.)',
+    year: 2024,
+    description: "Approches créatives et alternatives pour la rédaction académique en recherche qualitative : autoethnographie, écriture poétique, fiction, arts-based research. S'appuie sur Sara Ahmed, bell hooks, Cixous, Woolf, Richardson.",
+    fileUrl: '/resources/departing-radically-academic-writing.pdf',
+    fileType: 'pdf',
+    fileSize: '20.9 MB',
+    category: 'redaction',
+    coverColor: 'from-fuchsia-600 to-purple-700',
+  },
 ]
 
 export const CATEGORY_LABELS: Record<Resource['category'], string> = {

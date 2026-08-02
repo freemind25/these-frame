@@ -477,6 +477,62 @@ La méthodologie est le plan d'action pour atteindre les objectifs.
 }
 
 // ─────────────────────────────────────────────
+// FICHE 8-BIS : Research Gap vs Research Problem
+// ─────────────────────────────────────────────
+export const FICHE_GAP_VS_PROBLEM = {
+  id: 'fiche-gap-vs-problem',
+  title: 'Research Gap vs Research Problem : ne pas confondre',
+  content: `# Research Gap vs Research Problem
+
+Distinction fondamentale souvent confondue par les doctorants. Source : @DRFRED_PHD.
+
+## Research Gap (Lacune de recherche)
+
+Le **gap** est un constat analytique : un vide dans le savoir existant.
+
+**Caractéristiques :**
+- Peut impliquer des résultats contradictoires, des preuves limitées ou des populations sous-étudiées
+- Constitue la base de la justification (*rationale*) de la recherche
+- Se présente généralement dans la revue de littérature ou l'arrière-plan
+- Répond à la question : « Que manque-t-il dans la littérature ? »
+- Mène à la formulation du problème de recherche
+
+**Types de gaps :**
+- *Empirique* : absence de données sur une population ou un contexte spécifique
+- *Méthodologique* : limites des outils ou designs utilisés dans les études précédentes
+- *Théorique* : contradictions entre cadres théoriques ou absence de cadre pour un phénomène
+- *Contextuel* : un phénomène étudié dans un contexte mais pas dans un autre
+
+## Research Problem (Problème de recherche)
+
+Le **problème** est une formulation opérationnelle : ce que l'étude va concrètement investiguer.
+
+**Caractéristiques :**
+- Spécifie l'issue exacte à examiner dans un contexte défini
+- Guide les objectifs, questions de recherche et méthodologie
+- Est clairement énoncé dans la section *problem statement* (énoncé du problème)
+- Répond à la question : « Quel problème cette étude va-t-elle résoudre ou investiguer ? »
+- Mène au développement des objectifs et questions de recherche
+
+## Relation séquentielle : Gap → Problem
+
+On ne peut pas formuler un problème de recherche valide sans avoir préalablement identifié et justifié un gap.
+
+| Étape | Question clé | Résultat attendu |
+|---|---|---|
+| 1. Revue de littérature | « Que sait-on déjà ? » | Cartographie du champ |
+| 2. Identification du gap | « Que manque-t-il ? » | Lacune justifiée |
+| 3. Formulation du problème | « Que vais-je faire ? » | Problème opérationnel |
+| 4. Questions de recherche | « Comment exactement ? » | Questions mesurables |
+
+**Erreur fréquente :** Formuler un problème trop large (« étudier l'impact du numérique sur l'éducation ») sans avoir identifié le gap précis. Un bon gap réduit le champ ; un bon problème le rend faisable.
+
+**Exemple concret :**
+- *Gap* : « Les études sur l'apprentissage hybride se concentrent sur le supérieur, mais ignorent le primaire en contexte francophone africain. »
+- *Problem* : « Cette étude examine l'effet de l'apprentissage hybride sur la motivation scolaire des élèves du CM2 au Sénégal. »`,
+}
+
+// ─────────────────────────────────────────────
 // FICHE 9: Typologie des revues de littérature
 // ─────────────────────────────────────────────
 export const FICHE_REVUE_LITTERATURE = {
@@ -569,6 +625,7 @@ export const ALL_FICHES = [
   FICHE_BIBLIOMETRIE,
   FICHE_RECHERCHE_DOCUMENTAIRE,
   FICHE_COMPOSANTES_RECHERCHE,
+  FICHE_GAP_VS_PROBLEM,
   FICHE_REVUE_LITTERATURE,
   FICHE_PARADIGMES_COHERENCE,
   FICHE_RECHERCHE_DESIGN,
@@ -604,7 +661,7 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'formatting': [FICHE_NORMES],
   'bibliometrie': [FICHE_BIBLIOMETRIE],
   'recherche-doc': [FICHE_RECHERCHE_DOCUMENTAIRE],
-  'methodologie': [FICHE_COMPOSANTES_RECHERCHE],
+  'methodologie': [FICHE_COMPOSANTES_RECHERCHE, FICHE_GAP_VS_PROBLEM],
   'revue-litterature': [FICHE_REVUE_LITTERATURE],
   'archi-urba': [FICHE_PARADIGMES_COHERENCE],
 }
@@ -628,6 +685,10 @@ const CHAPTER_KEYWORDS: Array<{ patterns: RegExp[]; fiche: { id: string; title: 
   {
     patterns: [/problémat/i, /problématique/i, /hypothèse/i, /hypothese/i, /variable/i, /protocole/i, /objectif/i, /échantill/i],
     fiche: FICHE_COMPOSANTES_RECHERCHE,
+  },
+  {
+    patterns: [/\bgap\b/i, /lacune/i, /research\s*gap/i],
+    fiche: FICHE_GAP_VS_PROBLEM,
   },
   {
     patterns: [/méthod/i, /methodo/i, /methodolog/i],
@@ -684,6 +745,11 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     patterns: [/variable\s+(indep|dépen|médiat|modérat)/i, /cadre\s+conceptuel/i, /hypoth[eè]s/i, /probl[eè]me\s+de\s+recherche/i, /objectif\s+de\s+recherche/i, /question\s+de\s+recherche/i, /signification\s+de\s+la\s+recherche/i, /limite\s+de\s+la\s+recherche/i, /échantill/i, /protocole\s+de\s+recherche/i, /méthodolog/i, /méthode\s+d['\x27]analyse/i, /population\s+d['\x27][ée]tude/i],
     fiche: FICHE_COMPOSANTES_RECHERCHE,
     reason: 'Mots-clés de méthodologie et composantes de recherche détectés',
+  },
+  {
+    patterns: [/\bgap\b/i, /research\s*gap/i, /lacune.*recherche/i, /problem\s*statement/i, /énoncé.*problème/i, /research\s*problem/i],
+    fiche: FICHE_GAP_VS_PROBLEM,
+    reason: 'Question sur gap/problème de recherche détectée dans le message',
   },
   {
     patterns: [/bibliomé/i, /bibliometric/i, /facteur\s+d['\x27]impact/i, /impact\s+factor/i, /indice\s+h/i, /h\-index/i, /productivité\s+scientifique/i],
