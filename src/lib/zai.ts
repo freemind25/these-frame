@@ -3,7 +3,7 @@ import { join } from 'path'
 import { homedir, tmpdir } from 'os'
 import { withRetry, type RetryOptions } from './retry-with-backoff'
 
-// ─── Types (mirror SDK interface) ─────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -14,17 +14,12 @@ interface CreateChatCompletionBody {
   messages: ChatMessage[]
   model?: string
   temperature?: number
-  วาป_max_tokens?: number
   max_tokens?: number
   thinking?: { type: string }
   stream?: boolean
 }
 
-interface ChatCompletionResponse {
-  choices: Array<{ message?: { content?: string } }>
-}
-
-// ─── Retry options for AI calls ──────────────────────────────────
+// ─── Retry options ─────────────────────────────────────────────────────
 
 const AI_RETRY_OPTIONS: RetryOptions = {
   maxRetries: 5,
@@ -42,7 +37,76 @@ const AI_RETRY_OPTIONS: RetryOptions = {
   retryableStatuses: [429, 502, 503, 504],
 }
 
-// ─── Lightweight fetch-based client (works with Mistral, OpenAI, etc.) ──
+// ─── Helper: check response body for hidden errors ─────────────────────
+/**
+ * Certaines APIs (DashScope, Alibaba Cloud) retournent HTTP 200
+ * avec une erreur dans le body JSON : {"Code":"ResourceExhausted",...}
+ * Cette fonction détecte ce cas et lève une erreur retentable.
+ */
+function checkResponseForErrors(response: any): void {
+  if (!response || typeof response !== 'object') return
+
+  // Cas 1 : { Code: "ResourceExhausted", Message: "..." }
+  const code = response.Code || response.code || response.error?.code
+  if (code && typeof code === 'string') {
+    const retryableCodes = AI_RETRY_OPTIONS.retryableCodes || []
+    const isRetryable = retryableCodes.some(c =>
+      code.toLowerCase().includes(c.toLowerCase())
+    )
+    if (isRetryable) {
+      const err = new Error(`AI Error [${code}]: ${response.Message || response.message || ''}`)
+      ;(err as any).Code = code
+      ;(err as any).status = 429
+      ;(err as any).statusCode = 429
+      throw err
+    }
+  }
+
+  // Cas 2 : OpenAI-style { error: { type: "...", message: "..." } }
+  if (response.error && typeof response.error === 'object') {
+    const errType = String(response.error.type || '')
+    const errMsg = String(response.error.message || '')
+    const combined = `${errType} ${errMsg}`.toLowerCase()
+    const retryableCodes = AI_RETRY_OPTIONS.retryableCodes || []
+    const isRetryable = retryableCodes.some(c => combined.includes(c.toLowerCase()))
+    if (isRetryable) {
+      const err = new Error(`AI Error: ${errMsg}`)
+      ;(err as any).Code = errType
+      ;(err as any).status = 429
+      throw err
+    }
+  }
+}
+
+// ─── Helper: wrap any zai instance with retry ─────────────────────────
+/**
+ * Crée un proxy autour de n'importe quelle instance ZAI (SDK ou FetchAI)
+ * qui ajoute automatiquement le retry + la détection d'erreurs dans le body.
+ */
+function createResilientWrapper(rawZai: any): any {
+  return {
+    chat: {
+      completions: {
+        create: async (body: CreateChatCompletionBody): Promise<any> => {
+          return withRetry(async () => {
+            const response = await rawZai.chat.completions.create(body)
+
+            // Vérifier si la réponse contient une erreur cachée (HTTP 200 + erreur dans body)
+            checkResponseForErrors(response)
+
+            return response
+          }, AI_RETRY_OPTIONS)
+        },
+      },
+    },
+    // Passer les autres méthodes sans wrapping (audio, functions, images, etc.)
+    audio: rawZai.audio,
+    functions: rawZai.functions,
+    images: rawZai.images,
+  }
+}
+
+// ─── Lightweight fetch-based client ─────────────────────────────────────
 
 class FetchAI {
   private baseUrl: string
@@ -56,47 +120,46 @@ class FetchAI {
   get chat() {
     return {
       completions: {
-        create: async (body: CreateChatCompletionBody): Promise<ChatCompletionResponse> => {
+        create: async (body: CreateChatCompletionBody): Promise<any> => {
           const { thinking, stream, ...payload } = body as any
 
-          // ── Wrapper avec retry automatique ──
-          return withRetry(async () => {
-            const res = await fetch(`${this.baseUrl}/chat/completions`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.apiKey}`,
-              },
-              body: JSON.stringify({
-                model: payload.model || 'mistral-large-latest',
-                ...payload,
-              }),
-            })
+          const res = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+            body: JSON.stringify({
+              model: payload.model || 'mistral-large-latest',
+              ...payload,
+            }),
+          })
 
+          const text = await res.text()
+          let data: any
+
+          try {
+            data = JSON.parse(text)
+          } catch {
             if (!res.ok) {
-              const text = await res.text()
-
-              // Essayer de parser l'erreur JSON pour propager le bon code
-              try {
-                const parsed = JSON.parse(text)
-                if (parsed.Code) {
-                  const err = new Error(`AI API ${res.status}: ${parsed.Code} - ${parsed.Message}`)
-                  ;(err as any).Code = parsed.Code
-                  ;(err as any).status = res.status
-                  throw err
-                }
-              } catch (parseErr) {
-                // Si c'est notre erreur enrichie, la relancer
-                if ((parseErr as any).Code) throw parseErr
-              }
-
-              const err = new Error(`AI API ${res.status}: ${text}`)
+              const err = new Error(`AI API ${res.status}: ${text.slice(0, 300)}`)
               ;(err as any).status = res.status
               throw err
             }
+            return { choices: [] }
+          }
 
-            return res.json()
-          }, AI_RETRY_OPTIONS)
+          // Vérifier les erreurs dans le body (même sur HTTP 200)
+          checkResponseForErrors(data)
+
+          if (!res.ok) {
+            const err = new Error(`AI API ${res.status}: ${text.slice(0, 300)}`)
+            ;(err as any).Code = data?.Code || data?.error?.code
+            ;(err as any).status = res.status
+            throw err
+          }
+
+          return data
         },
       },
     }
@@ -105,8 +168,8 @@ class FetchAI {
   get audio() {
     return {
       asr: {
-        create: async (params: { file_base64: string }): Promise<any> => {
-          throw new Error('ASR (speech-to-text) requires the Z.ai platform. Not available with external AI providers.')
+        create: async (_params: { file_base64: string }): Promise<any> => {
+          throw new Error('ASR (speech-to-text) requires the Z.ai platform.')
         },
       },
     }
@@ -131,22 +194,17 @@ class FetchAI {
   }
 }
 
-// ─── Singleton ─────────────────────────────────────────────────────
+// ─── Singleton ─────────────────────────────────────────────────────────
 
 let zaiInstance: any = null
 let initAttempted = false
 let initError: string | null = null
 
-/**
- * Read config from env vars or .z-ai-config file.
- */
 function readConfig(): { baseUrl: string; apiKey: string } | null {
-  // 1. Environment variables
   const baseUrl = process.env.AI_BASE_URL || process.env.ZAI_BASE_URL
   const apiKey = process.env.AI_API_KEY || process.env.ZAI_API_KEY
   if (baseUrl && apiKey) return { baseUrl, apiKey }
 
-  // 2. Config file
   const paths = [
     '.z-ai-config',
     join(homedir(), '.z-ai-config'),
@@ -166,11 +224,12 @@ function readConfig(): { baseUrl: string; apiKey: string } | null {
 }
 
 /**
- * Get a ready-to-use AI client.
+ * Get a ready-to-use AI client with automatic retry.
  *
- * - In dev (Z.ai config file): uses the full z-ai-web-dev-sdk
- * - On Vercel / with env vars: uses a lightweight fetch-based client
- *   compatible with Mistral, OpenAI, and any OpenAI-compatible API.
+ * - In dev (Z.ai config file): uses the full z-ai-web-dev-sdk, WRAPPED with retry
+ * - On Vercel / with env vars: uses FetchAI, WRAPPED with retry
+ *
+ * ALL paths now have retry + response body error detection.
  */
 export async function getZAI() {
   if (zaiInstance) return zaiInstance
@@ -189,25 +248,29 @@ export async function getZAI() {
     throw new Error(initError)
   }
 
+  let rawInstance: any
+
   // Try native SDK first (works in dev with Z.ai internal API)
   if (!process.env.AI_BASE_URL && !process.env.ZAI_BASE_URL) {
     try {
       const ZAI = (await import('z-ai-web-dev-sdk')).default
-      zaiInstance = await ZAI.create()
-      return zaiInstance
+      rawInstance = await ZAI.create()
     } catch (err) {
       console.warn('SDK failed, falling back to fetch client:', err)
+      rawInstance = null
     }
   }
 
-  // Fetch-based client for external APIs (Mistral, OpenAI, etc.)
-  zaiInstance = new FetchAI(config.baseUrl, config.apiKey)
+  // Fetch-based client fallback
+  if (!rawInstance) {
+    rawInstance = new FetchAI(config.baseUrl, config.apiKey)
+  }
+
+  // ★ POINT CLÉ : wrapper TOUJOURS avec retry, quel que soit le backend
+  zaiInstance = createResilientWrapper(rawInstance)
   return zaiInstance
 }
 
-/**
- * Check if AI is configured.
- */
 export function isZAIConfigured(): boolean {
   if (process.env.AI_BASE_URL && process.env.AI_API_KEY) return true
   if (process.env.ZAI_BASE_URL && process.env.ZAI_API_KEY) return true
