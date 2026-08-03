@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { homedir, tmpdir } from 'os'
+import { withRetry, type RetryOptions } from './retry-with-backoff'
 
 // ─── Types (mirror SDK interface) ─────────────────────────────────
 
@@ -20,11 +21,25 @@ interface CreateChatCompletionBody {
 }
 
 interface ChatCompletionResponse {
-  choices: Array<{
-    message: { role: string; content: string }
-    finish_reason: string
-    index: number
-  }>
+  choices: Array<{ message?: { content?: string } }>
+}
+
+// ─── Retry options for AI calls ──────────────────────────────────
+
+const AI_RETRY_OPTIONS: RetryOptions = {
+  maxRetries: 5,
+  baseDelay: 1500,
+  maxDelay: 25000,
+  retryableCodes: [
+    'ResourceExhausted',
+    'TooManyRequests',
+    'ServiceUnavailable',
+    'RATE_LIMIT',
+    'rate_limit_exceeded',
+    'overloaded',
+    'concurrency threshold',
+  ],
+  retryableStatuses: [429, 502, 503, 504],
 }
 
 // ─── Lightweight fetch-based client (works with Mistral, OpenAI, etc.) ──
@@ -43,22 +58,45 @@ class FetchAI {
       completions: {
         create: async (body: CreateChatCompletionBody): Promise<ChatCompletionResponse> => {
           const { thinking, stream, ...payload } = body as any
-          const res = await fetch(`${this.baseUrl}/chat/completions`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-            body: JSON.stringify({
-              model: payload.model || 'mistral-large-latest',
-              ...payload,
-            }),
-          })
-          if (!res.ok) {
-            const text = await res.text()
-            throw new Error(`AI API ${res.status}: ${text}`)
-          }
-          return res.json()
+
+          // ── Wrapper avec retry automatique ──
+          return withRetry(async () => {
+            const res = await fetch(`${this.baseUrl}/chat/completions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.apiKey}`,
+              },
+              body: JSON.stringify({
+                model: payload.model || 'mistral-large-latest',
+                ...payload,
+              }),
+            })
+
+            if (!res.ok) {
+              const text = await res.text()
+
+              // Essayer de parser l'erreur JSON pour propager le bon code
+              try {
+                const parsed = JSON.parse(text)
+                if (parsed.Code) {
+                  const err = new Error(`AI API ${res.status}: ${parsed.Code} - ${parsed.Message}`)
+                  ;(err as any).Code = parsed.Code
+                  ;(err as any).status = res.status
+                  throw err
+                }
+              } catch (parseErr) {
+                // Si c'est notre erreur enrichie, la relancer
+                if ((parseErr as any).Code) throw parseErr
+              }
+
+              const err = new Error(`AI API ${res.status}: ${text}`)
+              ;(err as any).status = res.status
+              throw err
+            }
+
+            return res.json()
+          }, AI_RETRY_OPTIONS)
         },
       },
     }
@@ -67,7 +105,7 @@ class FetchAI {
   get audio() {
     return {
       asr: {
-        create: async (params: { file_base64: string }): Promise<{ text: string }> => {
+        create: async (params: { file_base64: string }): Promise<any> => {
           throw new Error('ASR (speech-to-text) requires the Z.ai platform. Not available with external AI providers.')
         },
       },

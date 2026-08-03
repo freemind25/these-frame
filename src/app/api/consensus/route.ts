@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withRetry } from '@/lib/retry-with-backoff'
+import { runWithConcurrencyLimit } from '@/lib/concurrency'
 
 const OPENROUTER_MODELS = [
   'google/gemma-4-26b-a4b-it:free',
@@ -37,67 +39,86 @@ function getMistralModelName(modelId: string): string {
   return modelId.replace('mistral-direct/', '')
 }
 
+// ── callOpenRouter AVEC RETRY ──
 async function callOpenRouter(
   apiKey: string,
   modelId: string,
   messages: Array<{ role: string; content: string }>
 ): Promise<string> {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ model: modelId, messages }),
-  })
+  return withRetry(async () => {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ model: modelId, messages }),
+    })
 
-  if (!res.ok) {
-    const text = await res.text()
-    // Parse rate limit info from response headers
-    const rateLimitRemaining = res.headers.get('x-ratelimit-remaining')
-    const rateLimitLimit = res.headers.get('x-ratelimit-limit')
-    if (res.status === 429) {
-      const err = new Error('RATE_LIMIT')
-      ;(err as any).rateLimitRemaining = rateLimitRemaining
-      ;(err as any).rateLimitLimit = rateLimitLimit
-      ;(err as any).statusCode = 429
+    if (!res.ok) {
+      const text = await res.text()
+      const rateLimitRemaining = res.headers.get('x-ratelimit-remaining')
+      const rateLimitLimit = res.headers.get('x-ratelimit-limit')
+      if (res.status === 429) {
+        const err = new Error('RATE_LIMIT')
+        ;(err as any).rateLimitRemaining = rateLimitRemaining
+        ;(err as any).rateLimitLimit = rateLimitLimit
+        ;(err as any).statusCode = 429
+        throw err
+      }
+      const err = new Error(`OpenRouter (${modelId}): ${res.status} - ${text.slice(0, 200)}`)
+      ;(err as any).status = res.status
       throw err
     }
-    throw new Error(`OpenRouter (${modelId}): ${res.status} - ${text.slice(0, 200)}`)
-  }
 
-  // Extract rate limit headers from successful response too
-  const data = await res.json()
-  const rateLimitRemaining = res.headers.get('x-ratelimit-remaining')
-  const rateLimitLimit = res.headers.get('x-ratelimit-limit')
-  if (rateLimitRemaining && rateLimitLimit) {
-    ;(data as any)._rateLimit = { remaining: parseInt(rateLimitRemaining), limit: parseInt(rateLimitLimit) }
-  }
-  return data.choices?.[0]?.message?.content || ''
+    const data = await res.json()
+    const rateLimitRemaining = res.headers.get('x-ratelimit-remaining')
+    const rateLimitLimit = res.headers.get('x-ratelimit-limit')
+    if (rateLimitRemaining && rateLimitLimit) {
+      ;(data as any)._rateLimit = { remaining: parseInt(rateLimitRemaining), limit: parseInt(rateLimitLimit) }
+    }
+    return data.choices?.[0]?.message?.content || ''
+  }, {
+    maxRetries: 3,
+    baseDelay: 2000,
+    retryableCodes: ['RATE_LIMIT', 'rate_limit', 'TooManyRequests'],
+    retryableStatuses: [429, 502, 503],
+  })
 }
 
+// ── callMistral AVEC RETRY ──
 async function callMistral(
   apiKey: string,
   modelId: string,
   messages: Array<{ role: string; content: string }>
 ): Promise<string> {
   const modelName = getMistralModelName(modelId)
-  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ model: modelName, messages }),
+  return withRetry(async () => {
+    const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ model: modelName, messages }),
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      const err = new Error(`Mistral (${modelName}): ${res.status} - ${text.slice(0, 200)}`)
+      ;(err as any).status = res.status
+      ;(err as any).Code = 'ResourceExhausted'
+      throw err
+    }
+
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content || ''
+  }, {
+    maxRetries: 5,
+    baseDelay: 1500,
+    retryableCodes: ['ResourceExhausted', 'overloaded', 'concurrency'],
+    retryableStatuses: [429, 502, 503, 504],
   })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Mistral (${modelName}): ${res.status} - ${text.slice(0, 200)}`)
-  }
-
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content || ''
 }
 
 async function callModel(
@@ -221,17 +242,15 @@ export async function POST(request: NextRequest) {
       : OPENROUTER_MODELS
     const numRounds = Math.min(Math.max(maxRounds || DEFAULT_MAX_ROUNDS, 1), 10)
 
-    // Smart evaluator: use Mistral if only Mistral models are selected, otherwise OpenRouter
+    // Smart evaluator selection
     const hasMistralModels = effectiveModelIds.some((m) => m.startsWith('mistral-direct/'))
     const hasORModels = effectiveModelIds.some((m) => !m.startsWith('mistral-direct/'))
     let evaluator: string
     if (evaluatorModel) {
       evaluator = evaluatorModel
     } else if (hasMistralModels && !hasORModels && mistralKey) {
-      // Only Mistral selected → use Mistral as evaluator to avoid OpenRouter calls
       evaluator = 'mistral-direct/mistral-small-latest'
     } else if (mistralKey && !openRouterKey) {
-      // Only Mistral key available
       evaluator = 'mistral-direct/mistral-small-latest'
     } else {
       evaluator = DEFAULT_EVALUATOR
@@ -240,15 +259,18 @@ export async function POST(request: NextRequest) {
     const allRounds: RoundData[] = []
     let currentResponses: ModelResponse[] = []
 
-    // 2. Round 1
-    const round1Promises = effectiveModelIds.map(async (modelId) => {
-      const response = await callModel(openRouterKey, mistralKey, modelId, [
-        { role: 'user', content: question },
-      ])
-      return { modelId, response } as ModelResponse
+    // ── Round 1 : appels séquentiels avec limite de concurrence ──
+    // AVANT : Promise.all (3 appels en parallèle) → ResourceExhausted
+    // APRÈS : max 2 appels simultanés
+    const round1Tasks = effectiveModelIds.map((modelId) => {
+      return async (): Promise<ModelResponse> => {
+        const response = await callModel(openRouterKey, mistralKey, modelId, [
+          { role: 'user', content: question },
+        ])
+        return { modelId, response }
+      }
     })
-
-    currentResponses = await Promise.all(round1Promises)
+    currentResponses = await runWithConcurrencyLimit(round1Tasks, 2)
 
     const eval1 = await evaluateConsensus(openRouterKey, mistralKey, evaluator, question, currentResponses)
     allRounds.push({
@@ -258,7 +280,7 @@ export async function POST(request: NextRequest) {
       consensusSummary: eval1.summary,
     })
 
-    // 3. Subsequent rounds
+    // ── Subsequent rounds : même limite de concurrence ──
     for (let r = 2; r <= numRounds; r++) {
       const previousResponsesText = currentResponses
         .map((resp) => `[${resp.modelId}]: ${resp.response}`)
@@ -272,16 +294,17 @@ ${previousResponsesText}
 
 En te basant sur ces réponses, affine ta propre réponse pour tendre vers un consensus avec les autres modèles. Identifie les points d'accord et propose une réponse nuancée qui intègre les meilleures contributions de chacun. Si tu es en désaccord avec un point, explique brièvement pourquoi.`
 
-      const refinePromises = effectiveModelIds.map(async (modelId) => {
-        const response = await callModel(openRouterKey, mistralKey, modelId, [
-          { role: 'user', content: question },
-          { role: 'assistant', content: currentResponses.find((r) => r.modelId === modelId)?.response || '' },
-          { role: 'user', content: refinementPrompt },
-        ])
-        return { modelId, response } as ModelResponse
+      const refineTasks = effectiveModelIds.map((modelId) => {
+        return async (): Promise<ModelResponse> => {
+          const response = await callModel(openRouterKey, mistralKey, modelId, [
+            { role: 'user', content: question },
+            { role: 'assistant', content: currentResponses.find((r) => r.modelId === modelId)?.response || '' },
+            { role: 'user', content: refinementPrompt },
+          ])
+          return { modelId, response }
+        }
       })
-
-      currentResponses = await Promise.all(refinePromises)
+      currentResponses = await runWithConcurrencyLimit(refineTasks, 2)
 
       const evalN = await evaluateConsensus(openRouterKey, mistralKey, evaluator, question, currentResponses)
       allRounds.push({
@@ -316,7 +339,6 @@ En te basant sur ces réponses, affine ta propre réponse pour tendre vers un co
     })
   } catch (error) {
     console.error('Consensus error:', error)
-    // Special handling for rate limit
     if (error instanceof Error && error.message === 'RATE_LIMIT') {
       const remaining = (error as any).rateLimitRemaining
       const limit = (error as any).rateLimitLimit

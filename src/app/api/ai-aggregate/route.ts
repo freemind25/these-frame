@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { runWithConcurrencyLimit } from '@/lib/concurrency'
 
 // ─── Types ──────────────────────────────────────────────
 interface ResearcherResponse {
@@ -68,51 +69,37 @@ const RESEARCHERS = [
 ]
 
 // ─── Helper: Extract key points from researcher response ──
-// Matches: "- POINT: text", "* POINT: text", "POINT: text", numbered lists, or bold key points
 function extractKeyPoints(response: string): string[] {
   const points: string[] = []
   const lines = response.split('\n')
   for (const line of lines) {
     const trimmed = line.trim()
-    if (!trimmed || trimmed.length < 15) continue
-    // Match "POINT: text" with optional bullet/number prefix
-    const pointMatch = trimmed.match(/^(?:[-*\d.)]+\s+)?(?:\*{0,2})\s*POINT\s*:\s*(.+)$/i)
-    if (pointMatch) {
-      points.push(pointMatch[1].replace(/\*+/g, '').trim())
-      continue
-    }
-    // Match bold key sentences like "**Clé :** text" or "- **Key:** text"
-    const boldKeyMatch = trimmed.match(/^(?:[-*\d.)]+\s+)?\*{0,2}(?:conclusion|recommandation|point clé|résultat|observation|idée clé|piste|enjeu|verdict)s?\s*[:：]\*{0,2}\s*(.+)$/i)
-    if (boldKeyMatch) {
-      points.push(boldKeyMatch[1].replace(/\*+/g, '').trim())
-    }
-  }
-  // Fallback: if no structured points found, extract last 3 meaningful sentences
-  if (points.length === 0 && response.length > 100) {
-    const sentences = response.replace(/\n/g, ' ').split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 30)
-    for (let i = Math.max(0, sentences.length - 3); i < sentences.length; i++) {
-      points.push(sentences[i].trim())
+    if (!trimmed || trimmed.length < 10) continue
+    if (/^[-*•]\s*POINT:/i.test(trimmed) || /^POINT:/i.test(trimmed)) {
+      const point = trimmed.replace(/^[-*•]\s*/i, '').trim()
+      if (point.length > 10) points.push(point)
     }
   }
   return points
 }
 
-// ─── Helper: Compute consensus between researchers ────
-function computeConsensus(responses: ResearcherResponse[]): {
-  points: ConsensusPoint[]
-  score: number
-} {
-  const allPoints: Map<string, { text: string; researchers: string[] }> = new Map()
+// ─── Helper: Compute consensus ──────────────────────────
+function computeConsensus(responses: ResearcherResponse[]) {
+  const allPoints = new Map<string, { text: string; researchers: string[] }>()
 
   for (const r of responses) {
     for (const point of r.keyPoints) {
       const normalized = point.toLowerCase().replace(/[^a-z0-9àâäéèêëïîôùûüÿçœæ\s]/g, '').trim()
       if (normalized.length < 10) continue
 
-      // Check for similar existing points (fuzzy match)
       let found = false
-      for (const [key, val] of allPoints) {
-        const similarity = computeSimilarity(normalized, key)
+      for (const [existing, val] of allPoints) {
+        const setA = new Set(existing.split(/\s+/))
+        const setB = new Set(normalized.split(/\s+/))
+        let inter = 0
+        for (const w of setA) if (setB.has(w)) inter++
+        const union = setA.size + setB.size - inter
+        const similarity = union === 0 ? 0 : inter / union
         if (similarity > 0.5) {
           val.researchers.push(r.researcherId)
           found = true
@@ -140,26 +127,12 @@ function computeConsensus(responses: ResearcherResponse[]): {
     })
   }
 
-  // Sort by agreement descending
   consensusPoints.sort((a, b) => b.agreement - a.agreement)
 
-  // Overall consensus score (0-100)
   const avgAgreement = consensusPoints.length > 0 ? totalAgreement / consensusPoints.length : 0
   const consensusScore = Math.round(avgAgreement * 100)
 
   return { points: consensusPoints, score: consensusScore }
-}
-
-// ─── Helper: Simple string similarity (Jaccard-like) ────
-function computeSimilarity(a: string, b: string): number {
-  const setA = new Set(a.split(/\s+/))
-  const setB = new Set(b.split(/\s+/))
-  let intersection = 0
-  for (const word of setA) {
-    if (setB.has(word)) intersection++
-  }
-  const union = setA.size + setB.size - intersection
-  return union === 0 ? 0 : intersection / union
 }
 
 // ─── Helper: Aggregate responses into a final synthesis ──
@@ -246,48 +219,54 @@ export async function POST(request: NextRequest) {
       chapterTitle ? `Chapitre en cours : ${chapterTitle}.` : '',
     ].filter(Boolean).join(' ')
 
-    // ── Phase 1: Query all researchers in parallel ──
-    const researcherPromises = selectedResearchers.map(async (researcher) => {
-      const researcherStart = Date.now()
-      try {
-        const systemPrompt = `${contextHeader}\n\n${researcher.systemSuffix}`
+    // ── Phase 1: Query researchers with CONCURRENCY LIMIT ──
+    // AVANT : Promise.all (5 appels en parallèle) → ResourceExhausted
+    // APRÈS : max 2 appels simultanés grâce à runWithConcurrencyLimit
 
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'assistant', content: systemPrompt },
-            { role: 'user', content: trimmedQuestion },
-          ],
-          thinking: { type: 'disabled' },
-        })
+    const researcherTasks = selectedResearchers.map((researcher) => {
+      return async (): Promise<ResearcherResponse> => {
+        const researcherStart = Date.now()
+        try {
+          const systemPrompt = `${contextHeader}\n\n${researcher.systemSuffix}`
 
-        const responseText = completion.choices[0]?.message?.content || ''
-        const keyPoints = extractKeyPoints(responseText)
-        const duration = Date.now() - researcherStart
+          const completion = await zai.chat.completions.create({
+            messages: [
+              { role: 'assistant', content: systemPrompt },
+              { role: 'user', content: trimmedQuestion },
+            ],
+            thinking: { type: 'disabled' },
+          })
 
-        return {
-          researcherId: researcher.id,
-          researcherName: researcher.name,
-          researcherRole: researcher.role,
-          response: responseText,
-          keyPoints,
-          confidence: keyPoints.length > 0 ? Math.min(1, keyPoints.length / 5) : 0.5,
-          duration,
-        } satisfies ResearcherResponse
-      } catch (err) {
-        console.error(`Researcher ${researcher.id} failed:`, err)
-        return {
-          researcherId: researcher.id,
-          researcherName: researcher.name,
-          researcherRole: researcher.role,
-          response: `Erreur lors de l'analyse : ${err instanceof Error ? err.message : 'inconnue'}`,
-          keyPoints: [],
-          confidence: 0,
-          duration: Date.now() - researcherStart,
-        } satisfies ResearcherResponse
+          const responseText = completion.choices[0]?.message?.content || ''
+          const keyPoints = extractKeyPoints(responseText)
+          const duration = Date.now() - researcherStart
+
+          return {
+            researcherId: researcher.id,
+            researcherName: researcher.name,
+            researcherRole: researcher.role,
+            response: responseText,
+            keyPoints,
+            confidence: keyPoints.length > 0 ? Math.min(1, keyPoints.length / 5) : 0.5,
+            duration,
+          } satisfies ResearcherResponse
+        } catch (err) {
+          console.error(`Researcher ${researcher.id} failed:`, err)
+          return {
+            researcherId: researcher.id,
+            researcherName: researcher.name,
+            researcherRole: researcher.role,
+            response: `Erreur lors de l'analyse : ${err instanceof Error ? err.message : 'inconnue'}`,
+            keyPoints: [],
+            confidence: 0,
+            duration: Date.now() - researcherStart,
+          } satisfies ResearcherResponse
+        }
       }
     })
 
-    const researcherResults = await Promise.all(researcherPromises)
+    // ★ CHANGEMENT CLÉ : max 2 appels en parallèle au lieu de Promise.all
+    const researcherResults = await runWithConcurrencyLimit(researcherTasks, 2)
 
     // ── Phase 2: Compute consensus ──
     const { points: consensusPoints, score: consensusScore } = computeConsensus(researcherResults)
