@@ -33,9 +33,9 @@ interface CreateChatCompletionBody {
   stream?: boolean
 }
 
-// ─── FILE D'ATTENTE GLOBALE (FIFO) ────────────────────────────────────
-// Toutes les requêtes AI passent par cette file.
-// Une seule requête à la fois = jamais de dépassement du seuil de concurrence.
+// ─── FILE D'ATTENTE LOCALE (FIFO) ─────────────────────────────────
+// Sérialise les appels AU SEIN d'un même container Vercel.
+// Utile pour ai-aggregate qui lance 5 chercheurs en parallèle.
 
 let queueRunning = false
 const aiQueue: Array<{
@@ -67,7 +67,7 @@ async function drainQueue() {
   queueRunning = false
 }
 
-// ─── DÉTECTION D'ERREURS REESSAYABLES ─────────────────────────────────
+// ─── DÉTECTION D'ERREURS RESSAYABLES ──────────────────────────────
 
 const RETRYABLE_KEYWORDS = [
   'resourceexhausted',
@@ -89,21 +89,33 @@ function isRetryableError(error: unknown): boolean {
   return RETRYABLE_KEYWORDS.some(kw => lower.includes(kw))
 }
 
-function getErrorSummary(error: unknown): string {
-  if (error instanceof Error) return error.message.slice(0, 200)
-  if (typeof error === 'string') return error.slice(0, 200)
-  return JSON.stringify(error).slice(0, 200)
-}
-
-// ─── RETRY AVEC BACKOFF EXPONENTIEL ───────────────────────────────────
-// 5 tentatives max, délais: ~1.5s, ~3s, ~6s, ~12s, ~15s (cap)
-// Temps total max de retry: ~37s (compatible avec le timeout Vercel)
+// ─── RETRY ADAPTATIF (v6) ─────────────────────────────────────────
+//
+// PROBLÈME : sur Vercel, 16 routes API différentes utilisent getZAI().
+// Chaque route est un container isolé → la file locale ne coordonne PAS
+// entre les containers. Si 2 routes font un appel AI simultanément,
+// DashScope renvoie ResourceExhausted.
+//
+// SOLUTION : des délais de retry LONGS (8s) car un appel AI typique
+// dure 5-15 secondes. On attend que l'autre appel se termine.
+//
+// Stratégie :
+//   - 5 retries, délai fixe de 8 secondes
+//   - Temps total de retry : 40s
+//   - Jitter proactif de 0-500ms avant chaque appel pour réduire
+//     la probabilité de collision initiale
+//   - Compatible timeout Vercel Pro (60s) : 40s retry + ~15s appel = 55s
 
 async function retryAI<T>(fn: () => Promise<T>, maxAttempts = 5): Promise<T> {
   let lastError: unknown
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
+      // Jitter proactif : petit délai aléatoire avant l'appel
+      // pour éviter que 2 containers ne frappent DashScope en même temps
+      if (attempt === 0) {
+        await new Promise(r => setTimeout(r, Math.random() * 500))
+      }
       return await fn()
     } catch (error) {
       lastError = error
@@ -111,9 +123,10 @@ async function retryAI<T>(fn: () => Promise<T>, maxAttempts = 5): Promise<T> {
       // Dernière tentative ou erreur non-retryable → on arrête
       if (attempt >= maxAttempts - 1 || !isRetryableError(error)) break
 
-      const delay = Math.min(1500 * Math.pow(2, attempt) + Math.random() * 500, 15000)
+      // Délai fixe de 8 secondes — assez long pour qu'un appel AI concurrent se termine
+      const delay = 8000 + Math.random() * 2000 // 8-10s avec jitter
       console.warn(
-        `[AI Queue] Retry ${attempt + 1}/${maxAttempts} après ${Math.round(delay)}ms – ${getErrorSummary(error)}`
+        `[AI v6] Retry ${attempt + 1}/${maxAttempts} après ${Math.round(delay / 1000)}s – ResourceExhausted détecté, attente de la fin de l'appel concurrent…`
       )
       await new Promise(r => setTimeout(r, delay))
     }
@@ -221,12 +234,11 @@ function readConfig(): { baseUrl: string; apiKey: string } | null {
 
 /**
  * Retourne un client AI prêt à l'emploi.
- * - En dev (fichier .z-ai-config) : utilise z-ai-web-dev-sdk
- * - Sur Vercel / avec env vars : utilise FetchAI (Mistral, OpenAI, etc.)
  *
- * Dans les deux cas, les appels sont :
- * 1. Sérialisés par une file FIFO (1 appel à la fois)
- * 2. Retentés automatiquement sur ResourceExhausted (5 max, backoff exponentiel)
+ * v6 – Cross-container retry :
+ * - File FIFO locale (sérialise les appels au sein d'un même container)
+ * - Retry avec délais de 8-10s (attend la fin des appels depuis d'autres containers)
+ * - Jitter proactif 0-500ms (réduit les collisions)
  */
 export async function getZAI(): Promise<ZAIClient> {
   if (zaiInstance) return zaiInstance
@@ -252,7 +264,7 @@ export async function getZAI(): Promise<ZAIClient> {
   }
   if (!raw) raw = new FetchAI(config.baseUrl, config.apiKey)
 
-  // Wrappé : queue FIFO + retry automatique
+  // Wrappé : queue FIFO locale + retry cross-container
   const originalCreate = raw.chat.completions.create.bind(raw.chat.completions)
 
   zaiInstance = {

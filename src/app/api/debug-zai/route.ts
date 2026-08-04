@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   return NextResponse.json({
-    patchVersion: 'v5-clean-queue',
-    hasQueue: true,
+    patchVersion: 'v6-cross-container-retry',
+    strategy: 'FIFO locale + retry 8-10s fixe (cross-container)',
     maxRetries: 5,
-    retryDelays: ['~1.5s', '~3s', '~6s', '~12s', '~15s'],
-    maxTotalRetryTime: '~37s',
-    serialization: 'FIFO (1 appel AI à la fois)',
+    retryDelay: '8-10 secondes (fixe + jitter)',
+    totalRetryTime: '~40s',
+    proactiveJitter: '0-500ms avant chaque appel',
     timestamp: new Date().toISOString(),
-    note: 'Si vous voyez patchVersion=v5-clean-queue, le patch v5 est chargé.',
+    note: 'v6: délais longs pour attendre la fin des appels concurrents depuis d\'autres containers Vercel.',
   })
 }
