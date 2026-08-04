@@ -19,12 +19,44 @@ interface CreateChatCompletionBody {
   stream?: boolean
 }
 
-// ─── Retry options ─────────────────────────────────────────────────────
+// ─── GLOBAL SEMAPHORE ──────────────────────────────────────────────────
+// Limite à 1 seul appel AI à la fois sur TOUTE l'application.
+// C'est la seule façon fiable de ne pas dépasser le seuil de concurrence
+// du conteneur DashScope quand on ne contrôle pas le backend.
+
+class SimpleSemaphore {
+  private queue: Array<() => void> = []
+  private active = 0
+
+  constructor(private max: number) {}
+
+  async acquire(): Promise<void> {
+    if (this.active < this.max) {
+      this.active++
+      return
+    }
+    return new Promise<void>(resolve => this.queue.push(resolve))
+  }
+
+  release(): void {
+    this.active--
+    const next = this.queue.shift()
+    if (next) {
+      this.active++
+      next()
+    }
+  }
+}
+
+// ★ Max 1 appel AI simultané dans tout le serveur ★
+const globalAISemaphore = new SimpleSemaphore(1)
+
+// ─── Retry options (délais plus longs) ────────────────────────────────
 
 const AI_RETRY_OPTIONS: RetryOptions = {
-  maxRetries: 5,
-  baseDelay: 1500,
-  maxDelay: 25000,
+  maxRetries: 8,
+  baseDelay: 3000,
+  maxDelay: 30000,
   retryableCodes: [
     'ResourceExhausted',
     'TooManyRequests',
@@ -37,76 +69,114 @@ const AI_RETRY_OPTIONS: RetryOptions = {
   retryableStatuses: [429, 502, 503, 504],
 }
 
+// ─── Helper: normalize any error to extract code ─────────────────────
+
+function extractErrorInfo(error: unknown): { code: string; isRetryable: boolean } {
+  const retryCodes = AI_RETRY_OPTIONS.retryableCodes || []
+  let raw = ''
+
+  if (!error) return { code: '', isRetryable: false }
+
+  // Cas 1 : l'erreur est une chaîne JSON brute
+  if (typeof error === 'string') {
+    raw = error
+  }
+  // Cas 2 : objet avec .Code (format DashScope)
+  else if (typeof error === 'object') {
+    const err = error as Record<string, unknown>
+    if (err.Code) raw = String(err.Code)
+    else if (err.code) raw = String(err.code)
+    else if (err.message) raw = String(err.message)
+    else raw = JSON.stringify(error)
+  }
+  // Cas 3 : Error standard
+  else if (error instanceof Error) {
+    raw = (error as any).Code || error.message || ''
+  }
+
+  // Tenter de parser si c'est du JSON
+  let code = raw
+  try {
+    const parsed = JSON.parse(raw)
+    if (parsed.Code) code = parsed.Code
+    else if (parsed.code) code = parsed.code
+    else if (parsed.error?.code) code = parsed.code
+  } catch { /* pas du JSON, utiliser tel quel */ }
+
+  const isRetryable = retryCodes.some(c =>
+    code.toLowerCase().includes(c.toLowerCase())
+  )
+
+  return { code, isRetryable }
+}
+
 // ─── Helper: check response body for hidden errors ─────────────────────
-/**
- * Certaines APIs (DashScope, Alibaba Cloud) retournent HTTP 200
- * avec une erreur dans le body JSON : {"Code":"ResourceExhausted",...}
- * Cette fonction détecte ce cas et lève une erreur retentable.
- */
+
 function checkResponseForErrors(response: any): void {
   if (!response || typeof response !== 'object') return
 
-  // Cas 1 : { Code: "ResourceExhausted", Message: "..." }
   const code = response.Code || response.code || response.error?.code
   if (code && typeof code === 'string') {
-    const retryableCodes = AI_RETRY_OPTIONS.retryableCodes || []
-    const isRetryable = retryableCodes.some(c =>
-      code.toLowerCase().includes(c.toLowerCase())
-    )
+    const { isRetryable } = extractErrorInfo({ Code: code })
     if (isRetryable) {
       const err = new Error(`AI Error [${code}]: ${response.Message || response.message || ''}`)
       ;(err as any).Code = code
       ;(err as any).status = 429
-      ;(err as any).statusCode = 429
       throw err
     }
   }
 
-  // Cas 2 : OpenAI-style { error: { type: "...", message: "..." } }
   if (response.error && typeof response.error === 'object') {
-    const errType = String(response.error.type || '')
-    const errMsg = String(response.error.message || '')
-    const combined = `${errType} ${errMsg}`.toLowerCase()
-    const retryableCodes = AI_RETRY_OPTIONS.retryableCodes || []
-    const isRetryable = retryableCodes.some(c => combined.includes(c.toLowerCase()))
+    const { isRetryable } = extractErrorInfo(response.error)
     if (isRetryable) {
-      const err = new Error(`AI Error: ${errMsg}`)
-      ;(err as any).Code = errType
+      const err = new Error(`AI Error: ${response.error.message || ''}`)
+      ;(err as any).Code = response.error.type || response.error.code
       ;(err as any).status = 429
       throw err
     }
   }
 }
 
-// ─── Helper: wrap any zai instance with retry ─────────────────────────
-/**
- * Crée un proxy autour de n'importe quelle instance ZAI (SDK ou FetchAI)
- * qui ajoute automatiquement le retry + la détection d'erreurs dans le body.
- */
+// ─── Wrapper: retry + global semaphore ─────────────────────────────────
+
 function createResilientWrapper(rawZai: any): any {
   return {
     chat: {
       completions: {
         create: async (body: CreateChatCompletionBody): Promise<any> => {
-          return withRetry(async () => {
-            const response = await rawZai.chat.completions.create(body)
-
-            // Vérifier si la réponse contient une erreur cachée (HTTP 200 + erreur dans body)
-            checkResponseForErrors(response)
-
-            return response
-          }, AI_RETRY_OPTIONS)
+          // ★ Sémaphore global : un seul appel AI à la fois
+          await globalAISemaphore.acquire()
+          try {
+            return await withRetry(async () => {
+              try {
+                const response = await rawZai.chat.completions.create(body)
+                checkResponseForErrors(response)
+                return response
+              } catch (error: unknown) {
+                const { code, isRetryable } = extractErrorInfo(error)
+                console.error(`[AI] Erreur détectée: code=${code}, retryable=${isRetryable}`)
+                if (isRetryable) {
+                  const err = new Error(`AI [${code}]: ${(error instanceof Error ? error.message : String(error)).slice(0, 200)}`)
+                  ;(err as any).Code = code
+                  ;(err as any).status = 429
+                  throw err
+                }
+                throw error
+              }
+            }, AI_RETRY_OPTIONS)
+          } finally {
+            globalAISemaphore.release()
+          }
         },
       },
     },
-    // Passer les autres méthodes sans wrapping (audio, functions, images, etc.)
     audio: rawZai.audio,
     functions: rawZai.functions,
     images: rawZai.images,
   }
 }
 
-// ─── Lightweight fetch-based client ─────────────────────────────────────
+// ─── FetchAI client ────────────────────────────────────────────────────
 
 class FetchAI {
   private baseUrl: string
@@ -149,7 +219,6 @@ class FetchAI {
             return { choices: [] }
           }
 
-          // Vérifier les erreurs dans le body (même sur HTTP 200)
           checkResponseForErrors(data)
 
           if (!res.ok) {
@@ -167,29 +236,17 @@ class FetchAI {
 
   get audio() {
     return {
-      asr: {
-        create: async (_params: { file_base64: string }): Promise<any> => {
-          throw new Error('ASR (speech-to-text) requires the Z.ai platform.')
-        },
-      },
+      asr: { create: async () => { throw new Error('ASR requires the Z.ai platform.') } },
     }
   }
-
   get functions() {
     return {
-      invoke: async (_name: string, _args: any): Promise<any> => {
-        throw new Error('AI functions (web_search, page_reader) require the Z.ai platform.')
-      },
+      invoke: async () => { throw new Error('AI functions require the Z.ai platform.') },
     }
   }
-
   get images() {
     return {
-      generations: {
-        create: async (_params: any): Promise<any> => {
-          throw new Error('Image generation requires the Z.ai platform.')
-        },
-      },
+      generations: { create: async () => { throw new Error('Image generation requires the Z.ai platform.') } },
     }
   }
 }
@@ -223,14 +280,6 @@ function readConfig(): { baseUrl: string; apiKey: string } | null {
   return null
 }
 
-/**
- * Get a ready-to-use AI client with automatic retry.
- *
- * - In dev (Z.ai config file): uses the full z-ai-web-dev-sdk, WRAPPED with retry
- * - On Vercel / with env vars: uses FetchAI, WRAPPED with retry
- *
- * ALL paths now have retry + response body error detection.
- */
 export async function getZAI() {
   if (zaiInstance) return zaiInstance
 
@@ -250,7 +299,6 @@ export async function getZAI() {
 
   let rawInstance: any
 
-  // Try native SDK first (works in dev with Z.ai internal API)
   if (!process.env.AI_BASE_URL && !process.env.ZAI_BASE_URL) {
     try {
       const ZAI = (await import('z-ai-web-dev-sdk')).default
@@ -261,12 +309,11 @@ export async function getZAI() {
     }
   }
 
-  // Fetch-based client fallback
   if (!rawInstance) {
     rawInstance = new FetchAI(config.baseUrl, config.apiKey)
   }
 
-  // ★ POINT CLÉ : wrapper TOUJOURS avec retry, quel que soit le backend
+  // ★ TOUJOURS wrappé : retry + sémaphore global
   zaiInstance = createResilientWrapper(rawInstance)
   return zaiInstance
 }
