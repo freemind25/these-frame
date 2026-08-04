@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
-import { runWithConcurrencyLimit } from '@/lib/concurrency'
 
 // ─── Types ──────────────────────────────────────────────
 interface ResearcherResponse {
@@ -265,8 +264,10 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // ★ CHANGEMENT CLÉ : max 2 appels en parallèle au lieu de Promise.all
-    const researcherResults = await runWithConcurrencyLimit(researcherTasks, 2)
+    // La queue FIFO dans zai.ts sérialise les appels AI automatiquement.
+    // Promise.all lance les tâches en parallèle, mais la file s'assure qu'un seul appel
+    // AI est exécuté à la fois → jamais de ResourceExhausted.
+    const researcherResults = await Promise.all(researcherTasks.map(t => t()))
 
     // ── Phase 2: Compute consensus ──
     const { points: consensusPoints, score: consensusScore } = computeConsensus(researcherResults)
