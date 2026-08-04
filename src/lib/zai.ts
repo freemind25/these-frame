@@ -100,13 +100,11 @@ function isRetryableError(error: unknown): boolean {
 // dure 5-15 secondes. On attend que l'autre appel se termine.
 //
 // Stratégie :
-//   - 5 retries, délai fixe de 8 secondes
-//   - Temps total de retry : 40s
-//   - Jitter proactif de 0-500ms avant chaque appel pour réduire
-//     la probabilité de collision initiale
-//   - Compatible timeout Vercel Pro (60s) : 40s retry + ~15s appel = 55s
+//   - 3 retries, délai de 5-6s (adapté au maxDuration=30s de Vercel)
+//   - Temps total de retry : ~18s
+//   - Jitter proactif de 0-500ms avant chaque appel
 
-async function retryAI<T>(fn: () => Promise<T>, maxAttempts = 5): Promise<T> {
+async function retryAI<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
   let lastError: unknown
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -123,10 +121,11 @@ async function retryAI<T>(fn: () => Promise<T>, maxAttempts = 5): Promise<T> {
       // Dernière tentative ou erreur non-retryable → on arrête
       if (attempt >= maxAttempts - 1 || !isRetryableError(error)) break
 
-      // Délai fixe de 8 secondes — assez long pour qu'un appel AI concurrent se termine
-      const delay = 8000 + Math.random() * 2000 // 8-10s avec jitter
+      // Délai de 5 secondes — attend qu'un appel AI concurrent se termine.
+      // maxDuration=30s dans vercel.json → 3 retries × 5s = 15s + 15s appel = 30s
+      const delay = 5000 + Math.random() * 1000 // 5-6s avec jitter
       console.warn(
-        `[AI v6] Retry ${attempt + 1}/${maxAttempts} après ${Math.round(delay / 1000)}s – ResourceExhausted détecté, attente de la fin de l'appel concurrent…`
+        `[AI v6] Retry ${attempt + 1}/${maxAttempts} après ${Math.round(delay / 1000)}s – ResourceExhausted, attente appel concurrent…`
       )
       await new Promise(r => setTimeout(r, delay))
     }
@@ -271,7 +270,7 @@ export async function getZAI(): Promise<ZAIClient> {
     chat: {
       completions: {
         create: (body: Record<string, unknown>) => {
-          return enqueue(() => retryAI(() => originalCreate(body as any), 5))
+          return enqueue(() => retryAI(() => originalCreate(body as any), 3))
         },
       },
     },
