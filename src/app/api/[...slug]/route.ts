@@ -1,9 +1,8 @@
 // AUTO-GENERATED API ROUTER — DO NOT EDIT MANUALLY
-// Consolidated 88 route files into a single serverless function for Vercel Hobby plan
+// Consolidated 88 route files into 1 serverless function for Vercel Hobby plan
 
 import { NextRequest, NextResponse } from 'next/server'
 
-// ─── Handler imports (alphabetical) ───────────────────────────────────
 import * as h_academy_db_annas_archive from '@/app/api/academy-db/annas-archive/handler'
 import * as h_academy_db_libgen_im from '@/app/api/academy-db/libgen-im/handler'
 import * as h_academy_db_libguides from '@/app/api/academy-db/libguides/handler'
@@ -73,11 +72,13 @@ import * as h_notebook_sources from '@/app/api/notebook/sources/handler'
 import * as h_office_export_docx from '@/app/api/office/export-docx/handler'
 import * as h_office_export_pptx from '@/app/api/office/export-pptx/handler'
 import * as h_office_export_xlsx from '@/app/api/office/export-xlsx/handler'
+import * as h_ping from '@/app/api/ping/handler'
 import * as h_references from '@/app/api/references/handler'
 import * as h_references_bibtex from '@/app/api/references/bibtex/handler'
 import * as h_references_claim_check from '@/app/api/references/claim-check/handler'
 import * as h_references_import_bibtex from '@/app/api/references/import-bibtex/handler'
 import * as h_references_verify from '@/app/api/references/verify/handler'
+import * as h_root from '@/app/api/handler'
 import * as h_setup from '@/app/api/setup/handler'
 import * as h_thesis from '@/app/api/thesis/handler'
 import * as h_thesis_apply_template from '@/app/api/thesis/apply-template/handler'
@@ -90,208 +91,158 @@ import * as h_thesis_seed from '@/app/api/thesis/seed/handler'
 import * as h_thesis_search_index from '@/app/api/thesis-search/index/handler'
 import * as h_thesis_search_search from '@/app/api/thesis-search/search/handler'
 import * as h_thesis_switch_mode from '@/app/api/thesis/switch-mode/handler'
-import * as h_root from '@/app/api/handler'
 
-// ─── Route types ─────────────────────────────────────────────────────
+// ─── Route definitions ───────────────────────────────────────────────
+// Each route: [patternSegments, handlerMap, dynamicParamNames?, isCatchAll?, catchAllParamName?]
+// null in pattern = wildcard (matches any value)
 
-type HandlerMap = Record<string, Function>
+const ROUTES: Array<{
+  segs: (string | null)[]
+  h: Record<string, Function>
+  pNames?: string[]
+  isCatchAll?: boolean
+  restParam?: string
+}> = [
+  // --- Catch-all routes (longest match first) ---
+  { segs: ['admin', null], h: { GET: h_admin_secret_action.GET }, pNames: ['secret'], isCatchAll: true, restParam: 'action' },
 
-interface StaticRoute {
-  kind: 'static'
-  segments: string[]           // e.g. ['thesis', 'chapters']
-  handler: HandlerMap
-}
+  // --- 3-segment dynamic ---
+  { segs: ['thesis', 'chapters', null], h: { GET: h_thesis_chapters_chapterId.GET, PATCH: h_thesis_chapters_chapterId.PATCH, DELETE: h_thesis_chapters_chapterId.DELETE }, pNames: ['chapterId'] },
+  { segs: ['thesis', 'parts', null], h: { DELETE: h_thesis_parts_partId.DELETE }, pNames: ['partId'] },
 
-interface DynamicRoute {
-  kind: 'dynamic'
-  segments: (string | null)[]  // null = wildcard, e.g. ['thesis', 'chapters', null]
-  paramNames: string[]         // e.g. ['chapterId']
-  handler: HandlerMap
-}
+  // --- 3-segment static ---
+  { segs: ['academy-db', 'annas-archive'], h: { GET: h_academy_db_annas_archive.GET } },
+  { segs: ['academy-db', 'libgen-im'], h: { GET: h_academy_db_libgen_im.GET } },
+  { segs: ['academy-db', 'libguides'], h: { GET: h_academy_db_libguides.GET } },
+  { segs: ['academy-db', 'welib'], h: { GET: h_academy_db_welib.GET } },
+  { segs: ['asr', 'transcribe'], h: { POST: h_asr_transcribe.POST } },
+  { segs: ['auth', 'activate'], h: { POST: h_auth_activate.POST } },
+  { segs: ['auth', 'admin', 'generate'], h: { POST: h_auth_admin_generate.POST } },
+  { segs: ['auth', 'admin', 'keys'], h: { GET: h_auth_admin_keys.GET, POST: h_auth_admin_keys.POST, DELETE: h_auth_admin_keys.DELETE } },
+  { segs: ['auth', 'auth0', 'authorize'], h: { GET: h_auth_auth0_authorize.GET } },
+  { segs: ['auth', 'auth0', 'callback'], h: { GET: h_auth_auth0_callback.GET } },
+  { segs: ['auth', 'auth0', 'userinfo'], h: { GET: h_auth_auth0_userinfo.GET } },
+  { segs: ['auth', 'deactivate'], h: { POST: h_auth_deactivate.POST } },
+  { segs: ['auth', 'providers'], h: { GET: h_auth_providers.GET, POST: h_auth_providers.POST, DELETE: h_auth_providers.DELETE } },
+  { segs: ['auth', 'providers', 'accounts'], h: { GET: h_auth_providers_accounts.GET } },
+  { segs: ['auth', 'status'], h: { GET: h_auth_status.GET } },
+  { segs: ['auth', 'stytch', 'send-magic-link'], h: { POST: h_auth_stytch_send_magic_link.POST } },
+  { segs: ['auth', 'stytch', 'send-otp'], h: { POST: h_auth_stytch_send_otp.POST } },
+  { segs: ['auth', 'stytch', 'verify-magic-link'], h: { POST: h_auth_stytch_verify_magic_link.POST } },
+  { segs: ['auth', 'stytch', 'verify-otp'], h: { POST: h_auth_stytch_verify_otp.POST } },
+  { segs: ['auth', 'warrant', 'check'], h: { POST: h_auth_warrant_check.POST } },
+  { segs: ['auth', 'warrant', 'policies'], h: { GET: h_auth_warrant_policies.GET, POST: h_auth_warrant_policies.POST, PUT: h_auth_warrant_policies.PUT, DELETE: h_auth_warrant_policies.DELETE } },
+  { segs: ['automation', 'agents', 'execute'], h: { POST: h_automation_agents_execute.POST } },
+  { segs: ['automation', 'pipeline'], h: { POST: h_automation_pipeline.POST } },
+  { segs: ['cadrage', 'generate'], h: { POST: h_cadrage_generate.POST } },
+  { segs: ['cadrage', 'reformulate'], h: { POST: h_cadrage_reformulate.POST } },
+  { segs: ['cadrage', 'validate'], h: { POST: h_cadrage_validate.POST } },
+  { segs: ['cadrage', 'verify'], h: { POST: h_cadrage_verify.POST } },
+  { segs: ['cloud-drive', 'callback'], h: { GET: h_cloud_drive_callback.GET } },
+  { segs: ['cloud-drive', 'connect'], h: { GET: h_cloud_drive_connect.GET } },
+  { segs: ['cloud-drive', 'disconnect'], h: { POST: h_cloud_drive_disconnect.POST } },
+  { segs: ['cloud-drive', 'files'], h: { GET: h_cloud_drive_files.GET } },
+  { segs: ['cloud-drive', 'status'], h: { GET: h_cloud_drive_status.GET } },
+  { segs: ['consensus', 'config'], h: { POST: h_consensus_config.POST, DELETE: h_consensus_config.DELETE } },
+  { segs: ['consensus', 'mistral-config'], h: { POST: h_consensus_mistral_config.POST, DELETE: h_consensus_mistral_config.DELETE } },
+  { segs: ['literature-search', 'consensus'], h: { POST: h_literature_search_consensus.POST } },
+  { segs: ['literature-search', 'doi-lookup'], h: { POST: h_literature_search_doi_lookup.POST } },
+  { segs: ['literature-search', 'recommend'], h: { POST: h_literature_search_recommend.POST } },
+  { segs: ['literature-search', 'related'], h: { POST: h_literature_search_related.POST } },
+  { segs: ['mendeley', 'auth'], h: { GET: h_mendeley_auth.GET, POST: h_mendeley_auth.POST } },
+  { segs: ['mendeley', 'callback'], h: { GET: h_mendeley_callback.GET } },
+  { segs: ['mendeley', 'disconnect'], h: { POST: h_mendeley_disconnect.POST } },
+  { segs: ['mendeley', 'documents'], h: { GET: h_mendeley_documents.GET } },
+  { segs: ['mendeley', 'search'], h: { GET: h_mendeley_search.GET } },
+  { segs: ['notebook', 'ask'], h: { POST: h_notebook_ask.POST } },
+  { segs: ['notebook', 'entries'], h: { GET: h_notebook_entries.GET, DELETE: h_notebook_entries.DELETE } },
+  { segs: ['notebook', 'sources'], h: { GET: h_notebook_sources.GET, POST: h_notebook_sources.POST, PUT: h_notebook_sources.PUT, DELETE: h_notebook_sources.DELETE } },
+  { segs: ['office', 'export-docx'], h: { POST: h_office_export_docx.POST } },
+  { segs: ['office', 'export-pptx'], h: { POST: h_office_export_pptx.POST } },
+  { segs: ['office', 'export-xlsx'], h: { POST: h_office_export_xlsx.POST } },
+  { segs: ['references', 'bibtex'], h: { GET: h_references_bibtex.GET } },
+  { segs: ['references', 'claim-check'], h: { POST: h_references_claim_check.POST } },
+  { segs: ['references', 'import-bibtex'], h: { POST: h_references_import_bibtex.POST } },
+  { segs: ['references', 'verify'], h: { POST: h_references_verify.POST } },
+  { segs: ['thesis', 'apply-template'], h: { POST: h_thesis_apply_template.POST } },
+  { segs: ['thesis', 'chapters'], h: { POST: h_thesis_chapters.POST, PATCH: h_thesis_chapters.PATCH } },
+  { segs: ['thesis', 'parts'], h: { POST: h_thesis_parts.POST, PATCH: h_thesis_parts.PATCH } },
+  { segs: ['thesis', 'seed'], h: { POST: h_thesis_seed.POST } },
+  { segs: ['thesis', 'switch-mode'], h: { POST: h_thesis_switch_mode.POST } },
+  { segs: ['thesis-search', 'index'], h: { POST: h_thesis_search_index.POST } },
+  { segs: ['thesis-search', 'search'], h: { GET: h_thesis_search_search.GET } },
 
-interface CatchAllRoute {
-  kind: 'catch-all'
-  prefix: (string | null)[]    // e.g. ['admin', null]  (null = wildcard)
-  prefixParamNames: string[]   // e.g. ['secret']
-  restParam: string            // e.g. 'action'
-  handler: HandlerMap
-}
+  // --- 1-segment static (shortest, lowest priority) ---
+  { segs: ['agile-roadmap'], h: { GET: h_agile_roadmap.GET, PATCH: h_agile_roadmap.PATCH, DELETE: h_agile_roadmap.DELETE, POST: h_agile_roadmap.POST } },
+  { segs: ['ai-aggregate'], h: { POST: h_ai_aggregate.POST } },
+  { segs: ['ai-status'], h: { GET: h_ai_status.GET } },
+  { segs: ['ai-writing'], h: { POST: h_ai_writing.POST, DELETE: h_ai_writing.DELETE } },
+  { segs: ['cadrage'], h: { GET: h_cadrage.GET, PUT: h_cadrage.PUT } },
+  { segs: ['consensus'], h: { GET: h_consensus.GET, POST: h_consensus.POST } },
+  { segs: ['debug-env'], h: { GET: h_debug_env.GET } },
+  { segs: ['debug-zai'], h: { GET: h_debug_zai.GET } },
+  { segs: ['directeur'], h: { POST: h_directeur.POST } },
+  { segs: ['directeur-chat'], h: { POST: h_directeur_chat.POST, DELETE: h_directeur_chat.DELETE } },
+  { segs: ['download'], h: { GET: h_download.GET } },
+  { segs: ['export-pdf'], h: { POST: h_export_pdf.POST } },
+  { segs: ['generate-latex'], h: { POST: h_generate_latex.POST } },
+  { segs: ['grammar-check'], h: { POST: h_grammar_check.POST } },
+  { segs: ['guidance'], h: { POST: h_guidance.POST } },
+  { segs: ['harper-lint'], h: { POST: h_harper_lint.POST } },
+  { segs: ['humanizer'], h: { POST: h_humanizer.POST } },
+  { segs: ['journal-finder'], h: { POST: h_journal_finder.POST } },
+  { segs: ['literature-search'], h: { POST: h_literature_search.POST } },
+  { segs: ['ping'], h: { GET: h_ping.GET } },
+  { segs: ['references'], h: { GET: h_references.GET, POST: h_references.POST, PUT: h_references.PUT, DELETE: h_references.DELETE } },
+  { segs: ['setup'], h: { POST: h_setup.POST } },
+  { segs: ['thesis'], h: { GET: h_thesis.GET, PATCH: h_thesis.PATCH } },
+  { segs: ['thesis-assistant'], h: { POST: h_thesis_assistant.POST, DELETE: h_thesis_assistant.DELETE } },
 
-type Route = StaticRoute | DynamicRoute | CatchAllRoute
-
-// ─── Route table (most-specific first) ───────────────────────────────
-
-const ROUTES: Route[] = [
-  // Catch-all routes (highest priority)
-  {
-    kind: 'catch-all',
-    prefix: ['admin', null],
-    prefixParamNames: ['secret'],
-    restParam: 'action',
-    handler: { GET: h_admin_secret_action.GET },
-  },
-
-  // 3-segment dynamic routes
-  {
-    kind: 'dynamic',
-    segments: ['thesis', 'chapters', null],
-    paramNames: ['chapterId'],
-    handler: { GET: h_thesis_chapters_chapterId.GET, PATCH: h_thesis_chapters_chapterId.PATCH, DELETE: h_thesis_chapters_chapterId.DELETE },
-  },
-  {
-    kind: 'dynamic',
-    segments: ['thesis', 'parts', null],
-    paramNames: ['partId'],
-    handler: { DELETE: h_thesis_parts_partId.DELETE },
-  },
-
-  // 3-segment static routes
-  { kind: 'static', segments: ['academy-db', 'annas-archive'], handler: { GET: h_academy_db_annas_archive.GET } },
-  { kind: 'static', segments: ['academy-db', 'libgen-im'], handler: { GET: h_academy_db_libgen_im.GET } },
-  { kind: 'static', segments: ['academy-db', 'libguides'], handler: { GET: h_academy_db_libguides.GET } },
-  { kind: 'static', segments: ['academy-db', 'welib'], handler: { GET: h_academy_db_welib.GET } },
-  { kind: 'static', segments: ['asr', 'transcribe'], handler: { POST: h_asr_transcribe.POST } },
-  { kind: 'static', segments: ['auth', 'activate'], handler: { POST: h_auth_activate.POST } },
-  { kind: 'static', segments: ['auth', 'admin', 'generate'], handler: { POST: h_auth_admin_generate.POST } },
-  { kind: 'static', segments: ['auth', 'admin', 'keys'], handler: { GET: h_auth_admin_keys.GET, POST: h_auth_admin_keys.POST, DELETE: h_auth_admin_keys.DELETE } },
-  { kind: 'static', segments: ['auth', 'auth0', 'authorize'], handler: { GET: h_auth_auth0_authorize.GET } },
-  { kind: 'static', segments: ['auth', 'auth0', 'callback'], handler: { GET: h_auth_auth0_callback.GET } },
-  { kind: 'static', segments: ['auth', 'auth0', 'userinfo'], handler: { GET: h_auth_auth0_userinfo.GET } },
-  { kind: 'static', segments: ['auth', 'deactivate'], handler: { POST: h_auth_deactivate.POST } },
-  { kind: 'static', segments: ['auth', 'providers'], handler: { GET: h_auth_providers.GET, POST: h_auth_providers.POST, DELETE: h_auth_providers.DELETE } },
-  { kind: 'static', segments: ['auth', 'providers', 'accounts'], handler: { GET: h_auth_providers_accounts.GET } },
-  { kind: 'static', segments: ['auth', 'status'], handler: { GET: h_auth_status.GET } },
-  { kind: 'static', segments: ['auth', 'stytch', 'send-magic-link'], handler: { POST: h_auth_stytch_send_magic_link.POST } },
-  { kind: 'static', segments: ['auth', 'stytch', 'send-otp'], handler: { POST: h_auth_stytch_send_otp.POST } },
-  { kind: 'static', segments: ['auth', 'stytch', 'verify-magic-link'], handler: { POST: h_auth_stytch_verify_magic_link.POST } },
-  { kind: 'static', segments: ['auth', 'stytch', 'verify-otp'], handler: { POST: h_auth_stytch_verify_otp.POST } },
-  { kind: 'static', segments: ['auth', 'warrant', 'check'], handler: { POST: h_auth_warrant_check.POST } },
-  { kind: 'static', segments: ['auth', 'warrant', 'policies'], handler: { GET: h_auth_warrant_policies.GET, POST: h_auth_warrant_policies.POST, PUT: h_auth_warrant_policies.PUT, DELETE: h_auth_warrant_policies.DELETE } },
-  { kind: 'static', segments: ['automation', 'agents', 'execute'], handler: { POST: h_automation_agents_execute.POST } },
-  { kind: 'static', segments: ['automation', 'pipeline'], handler: { POST: h_automation_pipeline.POST } },
-  { kind: 'static', segments: ['cadrage', 'generate'], handler: { POST: h_cadrage_generate.POST } },
-  { kind: 'static', segments: ['cadrage', 'reformulate'], handler: { POST: h_cadrage_reformulate.POST } },
-  { kind: 'static', segments: ['cadrage', 'validate'], handler: { POST: h_cadrage_validate.POST } },
-  { kind: 'static', segments: ['cadrage', 'verify'], handler: { POST: h_cadrage_verify.POST } },
-  { kind: 'static', segments: ['cloud-drive', 'callback'], handler: { GET: h_cloud_drive_callback.GET } },
-  { kind: 'static', segments: ['cloud-drive', 'connect'], handler: { GET: h_cloud_drive_connect.GET } },
-  { kind: 'static', segments: ['cloud-drive', 'disconnect'], handler: { POST: h_cloud_drive_disconnect.POST } },
-  { kind: 'static', segments: ['cloud-drive', 'files'], handler: { GET: h_cloud_drive_files.GET } },
-  { kind: 'static', segments: ['cloud-drive', 'status'], handler: { GET: h_cloud_drive_status.GET } },
-  { kind: 'static', segments: ['consensus', 'config'], handler: { POST: h_consensus_config.POST, DELETE: h_consensus_config.DELETE } },
-  { kind: 'static', segments: ['consensus', 'mistral-config'], handler: { POST: h_consensus_mistral_config.POST, DELETE: h_consensus_mistral_config.DELETE } },
-  { kind: 'static', segments: ['literature-search', 'consensus'], handler: { POST: h_literature_search_consensus.POST } },
-  { kind: 'static', segments: ['literature-search', 'doi-lookup'], handler: { POST: h_literature_search_doi_lookup.POST } },
-  { kind: 'static', segments: ['literature-search', 'recommend'], handler: { POST: h_literature_search_recommend.POST } },
-  { kind: 'static', segments: ['literature-search', 'related'], handler: { POST: h_literature_search_related.POST } },
-  { kind: 'static', segments: ['mendeley', 'auth'], handler: { GET: h_mendeley_auth.GET, POST: h_mendeley_auth.POST } },
-  { kind: 'static', segments: ['mendeley', 'callback'], handler: { GET: h_mendeley_callback.GET } },
-  { kind: 'static', segments: ['mendeley', 'disconnect'], handler: { POST: h_mendeley_disconnect.POST } },
-  { kind: 'static', segments: ['mendeley', 'documents'], handler: { GET: h_mendeley_documents.GET } },
-  { kind: 'static', segments: ['mendeley', 'search'], handler: { GET: h_mendeley_search.GET } },
-  { kind: 'static', segments: ['notebook', 'ask'], handler: { POST: h_notebook_ask.POST } },
-  { kind: 'static', segments: ['notebook', 'entries'], handler: { GET: h_notebook_entries.GET, DELETE: h_notebook_entries.DELETE } },
-  { kind: 'static', segments: ['notebook', 'sources'], handler: { GET: h_notebook_sources.GET, POST: h_notebook_sources.POST, PUT: h_notebook_sources.PUT, DELETE: h_notebook_sources.DELETE } },
-  { kind: 'static', segments: ['office', 'export-docx'], handler: { POST: h_office_export_docx.POST } },
-  { kind: 'static', segments: ['office', 'export-pptx'], handler: { POST: h_office_export_pptx.POST } },
-  { kind: 'static', segments: ['office', 'export-xlsx'], handler: { POST: h_office_export_xlsx.POST } },
-  { kind: 'static', segments: ['references', 'bibtex'], handler: { GET: h_references_bibtex.GET } },
-  { kind: 'static', segments: ['references', 'claim-check'], handler: { POST: h_references_claim_check.POST } },
-  { kind: 'static', segments: ['references', 'import-bibtex'], handler: { POST: h_references_import_bibtex.POST } },
-  { kind: 'static', segments: ['references', 'verify'], handler: { POST: h_references_verify.POST } },
-  { kind: 'static', segments: ['thesis', 'apply-template'], handler: { POST: h_thesis_apply_template.POST } },
-  { kind: 'static', segments: ['thesis', 'chapters'], handler: { POST: h_thesis_chapters.POST, PATCH: h_thesis_chapters.PATCH } },
-  { kind: 'static', segments: ['thesis', 'parts'], handler: { POST: h_thesis_parts.POST, PATCH: h_thesis_parts.PATCH } },
-  { kind: 'static', segments: ['thesis', 'seed'], handler: { POST: h_thesis_seed.POST } },
-  { kind: 'static', segments: ['thesis', 'switch-mode'], handler: { POST: h_thesis_switch_mode.POST } },
-  { kind: 'static', segments: ['thesis-search', 'index'], handler: { POST: h_thesis_search_index.POST } },
-  { kind: 'static', segments: ['thesis-search', 'search'], handler: { GET: h_thesis_search_search.GET } },
-
-  // 1-segment static routes (shortest, lowest priority)
-  { kind: 'static', segments: ['agile-roadmap'], handler: { GET: h_agile_roadmap.GET, PATCH: h_agile_roadmap.PATCH, DELETE: h_agile_roadmap.DELETE, POST: h_agile_roadmap.POST } },
-  { kind: 'static', segments: ['ai-aggregate'], handler: { POST: h_ai_aggregate.POST } },
-  { kind: 'static', segments: ['ai-status'], handler: { GET: h_ai_status.GET } },
-  { kind: 'static', segments: ['ai-writing'], handler: { POST: h_ai_writing.POST, DELETE: h_ai_writing.DELETE } },
-  { kind: 'static', segments: ['cadrage'], handler: { GET: h_cadrage.GET, PUT: h_cadrage.PUT } },
-  { kind: 'static', segments: ['consensus'], handler: { GET: h_consensus.GET, POST: h_consensus.POST } },
-  { kind: 'static', segments: ['debug-env'], handler: { GET: h_debug_env.GET } },
-  { kind: 'static', segments: ['debug-zai'], handler: { GET: h_debug_zai.GET } },
-  { kind: 'static', segments: ['directeur'], handler: { POST: h_directeur.POST } },
-  { kind: 'static', segments: ['directeur-chat'], handler: { POST: h_directeur_chat.POST, DELETE: h_directeur_chat.DELETE } },
-  { kind: 'static', segments: ['download'], handler: { GET: h_download.GET } },
-  { kind: 'static', segments: ['export-pdf'], handler: { POST: h_export_pdf.POST } },
-  { kind: 'static', segments: ['generate-latex'], handler: { POST: h_generate_latex.POST } },
-  { kind: 'static', segments: ['grammar-check'], handler: { POST: h_grammar_check.POST } },
-  { kind: 'static', segments: ['guidance'], handler: { POST: h_guidance.POST } },
-  { kind: 'static', segments: ['harper-lint'], handler: { POST: h_harper_lint.POST } },
-  { kind: 'static', segments: ['humanizer'], handler: { POST: h_humanizer.POST } },
-  { kind: 'static', segments: ['journal-finder'], handler: { POST: h_journal_finder.POST } },
-  { kind: 'static', segments: ['literature-search'], handler: { POST: h_literature_search.POST } },
-  { kind: 'static', segments: ['ping'], handler: { GET: h_ping.GET } },
-  { kind: 'static', segments: ['references'], handler: { GET: h_references.GET, POST: h_references.POST, PUT: h_references.PUT, DELETE: h_references.DELETE } },
-  { kind: 'static', segments: ['setup'], handler: { POST: h_setup.POST } },
-  { kind: 'static', segments: ['thesis'], handler: { GET: h_thesis.GET, PATCH: h_thesis.PATCH } },
-  { kind: 'static', segments: ['thesis-assistant'], handler: { POST: h_thesis_assistant.POST, DELETE: h_thesis_assistant.DELETE } },
-
-  // Root route (empty slug)
-  { kind: 'static', segments: [], handler: { GET: h_root.GET } },
+  // --- Root ---
+  { segs: [], h: { GET: h_root.GET } },
 ]
 
-// ─── Router ───────────────────────────────────────────────────────────
+// ─── Matcher ──────────────────────────────────────────────────────────
 
-function matchRoute(slug: string[]): { route: Route; params: Record<string, any> } | null {
+function matchRoute(slug: string[]): { h: Record<string, Function>; params: Record<string, any> } | null {
   for (const route of ROUTES) {
-    if (route.kind === 'catch-all') {
-      const r = route as CatchAllRoute
-      if (slug.length < r.prefix.length) continue
+    // Catch-all route
+    if (route.isCatchAll) {
+      if (slug.length < route.segs.length) continue
       const params: Record<string, any> = {}
-      let matched = true
-      for (let i = 0; i < r.prefix.length; i++) {
-        if (r.prefix[i] === null) {
-          // Dynamic segment
-          params[r.prefixParamNames[i]] = slug[i]
-        } else if (r.prefix[i] !== slug[i]) {
-          matched = false
+      let ok = true
+      let pIdx = 0
+      for (let i = 0; i < route.segs.length; i++) {
+        if (route.segs[i] === null) {
+          params[route.pNames![pIdx]] = slug[i]
+          pIdx++
+        } else if (route.segs[i] !== slug[i]) {
+          ok = false
           break
         }
       }
-      if (matched) {
-        params[r.restParam] = slug.slice(r.prefix.length)
-        return { route, params }
+      if (ok) {
+        params[route.restParam!] = slug.slice(route.segs.length)
+        return { h: route.h, params }
       }
       continue
     }
 
-    if (route.kind === 'dynamic') {
-      const r = route as DynamicRoute
-      if (slug.length !== r.segments.length) continue
-      const params: Record<string, any> = {}
-      let matched = true
-      let paramIdx = 0
-      for (let i = 0; i < r.segments.length; i++) {
-        if (r.segments[i] === null) {
-          params[r.paramNames[paramIdx]] = slug[i]
-          paramIdx++
-        } else if (r.segments[i] !== slug[i]) {
-          matched = false
-          break
-        }
-      }
-      if (matched) return { route, params }
-      continue
-    }
-
-    // Static route
-    const r = route as StaticRoute
-    if (slug.length !== r.segments.length) continue
-    let matched = true
-    for (let i = 0; i < r.segments.length; i++) {
-      if (r.segments[i] !== slug[i]) {
-        matched = false
+    // Exact-length match (static or dynamic)
+    if (slug.length !== route.segs.length) continue
+    const params: Record<string, any> = {}
+    let ok = true
+    let pIdx = 0
+    for (let i = 0; i < route.segs.length; i++) {
+      if (route.segs[i] === null) {
+        params[route.pNames![pIdx]] = slug[i]
+        pIdx++
+      } else if (route.segs[i] !== slug[i]) {
+        ok = false
         break
       }
     }
-    if (matched) return { route, params: {} }
+    if (ok) return { h: route.h, params }
   }
   return null
 }
@@ -302,57 +253,37 @@ export const dynamic = 'force-dynamic'
 
 // ─── HTTP method handlers ─────────────────────────────────────────────
 
-type Ctx = { params: Promise<Record<string, any>> }
-
-function dispatch(method: string, req: NextRequest, ctx: Ctx) {
-  // Parse slug from the request URL
+function dispatch(method: string, req: NextRequest) {
   const url = new URL(req.url)
   const pathname = url.pathname
-  // Remove /api/ prefix
   const slugStr = pathname.startsWith('/api/') ? pathname.slice(5) : pathname.slice(1)
   const slug = slugStr ? slugStr.split('/').filter(Boolean) : []
 
   const match = matchRoute(slug)
   if (!match) {
-    return NextResponse.json({ error: 'Not Found', path: pathname, slug }, { status: 404 })
+    return NextResponse.json({ error: 'Not Found', path: pathname }, { status: 404 })
   }
 
-  const handler = match.route.handler[method]
+  const handler = match.h[method]
   if (!handler || typeof handler !== 'function') {
     return NextResponse.json({ error: 'Method Not Allowed', path: pathname, method }, { status: 405 })
   }
 
-  const params = Promise.resolve(match.params)
-  return handler(req, { params })
+  return handler(req, { params: Promise.resolve(match.params) })
 }
 
-export async function GET(req: NextRequest, ctx: Ctx) {
-  return dispatch('GET', req, ctx)
-}
-
-export async function POST(req: NextRequest, ctx: Ctx) {
-  return dispatch('POST', req, ctx)
-}
-
-export async function PUT(req: NextRequest, ctx: Ctx) {
-  return dispatch('PUT', req, ctx)
-}
-
-export async function PATCH(req: NextRequest, ctx: Ctx) {
-  return dispatch('PATCH', req, ctx)
-}
-
-export async function DELETE(req: NextRequest, ctx: Ctx) {
-  return dispatch('DELETE', req, ctx)
-}
-
-export async function OPTIONS(req: NextRequest, ctx: Ctx) {
+export async function GET(req: NextRequest) { return dispatch('GET', req) }
+export async function POST(req: NextRequest) { return dispatch('POST', req) }
+export async function PUT(req: NextRequest) { return dispatch('PUT', req) }
+export async function PATCH(req: NextRequest) { return dispatch('PATCH', req) }
+export async function DELETE(req: NextRequest) { return dispatch('DELETE', req) }
+export async function OPTIONS(req: NextRequest) {
   const url = new URL(req.url)
   const pathname = url.pathname
   const slugStr = pathname.startsWith('/api/') ? pathname.slice(5) : pathname.slice(1)
   const slug = slugStr ? slugStr.split('/').filter(Boolean) : []
   const match = matchRoute(slug)
   if (!match) return new NextResponse(null, { status: 404 })
-  const methods = Object.keys(match.route.handler).filter(k => typeof match.route.handler[k] === 'function')
+  const methods = Object.keys(match.h).filter(k => typeof match.h[k] === 'function')
   return new NextResponse(null, { status: 204, headers: { Allow: methods.join(', ') } })
 }
