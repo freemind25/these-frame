@@ -161,7 +161,7 @@ class FetchAI {
     return { invoke: async () => { throw new Error('Functions require Z.ai platform.') } }
   }
   get images() {
-    return { generations: { create: async () => { throw new Error('Image gen requires Z.ai platform.') } }
+    return { generations: { create: async () => { throw new Error('Image gen requires Z.ai platform.') } } }
   }
 }
 
