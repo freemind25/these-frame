@@ -88,7 +88,8 @@ export async function POST(request: NextRequest) {
     try {
       const cleaned = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
       parsed = JSON.parse(cleaned)
-    } catch {
+    } catch (err) {
+      console.error('[api/references/claim-check] JSON parse', err)
       return NextResponse.json(
         { error: 'Impossible de parser la réponse IA. Réessayez.' },
         { status: 500 }

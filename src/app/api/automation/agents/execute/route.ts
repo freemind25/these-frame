@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
-import type { OrchestrationTask, OrchestrationRun, AgentRole, ClassifiedError, ChapterNudge, ReviewPhase } from '@/types/agent-orchestration'
+import type { ZAIClient } from '@/lib/zai'
+import type { OrchestrationTask, OrchestrationRun, AgentRole, AgentStatus, ClassifiedError, ChapterNudge, ReviewPhase } from '@/types/agent-orchestration'
 import { THESIS_AGENTS } from '@/types/agent-orchestration'
 
 // ═══════════════════════════════════════════════════════════
@@ -38,8 +39,8 @@ function releaseRunLock(runToken: string) {
 // Maps raw errors into structured dispositions for retry/escalation
 // ═══════════════════════════════════════════════════════════
 
-function classifyError(err: any): ClassifiedError {
-  const msg = String(err?.message || err || 'Erreur inconnue')
+function classifyError(err: unknown): ClassifiedError {
+  const msg = err instanceof Error ? err.message : String(err || 'Erreur inconnue')
   const lower = msg.toLowerCase()
 
   // Secret redaction
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
       const zai = await getZAI()
       const runId = `run-${Date.now()}`
       const tasks: OrchestrationTask[] = []
-      const agents = THESIS_AGENTS.map(a => ({ role: a.role as AgentRole, status: 'idle' as const, tasksCompleted: 0 }))
+      const agents: { role: AgentRole; status: AgentStatus; tasksCompleted: number }[] = THESIS_AGENTS.map(a => ({ role: a.role as AgentRole, status: 'idle' as AgentStatus, tasksCompleted: 0 }))
       const filledChapters = thesis.chapters.filter((ch: any) => ch.content && ch.wordCount > 100)
       const emptyChapters = thesis.chapters.filter((ch: any) => !ch.content || ch.wordCount < 50)
 
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
             task.output = draft
             task.reviewPhase = 'ai_reviewed'
             agents[writeAgentIdx].tasksCompleted++
-          } catch (err: any) {
+          } catch (err: unknown) {
             const classified = classifyError(err)
             task.status = classified.disposition === 'retry_transient' ? 'todo' : 'needs_fix'
             task.error = classified.normalizedDetail
@@ -229,7 +230,7 @@ export async function POST(request: NextRequest) {
           for (const draftTask of newDrafts) {
             const ch = emptyChapters.find((c: any) => c.id === draftTask.chapterId)
             if (ch) {
-              reviewChapters.push({ ...ch, content: draftTask.output, wordCount: draftTask.output.split(/\s+/).length })
+              reviewChapters.push({ ...ch, content: draftTask.output, wordCount: (draftTask.output || '').split(/\s+/).length })
             }
           }
         }
@@ -259,7 +260,7 @@ export async function POST(request: NextRequest) {
             task.output = review
             task.reviewPhase = resolveReviewPhase(task)
             agents[dirAgentIdx].tasksCompleted++
-          } catch (err: any) {
+          } catch (err: unknown) {
             const classified = classifyError(err)
             task.status = 'needs_fix'
             task.error = classified.normalizedDetail
@@ -295,7 +296,7 @@ export async function POST(request: NextRequest) {
             task.output = enrichment
             task.reviewPhase = 'final'
             agents[cherAgentIdx].tasksCompleted++
-          } catch (err: any) {
+          } catch (err: unknown) {
             const classified = classifyError(err)
             task.status = 'needs_fix'
             task.error = classified.normalizedDetail
@@ -327,7 +328,7 @@ export async function POST(request: NextRequest) {
     } finally {
       releaseRunLock(token)
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[automation/agents/execute]', err)
     const classified = classifyError(err)
     return NextResponse.json({
@@ -341,8 +342,8 @@ export async function POST(request: NextRequest) {
 // LLM CALLS WITH RETRY (inspired by agent-teams-ai exponential backoff + stable jitter)
 // ═══════════════════════════════════════════════════════════
 
-async function callAgentWithRetry(zai: any, role: AgentRole, prompt: string, maxRetries = 2): Promise<string> {
- let lastError: any
+async function callAgentWithRetry(zai: ZAIClient, role: AgentRole, prompt: string, maxRetries = 2): Promise<string> {
+ let lastError: unknown
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const agentDef = THESIS_AGENTS.find(a => a.role === role)
@@ -354,10 +355,10 @@ async function callAgentWithRetry(zai: any, role: AgentRole, prompt: string, max
         temperature: role === 'redacteur' ? 0.7 : 0.4,
         max_tokens: 4000,
       })
-      const content = response.choices?.[0]?.message?.content || ''
+      const content = response.choices[0]?.message?.content || ''
       if (!content) throw new Error('Réponse vide du modèle')
       return content
-    } catch (err: any) {
+    } catch (err: unknown) {
       lastError = err
       const classified = classifyError(err)
       if (classified.disposition === 'manual' || attempt === maxRetries) throw err

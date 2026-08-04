@@ -166,25 +166,25 @@ export default function AutomationPanel({ open, onOpenChange, thesis }: Automati
   const handleExportDocx = async () => {
     const payload = thesisPayload(); if (!payload) return
     setExporting('docx'); resetMessages()
-    try { await downloadBlob('/api/office/export-docx', `these-${slug(payload.title)}.docx`, payload); setExportSuccess('Document Word exporté ✓') } catch (err: any) { setExportError(err.message) } finally { setExporting(null) }
+    try { await downloadBlob('/api/office/export-docx', `these-${slug(payload.title)}.docx`, payload); setExportSuccess('Document Word exporté ✓') } catch (err: unknown) { setExportError(err instanceof Error ? err.message : 'Erreur interne du serveur.') } finally { setExporting(null) }
   }
   const handleExportPptx = async () => {
     const payload = thesisPayload(); if (!payload) return
     setExporting('pptx'); resetMessages()
-    try { await downloadBlob('/api/office/export-pptx', `soutenance-${slug(payload.title)}.pptx`, payload); setExportSuccess('Présentation PowerPoint générée ✓') } catch (err: any) { setExportError(err.message) } finally { setExporting(null) }
+    try { await downloadBlob('/api/office/export-pptx', `soutenance-${slug(payload.title)}.pptx`, payload); setExportSuccess('Présentation PowerPoint générée ✓') } catch (err: unknown) { setExportError(err instanceof Error ? err.message : 'Erreur interne du serveur.') } finally { setExporting(null) }
   }
   const handleExportXlsx = async () => {
     const payload = thesisPayload(); if (!payload) return
     setExporting('xlsx'); resetMessages()
-    try { await downloadBlob('/api/office/export-xlsx', `suivi-${slug(payload.title)}.xlsx`, payload); setExportSuccess('Tableur de suivi généré ✓') } catch (err: any) { setExportError(err.message) } finally { setExporting(null) }
+    try { await downloadBlob('/api/office/export-xlsx', `suivi-${slug(payload.title)}.xlsx`, payload); setExportSuccess('Tableur de suivi généré ✓') } catch (err: unknown) { setExportError(err instanceof Error ? err.message : 'Erreur interne du serveur.') } finally { setExporting(null) }
   }
   const handleBatchExport = async () => {
     const payload = thesisPayload(); if (!payload) return
     setExporting('batch'); resetMessages()
     const errors: string[] = []
-    try { await downloadBlob('/api/office/export-docx', `these-${slug(payload.title)}.docx`, payload) } catch (e: any) { errors.push('Word: ' + e.message) }
-    try { await downloadBlob('/api/office/export-pptx', `soutenance-${slug(payload.title)}.pptx`, payload) } catch (e: any) { errors.push('PPT: ' + e.message) }
-    try { await downloadBlob('/api/office/export-xlsx', `suivi-${slug(payload.title)}.xlsx`, payload) } catch (e: any) { errors.push('Excel: ' + e.message) }
+    try { await downloadBlob('/api/office/export-docx', `these-${slug(payload.title)}.docx`, payload) } catch (e: unknown) { errors.push('Word: ' + (e instanceof Error ? e.message : 'Erreur interne du serveur.')) }
+    try { await downloadBlob('/api/office/export-pptx', `soutenance-${slug(payload.title)}.pptx`, payload) } catch (e: unknown) { errors.push('PPT: ' + (e instanceof Error ? e.message : 'Erreur interne du serveur.')) }
+    try { await downloadBlob('/api/office/export-xlsx', `suivi-${slug(payload.title)}.xlsx`, payload) } catch (e: unknown) { errors.push('Excel: ' + (e instanceof Error ? e.message : 'Erreur interne du serveur.')) }
     setExporting(null)
     if (errors.length === 0) setExportSuccess('3 fichiers exportés avec succès ✓')
     else if (errors.length < 3) setExportSuccess(`${3 - errors.length}/3 export(s) réussi(s). Échecs : ${errors.join(', ')}`)
@@ -207,9 +207,10 @@ export default function AutomationPanel({ open, onOpenChange, thesis }: Automati
       data.results.forEach((r: any, i: number) => { setPipelineSteps(prev => prev.map((s, j) => j === i + 1 ? { ...s, status: r.success ? 'done' as const : 'error' as const, detail: r.success ? `${r.draftLength} car.` : r.error } : s)) })
       setPipelineSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, status: 'done' as const } : s))
       setPipelineMessage(data.message)
-    } catch (err: any) {
-      setPipelineSteps(prev => prev.map(s => s.status === 'running' ? { ...s, status: 'error' as const, detail: err.message } : s))
-      setPipelineMessage(err.message)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur interne du serveur.'
+      setPipelineSteps(prev => prev.map(s => s.status === 'running' ? { ...s, status: 'error' as const, detail: msg } : s))
+      setPipelineMessage(msg)
     } finally { setPipelineRunning(false) }
   }
 
@@ -224,8 +225,8 @@ export default function AutomationPanel({ open, onOpenChange, thesis }: Automati
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setReviewResults(data.results || []); setReviewAvgScore(data.averageScore || null)
-    } catch (err: any) {
-      setReviewResults([{ chapterId: 'error', chapterNumber: 0, chapterTitle: 'Erreur', success: false, remarks: [], error: err.message }])
+    } catch (err: unknown) {
+      setReviewResults([{ chapterId: 'error', chapterNumber: 0, chapterTitle: 'Erreur', success: false, remarks: [], error: err instanceof Error ? err.message : 'Erreur interne du serveur.' }])
     } finally { setReviewRunning(false) }
   }
 
@@ -247,10 +248,10 @@ export default function AutomationPanel({ open, onOpenChange, thesis }: Automati
         return
       }
       const data: OrchestrationRun = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Erreur orchestration')
+      if (!res.ok) throw new Error((data as any).error || 'Erreur orchestration')
       setOrchRun(data)
-    } catch (err: any) {
-      setOrchRun({ id: 'err', createdAt: new Date().toISOString(), status: 'error', tasks: [], agents: [], summary: err.message })
+    } catch (err: unknown) {
+      setOrchRun({ id: 'err', createdAt: new Date().toISOString(), status: 'error', tasks: [], agents: [], summary: err instanceof Error ? err.message : 'Erreur interne du serveur.' })
     } finally { setOrchRunning(false) }
   }
 
@@ -259,7 +260,7 @@ export default function AutomationPanel({ open, onOpenChange, thesis }: Automati
   }
   const dismissAllNudges = () => {
     if (orchRun?.nudges) {
-      setDismissedNudges(prev => new Set([...prev, ...orchRun.nudges.map(n => n.fingerprint)]))
+      setDismissedNudges(prev => new Set([...prev, ...orchRun!.nudges!.map(n => n.fingerprint)]))
     }
   }
 

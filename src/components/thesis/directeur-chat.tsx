@@ -462,7 +462,7 @@ export default function DirecteurChat({
               size="icon"
               className="size-10 shrink-0 bg-amber-600 hover:bg-amber-500 text-white"
               disabled={!input.trim() || loading}
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
             >
               {loading ? (
                 <Loader2 className="size-4 animate-spin" />

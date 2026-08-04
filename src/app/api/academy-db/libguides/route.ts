@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
       sourceColor: '#9333EA',
     }))
     return NextResponse.json({ results, total: data.total || 0 })
-  } catch {
-    return NextResponse.json({ error: 'Erreur LibGuides.' })
+  } catch (err) {
+    console.error('[api/academy-db/libguides]', err)
+    return NextResponse.json({ error: 'Erreur LibGuides.' }, { status: 500 })
   }
 }

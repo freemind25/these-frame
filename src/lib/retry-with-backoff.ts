@@ -56,7 +56,7 @@ function extractErrorCode(error: unknown): string {
     if (sub.code) return String(sub.code)
     if (sub.type) return String(sub.type)
   }
-  const msg = err.message || String(error)
+  const msg = err.message ? String(err.message) : String(error)
   return msg
 }
 

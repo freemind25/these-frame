@@ -96,6 +96,8 @@ export const THESIS_AGENTS: ThesisAgent[] = [
     description: 'Rédige et améliore le contenu des chapitres de la thèse.',
     color: 'violet',
     icon: 'PenLine',
+    status: 'idle',
+    tasksCompleted: 0,
     systemPrompt: `Tu es un rédacteur académique expert, spécialisé dans la rédaction de thèses de doctorat en français.
 
 RÈGLES :
@@ -113,6 +115,8 @@ RÈGLES :
     description: 'Critique, évalue et suggère des améliorations pour chaque chapitre.',
     color: 'amber',
     icon: 'GraduationCap',
+    status: 'idle',
+    tasksCompleted: 0,
     systemPrompt: `Tu es un directeur de thèse expérimenté et rigoureux.
 
 RÔLE :
@@ -136,6 +140,8 @@ FORMAT DE RÉPONSE : Réponds en JSON structuré avec score et remarques détail
     description: 'Enrichit les chapitres avec des références et approfondit le contenu.',
     color: 'cyan',
     icon: 'Search',
+    status: 'idle',
+    tasksCompleted: 0,
     systemPrompt: `Tu es un chercheur académique spécialisé dans la recherche documentaire et l'approfondissement scientifique.
 
 RÔLE :

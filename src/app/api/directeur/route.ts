@@ -5,7 +5,7 @@ import { getCadrageForDirecteur } from '@/lib/cadrage-bridge'
 
 export async function POST(request: NextRequest) {
   try {
-    const body: DirecteurParams & { chapitreContenu?: string } = await request.json()
+    const body: DirecteurParams & { chapitreContenu?: string; thesisId?: string } = await request.json()
 
     const {
       chapitreTitre,

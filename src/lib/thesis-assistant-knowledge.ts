@@ -1,6 +1,6 @@
 /**
  * Constructeur de contexte de connaissances pour l'assistant thèse.
- * Extrait et synthétise les connaissances clés des 24 ouvrages de référence
+ * Combine connaissances structurées (5 sources avec BookSkill) et références complémentaires (23 ouvrages)
  * pour injection dans le prompt système de l'assistant.
  */
 
@@ -32,7 +32,15 @@ export const ASSISTANT_MODES: ModeConfig[] = [
 ]
 
 const BASE_KNOWLEDGE = `
-SOURCES ACADÉMIQUES INTÉGRÉES :
+SOURCES AVEC CONNAISSANCES STRUCTURÉES (BookSkills) :
+
+1. Mars, N. (2020). Academic Writing: Research: How to Write a Good, Strong, Important and Interesting Thesis.
+2. Eco, U. (1977). Comment écrire sa thèse. Éditions de Minuit.
+3. Dutta, S.K. (2024). Academic and Research Writing. Springer.
+4. Sułkowski, Ł., Kurowska-Pysz, J. et al. (2023). Academic Writing, Visualization, Presentation, and Publishing of Research. Springer.
+5. Srivastava, A.P., Agarwal, A. et al. (2025). Utilizing AI Tools in Academic Research Writing. Springer.
+
+RÉFÉRENCES COMPLÉMENTAIRES :
 
 1. Turabian, K.L. (2018). A Manual for Writers of Research Papers, Theses, and Dissertations (9e éd.). University of Chicago Press.
 2. Murray, R. (2017). Writing for Academic Success (2e éd.). SAGE Publications.
@@ -45,19 +53,18 @@ SOURCES ACADÉMIQUES INTÉGRÉES :
 9. Holtom, D. & Fisher, E. (1999). Enjoy Writing Your Science Thesis or Dissertation. Imperial College Press.
 10. Pearce, L. (2005). How To Examine A Thesis. SRHE & Open University Press.
 11. Carter, S., Kelly, F. & Brailsford, I. (2012). Structuring Your Research Thesis. Palgrave Macmillan.
-12. Mars, N. (2020). Academic Writing: Research: How to Write a Good, Strong, Important and Interesting Thesis.
-13. Andrews, G. (2019). Your Thesis: Writing Strengths and Challenges. Essay and Thesis Writing Series.
-14. Murray, R. (2006). How to Write a Thesis (2e éd.). Open University Press / McGraw-Hill.
-15. McMillan, K. & Weyers, J. (2020). How to Research & Write a Successful PhD. SAGE.
-16. Saramäki, J. (2024). How to Write a Scientific Paper. Springer.
-17. Roda, A., Saunders, L. & Anderson, K. (2020). PhDone. University of Michigan Press.
-18. de Jong, J. (2017). Effective Strategies for Academic Writing. Coutinho.
-19. Thomas, D. (2021). The PhD Writing Handbook. Routledge.
-20. Boyle, J. & Ramsay, S. (2019). Writing a Science PhD. Palgrave Macmillan.
-21. Firth, K. (2024). Writing Well and Being Well for Your PhD and Beyond. Routledge.
-22. Sonneveld, H. (2022). The Art of Writing a PhD Proposal. Open University Press.
-23. Hayton, J. (2015). PhD: An Uncommon Guide to Research, Writing & PhD Life.
-24. Silvia, P.J. (2019). Write It Up: Practical Strategies for Writing and Publishing Journal Articles. APA.
+12. Andrews, G. (2019). Your Thesis: Writing Strengths and Challenges. Essay and Thesis Writing Series.
+13. Murray, R. (2006). How to Write a Thesis (2e éd.). Open University Press / McGraw-Hill.
+14. McMillan, K. & Weyers, J. (2020). How to Research & Write a Successful PhD. SAGE.
+15. Saramäki, J. (2024). How to Write a Scientific Paper. Springer.
+16. Roda, A., Saunders, L. & Anderson, K. (2020). PhDone. University of Michigan Press.
+17. de Jong, J. (2017). Effective Strategies for Academic Writing. Coutinho.
+18. Thomas, D. (2021). The PhD Writing Handbook. Routledge.
+19. Boyle, J. & Ramsay, S. (2019). Writing a Science PhD. Palgrave Macmillan.
+20. Firth, K. (2024). Writing Well and Being Well for Your PhD and Beyond. Routledge.
+21. Sonneveld, H. (2022). The Art of Writing a PhD Proposal. Open University Press.
+22. Hayton, J. (2015). PhD: An Uncommon Guide to Research, Writing & PhD Life.
+23. Silvia, P.J. (2019). Write It Up: Practical Strategies for Writing and Publishing Journal Articles. APA.
 
 PRINCIPES FONDAMENTAUX DE RÉDACTION DE THÈSE :
 

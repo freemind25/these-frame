@@ -62,13 +62,14 @@ export async function PUT(request: NextRequest) {
     let cadrage = await db.thesisCadrage.findUnique({ where: { thesisId } })
 
     if (!cadrage) {
-      cadrage = await db.thesisCadrage.create({
+      const newCadrage = await db.thesisCadrage.create({
         data: { thesisId },
       })
+      cadrage = newCadrage
       // Create all fields
       await db.thesisCadrageField.createMany({
         data: CADRAGE_FIELD_KEYS.map(key => ({
-          cadrageId: cadrage.id,
+          cadrageId: newCadrage.id,
           fieldKey: key,
           fieldValue: '',
           isAiSuggestion: false,

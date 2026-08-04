@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
           },
         })
         imported++
-      } catch {
+      } catch (err) {
+        console.error('[api/references/import-bibtex] db.create skipped', err)
         skipped++
       }
     }

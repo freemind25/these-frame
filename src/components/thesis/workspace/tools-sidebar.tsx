@@ -6,7 +6,7 @@ import {
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
-  KeyRound,
+  KeyRound, ShieldAlert,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -64,6 +64,7 @@ interface ToolsSidebarProps {
   onOpenWritingUnblock: () => void
   onOpenBookSkills: () => void
   onOpenLicenseAdmin: () => void
+  onOpenAuthProviders: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -75,7 +76,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenLicenseAdmin, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -101,6 +102,7 @@ export default function ToolsSidebar({
     writingUnblock: onOpenWritingUnblock,
     bookSkills: onOpenBookSkills,
     licenseAdmin: onOpenLicenseAdmin,
+    authProviders: onOpenAuthProviders,
   }
 
   const handleToolClick = (key: string) => {
@@ -248,7 +250,7 @@ export default function ToolsSidebar({
       )}
       <div className={cn('shrink-0 px-2 pb-3 space-y-0.5', collapsed && 'flex flex-col items-center gap-1 pb-2')}>
         <button
-          onClick={onSwitchMode}
+          onClick={() => onSwitchMode(isPartsMode ? 'chapters' : 'parts')}
           title={collapsed ? (isPartsMode ? 'Mode chapitres' : 'Mode parties') : undefined}
           className={cn(
             'flex items-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all',
@@ -256,7 +258,7 @@ export default function ToolsSidebar({
           )}
         >
           <Layers className="h-3.5 w-3.5 shrink-0" />
-          {!collapsed && <span>{isPartsMode ? 'Mode parties' : 'Mode parties'}</span>}
+          {!collapsed && <span>{isPartsMode ? 'Mode chapitres' : 'Mode parties'}</span>}
         </button>
         <button
           onClick={onOpenTemplates}

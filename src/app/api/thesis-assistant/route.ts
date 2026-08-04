@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { buildSystemPrompt, type AssistantMode } from '@/lib/thesis-assistant-knowledge'
 import { retrieve, formatRagContext, shouldRetrieve, type Chunk } from '@/lib/thesis-rag'
+import { createConversationStore } from '@/lib/conversation-store'
+import { thesisAssistantSchema, validateBody } from '@/lib/api-schemas'
 
 const VALID_MODES: AssistantMode[] = ['general', 'redaction', 'correction', 'critique', 'methode', 'bibliographie', 'suivi']
 
-// In-memory conversation store
-const conversations = new Map<string, Array<{ role: string; content: string }>>()
+const store = createConversationStore()
 
 interface ChapterProgress {
   number: string
@@ -82,24 +83,11 @@ function enrichSystemPrompt(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      mode, message, sessionId, clearHistory,
-      chapterTitle, chapterNumber, chapterContent,
-      thesisProgress, thesisTitle, thesisField,
-      allChaptersContent,
-    } = body as {
-      mode?: string
-      message?: string
-      sessionId?: string
-      clearHistory?: boolean
-      chapterTitle?: string
-      chapterNumber?: string
-      chapterContent?: string
-      thesisProgress?: ChapterProgress[]
-      thesisTitle?: string
-      thesisField?: string
-      allChaptersContent?: ChapterContent[]
+    const validation = validateBody(thesisAssistantSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+    const { mode, message, sessionId, clearHistory, chapterTitle, chapterNumber, chapterContent, thesisTitle, thesisField, allChaptersContent } = validation.data
 
     const currentMode = (mode || 'general') as AssistantMode
 
@@ -110,15 +98,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      return NextResponse.json({ error: 'Le message est requis.' }, { status: 400 })
-    }
-
     const trimmedMessage = message.trim()
     const sid = sessionId || `thesis_ast_${Date.now()}`
 
     if (clearHistory) {
-      conversations.delete(sid)
+      store.delete(sid)
     }
 
     // Build context from thesis data
@@ -141,26 +125,14 @@ export async function POST(request: NextRequest) {
       body,
     )
 
-    let history = conversations.get(sid) || [
-      { role: 'system', content: systemPrompt }
-    ]
-
-    // If switching modes or context changed, reset with new system prompt
-    if (history[0]?.content !== systemPrompt) {
-      history = [{ role: 'system', content: systemPrompt }]
-    }
+    let history = store.createOrReset(sid, systemPrompt)
 
     // If RAG found chunks, prepend them to the user message for better visibility
     const userContent = ragChunks.length > 0
       ? `[Recherche dans vos chapitres : ${ragChunks.length} extrait(s) pertinent(s) trouvé(s).]\n\n${trimmedMessage}`
       : trimmedMessage
 
-    history.push({ role: 'user', content: userContent })
-
-    // Trim to last 20 messages + system
-    if (history.length > 21) {
-      history = [history[0], ...history.slice(-20)]
-    }
+    history = store.addAndTrim(sid, 'user', userContent, 20)
 
     const zai = await getZAI()
     const apiMessages = history
@@ -177,8 +149,7 @@ export async function POST(request: NextRequest) {
 
     const aiResponse = completion.choices[0]?.message?.content || 'Désolé, une erreur est survenue lors de la génération.'
 
-    history.push({ role: 'assistant', content: aiResponse })
-    conversations.set(sid, history)
+    history = store.addAndTrim(sid, 'assistant', aiResponse, 20)
 
     return NextResponse.json({
       success: true,
@@ -201,12 +172,13 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
     if (sessionId) {
-      conversations.delete(sessionId)
+      store.delete(sessionId)
     } else {
-      conversations.clear()
+      store.clear()
     }
     return NextResponse.json({ success: true })
-  } catch {
+  } catch (err) {
+    console.error('[api/thesis-assistant] DELETE', err)
     return NextResponse.json({ error: 'Erreur lors de la suppression.' }, { status: 500 })
   }
 }

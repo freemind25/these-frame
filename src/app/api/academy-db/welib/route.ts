@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
       sourceColor: '#2563EB',
     }))
     return NextResponse.json({ results, total: data.total || 0 })
-  } catch {
-    return NextResponse.json({ error: 'Erreur Welib.' })
+  } catch (err) {
+    console.error('[api/academy-db/welib]', err)
+    return NextResponse.json({ error: 'Erreur Welib.' }, { status: 500 })
   }
 }

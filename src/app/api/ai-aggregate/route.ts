@@ -147,7 +147,7 @@ function buildAggregationPrompt(
   }
 ): string {
   const researcherSummaries = researcherResponses
-    .map(r => `### ${r.name} (${r.role})\n${r.response.slice(0, 800)}${r.response.length > 800 ? '...' : ''}`)
+    .map(r => `### ${r.researcherName} (${r.researcherRole})\n${r.response.slice(0, 800)}${r.response.length > 800 ? '...' : ''}`)
     .join('\n\n')
 
   const consensusSection = consensusPoints.length > 0

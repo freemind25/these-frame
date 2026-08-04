@@ -24,9 +24,12 @@ import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { KeyRound } from 'lucide-react'
+import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { KeyRound, Shield } from 'lucide-react'
 
+// ─── Shared constants ───
+const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
 
 // ─── Client-side mock thesis (instant rendering, no API needed) ───
 function createLocalThesis(): ThesisData {
@@ -37,7 +40,7 @@ function createLocalThesis(): ThesisData {
     author: 'Doctorant',
     field: 'Sciences',
     university: 'Université de démonstration',
-    status: 'draft',
+    status: 'draft' as const,
     structureMode: 'chapters',
     chapters: CHAPTERS.map((ch, i) => ({
       id: `local-ch-${ch.order}`,
@@ -67,6 +70,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [apiStatus, setApiStatus] = useState<'unknown' | 'connected'>('unknown')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // UI state
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -94,6 +98,7 @@ export default function Home() {
   const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
   const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
+  const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tf_activeBookIds')
@@ -231,6 +236,9 @@ export default function Home() {
   const totalWords = thesis?.chapters.reduce((sum, c) => sum + c.wordCount, 0) || 0
 
   // ─── Auto-save handler ───────────────────────────────────
+  const activeChapterIdRef = useRef(activeChapterId)
+  activeChapterIdRef.current = activeChapterId
+
   const handleContentChange = useCallback((content: string) => {
     if (!activeChapter) return
     localContent.current = content
@@ -243,14 +251,18 @@ export default function Home() {
       ),
     } : prev)
 
-    // Debounced save
+    // Mark as having unsaved changes
+    setHasUnsavedChanges(true)
+
+    // Debounced save — capture chapterId at call time to avoid stale closure
     setSaveStatus('idle')
     if (saveTimer.current) clearTimeout(saveTimer.current)
+    const chapterIdToSave = activeChapterId
     saveTimer.current = setTimeout(async () => {
       setSaveStatus('saving')
       try {
         const wordCount = content.split(/\s+/).filter(w => w.length > 0).length
-        const res = await fetch(`/api/thesis/chapters/${activeChapterId}`, {
+        const res = await fetch(`/api/thesis/chapters/${chapterIdToSave}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content, wordCount, status: wordCount > 0 ? 'in_progress' : 'draft' }),
@@ -263,6 +275,7 @@ export default function Home() {
             chapters: prev.chapters.map(c => c.id === updated.id ? { ...c, ...updated } : c),
           } : prev)
           setSaveStatus('saved')
+          setHasUnsavedChanges(false)
           setTimeout(() => setSaveStatus('idle'), 2000)
         } else {
           setSaveStatus('error')
@@ -320,7 +333,7 @@ export default function Home() {
       ...prev,
       chapters: [
         ...prev.chapters.map(c => c.order > insertAfterOrder ? { ...c, order: c.order + 1 } : c),
-        { id: newId, thesisId: prev.id, partId: partId || null, order: newOrder, number: `${newOrder}`, title: 'Nouveau chapitre', content: '', wordCount: 0, status: 'draft', directorFeedback: null, directorFeedbackAt: null },
+        { id: newId, thesisId: prev.id, partId: partId || null, order: newOrder, number: `${newOrder}`, title: 'Nouveau chapitre', content: '', wordCount: 0, status: 'draft' as const, directorFeedback: null, directorFeedbackAt: null },
       ].sort((a, b) => a.order - b.order),
     }))
     setActiveChapterId(newId)
@@ -344,15 +357,13 @@ export default function Home() {
     // Local fallback
     setThesis(prev => {
       const remaining = prev.chapters.filter(c => c.id !== chapterId)
+      if (activeChapterId === chapterId && remaining.length > 0) {
+        setActiveChapterId(remaining[0].id)
+      } else if (activeChapterId === chapterId) {
+        setActiveChapterId('')
+      }
       return { ...prev, chapters: remaining }
     })
-    if (activeChapterId === chapterId) {
-      setThesis(prev => {
-        const remaining = prev.chapters
-        setActiveChapterId(remaining.length > 0 ? remaining[0].id : '')
-        return prev
-      })
-    }
   }, [activeChapterId])
 
   const handleReorderChapter = useCallback(async (chapterId: string, direction: 'up' | 'down') => {
@@ -413,8 +424,7 @@ export default function Home() {
   const handleAddPart = useCallback(async () => {
     try {
       const partNum = (thesis?.parts?.length || 0) + 1
-      const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
-      const title = `Partie ${partNum <= 10 ? romanNumerals[partNum - 1] : partNum}`
+      const title = `Partie ${partNum <= 10 ? ROMAN_NUMERALS[partNum - 1] : partNum}`
       const res = await fetch('/api/thesis/parts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -430,10 +440,9 @@ export default function Home() {
     // Local fallback
     const newPartId = `local-part-${Date.now()}`
     const partOrder = (thesis?.parts?.length || 0) + 1
-    const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
     setThesis(prev => ({
       ...prev,
-      parts: [...prev.parts, { id: newPartId, thesisId: prev.id, title: `Partie ${partOrder <= 10 ? romanNumerals[partOrder - 1] : partOrder}`, order: partOrder, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }],
+      parts: [...prev.parts, { id: newPartId, thesisId: prev.id, title: `Partie ${partOrder <= 10 ? ROMAN_NUMERALS[partOrder - 1] : partOrder}`, order: partOrder, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }],
     }))
   }, [thesis?.parts?.length])
 
@@ -569,6 +578,13 @@ export default function Home() {
     }
   }, [activeChapter, chapterMeta, thesis, activeChapterId])
 
+  // ─── Insert text into active chapter (shared by 3 panels) ───
+  const handleInsertText = useCallback((text: string) => {
+    const currentContent = activeChapter?.content || ''
+    const newContent = currentContent ? currentContent + '\n\n' + text : text
+    handleContentChange(newContent)
+  }, [activeChapter?.content, handleContentChange])
+
   // ─── AI chat ────────────────────────────────────────────
   const handleAiSend = useCallback(async () => {
     if (!aiInput.trim() || aiLoading) return
@@ -599,6 +615,73 @@ export default function Home() {
       setAiLoading(false)
     }
   }, [aiInput, aiLoading, aiMessages, aiMode, aiProvider, aiApiKey, aiBaseUrl, aiModel])
+
+  // ─── Keyboard shortcuts (only outside editor) ────
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Skip if user is typing in an input/textarea/editor
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return
+
+      const mod = e.ctrlKey || e.metaKey
+      if (!mod) return
+
+      // Ctrl/Cmd + S → trigger save (prevent browser dialog)
+      if (e.key === 's' && !e.shiftKey) {
+        e.preventDefault()
+        // Force the debounced save to fire immediately
+        if (saveTimer.current) {
+          clearTimeout(saveTimer.current)
+          saveTimer.current = null
+        }
+        const chapterIdToSave = activeChapterIdRef.current
+        const currentContent = localContent.current
+        if (chapterIdToSave && currentContent !== undefined) {
+          handleContentChange(currentContent)
+        }
+        return
+      }
+
+      // Ctrl/Cmd + Shift + [ → previous chapter
+      if (e.key === '[' && e.shiftKey) {
+        e.preventDefault()
+        setThesis(prev => {
+          if (!prev) return prev
+          const chapters = [...prev.chapters].sort((a, b) => a.order - b.order)
+          const idx = chapters.findIndex(c => c.id === activeChapterId)
+          if (idx > 0) setActiveChapterId(chapters[idx - 1].id)
+          return prev
+        })
+        return
+      }
+
+      // Ctrl/Cmd + Shift + ] → next chapter
+      if (e.key === ']' && e.shiftKey) {
+        e.preventDefault()
+        setThesis(prev => {
+          if (!prev) return prev
+          const chapters = [...prev.chapters].sort((a, b) => a.order - b.order)
+          const idx = chapters.findIndex(c => c.id === activeChapterId)
+          if (idx >= 0 && idx < chapters.length - 1) setActiveChapterId(chapters[idx + 1].id)
+          return prev
+        })
+        return
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeChapterId, handleContentChange])
+
+  // ─── Warn on unsaved changes ────────────────────────
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [hasUnsavedChanges])
 
   // ─── Render ─────────────────────────────────────────────
   return (
@@ -636,6 +719,7 @@ export default function Home() {
           onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
           onOpenBookSkills={() => setBookSkillsOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
+          onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -769,13 +853,7 @@ export default function Home() {
         chapters={thesis?.chapters}
         thesisTitle={thesis?.title}
         thesisField={thesis?.field}
-        onInsertText={(text: string) => {
-          const currentContent = activeChapter?.content || ''
-          const newContent = currentContent
-            ? currentContent + '\n\n' + text
-            : text
-          handleContentChange(newContent)
-        }}
+        onInsertText={handleInsertText}
       />
 
       <DirecteurChat
@@ -808,13 +886,7 @@ export default function Home() {
         thesisTitle={thesis?.title}
         thesisField={thesis?.field}
         chapterTitle={chapterMeta?.title || activeChapter?.title}
-        onInsertText={(text: string) => {
-          const currentContent = activeChapter?.content || ''
-          const newContent = currentContent
-            ? currentContent + '\n\n' + text
-            : text
-          handleContentChange(newContent)
-        }}
+        onInsertText={handleInsertText}
       />
 
       <AgileRoadmapPanel
@@ -826,13 +898,7 @@ export default function Home() {
         open={writingUnblockOpen}
         onOpenChange={setWritingUnblockOpen}
         chapterTitle={chapterMeta?.title || activeChapter?.title}
-        onInsertText={(text: string) => {
-          const currentContent = activeChapter?.content || ''
-          const newContent = currentContent
-            ? currentContent + '\n\n' + text
-            : text
-          handleContentChange(newContent)
-        }}
+        onInsertText={handleInsertText}
       />
 
       <ResourcesPanel
@@ -858,6 +924,22 @@ export default function Home() {
             </DialogTitle>
           </DialogHeader>
           <LicenseAdminPanel />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ AUTH PROVIDERS DIALOG ═══ */}
+      <Dialog open={authProvidersOpen} onOpenChange={setAuthProvidersOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Shield className="h-4 w-4" />
+              Fournisseurs d'authentification
+            </DialogTitle>
+            <DialogDescription>
+              Auth0 · Stytch · Warrant — Configuration et gestion des accès
+            </DialogDescription>
+          </DialogHeader>
+          <AuthProviderPanel />
         </DialogContent>
       </Dialog>
 

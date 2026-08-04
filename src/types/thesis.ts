@@ -7,6 +7,8 @@ export interface PartData {
   updatedAt: string
 }
 
+export type ChapterStatus = 'draft' | 'in_progress' | 'submitted' | 'done'
+
 export interface ChapterData {
   id: string
   thesisId: string
@@ -16,10 +18,12 @@ export interface ChapterData {
   title: string
   content: string
   wordCount: number
-  status: string
+  status: ChapterStatus
   directorFeedback: string | null
   directorFeedbackAt: string | null
 }
+
+export type ThesisStatus = 'draft' | 'in_progress' | 'submitted' | 'completed'
 
 export interface ThesisData {
   id: string
@@ -28,7 +32,7 @@ export interface ThesisData {
   author: string
   field: string
   university: string
-  status: string
+  status: ThesisStatus
   structureMode: 'chapters' | 'parts'
   chapters: ChapterData[]
   parts: PartData[]

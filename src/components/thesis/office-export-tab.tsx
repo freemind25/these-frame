@@ -49,8 +49,8 @@ export default function OfficeExportTab({ thesis, activeChapter }: OfficeExportT
     try {
       await downloadFile('/api/office/export-docx', `these-${thesis.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}.docx`)
       setSuccess('Document Word exporté avec succès.')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur interne du serveur.')
     } finally {
       setExporting(null)
     }
@@ -63,8 +63,8 @@ export default function OfficeExportTab({ thesis, activeChapter }: OfficeExportT
     try {
       await downloadFile('/api/office/export-pptx', `soutenance-${thesis.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}.pptx`)
       setSuccess('Présentation PowerPoint générée avec succès.')
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur interne du serveur.')
     } finally {
       setExporting(null)
     }

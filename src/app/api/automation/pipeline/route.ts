@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Action non reconnue' }, { status: 400 })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[automation/pipeline]', err)
-    return NextResponse.json({ error: err.message || 'Erreur pipeline' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur pipeline' }, { status: 500 })
   }
 }
 
@@ -77,14 +77,14 @@ async function handleGenerateDrafts(
         success: true,
         draftLength: draft.length,
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       results.push({
         chapterId: chapter.id,
         chapterNumber: chapter.number,
         chapterTitle: chapter.title,
         success: false,
         draftLength: 0,
-        error: err.message,
+        error: err instanceof Error ? err.message : 'Erreur interne du serveur.',
       })
     }
   }
@@ -114,7 +114,7 @@ async function handleReviewAll(
     })
   }
 
-  const results: { chapterId: string; chapterNumber: number; chapterTitle: string; success: boolean; remarks: string[]; score?: number; error?: string }[] = []
+  const results: { chapterId: string; chapterNumber: number; chapterTitle: string; success: boolean; remarks: { type: string; severity: string; text: string }[]; score?: number; error?: string }[] = []
 
   for (const chapter of filledChapters) {
     try {
@@ -132,14 +132,14 @@ async function handleReviewAll(
         remarks: parsed.remarks,
         score: parsed.score,
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       results.push({
         chapterId: chapter.id,
         chapterNumber: chapter.number,
         chapterTitle: chapter.title,
         success: false,
         remarks: [],
-        error: err.message,
+        error: err instanceof Error ? err.message : 'Erreur interne du serveur.',
       })
     }
   }

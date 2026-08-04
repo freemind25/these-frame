@@ -1,4 +1,4 @@
-// Pre-extracted structured knowledge from the 14 library books.
+// Pre-extracted structured knowledge from the 18 library books.
 // Designed for injection into the AI Director's system prompt.
 // Principle: density over completeness, practitioner voice, named frameworks.
 
@@ -618,6 +618,185 @@ export const BOOK_SKILLS: Record<string, BookSkill> = {
       { chapterType: 'I', reason: 'Établir l\'état de l\'art pour justifier la problématique.' },
     ],
     quickReference: 'PCC → mots-clés → booléens → bases. PRISMA pour les revues systématiques. Gestionnaire de références = obligatoire. ORCID dès le début.',
+  },
+
+  'eco-comment-ecrire-ces-these': {
+    id: 'eco-comment-ecrire-ces-these',
+    title: 'Comment écrire sa thèse',
+    author: 'Umberto Eco',
+    coreConcept: "La thèse est un travail d'artisanat intellectuel : choisir un sujet faisable, organiser méthodiquement ses fiches de lecture, construire un plan rigoureux, et respecter les normes de citation. L'originalité vient du cadrage, pas du sujet.",
+    frameworks: [
+      {
+        name: 'Test des 4 conditions du sujet',
+        description: "Un sujet de thèse doit être : (1) pertinent pour la communauté scientifique, (2) traitable avec les outils disponibles, (3) délimitable en temps et espace, (4) original par l'angle ou la méthode — pas nécessairement par le thème.",
+        when: "L'étudiant hésite sur son sujet ou demande si son idée est 'assez originale'.",
+      },
+      {
+        name: 'Système de fiches de lecture',
+        description: "Trois types de fiches : (a) fiches bibliographiques (référence complète + résumé), (b) fiches de lecture (citations mot à mot avec pagination), (c) fiches de travail (idées personnelles, liens, critiques). Organisation par thème, pas par ordre de lecture.",
+        when: "L'étudiant accumule des lectures sans organisation claire ou ne retrouve pas ses citations.",
+      },
+      {
+        name: 'Plan en titres et sous-titres',
+        description: "Construire le plan avant la rédaction. Chaque chapitre = une idée. Chaque section = un argument. La structure IMRaD est un cadre, pas une prison. Le plan final peut différer du plan initial — c'est normal.",
+        when: "L'étudiant doit structurer sa thèse ou planifier l'enchaînement des chapitres.",
+      },
+    ],
+    principles: [
+      "La thèse est un exercice de communication : le lecteur doit comprendre, pas seulement admirer.",
+      "Citer systématiquement : chaque affirmation non-triviale doit être référencée. L'absence de citation = plagiat ou opinion non fondée.",
+      "Le style académique n'est pas du jargon : clarté > complexité. Les meilleures thèses sont les plus lisibles.",
+      "Le plan est un contrat avec le lecteur : annoncez ce que vous allez dire, dites-le, puis rappelez ce que vous avez dit.",
+    ],
+    techniques: [
+      "Fiche de lecture Eco : auteur, titre, année, éditeur + pages lues + résumé en 5 lignes + 2-3 citations clés avec page.",
+      "Méthode de la page blanche : quand vous bloquez, écrivez 'Ce que je veux dire ici c'est...' et laissez couler.",
+      "Vérification croisée : chaque référence citée dans le texte doit être dans la bibliographie, et vice-versa.",
+      "Règle du paragraphe : un paragraphe = une idée principale. Si un paragraphe dépasse une page, il faut le découper.",
+    ],
+    antiPatterns: [
+      "Choisir un sujet trop vaste ('la mondialisation') — la thèse n'est pas une encyclopédie.",
+      "Attendre d'avoir tout lu pour commencer à écrire — la lecture et l'écriture sont itératives.",
+      "Copier-coller sans guillemets ni référence — c'est du plagiat, même involontaire.",
+      "Écrire dans un style obscur pour paraître savant — la clarté est la marque de l'expert.",
+    ],
+    relevance: [
+      { chapterType: 'all', reason: "Référence fondamentale pour toute la démarche de thèse, du sujet à la soutenance." },
+      { chapterType: 'I', reason: 'Choix du sujet, construction de la problématique et planification.' },
+      { chapterType: 'II', reason: 'Organisation des fiches de lecture et structuration de la revue de littérature.' },
+    ],
+    quickReference: "Sujet faisable + délimité + original dans l'angle. 3 types de fiches (biblio, lecture, travail). 1 paragraphe = 1 idée. Citer tout, toujours.",
+  },
+
+  'dutta-academic-research-writing': {
+    id: 'dutta-academic-research-writing',
+    title: 'Academic and Research Writing',
+    author: 'Sanjay Kumar Dutta',
+    coreConcept: "La rédaction académique est un processus en 6 étapes : explorer → sélectionner → organiser → rédiger → réviser → publier. Chaque étape a ses outils et ses critères de qualité.",
+    frameworks: [
+      {
+        name: 'Modèle en 6 étapes de la rédaction académique',
+        description: '(1) Explorer le domaine, (2) Sélectionner le sujet et les sources, (3) Organiser le plan et les arguments, (4) Rédiger le premier jet, (5) Réviser structure + style + références, (6) Préparer la publication.',
+        when: "L'étudiant est dépassé et ne sait pas par où commencer son article ou chapitre.",
+      },
+      {
+        name: `Rubrique d'évaluation d'un écrit académique`,
+        description: '5 critères : clarté du propos, qualité des arguments, rigueur des références, structure logique, qualité de la langue. Se noter soi-même avant soumission.',
+        when: "L'étudiant veut auto-évaluer la qualité de son texte avant de le soumettre.",
+      },
+    ],
+    principles: [
+      "La rédaction académique est un processus itératif, pas un événement unique.",
+      "Le premier jet n'a pas besoin d'être parfait — il doit être complet. La révision fait le reste.",
+      "Chaque paragraphe doit avoir un topic sentence, du développement, et une transition vers le suivant.",
+      "Les références ne sont pas de la décoration — elles soutiennent chaque affirmation clé.",
+    ],
+    techniques: [
+      'Outline détaillé avant rédaction : chaque section avec son topic sentence et ses références prévues.',
+      'Révision en 3 passes : (1) structure et argumentation, (2) style et clarté, (3) références et format.',
+      'Paragraph framing : topic sentence → evidence → analysis → transition.',
+    ],
+    antiPatterns: [
+      'Soumettre un premier jet sans révision — la différence entre un bon et un mauvais texte est la révision.',
+      'Négliger le plan au profit de l\'inspiration — un plan solide rend la rédaction 3x plus rapide.',
+      'Sur-citer : citer chaque phrase banales dilue l\'impact des vraies références.',
+    ],
+    relevance: [
+      { chapterType: 'all', reason: 'Processus de rédaction applicable à tous les chapitres de la thèse.' },
+      { chapterType: 'I', reason: 'Structurer l\'introduction et la problématique selon la méthode en 6 étapes.' },
+      { chapterType: 'IV', reason: 'Présenter les résultats avec la rigueur attendue par les revues académiques.' },
+    ],
+    quickReference: 'Explorer → Sélectionner → Organiser → Rédiger → Réviser → Publier. 3 passes de révision. Topic sentence par paragraphe.',
+  },
+
+  'sulkowski-academic-writing-visualization': {
+    id: 'sulkowski-academic-writing-visualization',
+    title: 'Academic Writing, Visualization, Presentation, and Publishing of Research',
+    author: 'Łukasz Sułkowski, Joanna Kurowska-Pysz et al.',
+    coreConcept: 'La communication scientifique repose sur 4 piliers interconnectés : écrire clairement, visualiser les données efficacement, présenter oralement avec impact, et publier selon les normes des revues.',
+    frameworks: [
+      {
+        name: '4 piliers de la communication scientifique',
+        description: '(1) Writing : structure, style, citations. (2) Visualization : choix du bon graphique, légendes, couleurs. (3) Presentation : slide design, narration, timing. (4) Publishing : choix de la revue, lettre de soumission, réponse aux relecteurs.',
+        when: "L'étudiant doit communiquer ses résultats sous forme écrite, visuelle, orale ou pour publication.",
+      },
+      {
+        name: 'Guide de choix des visualisations',
+        description: 'Comparaison → bar chart. Évolution dans le temps → line chart. Proportion → pie/donut (max 5 parts). Corrélation → scatter. Distribution → histogram. Hiérarchie → treemap. Chaque graphique = un message, pas un data dump.',
+        when: "L'étudiant doit choisir le bon type de graphique pour présenter ses données.",
+      },
+    ],
+    principles: [
+      'Une bonne figure vaut 1000 mots — mais une mauvaise figure en vaut -500.',
+      'Chaque slide de présentation = une idée. Pas de paragraphes sur les slides.',
+      'La lettre de soumission à une revue est un argumentaire : pourquoi ce papier, pourquoi cette revue, pourquoi maintenant.',
+      'Répondre aux relecteurs : accepter, argumenter ou fournir des données. Jamais ignorer un commentaire.',
+    ],
+    techniques: [
+      'Graphique minimaliste : enlever tout ce qui ne contribue pas au message (gridlines inutiles, 3D, dégradés).',
+      'Slide storytelling : contexte → question → méthode → résultat → implication. 1 minute par slide.',
+      'Réponse structurée aux relecteurs : tableau avec chaque commentaire, la réponse, et la localisation dans le texte révisé.',
+    ],
+    antiPatterns: [
+      'Camembert 3D avec 12 parts — illisible et trompeur.',
+      'Slide avec 200 mots en police 10 — le public ne lit pas, il s\'ennuie.',
+      'Ignorer les guidelines de la revue cible — rejet immédiat par l\'éditeur.',
+    ],
+    relevance: [
+      { chapterType: 'IV', reason: 'Présentation optimale des résultats avec des visualisations efficaces.' },
+      { chapterType: 'V', reason: 'Discussion des résultats et préparation de la communication scientifique.' },
+      { chapterType: 'VI', reason: 'Préparation de la publication et réponse aux relecteurs.' },
+    ],
+    quickReference: '4 piliers : Write → Visualize → Present → Publish. 1 graphique = 1 message. 1 slide = 1 idée.',
+  },
+
+  'srivastava-ai-tools-academic-writing': {
+    id: 'srivastava-ai-tools-academic-writing',
+    title: 'Utilizing AI Tools in Academic Research Writing',
+    author: 'Anugamini Priya Srivastava, Anjali Agarwal et al.',
+    coreConcept: "L'IA générative est un assistant de recherche, pas un auteur. Elle accélère le processus d'écriture mais ne remplace ni la pensée critique, ni la vérification des faits, ni l'intégrité académique. L'éthique guide l'usage.",
+    frameworks: [
+      {
+        name: `Cadre d'utilisation éthique de l'IA en académique`,
+        description: "3 principes : (1) Transparence — déclarer tout usage d'IA, (2) Vérification — valider chaque fait, citation et chiffre générés, (3) Suppléance — l'IA assiste, le chercheur décide. L'IA ne peut pas être citée comme auteur.",
+        when: "L'étudiant utilise ChatGPT ou tout autre outil IA dans sa thèse et s'interroge sur l'éthique.",
+      },
+      {
+        name: 'Workflow IA pour la rédaction académique',
+        description: "(1) Brainstorming et structuration, (2) Recherche documentaire assistée, (3) Rédaction de brouillons, (4) Révision linguistique et style, (5) Vérification des références. Chaque étape = humain au contrôle, IA en support.",
+        when: "L'étudiant veut intégrer l'IA dans son flux de travail sans compromettre la qualité.",
+      },
+      {
+        name: 'Taxonomie des outils IA académiques',
+        description: "Rédaction (ChatGPT, Claude, Gemini), Correction (Grammarly, LanguageTool), Citations (Zotero + AI, Consensus), Visualisation (Code Interpreter, Elicit), Traduction (DeepL), Détection IA (GPTZero, Turnitin).",
+when: "L'étudiant cherche l'outil adapté à chaque étape de son processus de recherche.",
+      },
+    ],
+    principles: [
+      "L'IA ne remplace pas la pensée critique — elle la nourrit si on l'utilise bien.",
+      "Toujours vérifier les faits et références générés par l'IA — les hallucinations sont fréquentes.",
+      "Déclarer l'usage de l'IA est une obligation éthique, pas une faiblesse.",
+      "Le prompt est un outil : des prompts précis = des réponses utiles. Des prompts vagues = du bruit.",
+      "L'IA accélère la mécanique de l'écriture mais ne remplace pas la substance de la pensée.",
+    ],
+    techniques: [
+      "Prompt structuré : rôle + contexte + tâche + contraintes + format. Ex: 'En tant qu'expert en [domaine], rédige un paragraphe sur [sujet] en style académique, 200 mots, avec 2 références.'",
+      'Chaîne de révision IA : (1) rédiger sans IA, (2) faire réviser par l\'IA, (3) corriger les suggestions inappropriées, (4) relire humainement.',
+      'Vérification croisée : quand l\'IA cite un auteur ou un chiffre, vérifier avec Google Scholar ou la source originale.',
+      'Détection préventive : passer son propre texte dans un détecteur IA pour identifier les passages trop "robotiques" et les réécrire.',
+    ],
+    antiPatterns: [
+      "Copier-coller un texte généré par l'IA sans le réviser — c'est de la paresse intellectuelle, pas de l'aide.",
+      'Faire confiance aux références hallucinées — l\'IA invente des articles qui n\'existent pas.',
+      'Ne pas déclarer l\'usage de l\'IA — risque de plagiat et sanctions institutionnelles.',
+      'Utiliser l\'IA pour éviter de lire les sources primaires — la pensée de seconde main est évidente.',
+    ],
+    relevance: [
+      { chapterType: 'all', reason: "L'usage de l'IA concerne tous les chapitres et toutes les étapes de la thèse." },
+      { chapterType: 'I', reason: 'Utilisation de l\'IA pour le brainstorming et la structuration de la problématique.' },
+      { chapterType: 'IV', reason: "Aide à la rédaction des résultats avec vérification obligatoire des données." },
+    ],
+    quickReference: "IA = assistant, pas auteur. Toujours vérifier. Toujours déclarer. Prompt structuré = bon résultat. Chaîne : humain → IA → humain.",
   },
 }
 

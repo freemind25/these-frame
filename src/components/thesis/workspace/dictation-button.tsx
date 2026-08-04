@@ -1,5 +1,39 @@
 'use client'
 
+// SpeechRecognition API types (not in TS DOM lib by default)
+interface ISpeechRecognition extends EventTarget {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  maxAlternatives: number
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null
+  onerror: ((event: ISpeechRecognitionErrorEvent) => void) | null
+  onend: (() => void) | null
+  start(): void
+  stop(): void
+  abort(): void
+}
+
+interface ISpeechRecognitionEvent extends Event {
+  resultIndex: number
+  results: {
+    length: number
+    [index: number]: { isFinal: boolean; length: number; [index: number]: { transcript: string; confidence: number } }
+  }
+}
+
+interface ISpeechRecognitionErrorEvent extends Event {
+  error: string
+  message: string
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => ISpeechRecognition
+    webkitSpeechRecognition: new () => ISpeechRecognition
+  }
+}
+
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Mic, MicOff, Loader2, AudioLines } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -23,32 +57,30 @@ type DictationState = 'idle' | 'requesting' | 'recording' | 'transcribing' | 'er
 function isSpeechRecognitionSupported(): boolean {
   if (typeof window === 'undefined') return false
   return !!(
-    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    window.SpeechRecognition || window.webkitSpeechRecognition
   )
 }
 
 // Get the SpeechRecognition constructor (with webkit prefix fallback)
-function getSpeechRecognition(): (new () => SpeechRecognition) | null {
+function getSpeechRecognition(): (new () => ISpeechRecognition) | null {
   if (typeof window === 'undefined') return null
   return (
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition ||
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition ||
     null
   )
 }
 
 export default function DictationButton({ onTranscribed, disabled }: DictationButtonProps) {
   const [state, setState] = useState<DictationState>('idle')
-  const [mode, setMode] = useState<DictationMode>(() =>
-    isSpeechRecognitionSupported() ? 'browser' : 'server',
-  )
+  const [mode, setMode] = useState<DictationMode>('server')
   const [elapsed, setElapsed] = useState(0)
   const [errorMsg, setErrorMsg] = useState('')
   const [interimText, setInterimText] = useState('')
-  const recognitionRef = useRef<any>(null)
+  const recognitionRef = useRef<ISpeechRecognition | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
-  const timerRef = useRef<ReturnType<typeof setInterval>>()
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
   const streamRef = useRef<MediaStream | null>(null)
   const onTranscribedRef = useRef(onTranscribed)
   useEffect(() => { onTranscribedRef.current = onTranscribed }, [onTranscribed])
@@ -96,7 +128,7 @@ export default function DictationButton({ onTranscribed, disabled }: DictationBu
 
     let finalTranscript = ''
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: ISpeechRecognitionEvent) => {
       let interim = ''
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i]
@@ -109,7 +141,7 @@ export default function DictationButton({ onTranscribed, disabled }: DictationBu
       setInterimText(interim)
     }
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: ISpeechRecognitionErrorEvent) => {
       console.warn('[SpeechAPI]', event.error)
       if (event.error === 'not-allowed') {
         setErrorMsg('Microphone refusé')
@@ -205,9 +237,9 @@ export default function DictationButton({ onTranscribed, disabled }: DictationBu
             onTranscribedRef.current(data.text.trim())
           }
           setState('idle')
-        } catch (err: any) {
+        } catch (err: unknown) {
           setState('error')
-          setErrorMsg(err.message || 'Erreur de transcription')
+          setErrorMsg(err instanceof Error ? err.message : 'Erreur de transcription')
         }
       }
 
@@ -228,11 +260,11 @@ export default function DictationButton({ onTranscribed, disabled }: DictationBu
           recorder.stop()
         }
       }, 1000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setState('error')
-      if (err.name === 'NotAllowedError') {
+      if (err instanceof Error && err.name === 'NotAllowedError') {
         setErrorMsg('Microphone refusé')
-      } else if (err.name === 'NotFoundError') {
+      } else if (err instanceof Error && err.name === 'NotFoundError') {
         setErrorMsg('Aucun microphone')
       } else {
         setErrorMsg('Erreur microphone')

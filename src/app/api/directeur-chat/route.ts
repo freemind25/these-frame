@@ -4,6 +4,8 @@ import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
 import { getBookSkillSummary } from '@/data/book-skills'
 import { LR_DIMENSIONS, LR_TYPE_PROFILE } from '@/data/lr-typology'
+import { createConversationStore } from '@/lib/conversation-store'
+import { directeurChatSchema, validateBody } from '@/lib/api-schemas'
 
 // ── Specialized mode instructions ──
 const MODE_INSTRUCTIONS: Record<string, string> = {
@@ -139,8 +141,7 @@ FORMAT :
 Tu peux rédiger une synthèse en prose fluide dans ce mode — c'est le seul mode où la production de texte est autorisée, car il s'agit de synthèse, pas de rédaction originale.`,
 }
 
-// In-memory conversation store
-const conversations = new Map<string, Array<{ role: string; content: string }>>()
+const store = createConversationStore()
 
 interface ChapterProgress {
   number: string
@@ -265,47 +266,20 @@ Format en conversation :
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      message,
-      sessionId,
-      clearHistory,
-      mode,
-      chapterTitle,
-      chapterNumber,
-      chapterContent,
-      thesisProgress,
-      thesisTitle,
-      thesisField,
-      sousDomaine,
-      problematique,
-      hypothese,
-      activeBookIds,
-    } = body as {
-      message?: string
-      sessionId?: string
-      clearHistory?: boolean
-      mode?: 'stress-test' | 'remediation' | 'gap-finding' | 'lr-audit' | 'cartographie' | 'writing-coach' | 'source-synthesis'
-      chapterTitle?: string
-      chapterNumber?: string
-      chapterContent?: string
-      thesisProgress?: ChapterProgress[]
-      thesisTitle?: string
-      thesisField?: string
-      sousDomaine?: string
-      problematique?: { quoi: string; comment: string; pourquoi: string }
-      hypothese?: string
-      activeBookIds?: string[]
+    const validation = validateBody(directeurChatSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
-
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      return NextResponse.json({ error: 'Le message est requis.' }, { status: 400 })
-    }
+    const { message, sessionId, clearHistory, mode, chapterTitle, chapterNumber, chapterContent, thesisTitle, thesisField, sousDomaine, hypothese, activeBookIds } = validation.data
+    // Fields not in Zod schema (complex objects) — accessed from raw body
+    const thesisProgress = body.thesisProgress as ChapterProgress[] | undefined
+    const problematique = body.problematique as { quoi: string; comment: string; pourquoi: string } | undefined
 
     const trimmedMessage = message.trim()
     const sid = sessionId || `directeur_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 
     if (clearHistory) {
-      conversations.delete(sid)
+      store.delete(sid)
     }
 
     // Build the system prompt with all available context
@@ -324,21 +298,9 @@ export async function POST(request: NextRequest) {
       activeBookIds,
     }) + modeInstruction
 
-    let history = conversations.get(sid) || [
-      { role: 'system', content: systemPrompt },
-    ]
+    let history = store.createOrReset(sid, systemPrompt)
 
-    // If context or mode changed, reset with new system prompt
-    if (history[0]?.content !== systemPrompt) {
-      history = [{ role: 'system', content: systemPrompt }]
-    }
-
-    history.push({ role: 'user', content: trimmedMessage })
-
-    // Trim to last 24 messages + system
-    if (history.length > 25) {
-      history = [history[0], ...history.slice(-24)]
-    }
+    history = store.addAndTrim(sid, 'user', trimmedMessage, 24)
 
     const zai = await getZAI()
     const apiMessages = history
@@ -357,8 +319,7 @@ export async function POST(request: NextRequest) {
       completion.choices[0]?.message?.content ||
       'Désolé, une erreur est survenue lors de la génération.'
 
-    history.push({ role: 'assistant', content: aiResponse })
-    conversations.set(sid, history)
+    history = store.addAndTrim(sid, 'assistant', aiResponse, 24)
 
     return NextResponse.json({
       success: true,
@@ -380,12 +341,13 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
     if (sessionId) {
-      conversations.delete(sessionId)
+      store.delete(sessionId)
     } else {
-      conversations.clear()
+      store.clear()
     }
     return NextResponse.json({ success: true })
-  } catch {
+  } catch (err) {
+    console.error('[api/directeur-chat] DELETE', err)
     return NextResponse.json({ error: 'Erreur lors de la suppression.' }, { status: 500 })
   }
 }

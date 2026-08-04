@@ -157,7 +157,7 @@ export default function LicenseAdminPanel() {
         setGenResult(data.keys as string[])
         fetchKeys()
       } else {
-        setError(data.error || 'Erreur')
+        setError(String(data.error || 'Erreur'))
       }
     } catch {
       setError('Erreur de connexion')
@@ -181,7 +181,7 @@ export default function LicenseAdminPanel() {
         return
       }
       if (data.success) fetchKeys()
-      else setError(data.error || 'Erreur')
+      else setError(String(data.error || 'Erreur'))
     } catch {
       setError('Erreur')
     }

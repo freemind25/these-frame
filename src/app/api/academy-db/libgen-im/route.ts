@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
       sourceColor: '#7C3AED',
     }))
     return NextResponse.json({ results, total: data.total || 0 })
-  } catch {
-    return NextResponse.json({ error: 'Erreur Library Genesis.' })
+  } catch (err) {
+    console.error('[api/academy-db/libgen-im]', err)
+    return NextResponse.json({ error: 'Erreur Library Genesis.' }, { status: 500 })
   }
 }

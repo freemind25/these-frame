@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       await writeAndBatch(workDir, filePath, chapterOps, 'chapters')
 
       // 6. Add a second sheet: Timeline estimations
-      const timelineOps = [
+      const timelineOps: any[] = [
         { command: 'add', parent: '/', type: 'sheet' },
         { command: 'set', path: '/Sheet1', props: { name: 'Calendrier' } },
         { command: 'set', path: '/Calendrier/A1', props: { value: 'CALENDRIER ESTIMATIF', bold: true, size: 14, font: 'Calibri', fill: '10B981', 'font.color': 'FFFFFF' } },

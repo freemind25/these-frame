@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
         const result = await transcribeWithGroq(audio, language, groqKey)
         text = result.text
         provider = 'groq-whisper-v3'
-      } catch (err: any) {
-        console.warn('[asr] Groq failed, trying next provider:', err.message)
+      } catch (err: unknown) {
+        console.warn('[asr] Groq failed, trying next provider:', err instanceof Error ? err.message : err)
       }
     }
 
@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
         const response = await zai.audio.asr.create({ file_base64: audio })
         text = response.text || ''
         provider = 'zai'
-      } catch (err: any) {
-        console.warn('[asr] Z.ai SDK failed:', err.message)
+      } catch (err: unknown) {
+        console.warn('[asr] Z.ai SDK failed:', err instanceof Error ? err.message : err)
       }
     }
 
@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
       wordCount: cleaned.split(/\s+/).filter(Boolean).length,
       provider,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[asr/transcribe]', err)
     return NextResponse.json(
-      { error: err.message || 'Erreur de transcription' },
+      { error: err instanceof Error ? err.message : 'Erreur de transcription' },
       { status: 500 },
     )
   }

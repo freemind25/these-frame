@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
     await db.agileSprint.deleteMany({ where: { thesisId: tid } })
 
     // Re-seed
-    const sprints = []
+    const sprints: any[] = []
     for (const sp of DEFAULT_SPRINTS) {
       const created = await db.agileSprint.create({
         data: {

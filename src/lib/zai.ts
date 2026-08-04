@@ -2,7 +2,22 @@ import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { homedir, tmpdir } from 'os'
 
-// ─── Types ─────────────────────────────────────────────────────────────
+// ─── Public client interface ─────────────────────────────────────
+
+export interface ZAIClient {
+  chat: {
+    completions: {
+      create(params: Record<string, unknown>): Promise<{ choices: Array<{ message: { content: string } }> }>
+    }
+  }
+  audio: {
+    asr: {
+      create(params: { file_base64: string }): Promise<{ text: string }>
+    }
+  }
+}
+
+// ─── Types (mirror SDK interface) ─────────────────────────────────
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -121,16 +136,23 @@ class FetchAI {
   get chat() {
     return {
       completions: {
-        create: async (body: CreateChatCompletionBody): Promise<any> => {
-          const { thinking, stream, ...payload } = body as any
-
+        create: async (body: Record<string, unknown>): Promise<{ choices: Array<{ message: { content: string } }> }> => {
+          const { thinking, stream, messages: rawMessages, ...rest } = body as unknown as CreateChatCompletionBody
+          // SDK convention uses 'assistant' for system prompts; remap for standard APIs
+          const messages = (rawMessages ?? []).map((m: ChatMessage, i: number) =>
+            i === 0 && m.role === 'assistant' ? { ...m, role: 'system' as const } : m
+          )
           const res = await fetch(`${this.baseUrl}/chat/completions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${this.apiKey}`,
             },
-            body: JSON.stringify({ model: payload.model || 'mistral-large-latest', ...payload }),
+            body: JSON.stringify({
+              model: rest.model || 'mistral-large-latest',
+              ...rest,
+              messages,
+            }),
           })
 
           const rawText = await res.text()
@@ -176,7 +198,7 @@ class FetchAI {
 
 // ─── SINGLETON ────────────────────────────────────────────────────────
 
-let zaiInstance: any = null
+let zaiInstance: ZAIClient | null = null
 let initAttempted = false
 let initError: string | null = null
 
@@ -206,7 +228,7 @@ function readConfig(): { baseUrl: string; apiKey: string } | null {
  * 1. Sérialisés par une file FIFO (1 appel à la fois)
  * 2. Retentés automatiquement sur ResourceExhausted (5 max, backoff exponentiel)
  */
-export async function getZAI() {
+export async function getZAI(): Promise<ZAIClient> {
   if (zaiInstance) return zaiInstance
   if (initAttempted && initError) throw new Error(initError)
 
@@ -236,17 +258,15 @@ export async function getZAI() {
   zaiInstance = {
     chat: {
       completions: {
-        create: (body: CreateChatCompletionBody) => {
-          return enqueue(() => retryAI(() => originalCreate(body), 5))
+        create: (body: Record<string, unknown>) => {
+          return enqueue(() => retryAI(() => originalCreate(body as any), 5))
         },
       },
     },
     audio: raw.audio,
-    functions: raw.functions,
-    images: raw.images,
   }
 
-  return zaiInstance
+  return zaiInstance!
 }
 
 export function isZAIConfigured(): boolean {

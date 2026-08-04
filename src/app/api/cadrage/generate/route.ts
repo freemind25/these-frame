@@ -51,10 +51,11 @@ export async function POST(request: NextRequest) {
     // Upsert cadrage record
     let cadrage = await db.thesisCadrage.findUnique({ where: { thesisId } })
     if (!cadrage) {
-      cadrage = await db.thesisCadrage.create({ data: { thesisId } })
+      const newCadrage = await db.thesisCadrage.create({ data: { thesisId } })
+      cadrage = newCadrage
       await db.thesisCadrageField.createMany({
         data: CADRAGE_FIELD_KEYS.map(key => ({
-          cadrageId: cadrage.id,
+          cadrageId: newCadrage.id,
           fieldKey: key,
           fieldValue: '',
           isAiSuggestion: false,

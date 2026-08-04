@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { LR_DIMENSIONS, PRISMA_CHECKLIST, PICO_FRAMEWORK, LR_TYPE_PROFILE } from '@/data/lr-typology'
+import { createConversationStore } from '@/lib/conversation-store'
+import { aiWritingSchema, validateBody } from '@/lib/api-schemas'
+
+const store = createConversationStore()
 
 // ── Writing mode system prompts ──
 
@@ -462,8 +466,7 @@ Réponds en français. Sois rigoureux mais constructif.`,
 
 const VALID_MODES = Object.keys(SYSTEM_PROMPTS)
 
-// In-memory conversation store (per session)
-const conversations = new Map<string, Array<{ role: string; content: string }>>()
+// ── In-memory conversation store (via shared ConversationStore) ──
 
 // ── OpenAI-compatible fetch for external providers ──
 async function callOpenAICompatible({
@@ -515,22 +518,15 @@ async function callOpenAICompatible({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { mode, message, sessionId, clearHistory, temperature, maxTokens, thinking } = body
-    const provider = body.provider as string | undefined
-    const apiKey = body.apiKey as string | undefined
-    const model = body.model as string | undefined
-    const baseUrl = body.baseUrl as string | undefined
+    const validation = validateBody(aiWritingSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
+    }
+    const { message, mode, sessionId, clearHistory, provider, apiKey, baseUrl, model, temperature, maxTokens, thinking } = validation.data
 
     if (!mode || !VALID_MODES.includes(mode)) {
       return NextResponse.json(
         { error: `Mode invalide. Modes disponibles : ${VALID_MODES.join(', ')}` },
-        { status: 400 }
-      )
-    }
-
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Le message est requis.' },
         { status: 400 }
       )
     }
@@ -547,27 +543,15 @@ export async function POST(request: NextRequest) {
 
     // Clear history if requested
     if (clearHistory) {
-      conversations.delete(sid)
+      store.delete(sid)
     }
 
-    // Get or create conversation history
+    // Get or create conversation history (evicts stale entries internally)
     const systemPrompt = SYSTEM_PROMPTS[mode]
-    let history = conversations.get(sid) || [
-      { role: 'system', content: systemPrompt }
-    ]
-
-    // If switching modes, reset with new system prompt
-    if (history[0].content !== systemPrompt) {
-      history = [{ role: 'system', content: systemPrompt }]
-    }
+    let history = store.createOrReset(sid, systemPrompt!)
 
     // Add user message
-    history.push({ role: 'user', content: message.trim() })
-
-    // Trim history to keep last 20 messages (plus system)
-    if (history.length > 21) {
-      history = [history[0], ...history.slice(-(20))]
-    }
+    history = store.addAndTrim(sid, 'user', message.trim(), 20)
 
     let aiResponse: string
 
@@ -602,8 +586,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add AI response to history
-    history.push({ role: 'assistant', content: aiResponse })
-    conversations.set(sid, history)
+    store.addAndTrim(sid, 'assistant', aiResponse, 20)
 
     return NextResponse.json({
       success: true,
@@ -626,9 +609,9 @@ export async function DELETE(request: NextRequest) {
     const sessionId = searchParams.get('sessionId')
 
     if (sessionId) {
-      conversations.delete(sessionId)
+      store.delete(sessionId)
     } else {
-      conversations.clear()
+      store.clear()
     }
 
     return NextResponse.json({ success: true })

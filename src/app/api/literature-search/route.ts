@@ -239,13 +239,14 @@ async function searchPubmed(query: string, limit: number): Promise<SearchResult[
             if (abs) results[i].abstract = abs
           }
         }
-      } catch {
-        // Abstracts are best-effort
+      } catch (err) {
+        console.error('[api/literature-search] PubMed efetch abstracts (best-effort)', err)
       }
     }
 
     return results
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] PubMed', err)
     return []
   }
 }
@@ -293,7 +294,8 @@ async function searchHAL(query: string, limit: number): Promise<SearchResult[]> 
       cacheSearchResult(r)
       return r
     })
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] HAL', err)
     return []
   }
 }
@@ -328,7 +330,8 @@ async function searchDOAJ(query: string, limit: number): Promise<SearchResult[]>
       cacheSearchResult(r)
       return r
     })
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] DOAJ', err)
     return []
   }
 }
@@ -366,7 +369,8 @@ async function searchEuropePMC(query: string, limit: number): Promise<SearchResu
       cacheSearchResult(r)
       return r
     })
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] Europe PMC', err)
     return []
   }
 }
@@ -398,7 +402,8 @@ async function searchERIC(query: string, limit: number): Promise<SearchResult[]>
       cacheSearchResult(r)
       return r
     })
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] ERIC', err)
     return []
   }
 }
@@ -441,7 +446,8 @@ async function searchCORE(query: string, limit: number): Promise<SearchResult[]>
       cacheSearchResult(r)
       return r
     })
-  } catch {
+  } catch (err) {
+    console.error('[api/literature-search] CORE', err)
     return []
   }
 }

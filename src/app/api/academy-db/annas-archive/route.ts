@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
       sourceColor: '#8B4513',
     }))
     return NextResponse.json({ results, total: data.response?.numFound || 0 })
-  } catch {
-    return NextResponse.json({ error: "Erreur Anna's Archive." })
+  } catch (err) {
+    console.error('[api/academy-db/annas-archive]', err)
+    return NextResponse.json({ error: "Erreur Anna's Archive." }, { status: 500 })
   }
 }

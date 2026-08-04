@@ -14,16 +14,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       url,
-      debug: {
-        NEXT_PUBLIC_APP_URL: envUrl || '(not set)',
-        host_header: host,
-        protocol_header: protocol,
-        derived_baseUrl: baseUrl,
-        redirect_uri: redirectUri,
-        redirect_uri_no_trailing_slash: redirectUri.endsWith('/') ? '⚠️ ENDS WITH / — THIS WILL FAIL' : '✅ OK',
-        redirect_uri_has_space: redirectUri.includes(' ') ? '⚠️ HAS SPACE — THIS WILL FAIL' : '✅ OK',
-        redirect_uri_has_path: redirectUri.includes('/api/') ? '✅ Has path (normal for redirect)' : '⚠️ No path',
-      },
       // What user MUST put in Google Console:
       google_console_config: {
         authorized_javascript_origin: new URL(redirectUri).origin,
