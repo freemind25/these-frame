@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { exchangeCode, getGoogleProfile } from '@/lib/google-drive'
 import { db } from '@/lib/db'
+import { encrypt } from '@/lib/crypto'
 
 function getBaseUrl(req: NextRequest): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -45,8 +46,8 @@ export async function GET(req: NextRequest) {
           connected: true,
           email: profile.email,
           displayName: profile.name,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          accessToken: encrypt(tokens.access_token),
+          refreshToken: encrypt(tokens.refresh_token),
           tokenExpiresAt: expiresAt,
           lastSyncAt: new Date(),
         },
@@ -58,8 +59,8 @@ export async function GET(req: NextRequest) {
           connected: true,
           email: profile.email,
           displayName: profile.name,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
+          accessToken: encrypt(tokens.access_token),
+          refreshToken: encrypt(tokens.refresh_token),
           tokenExpiresAt: expiresAt,
         },
       })

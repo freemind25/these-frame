@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { encrypt, decrypt } from '@/lib/crypto'
 
 const MENDELEY_AUTH_URL = 'https://api.mendeley.com/oauth/authorize'
 const MENDELEY_TOKEN_URL = 'https://api.mendeley.com/oauth/token'
@@ -42,8 +43,8 @@ export async function POST(request: NextRequest) {
       config = await db.mendeleyConfig.create({
         data: {
           clientId: clientId || null,
-          clientSecret: clientSecret || null,
-          accessToken: accessToken || null,
+          clientSecret: encrypt(clientSecret),
+          accessToken: encrypt(accessToken),
           connected: !!accessToken,
         },
       })
@@ -52,9 +53,9 @@ export async function POST(request: NextRequest) {
         where: { id: config.id },
         data: {
           ...(clientId !== undefined && { clientId }),
-          ...(clientSecret !== undefined && { clientSecret }),
+          ...(clientSecret !== undefined && { clientSecret: encrypt(clientSecret) }),
           ...(accessToken !== undefined && {
-            accessToken,
+            accessToken: encrypt(accessToken),
             connected: !!accessToken,
           }),
         },

@@ -1,0 +1,57 @@
+# ─── ThesisFrame — Tauri Windows Build ────────────────────────────
+# Builds a Windows NSIS installer on push to a v* tag.
+# The .exe is automatically attached to the GitHub Release.
+
+name: Tauri Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Bun
+        run: |
+          npm install -g bun
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-action/setup@v1
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Next.js frontend
+        run: bun run build
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: ${{ github.ref_name }}
+          releaseBody: 'See release notes.'
+          releaseDraft: false
+          prerelease: false

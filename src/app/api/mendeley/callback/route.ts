@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { encrypt, decrypt } from '@/lib/crypto'
 
 const MENDELEY_TOKEN_URL = 'https://api.mendeley.com/oauth/token'
 
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${decrypt(config.clientSecret)}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
@@ -58,8 +59,8 @@ export async function GET(request: NextRequest) {
     await db.mendeleyConfig.update({
       where: { id: config.id },
       data: {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
+        accessToken: encrypt(tokens.access_token),
+        refreshToken: encrypt(tokens.refresh_token),
         tokenExpiresAt: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : null,

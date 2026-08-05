@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { encrypt, decrypt } from '@/lib/crypto'
 
 const MENDELEY_API = 'https://api.mendeley.com'
 
 async function getAccessToken(): Promise<string | null> {
   const config = await db.mendeleyConfig.findFirst()
   if (!config?.accessToken) return null
+
+  const accessToken = decrypt(config.accessToken)
+  if (!accessToken) return null
+
   if (config.tokenExpiresAt && new Date() > config.tokenExpiresAt) {
-    if (config.refreshToken && config.clientId && config.clientSecret) {
+    const refreshToken = decrypt(config.refreshToken)
+    const clientSecret = decrypt(config.clientSecret)
+    if (refreshToken && config.clientId && clientSecret) {
       try {
         const res = await fetch('https://api.mendeley.com/oauth/token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`,
+            Authorization: `Basic ${Buffer.from(`${config.clientId}:${clientSecret}`).toString('base64')}`,
           },
           body: new URLSearchParams({
             grant_type: 'refresh_token',
-            refresh_token: config.refreshToken,
+            refresh_token: refreshToken,
           }).toString(),
         })
         if (res.ok) {
@@ -25,8 +32,8 @@ async function getAccessToken(): Promise<string | null> {
           await db.mendeleyConfig.update({
             where: { id: config.id },
             data: {
-              accessToken: tokens.access_token,
-              refreshToken: tokens.refresh_token || config.refreshToken,
+              accessToken: encrypt(tokens.access_token),
+              refreshToken: encrypt(tokens.refresh_token) || config.refreshToken,
               tokenExpiresAt: tokens.expires_in
                 ? new Date(Date.now() + tokens.expires_in * 1000)
                 : null,
@@ -38,7 +45,7 @@ async function getAccessToken(): Promise<string | null> {
     }
     return null
   }
-  return config.accessToken
+  return accessToken
 }
 
 export async function GET(request: NextRequest) {

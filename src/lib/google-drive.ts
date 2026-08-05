@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { encrypt, decrypt } from '@/lib/crypto'
 
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const GOOGLE_DRIVE_API = 'https://www.googleapis.com/drive/v3'
@@ -107,15 +108,15 @@ export async function refreshAccessToken(refreshToken: string): Promise<string> 
   }
 
   const data = await res.json()
-  // Update DB with fresh token
+  // Update DB with fresh token (encrypted)
   const conn = await db.cloudDriveConnection.findFirst({ where: { provider: 'google_drive' } })
   if (conn) {
     const expiresAt = new Date(Date.now() + data.expires_in * 1000)
     await db.cloudDriveConnection.update({
       where: { id: conn.id },
       data: {
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token || refreshToken,
+        accessToken: encrypt(data.access_token),
+        refreshToken: encrypt(data.refresh_token || refreshToken),
         tokenExpiresAt: expiresAt,
       },
     })
@@ -131,13 +132,17 @@ export async function getValidAccessToken(): Promise<string> {
 
   if (!conn?.accessToken) throw new Error('Google Drive not connected')
 
+  const accessToken = decrypt(conn.accessToken)
+  if (!accessToken) throw new Error('Google Drive not connected')
+
   // Check if token is expired (with 5 min buffer)
   if (conn.tokenExpiresAt && new Date(conn.tokenExpiresAt).getTime() - Date.now() < 300_000) {
-    if (!conn.refreshToken) throw new Error('No refresh token available')
-    return refreshAccessToken(conn.refreshToken)
+    const refreshToken = decrypt(conn.refreshToken)
+    if (!refreshToken) throw new Error('No refresh token available')
+    return refreshAccessToken(refreshToken)
   }
 
-  return conn.accessToken
+  return accessToken
 }
 
 /**

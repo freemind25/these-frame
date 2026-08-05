@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { listDriveFiles } from '@/lib/google-drive'
 import { db } from '@/lib/db'
+import { decrypt } from '@/lib/crypto'
 
 export async function GET() {
   try {
