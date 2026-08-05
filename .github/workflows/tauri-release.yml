@@ -1,11 +1,7 @@
-# ─── ThesisFrame ─ Tauri Windows Build ───────────────────────
+# ─── ThesisFrame ─ Tauri Windows Build (Split Jobs) ─────────────
+# Job 1 (ubuntu): Build Next.js standalone → upload artifact
+# Job 2 (windows): Download artifact, bundle resources, build Tauri NSIS
 # Triggers on v* tag push.
-# Steps:
-#   1. Install Node.js + Rust + bun
-#   2. Build Next.js standalone
-#   3. Bundle Node.exe + standalone output as Tauri resources
-#   4. Build Tauri NSIS installer
-#   5. Upload .exe to the GitHub Release
 
 name: Tauri Build
 
@@ -17,26 +13,102 @@ on:
 permissions:
   contents: write
 
+env:
+  NODE_VERSION: '20.18.1'
+
 jobs:
-  build-windows:
-    name: Build Windows Installer
-    runs-on: windows-latest
-    timeout-minutes: 45
-    env:
-      NODE_VERSION: '20.18.1'
+  # ── Job 1: Build Next.js standalone on Linux ─────────────────
+  build-next:
+    name: Build Next.js (linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      # ── 1. Checkout ───────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. Setup Node.js ──────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # ── 3. Setup Rust ─────────────────────────────────────────
+      - name: Install bun
+        run: npm install -g bun
+
+      - name: Install dependencies
+        run: |
+          bun install --frozen-lockfile 2>/dev/null || bun install
+
+      - name: Prisma generate
+        run: bunx prisma generate
+
+      - name: Build Next.js (standalone)
+        run: npx next build
+
+      - name: Verify standalone output
+        run: |
+          echo "Contents of .next/:"
+          ls -la .next/
+          if [ ! -d ".next/standalone" ]; then
+            echo "ERROR: .next/standalone not found!" >&2
+            exit 1
+          fi
+          echo "Standalone OK: $(du -sh .next/standalone | cut -f1)"
+
+      - name: Pack standalone + static + public
+        run: |
+          # Copy static assets into standalone (standalone build excludes them)
+          cp -r .next/static .next/standalone/.next/static
+          # Copy public dir if present
+          [ -d public ] && cp -r public .next/standalone/public || true
+          # Copy embed-start.js
+          mkdir -p .next/standalone
+          cp scripts/embed-start.js .next/standalone/start.js
+          # Create tarball
+          tar -czf next-standalone.tar.gz -C .next/standalone .
+          echo "Artifact size: $(du -sh next-standalone.tar.gz | cut -f1)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-standalone
+          path: next-standalone.tar.gz
+          retention-days: 1
+
+  # ── Job 2: Build Tauri NSIS on Windows ───────────────────────
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    needs: build-next
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Next artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-standalone
+
+      - name: Extract & prepare resources
+        shell: bash
+        run: |
+          mkdir -p src-tauri/resources/app src-tauri/resources/node
+          tar -xzf next-standalone.tar.gz -C src-tauri/resources/app/
+          echo "App resources:"
+          ls src-tauri/resources/app/ | head -20
+          echo "server.js: $(wc -c < src-tauri/resources/app/server.js 2>/dev/null || echo MISSING)"
+          echo "start.js:  $(wc -c < src-tauri/resources/app/start.js 2>/dev/null || echo MISSING)"
+
+      - name: Download Node.exe
+        shell: bash
+        run: |
+          curl -sL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-win-x64.zip" -o /tmp/node.zip
+          unzip -jo /tmp/node.zip "node-v${NODE_VERSION}-win-x64/node.exe" -d src-tauri/resources/node/
+          rm -f /tmp/node.zip
+          echo "node.exe: $(wc -c < src-tauri/resources/node/node.exe)"
+
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
@@ -45,89 +117,16 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      # ── 4. Install bun ────────────────────────────────────────
-      - name: Install bun
-        shell: bash
-        run: |
-          npm install -g bun
-
-      # ── 5. Install JS dependencies ────────────────────────────
-      - name: Install dependencies
-        shell: bash
-        run: |
-          bun install --frozen-lockfile 2>/dev/null || bun install
-
-      # ── 6. Generate Prisma client ─────────────────────────────
-      - name: Prisma generate
-        shell: bash
-        run: |
-          bunx prisma generate
-
-      # ── 7. Build Next.js standalone ──────────────────────────
-      - name: Build Next.js (standalone)
-        shell: bash
-        env:
-          VERCEL: ''
-        run: |
-          npx next build
-
-      # ── 8. Package resources for Tauri ────────────────────────
-      - name: Package Tauri resources
-        shell: bash
-        run: |
-          echo '=> Preparing Tauri resources...'
-
-          # Clean
-          rm -rf src-tauri/resources/app src-tauri/resources/node
-          mkdir -p src-tauri/resources/app src-tauri/resources/node
-
-          # Copy standalone output
-          if [ ! -d '.next/standalone' ]; then
-            echo 'ERROR: .next/standalone not found' >&2
-            ls -la .next/ 2>/dev/null || true
-            exit 1
-          fi
-          cp -r .next/standalone/. src-tauri/resources/app/
-
-          # Copy static assets into standalone
-          cp -r .next/static src-tauri/resources/app/.next/static
-
-          # Copy public assets
-          if [ -d 'public' ]; then
-            cp -r public src-tauri/resources/app/public
-          fi
-
-          # Copy the embedded start script (sets PORT=3100)
-          cp scripts/embed-start.js src-tauri/resources/app/start.js
-
-          # Download Node.js Windows binary
-          echo '=> Downloading Node.js v${{ env.NODE_VERSION }}...'
-          curl -sL "https://nodejs.org/dist/v${{ env.NODE_VERSION }}/node-v${{ env.NODE_VERSION }}-win-x64.zip" -o /tmp/node.zip
-          unzip -jo /tmp/node.zip "node-v${{ env.NODE_VERSION }}-win-x64/node.exe" -d src-tauri/resources/node/ 2>/dev/null
-          rm -f /tmp/node.zip
-
-          # Summary
-          echo ''
-          echo '=== Resources ==='
-          echo "  app/start.js: $(wc -c < src-tauri/resources/app/start.js) bytes"
-          echo "  app/server.js: $(wc -c < src-tauri/resources/app/server.js 2>/dev/null || echo 'NOT FOUND') bytes"
-          echo "  node/node.exe:  $(wc -c < src-tauri/resources/node/node.exe 2>/dev/null || echo 'NOT FOUND') bytes"
-          echo "  Total: $(du -sh src-tauri/resources | cut -f1)"
-
-      # ── 9. Install tauri-cli ──────────────────────────────────
       - name: Install tauri-cli
         shell: bash
-        run: |
-          cargo install tauri-cli --version '^2' --locked
+        run: cargo install tauri-cli --version "^2.0"
 
-      # ── 10. Build Tauri NSIS installer ────────────────────────
       - name: Build Tauri app (NSIS)
         shell: bash
         run: |
           cd src-tauri
-          cargo tauri build --bundles nsis
+          cargo tauri build --bundles nsis 2>&1
 
-      # ── 11. Upload to GitHub Release ──────────────────────────
       - name: Upload installer to release
         shell: bash
         env:
@@ -136,7 +135,7 @@ jobs:
           EXE=$(find src-tauri/target/release/bundle/nsis -name '*.exe' -maxdepth 1 | head -1)
           if [ -z "$EXE" ]; then
             echo "ERROR: No .exe found in nsis bundle"
-            find src-tauri/target -name '*.exe' 2>/dev/null | head -20
+            find src-tauri/target -name '*.exe' 2>/dev/null | head -20 || true
             exit 1
           fi
           echo "Uploading: $EXE ($(du -h "$EXE" | cut -f1))"

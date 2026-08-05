@@ -8,7 +8,7 @@ if (process.env.ALLOWED_DEV_ORIGIN) {
 }
 
 const nextConfig: NextConfig = {
-  output: process.env.VERCEL ? undefined : "standalone",
+  output: "standalone",
   serverExternalPackages: ["z-ai-web-dev-sdk"],
   reactStrictMode: true,
   allowedDevOrigins,
