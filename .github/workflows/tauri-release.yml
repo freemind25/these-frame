@@ -1,4 +1,4 @@
-# ─── ThesisFrame — Tauri Windows Build ────────────────────────────
+# ─── ThesisFrame ─ Tauri Windows Build ───────────────────────
 # Builds a Windows NSIS installer on push to a v* tag.
 # The .exe is automatically attached to the GitHub Release.
 
@@ -28,8 +28,8 @@ jobs:
           node-version: 20
 
       - name: Install Bun
-        run: |
-          npm install -g bun
+        shell: bash
+        run: npm install -g bun
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -40,18 +40,31 @@ jobs:
           workspaces: './src-tauri -> target'
 
       - name: Install frontend dependencies
+        shell: bash
         run: bun install --frozen-lockfile
 
       - name: Build Next.js frontend
+        shell: bash
         run: bun run build
 
+      - name: Install Tauri CLI
+        shell: bash
+        run: cargo install tauri-cli --version "^2"
+
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
+        shell: bash
+        run: cargo tauri build
+
+      - name: Upload installer to release
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: ${{ github.ref_name }}
-          releaseBody: 'See release notes.'
-          releaseDraft: false
-          prerelease: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXE=$(find src-tauri/target/release/bundle/nsis -name '*.exe' -maxdepth 1 | head -1)
+          if [ -z "$EXE" ]; then
+            echo "No .exe found in bundle output"
+            exit 1
+          fi
+          echo "Found: $EXE"
+          TAG=${GITHUB_REF_NAME}
+          gh release upload "$TAG" "$EXE"
