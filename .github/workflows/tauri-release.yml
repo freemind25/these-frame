@@ -1,6 +1,6 @@
 # ─── ThesisFrame ─ Tauri Windows Build (Split Jobs) ─────────────
 # Job 1 (ubuntu): Build Next.js standalone → upload artifact
-# Job 2 (windows): Download artifact, bundle resources, build with tauri-action
+# Job 2 (windows): Download artifact, bundle resources, build NSIS installer
 # Triggers on v* tag push.
 
 name: Tauri Build
@@ -47,8 +47,6 @@ jobs:
 
       - name: Verify standalone output
         run: |
-          echo "Contents of .next/:"
-          ls -la .next/
           if [ ! -d ".next/standalone" ]; then
             echo "ERROR: .next/standalone not found!" >&2
             exit 1
@@ -71,6 +69,10 @@ jobs:
           retention-days: 1
 
   # ── Job 2: Build Tauri NSIS on Windows ───────────────────────
+  # NOTE: We do NOT use tauri-apps/tauri-action because it detects
+  # bun.lock and tries to run `bun tauri init --ci`, but bun is
+  # not installed on the Windows runner. Instead we install the
+  # Tauri CLI via npm (pre-built binary) and run it directly.
   build-windows:
     name: Build Windows Installer
     runs-on: windows-latest
@@ -96,10 +98,10 @@ jobs:
         run: |
           mkdir -p src-tauri/resources/app src-tauri/resources/node
           tar -xzf next-standalone.tar.gz -C src-tauri/resources/app/
-          echo "=== App resources ==="
-          ls src-tauri/resources/app/ | head -20
           echo "server.js: $(wc -c < src-tauri/resources/app/server.js 2>/dev/null || echo MISSING)"
           echo "start.js:  $(wc -c < src-tauri/resources/app/start.js 2>/dev/null || echo MISSING)"
+          echo "--- App dir contents ---"
+          ls src-tauri/resources/app/ | head -20
 
       - name: Download Node.exe
         shell: bash
@@ -117,13 +119,22 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Tauri CLI
+        run: npm install --no-save @tauri-apps/cli@^2
+
+      - name: Build Tauri app (NSIS)
+        run: npx tauri build --bundles nsis
+
+      - name: Verify installer exists
+        shell: bash
+        run: |
+          ls -la src-tauri/target/release/bundle/nsis/*.exe
+
+      - name: Upload installer to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'ThesisFrame ${{ github.ref_name }}'
-          releaseBody: 'Windows installer for ThesisFrame.'
-          releaseDraft: false
+          files: src-tauri/target/release/bundle/nsis/*.exe
+          name: 'ThesisFrame ${{ github.ref_name }}'
+          body: 'Windows installer for ThesisFrame.'
+          draft: false
           prerelease: false
