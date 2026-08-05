@@ -2,6 +2,10 @@
 // Consolidated 88 route files into 1 serverless function for Vercel Hobby plan
 
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
+
+// Routes excluded from rate limiting
+const RATE_LIMIT_EXEMPT = new Set(['ping', 'setup', 'debug-env', 'debug-zai', 'admin', 'mendeley/callback', 'cloud-drive/callback'])
 
 import * as h_academy_db_annas_archive from '@/app/api/academy-db/annas-archive/handler'
 import * as h_academy_db_libgen_im from '@/app/api/academy-db/libgen-im/handler'
@@ -253,23 +257,59 @@ export const dynamic = 'force-dynamic'
 
 // ─── HTTP method handlers ─────────────────────────────────────────────
 
-function dispatch(method: string, req: NextRequest) {
+async function dispatch(method: string, req: NextRequest) {
   const url = new URL(req.url)
   const pathname = url.pathname
   const slugStr = pathname.startsWith('/api/') ? pathname.slice(5) : pathname.slice(1)
   const slug = slugStr ? slugStr.split('/').filter(Boolean) : []
 
+  // Rate limiting (skip exempt routes)
+  const routeRoot = slug[0] || ''
+  const routePath2 = slug.slice(0, 2).join('/')
+  const isExempt = RATE_LIMIT_EXEMPT.has(routeRoot) || RATE_LIMIT_EXEMPT.has(routePath2)
+  let rl = isExempt ? null : checkRateLimit(req, slug)
+
   const match = matchRoute(slug)
   if (!match) {
-    return NextResponse.json({ error: 'Not Found', path: pathname }, { status: 404 })
+    const headers = rl?.headers || {}
+    return new NextResponse(
+      JSON.stringify({ error: 'Not Found', path: pathname }),
+      { status: 404, headers }
+    )
   }
 
   const handler = match.h[method]
   if (!handler || typeof handler !== 'function') {
-    return NextResponse.json({ error: 'Method Not Allowed', path: pathname, method }, { status: 405 })
+    const headers = rl?.headers || {}
+    return new NextResponse(
+      JSON.stringify({ error: 'Method Not Allowed', path: pathname, method }),
+      { status: 405, headers }
+    )
   }
 
-  return handler(req, { params: Promise.resolve(match.params) })
+  // Block if rate limited
+  if (rl && !rl.allowed) {
+    return NextResponse.json(
+      { error: 'Too Many Requests', retryAfter: rl.resetSeconds },
+      {
+        status: 429,
+        headers: {
+          ...rl.headers,
+          'Retry-After': String(rl.resetSeconds),
+        },
+      }
+    )
+  }
+
+  const response = await handler(req, { params: Promise.resolve(match.params) })
+
+  // Attach rate limit headers to successful responses
+  if (rl && response && typeof response === 'object' && 'headers' in response) {
+    for (const [k, v] of Object.entries(rl.headers)) {
+      ;(response as NextResponse).headers.set(k, v)
+    }
+  }
+  return response
 }
 
 export async function GET(req: NextRequest) { return dispatch('GET', req) }
