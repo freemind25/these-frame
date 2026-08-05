@@ -22,15 +22,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Bun
-        shell: bash
-        run: npm install -g bun
-
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
@@ -39,21 +30,17 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Install frontend dependencies
+      - name: Build Tauri app (NSIS)
         shell: bash
-        run: bun install --frozen-lockfile
+        run: |
+          cd src-tauri
+          cargo build --release
 
-      - name: Build Next.js frontend
+      - name: Create NSIS installer
         shell: bash
-        run: bun run build
-
-      - name: Install Tauri CLI
-        shell: bash
-        run: cargo install tauri-cli --version "^2"
-
-      - name: Build Tauri app
-        shell: bash
-        run: cargo tauri build
+        run: |
+          cd src-tauri
+          cargo tauri build --bundles nsis
 
       - name: Upload installer to release
         shell: bash
@@ -62,9 +49,9 @@ jobs:
         run: |
           EXE=$(find src-tauri/target/release/bundle/nsis -name '*.exe' -maxdepth 1 | head -1)
           if [ -z "$EXE" ]; then
-            echo "No .exe found in bundle output"
+            echo "No .exe found"
+            find src-tauri/target -name '*.exe' 2>/dev/null || true
             exit 1
           fi
           echo "Found: $EXE"
-          TAG=${GITHUB_REF_NAME}
-          gh release upload "$TAG" "$EXE"
+          gh release upload "${GITHUB_REF_NAME}" "$EXE"

@@ -5,9 +5,9 @@
   "identifier": "com.thesisframe.app",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "beforeBuildCommand": "bun run build",
+    "beforeBuildCommand": "",
     "devUrl": "http://localhost:3000",
-    "frontendDist": "../out"
+    "frontendDist": "loading"
   },
   "app": {
     "windows": [
@@ -36,7 +36,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [],
+    "resources": ["resources/node/**", "resources/app/**"],
     "windows": {
       "nsis": {
         "installMode": "currentUser"
