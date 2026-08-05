@@ -243,6 +243,34 @@ CONSEILS DE RÉDACTION :
 ◆ Quatre types de paragraphes scientifiques (Boyle & Ramsay) :
   - Argument, Processus, Contraste/Comparaison, Détail
   - Chacun avec une anatomie : phrase-topic → élaboration → preuve → conclusion.
+
+
+RÉDIGER UNE REVUE DE LITTÉRATURE (Source : ezephd / Intellectual Ladder) :
+
+◆ La structure en 3 couches (3-Layer Structure) pour les sections de revue :
+  - Couche A (Contexte) : introduire la théorie/concept et les scholars qui l'ont développé
+  - Couche B (Application) : montrer comment le concept a été appliqué dans des études
+  - Couche C (Critique) : identifier les limites, contradictions et lacunes — pointer vers votre gap
+
+◆ L'Intellectual Ladder — échelle d'analyse en 3 paliers :
+  - Palier 1 (Descriptif) : résumer ce que disent les sources — QUOI
+  - Palier 2 (Analytique) : comparer, contrastes, identifier des tendances — COMMENT
+  - Palier 3 (Critique) : évaluer les forces/faiblesses, identifier les gaps — POURQUOI
+  - L'objectif est de « monter » l'échelle : ne pas rester au palier descriptif
+
+◆ Règles de la revue de littérature critique :
+  - Chaque paragraphe doit être À PROPOS de votre projet, pas d'une source individuelle
+  - Utiliser des « signal phrases » : « Selon X (2020)... », « En contrastant avec... », « Cette approche suggère que... »
+  - Groupes les sources par thème, PAS par auteur chronologique
+  - Terminer chaque sous-section par une synthèse qui relie au gap de recherche
+
+◆ L'abstract — structure et techniques (Source : ezephd) :
+  - L'abstract détermine si le papier sera lu ou ignoré — c'est l'élément le plus important après le titre
+  - Structure recommandée : Contexte → Gap → Objectif → Méthode → Résultat clé → Implication
+  - Règle d'or : l'abstract doit être autonome — le lecteur doit comprendre la contribution sans lire le papier
+  - Éviter les références dans l'abstract, les jargons non définis, les résultats non spécifiques
+  - Inclure des chiffres concrets quand possible (« n=250 » plutôt que « un grand échantillon »)
+  - Longueur cible : 150-300 mots pour un article, 300-500 pour une thèse
 `
 
 const CORRECTION_KNOWLEDGE = `
@@ -450,6 +478,41 @@ CONSEILS D'ANALYSE CRITIQUE :
 ◆ Le phenomene du « monstre de Frankenstein » (Boyle & Ramsay) :
   - Assembler des paragraphes de multiples iterations cree une repetition subtile difficile a detecter
   - Solution : le reverse outlining — extraire toutes les premieres phrases et verifier la logique.
+
+
+IDENTIFICATION ET CRÉATION DE RESEARCH GAPS (Source : ezephd / Priyo Das) :
+
+◆ Les 3 étapes pour créer un research gap :
+  1. Déterminer le TYPE de gap recherché (knowledge gap, empirical gap, theoretical gap, methodological gap, practical gap, population gap) — ce choix détermine le type de contribution théorique et managériale
+  2. Trouver le gap en reliant des idées existantes de façon nouvelle : ne pas se contenter de dire « personne n'a étudié X », mais reformuler en connectant deux concepts étudiés séparément
+  3. Expliquer le gap clairement : formuler une déclaration qui montre la connexion entre les connaissances existantes et ce qui manque
+
+◆ Méthode rapide pour formuler un research gap :
+  - Partir d'un domaine bien étudié (ex. : accessibilité de l'apprentissage en ligne)
+  - Identifier un angle sous-exploré (ex. : impact sur la motivation)
+  - Reformuler : « While past research highlights [aspect connu], there is limited focus on [aspect manquant] »
+  - Créer un gap = réarranger des idées existantes pour poser une nouvelle question
+
+◆ Les 12 types de research gaps :
+  1. Knowledge Gap — manque d'information fondamentale sur un sujet
+  2. Empirical Gap — absence de données ou d'études sur un phénomène observé
+  3. Theoretical Gap — théorie existante insuffisante ou inapplicable
+  4. Methodological Gap — limitations dans les méthodes de recherche actuelles
+  5. Practical Gap — écart entre la recherche et son application concrète
+  6. Population Gap — groupes démographiques non étudiés
+  7. Geographical Gap — régions ou contextes géographiques non couverts
+  8. Temporal Gap — périodes temporelles non étudiées
+  9. Contextual Gap — nouveaux contextes (technologique, social) non explorés
+  10. Result Gap — résultats contradictoires entre études
+  11. Analytical Gap — nouvelles techniques d'analyse non appliquées
+  12. Data Source Gap — sources de données non exploitées pour la question
+
+◆ Prompts structurés pour l'analyse critique d'un article :
+  - Scanning Prompt : identifier rapidement la structure, le focus central et la pertinence
+  - Deep Analysis Prompt : analyser la méthodologie, les résultats et les limites
+  - Gap Identification Prompt : identifier les lacunes non adressées
+  - Connection Prompt : relier l'article à d'autres travaux et à votre propre recherche
+  - Critical Evaluation Prompt : évaluer la validité et la fiabilité des conclusions
 `
 
 const METHODOLOGIE_KNOWLEDGE = `
@@ -936,6 +999,63 @@ CONSEILS DE SUIVI D'AVANCEMENT :
   - 7. Limites de la revue
   - 8. Pistes de recherche futures
   - Phrases utiles : « These findings suggest that... », « In contrast, some studies found... », « This review highlights the need for... »
+
+
+PRÉPARATION DE LA SOUTENANCE — QUESTIONS COURANTES (Source : ezephd) :
+
+◆ Questions de clarté conceptuelle et théorique :
+  - Quelle est la justification du choix de cette combinaison de théories/modèles ?
+  - Comment différenciez-vous conceptuellement [Construct A] et [Construct B] ?
+  - Pourquoi ce cadre théorique plutôt qu'un autre ?
+
+◆ Questions méthodologiques :
+  - Pourquoi cette méthode de collecte de données ?
+  - Comment avez-vous assuré la validité et la fiabilité ?
+  - Quelles sont les limites de votre échantillon ?
+  - Comment traitez-vous les biais potentiels ?
+
+◆ Questions sur les résultats :
+  - Comment expliquez-vous ce résultat inattendu ?
+  - En quoi vos résultats confirment/infirment la littérature existante ?
+  - Quelle est la signification pratique de vos résultats ?
+
+◆ Questions sur l'originalité :
+  - Quelle est votre contribution spécifique ?
+  - En quoi votre travail va-t-il au-delà de ce qui existe ?
+  - Comment votre recherche sera-t-elle utile pour d'autres chercheurs ?
+
+PRÉSENTATION POSTER SCIENTIFIQUE (Source : ezephd) :
+
+◆ Principes de conception d'un poster efficace :
+  - Le poster doit être lisible à 1,5 mètre de distance
+  - Utiliser un flux visuel clair (gauche → droite, ou en colonnes verticales)
+  - Limiter le texte : 300-500 mots maximum, privilégier les visuels
+  - Chaque figure/graphique doit avoir un titre descriptif et être lisible sans explication orale
+  - Structure type : Introduction → Méthode → Résultats → Conclusion (en colonnes)
+  - Utiliser des couleurs contrastantes mais professionnelles (max 3-4 couleurs)
+  - Inclure un QR code vers le papier complet ou les données supplémentaires
+
+◆ Keywords et recherche documentaire pour poster :
+  - Les keywords sont le pont entre vos objectifs de recherche et la littérature disponible
+  - Sélectionner des termes combinant larges et spécifiques pour optimiser la recherche
+  - Tester les mots-clés dans plusieurs bases de données (Google Scholar, Scopus, Web of Science)
+
+COMMENT DEVENIR PEER REVIEWER (Source : ezephd) :
+
+◆ Étapes pour devenir reviewer :
+  1. Créer des profils sur les plateformes éditoriales (ScholarOne, Editorial Manager, Open Journal Systems)
+  2. Contacter directement les éditeurs de revues dans votre domaine avec votre CV académique
+  3. Répondre aux appels de reviewers sur les réseaux académiques et listes de diffusion
+  4. Assister à des ateliers de review lors de conférences
+  5. Commencer par des reviews pour des revues plus accessibles avant de viser les top-tier
+
+◆ Bonnes pratiques de review :
+  - Répondre systématiquement à toutes les questions du formulaire de review
+  - Séparer clairement les commentaires pour l'éditeur (confidentiels) et pour l'auteur
+  - Être constructif : chaque critique doit être accompagnée d'une suggestion d'amélioration
+  - Respecter les délais (généralement 2-3 semaines)
+  - Évaluer sur : originalité, méthodologie, validité des résultats, clarté de la rédaction
+  - Signaler tout plagiat ou éthique problématique à l'éditeur
 `
 
 const SPECIALIZED_PROMPTS = `
