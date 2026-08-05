@@ -1,6 +1,6 @@
 # ─── ThesisFrame ─ Tauri Windows Build (Split Jobs) ─────────────
 # Job 1 (ubuntu): Build Next.js standalone → upload artifact
-# Job 2 (windows): Download artifact, bundle resources, build Tauri NSIS
+# Job 2 (windows): Download artifact, bundle resources, build with tauri-action
 # Triggers on v* tag push.
 
 name: Tauri Build
@@ -57,14 +57,9 @@ jobs:
 
       - name: Pack standalone + static + public
         run: |
-          # Copy static assets into standalone (standalone build excludes them)
           cp -r .next/static .next/standalone/.next/static
-          # Copy public dir if present
           [ -d public ] && cp -r public .next/standalone/public || true
-          # Copy embed-start.js
-          mkdir -p .next/standalone
           cp scripts/embed-start.js .next/standalone/start.js
-          # Create tarball
           tar -czf next-standalone.tar.gz -C .next/standalone .
           echo "Artifact size: $(du -sh next-standalone.tar.gz | cut -f1)"
 
@@ -101,7 +96,7 @@ jobs:
         run: |
           mkdir -p src-tauri/resources/app src-tauri/resources/node
           tar -xzf next-standalone.tar.gz -C src-tauri/resources/app/
-          echo "App resources:"
+          echo "=== App resources ==="
           ls src-tauri/resources/app/ | head -20
           echo "server.js: $(wc -c < src-tauri/resources/app/server.js 2>/dev/null || echo MISSING)"
           echo "start.js:  $(wc -c < src-tauri/resources/app/start.js 2>/dev/null || echo MISSING)"
@@ -122,24 +117,13 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Install npm deps (tauri-cli)
-        shell: bash
-        run: npm install --ignore-scripts @tauri-apps/cli@^2
-
-      - name: Build Tauri app (NSIS)
-        shell: bash
-        run: npx tauri build --bundles nsis
-
-      - name: Upload installer to release
-        shell: bash
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          EXE=$(find src-tauri/target/release/bundle/nsis -name '*.exe' -maxdepth 1 | head -1)
-          if [ -z "$EXE" ]; then
-            echo "ERROR: No .exe found in nsis bundle"
-            find src-tauri/target -name '*.exe' 2>/dev/null | head -20 || true
-            exit 1
-          fi
-          echo "Uploading: $EXE ($(du -h "$EXE" | cut -f1))"
-          gh release upload "${GITHUB_REF_NAME}" "$EXE"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'ThesisFrame ${{ github.ref_name }}'
+          releaseBody: 'Windows installer for ThesisFrame.'
+          releaseDraft: false
+          prerelease: false
