@@ -100,7 +100,7 @@ pub fn run() {
                 let state = window.app_handle().state::<ServerProcess>();
                 if let Some(mut child) = state.0.lock().unwrap().take() {
                     let _ = child.kill();
-                }
+                };
             }
         })
         .run(tauri::generate_context!())
