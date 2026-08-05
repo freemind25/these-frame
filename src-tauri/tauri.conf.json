@@ -38,7 +38,7 @@
     ],
     "resources": [
       "resources/node/node.exe",
-      "resources/app/**"
+      "resources/app"
     ],
     "windows": {
       "nsis": {
