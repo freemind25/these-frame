@@ -1,6 +1,11 @@
 # ─── ThesisFrame ─ Tauri Windows Build ───────────────────────
-# Builds a Windows NSIS installer on push to a v* tag.
-# The .exe is automatically attached to the GitHub Release.
+# Triggers on v* tag push.
+# Steps:
+#   1. Install Node.js + Rust + bun
+#   2. Build Next.js standalone
+#   3. Bundle Node.exe + standalone output as Tauri resources
+#   4. Build Tauri NSIS installer
+#   5. Upload .exe to the GitHub Release
 
 name: Tauri Build
 
@@ -16,12 +21,22 @@ jobs:
   build-windows:
     name: Build Windows Installer
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      NODE_VERSION: '20.18.1'
 
     steps:
+      # ── 1. Checkout ───────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ── 2. Setup Node.js ──────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # ── 3. Setup Rust ─────────────────────────────────────────
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
@@ -30,18 +45,89 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Build Tauri app (NSIS)
+      # ── 4. Install bun ────────────────────────────────────────
+      - name: Install bun
         shell: bash
         run: |
-          cd src-tauri
-          cargo build --release
+          npm install -g bun
 
-      - name: Create NSIS installer
+      # ── 5. Install JS dependencies ────────────────────────────
+      - name: Install dependencies
+        shell: bash
+        run: |
+          bun install --frozen-lockfile 2>/dev/null || bun install
+
+      # ── 6. Generate Prisma client ─────────────────────────────
+      - name: Prisma generate
+        shell: bash
+        run: |
+          bunx prisma generate
+
+      # ── 7. Build Next.js standalone ──────────────────────────
+      - name: Build Next.js (standalone)
+        shell: bash
+        env:
+          VERCEL: ''
+        run: |
+          npx next build
+
+      # ── 8. Package resources for Tauri ────────────────────────
+      - name: Package Tauri resources
+        shell: bash
+        run: |
+          echo '=> Preparing Tauri resources...'
+
+          # Clean
+          rm -rf src-tauri/resources/app src-tauri/resources/node
+          mkdir -p src-tauri/resources/app src-tauri/resources/node
+
+          # Copy standalone output
+          if [ ! -d '.next/standalone' ]; then
+            echo 'ERROR: .next/standalone not found' >&2
+            ls -la .next/ 2>/dev/null || true
+            exit 1
+          fi
+          cp -r .next/standalone/. src-tauri/resources/app/
+
+          # Copy static assets into standalone
+          cp -r .next/static src-tauri/resources/app/.next/static
+
+          # Copy public assets
+          if [ -d 'public' ]; then
+            cp -r public src-tauri/resources/app/public
+          fi
+
+          # Copy the embedded start script (sets PORT=3100)
+          cp scripts/embed-start.js src-tauri/resources/app/start.js
+
+          # Download Node.js Windows binary
+          echo '=> Downloading Node.js v${{ env.NODE_VERSION }}...'
+          curl -sL "https://nodejs.org/dist/v${{ env.NODE_VERSION }}/node-v${{ env.NODE_VERSION }}-win-x64.zip" -o /tmp/node.zip
+          unzip -jo /tmp/node.zip "node-v${{ env.NODE_VERSION }}-win-x64/node.exe" -d src-tauri/resources/node/ 2>/dev/null
+          rm -f /tmp/node.zip
+
+          # Summary
+          echo ''
+          echo '=== Resources ==='
+          echo "  app/start.js: $(wc -c < src-tauri/resources/app/start.js) bytes"
+          echo "  app/server.js: $(wc -c < src-tauri/resources/app/server.js 2>/dev/null || echo 'NOT FOUND') bytes"
+          echo "  node/node.exe:  $(wc -c < src-tauri/resources/node/node.exe 2>/dev/null || echo 'NOT FOUND') bytes"
+          echo "  Total: $(du -sh src-tauri/resources | cut -f1)"
+
+      # ── 9. Install tauri-cli ──────────────────────────────────
+      - name: Install tauri-cli
+        shell: bash
+        run: |
+          cargo install tauri-cli --version '^2' --locked
+
+      # ── 10. Build Tauri NSIS installer ────────────────────────
+      - name: Build Tauri app (NSIS)
         shell: bash
         run: |
           cd src-tauri
           cargo tauri build --bundles nsis
 
+      # ── 11. Upload to GitHub Release ──────────────────────────
       - name: Upload installer to release
         shell: bash
         env:
@@ -49,9 +135,9 @@ jobs:
         run: |
           EXE=$(find src-tauri/target/release/bundle/nsis -name '*.exe' -maxdepth 1 | head -1)
           if [ -z "$EXE" ]; then
-            echo "No .exe found"
-            find src-tauri/target -name '*.exe' 2>/dev/null || true
+            echo "ERROR: No .exe found in nsis bundle"
+            find src-tauri/target -name '*.exe' 2>/dev/null | head -20
             exit 1
           fi
-          echo "Found: $EXE"
+          echo "Uploading: $EXE ($(du -h "$EXE" | cut -f1))"
           gh release upload "${GITHUB_REF_NAME}" "$EXE"

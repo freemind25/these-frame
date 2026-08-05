@@ -36,7 +36,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [],
+    "resources": [
+      "resources/node/node.exe",
+      "resources/app/**"
+    ],
     "windows": {
       "nsis": {
         "installMode": "currentUser"
