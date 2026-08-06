@@ -24,6 +24,7 @@ import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 import ResearchResourcesPanel from '@/components/thesis/research-resources-panel'
 import ResearchFieldAnalysisPanel from '@/components/thesis/research-field-analysis-panel'
+import ApaResultsComposer from '@/components/thesis/apa-results-composer'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
@@ -102,6 +103,7 @@ export default function Home() {
   const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
   const [researchResourcesOpen, setResearchResourcesOpen] = useState(false)
   const [fieldAnalysisOpen, setFieldAnalysisOpen] = useState(false)
+  const [apaComposerOpen, setApaComposerOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
@@ -726,6 +728,7 @@ export default function Home() {
           onOpenBookSkills={() => setBookSkillsOpen(true)}
           onOpenResearchResources={() => setResearchResourcesOpen(true)}
           onOpenFieldAnalysis={() => setFieldAnalysisOpen(true)}
+          onOpenApaComposer={() => setApaComposerOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
@@ -933,6 +936,11 @@ export default function Home() {
       <ResearchFieldAnalysisPanel
         open={fieldAnalysisOpen}
         onOpenChange={setFieldAnalysisOpen}
+      />
+
+      <ApaResultsComposer
+        open={apaComposerOpen}
+        onOpenChange={setApaComposerOpen}
       />
 
       {/* ═══ LICENSE ADMIN DIALOG ═══ */}

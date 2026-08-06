@@ -818,6 +818,73 @@ Les revues sérieuses souhaitent publier la meilleure science, indépendamment d
 }
 
 // ─────────────────────────────────────────────
+// ──────────────────────────
+// FICHE_APA_RESULTATS — Reporting statistique APA 7
+// ──────────────────────────
+const FICHE_APA_RESULTATS = {
+  id: 'fiche-apa-resultats',
+  title: 'Reporting statistique APA 7',
+  content: `# Reporting statistique en APA 7
+
+## Principes fondamentaux
+Les résultats statistiques doivent être rapportés avec suffisamment de détails pour permettre la réplication, tout en restant lisibles. Le style APA 7 impose des conventions précises de notation et de formatage.
+
+## Notation et formatage
+- **Pas de zéro initial** avant la virgule pour les valeurs ne pouvant dépasser 1 : écrire *r* = .56, *p* = .045 (pas 0.56 ou 0.045).
+- **Valeur *p*** : rapportée avec 3 décimales (*p* = .045). Si *p* < .001, écrire « *p* < .001 ».
+- **Statistiques** (*r*, *t*, *F*, χ²) : arrondies à 2 décimales par défaut.
+- **Notation en italique** : *r*, *p*, *N*, *df*, *t*, *F*, χ², *M*, *SD*.
+
+## Formats par type de test
+
+### Corrélation de Pearson
+> Une corrélation {positive/négative} significative a été observée entre X et Y, *r*(*df*) = .xx, *p* = .xxx.
+
+- Toujours mentionner la **direction** (positive/négative).
+- df = N − 2 (calculable automatiquement si N est fourni).
+- **Jamais de langage causal** : corrélation ≠ causalité.
+
+### Corrélation de Spearman
+> Une corrélation monotone {positive/négative} significative a été observée entre X et Y, *r*<sub>s</sub>(*df*) = .xx, *p* = .xxx.
+
+- Relation **monotone** (pas linéaire).
+
+### Test t
+> Une différence significative a été observée entre A et B, *t*(*df*) = x.xx, *p* = .xxx, *d* = x.xx.
+
+- Inclure la **taille d'effet** (Cohen's *d*).
+- Préciser le type : indépendant, apparié, Welch.
+
+### ANOVA
+> Un effet significatif de X a été observé, *F*(*df*<sub>1</sub>, *df*<sub>2</sub>) = x.xx, *p* = .xxx, η² = .xx.
+
+- Préférer η² **partiel** si disponible.
+- Inclure les post-hoc si pertinents.
+
+### Chi-carré
+> Une association significative a été observée entre X et Y, χ²(*df*, *N* = n) = x.xx, *p* = .xxx, *V* = .xx.
+
+- Pour un tableau 2×2, utiliser φ (phi) au lieu de *V* de Cramér.
+
+## Tailles d'effet (Cohen)
+| Taille | *r* | *d* | η² |
+|--------|-----|-----|-----|
+| Petite | .10 | .20 | .01 |
+| Moyenne | .30 | .50 | .06 |
+| Grande | .50 | .80 | .14 |
+
+## Erreurs fréquentes à éviter
+1. « *The p value is* .001 » → « *p* = .001 »
+2. « *There is a correlation* » → préciser direction et force
+3. Oublier le df ou la taille d'effet
+4. Utiliser un langage causal (« X cause Y »)
+5. Rapporter *p* = .000 (impossible)
+
+## Pour l'application
+- Utiliser l'outil **APA Results Composer** pour générer automatiquement des phrases conformes.
+- Le Directeur IA applique ces règles quand le contexte est un chapitre de résultats.
+- Vérifier toujours les sorties SPSS/JASP avant de les rapporter.`,
+}
 // All fiches index
 // ─────────────────────────────────────────────
 import {
@@ -855,6 +922,7 @@ export const ALL_FICHES = [
   FICHE_TABLEAUX_FIGURES,
   FICHE_AUTO_EDITION_8C,
   FICHE_LANGUE_SECONDE,
+  FICHE_APA_RESULTATS,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -863,7 +931,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'archi-urba' | 'ethique-publication' | 'choix-revue' | 'resultats-discussion' | 'tableaux-figures' | 'auto-edition' | 'langue-seconde' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'archi-urba' | 'ethique-publication' | 'choix-revue' | 'resultats-discussion' | 'tableaux-figures' | 'auto-edition' | 'langue-seconde' | 'apa-resultats' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -891,6 +959,7 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'tableaux-figures': [FICHE_TABLEAUX_FIGURES],
   'auto-edition': [FICHE_AUTO_EDITION_8C],
   'langue-seconde': [FICHE_LANGUE_SECONDE],
+  'apa-resultats': [FICHE_APA_RESULTATS],
 }
 
 // ─────────────────────────────────────────────
@@ -1018,6 +1087,11 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     patterns: [/langue\s+seconde/i, /non.*francophone/i, /anglais.*rédaction/i, /publication.*internationale/i, /lectorat.*international/i, /international.*audience/i, /native.*speaker/i, /correcteur/i],
     fiche: FICHE_LANGUE_SECONDE,
     reason: 'Mots-clés de rédaction en langue seconde / international détectés',
+  },
+  {
+    patterns: [/\bAPA\b/i, /\bp\s*=\s*[.<0-9]/i, /\br\s*=\s*[.<0-9]/i, /\bF\s*\(/i, /chi.carr/i, /corr.lation/i, /statistique/i, /reporting/i, /t.*test/i, /ANOVA/i, /Cohen.*d/i, /taille.*effet/i, /SPSS/i, /JASP/i],
+    fiche: FICHE_APA_RESULTATS,
+    reason: 'Mots-clés de reporting statistique APA détectés',
   },
 ]
 
