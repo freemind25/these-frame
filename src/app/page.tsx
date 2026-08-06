@@ -25,6 +25,8 @@ import ResourcesPanel from '@/components/thesis/resources-panel'
 import ResearchResourcesPanel from '@/components/thesis/research-resources-panel'
 import ResearchFieldAnalysisPanel from '@/components/thesis/research-field-analysis-panel'
 import ApaResultsComposer from '@/components/thesis/apa-results-composer'
+import SlrProtocolPanel from '@/components/thesis/slr-protocol-panel'
+import DoctoralToolkitPanel from '@/components/thesis/doctoral-toolkit-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
@@ -104,6 +106,8 @@ export default function Home() {
   const [researchResourcesOpen, setResearchResourcesOpen] = useState(false)
   const [fieldAnalysisOpen, setFieldAnalysisOpen] = useState(false)
   const [apaComposerOpen, setApaComposerOpen] = useState(false)
+  const [slrProtocolOpen, setSlrProtocolOpen] = useState(false)
+  const [doctoralToolkitOpen, setDoctoralToolkitOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
@@ -729,6 +733,8 @@ export default function Home() {
           onOpenResearchResources={() => setResearchResourcesOpen(true)}
           onOpenFieldAnalysis={() => setFieldAnalysisOpen(true)}
           onOpenApaComposer={() => setApaComposerOpen(true)}
+          onOpenSlrProtocol={() => setSlrProtocolOpen(true)}
+          onOpenDoctoralToolkit={() => setDoctoralToolkitOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
@@ -941,6 +947,16 @@ export default function Home() {
       <ApaResultsComposer
         open={apaComposerOpen}
         onOpenChange={setApaComposerOpen}
+      />
+
+      <SlrProtocolPanel
+        open={slrProtocolOpen}
+        onOpenChange={setSlrProtocolOpen}
+      />
+
+      <DoctoralToolkitPanel
+        open={doctoralToolkitOpen}
+        onOpenChange={setDoctoralToolkitOpen}
       />
 
       {/* ═══ LICENSE ADMIN DIALOG ═══ */}

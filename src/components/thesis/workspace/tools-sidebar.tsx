@@ -38,6 +38,8 @@ const TOOLS = [
   { icon: FolderTree, label: 'Ressources recherche', key: 'researchResources' },
   { icon: ClipboardList, label: 'Analyse champ rech.', key: 'fieldAnalysis' },
   { icon: BarChart3, label: 'APA Results Composer', key: 'apaComposer' },
+  { icon: ListChecks, label: 'Outils SLR', key: 'slrProtocol' },
+  { icon: BookOpen, label: 'Boîte doctorale', key: 'doctoralToolkit' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -71,6 +73,8 @@ interface ToolsSidebarProps {
   onOpenResearchResources: () => void
   onOpenFieldAnalysis: () => void
   onOpenApaComposer: () => void
+  onOpenSlrProtocol: () => void
+  onOpenDoctoralToolkit: () => void
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
   onToggleEditorMode: () => void
@@ -84,7 +88,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -113,6 +117,8 @@ export default function ToolsSidebar({
     researchResources: onOpenResearchResources,
     fieldAnalysis: onOpenFieldAnalysis,
     apaComposer: onOpenApaComposer,
+    slrProtocol: onOpenSlrProtocol,
+    doctoralToolkit: onOpenDoctoralToolkit,
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
   }
