@@ -11,6 +11,7 @@ import JournalFinder from '@/components/thesis/journal-finder'
 import ExcalidrawTab from '@/components/thesis/excalidraw-tab'
 import GrammarChecker from '@/components/thesis/grammar-checker'
 import HarperChecker from '@/components/thesis/harper-checker'
+import AutoEdition8C from '@/components/thesis/auto-edition-8c'
 import ThesisSearch from '@/components/thesis/thesis-search'
 import OfficeExportTab from '@/components/thesis/office-export-tab'
 import { FileSpreadsheet } from 'lucide-react'
@@ -36,6 +37,8 @@ interface FeatureDialogsProps {
   setGrammarOpen: (v: boolean) => void
   harperOpen: boolean
   setHarperOpen: (v: boolean) => void
+  autoEditionOpen: boolean
+  setAutoEditionOpen: (v: boolean) => void
   searchOpen: boolean
   setSearchOpen: (v: boolean) => void
   officeOpen: boolean
@@ -56,6 +59,7 @@ export default function FeatureDialogs({
   excalidrawOpen, setExcalidrawOpen,
   grammarOpen, setGrammarOpen,
   harperOpen, setHarperOpen,
+  autoEditionOpen, setAutoEditionOpen,
   searchOpen, setSearchOpen,
   officeOpen, setOfficeOpen,
   activeChapter, onContentChange, onSelectChapter, editorMode, onToggleEditorMode,
@@ -154,6 +158,16 @@ export default function FeatureDialogs({
             const newText = text.slice(0, offset) + replacement + text.slice(offset + length)
             onContentChange(newText)
           }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Auto-édition 8C Checklist ── */}
+      <Dialog open={autoEditionOpen} onOpenChange={setAutoEditionOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base"><ShieldCheck className="h-4 w-4 text-emerald-600" />Auto-édition : les 8 C</DialogTitle>
+          </DialogHeader>
+          <AutoEdition8C />
         </DialogContent>
       </Dialog>
 

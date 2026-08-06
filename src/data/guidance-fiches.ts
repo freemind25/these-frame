@@ -603,6 +603,220 @@ Trois types distincts de revue, avec des niveaux de rigueur, des objectifs et de
 - Le doctorant dit « revue systématique » mais la méthode est narrative → Le signaler`,
 }
 
+// ═══════════════════════════════════════════════
+// CORPUS 3 : Rédaction et publication d'articles scientifiques
+// Source : Gastel, B. & Day, R.A., How to Write and Publish a Scientific Paper (9e éd., 2022)
+// ═══════════════════════════════════════════════
+
+// ─────────────────────────────────────────────
+// FICHE P1: Éthique de la publication scientifique
+// ─────────────────────────────────────────────
+export const FICHE_ETHIQUE_PUBLICATION = {
+  id: 'fiche-ethique-publication',
+  title: 'Éthique de la publication scientifique',
+  content: `# Éthique de la publication scientifique
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Exactitude et fabrication
+- Aucune tolérance pour l'invention de données (« dry-labbing ») : c'est une faute qui n'a pas de degré.
+- Déviations partielles fréquentes : omettre des points de données aberrants sans le signaler, présenter des figures qui accentuent artificiellement les résultats. En cas de doute, consulter quelqu'un de plus expérimenté.
+- Pour toute analyse statistique, impliquer un statisticien dès la conception de l'étude, pas après coup.
+
+## Originalité et « salami science »
+- Les résultats doivent être nouveaux. La soumission simultanée d'un même manuscrit à plusieurs revues est non éthique.
+- Le découpage excessif d'un même travail en plusieurs publications (« salami science ») nuit à l'intégrité — les bons comités regardent le contenu, pas le nombre. Pour une thèse par articles, le découpage doit correspondre à une vraie segmentation scientifique.
+
+## Crédit et paraphrase — la règle la plus utile à outiller
+- Toute idée ou formulation qui n'est pas la sienne doit être citée. De simples changements mineurs de mots ne suffisent pas à transformer une citation en paraphrase légitime.
+- Méthode recommandée : rédiger le paragraphe sans regarder la source, puis vérifier l'exactitude après coup.
+- La citation directe entre guillemets est rare en scientifique ; la norme est la paraphrase. En cas de doute sur la nécessité de guillemets, en mettre.
+- Le recours à un logiciel de détection de similarité en amont est une pratique recommandée.
+- Cas légitime de similarité : méthodologie standard identique entre publications d'un même auteur.
+
+## Traitement éthique des sujets humains et animaux
+Toute recherche impliquant des sujets humains ou animaux nécessite les autorisations appropriées obtenues **avant** le début de l'étude, et une déclaration explicite dans le document final.
+
+## Déclaration des conflits d'intérêts
+Tout engagement extérieur qui pourrait interférer avec l'objectivité doit être déclaré explicitement. L'éthique exige que ces engagements n'influencent pas réellement l'objectivité de la recherche.
+
+## Critères vérifiables pour le Directeur IA
+- Paraphrase insuffisante détectée → signaler
+- Absence de déclaration de conformité éthique dans une méthodologie impliquant sujets humains/animaux → signaler
+- Toujours en critique, jamais en réécriture automatique.`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE P2: Choisir une revue et éviter les prédateurs
+// ─────────────────────────────────────────────
+export const FICHE_CHOIX_REVUE = {
+  id: 'fiche-choix-revue',
+  title: 'Choisir une revue et éviter les revues prédatrices',
+  content: `# Choisir une revue et éviter les revues prédatrices
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Décider tôt, décider bien
+Le choix de la revue doit se faire **avant** la rédaction. Écrire d'abord et chercher une revue ensuite oblige presque toujours à réviser en profondeur.
+
+## Évaluer la légitimité d'une revue
+- Identifier où sont publiés les travaux de référence dans son sous-champ.
+- Le facteur d'impact est utile mais limité : il ne se compare jamais valablement entre disciplines différentes.
+- Indicateurs DORA : ne jamais réduire l'évaluation à un seul chiffre (consultations, téléchargements, mentions, citations réelles).
+- Être prudent avec les revues très récentes non adossées à une société savante.
+
+## Accès ouvert : vérifier avant de soumettre
+- Les frais de publication peuvent souvent faire l'objet d'une réduction ou exonération — contacter directement la revue.
+
+## Signaux d'alerte d'une revue prédatrice
+- Promesses trop belles (garantie de publication en quelques jours)
+- Site web truffé de fautes ou d'incohérences
+- Métriques fabriquées (indice d'impact propriétaire non reconnu)
+- Absence d'articles de qualité vérifiable
+- Sollicitations agressives et non ciblées par e-mail
+
+## Signaux de légitimité
+- Indexée par les grandes bases bibliographiques reconnues
+- Référencée dans les bibliothèques universitaires
+- Articles de qualité déjà connus du chercheur
+
+## Pour la thèse par articles
+- La revue cible et ses contraintes de format devraient être déclarées dès la conception du chapitre.
+- Ce contrôle devrait apparaître à chaque étape de soumission planifiée.`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE P3: Écrire les résultats et la discussion
+// ─────────────────────────────────────────────
+export const FICHE_RESULTATS_DISCUSSION = {
+  id: 'fiche-resultats-discussion',
+  title: 'Écrire les résultats et la discussion sans les confondre',
+  content: `# Écrire les résultats et la discussion sans les confondre
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Résultats : sélectionner plutôt qu'accumuler
+- Présenter des données représentatives, pas exhaustives. Le fait qu'une expérience ait été répétée cent fois sans divergence n'a pas besoin d'être documenté cent fois.
+- Se méfier de la fausse précision statistique : rapporter « 28,8136 % » pour 17 cas sur 59 est trompeur.
+- Noter aussi ce qui n'a **pas** d'effet — c'est une information utile.
+
+## Éviter la redondance texte/tableau/figure
+- Ne jamais répéter dans le texte ce que le tableau ou la figure montre déjà — c'est la faute la plus commise.
+- Formulation à éviter : « Le tableau 1 montre clairement que X… » → Préférable : « X a inhibé Y (tableau 1). »
+- Veiller à ce que chaque pronom ait un antécédent limpide.
+
+## Discussion : la section la plus difficile
+- La discussion est réputée la plus difficile — de nombreux articles sont rejetés à cause d'une discussion mal construite.
+- Éviter le « camouflage à l'encre de seiche » : formulations vagues et alambiquées par manque de confiance dans les données.
+- La première personne est acceptable : « nous concluons que » est préférable à des tournures impersonnelles alambiquées.
+
+## La structure en entonnoir inversé
+La discussion part des résultats spécifiques pour remonter vers leur portée générale :
+rappel des principaux résultats → mise en relation avec les travaux antérieurs → implications → limites → questions ouvertes.
+
+**Test de cohérence actionnable** : l'introduction pose des questions ; la discussion doit y répondre explicitement. Une discussion qui n'adresse pas les questions de l'introduction est incomplète.
+
+## Assumer force et limites
+- Souligner les points forts aide le lecteur à juger de la portée réelle.
+- Cacher une limite est contre-productif : un relecteur la remarquera. Mieux vaut la nommer et en discuter l'impact.`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE P4: Tableaux et figures — quand et comment
+// ─────────────────────────────────────────────
+export const FICHE_TABLEAUX_FIGURES = {
+  id: 'fiche-tableaux-figures',
+  title: 'Quand (et quand ne pas) utiliser un tableau ou une figure',
+  content: `# Quand (et quand ne pas) utiliser un tableau ou une figure
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Le réflexe à corriger : tout ne mérite pas un tableau
+Beaucoup de rédacteurs pensent que toute donnée numérique doit être tabulée. C'est faux.
+
+## Trois signaux qu'un tableau ne devrait pas exister
+1. **Colonnes remplies de zéros ou de valeurs identiques** : le tableau cache l'information. Une phrase suffit.
+2. **Colonnes remplies de symboles binaires (+/−)** sur de nombreuses lignes : si le résultat se réduit à une constatation simple, une phrase suffit.
+3. **Tableaux pour résultats non significatifs** : présenter en tableau un résultat non significatif décrédibilise le document.
+
+**Principe général** : chaque fois qu'un tableau ou une colonne peut être reformulé en une phrase sans perte d'information, le reformuler en phrase.
+
+## Quand un tableau est réellement justifié
+Quand il présente des données répétitives, multivariées ou comparatives qu'une phrase ne pourrait pas restituer — typiquement plusieurs variables croisées sur plusieurs conditions.
+
+## Principe commun avec la fiche Résultats/Discussion
+Ne jamais reformuler dans le texte ce qu'un tableau ou une figure montre déjà.`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE P5: Auto-édition — le cadre des 8 C
+// ─────────────────────────────────────────────
+export const FICHE_AUTO_EDITION_8C = {
+  id: 'fiche-auto-edition-8c',
+  title: 'Auto-édition : le cadre des 8 C',
+  content: `# Auto-édition : le cadre des 8 C
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Les 8 dimensions de révision
+
+1. **Conformité (compliance)** — Le texte respecte-t-il les consignes formelles (gabarit, conventions) ? La conformité éthique est-elle documentée ?
+2. **Exhaustivité (completeness)** — Tous les éléments attendus sont-ils présents ? La méthode permet-elle une réplication ?
+3. **Composition** — La structure d'ensemble est-elle appropriée ? Chaque paragraphe a-t-il une phrase d'ancrage claire ?
+4. **Exactitude (correctness)** — L'information est-elle correcte dans le texte, les tableaux, figures et références ? Le raisonnement est-il valide ?
+5. **Clarté (clarity)** — Les termes ambigus sont-ils définis ? Les abréviations explicitées ? Les antécédents des pronoms identifiables ?
+6. **Cohérence (consistency)** — Un chiffre identique dans le texte et dans un tableau ? Le résumé correspond-il au corps ? La terminologie est-elle stable ?
+7. **Concision** — Y a-t-il des redondances ou du contenu tangentiel ? Attention : la concision ne doit jamais se faire au détriment de la clarté.
+8. **Courtoisie (courtesy)** — Le ton envers les travaux antérieurs reste-t-il neutre ? Le langage est-il inclusif ?
+
+Le C final visé : la **communication**.
+
+## Méthode de relecture
+- Procéder par phases successives, chacune ciblée sur un sous-ensemble de dimensions.
+- La dernière passe se fait de façon linéaire, du début à la fin.
+- Changer de perspective : lire à voix haute, modifier la police ou la mise en page.
+
+## Checklist article scientifique
+- Le titre reflète-t-il fidèlement le contenu ?
+- Le résumé correspond-il au corps du texte ?
+- L'introduction indique-t-elle clairement le vide comblé ?
+- La méthode permet-elle réplication et évaluation critique ?
+- La discussion répond-elle aux questions de l'introduction ?
+- Tous les auteurs sont-ils listés, les contributions remerciées ?`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE P6: Écrire en langue seconde, pour un lectorat international
+// ─────────────────────────────────────────────
+export const FICHE_LANGUE_SECONDE = {
+  id: 'fiche-langue-seconde',
+  title: 'Écrire la science en langue seconde, pour un lectorat international',
+  content: `# Écrire la science en langue seconde, pour un lectorat international
+
+Synthèse de Gastel & Day, *How to Write and Publish a Scientific Paper* (9e éd., 2022).
+
+## Le contenu prime sur l'élégance stylistique
+Si le contenu est informatif, bien organisé et clair, un correcteur peut évaluer la recherche. Si l'information manque ou le sens reste flou, aucun travail de correction linguistique ne peut compenser. **Priorité : fond avant forme, toujours.**
+
+## L'éditeur/le correcteur comme allié
+Les revues sérieuses souhaitent publier la meilleure science, indépendamment de l'origine linguistique de l'auteur. La relation avec le relecteur est une collaboration, pas un contrôle sanctionnant.
+
+## Différences culturelles à connaître
+- **Niveau de détail** : observer le niveau habituel des textes publiés dans le contexte visé.
+- **Degré de directivité** : la tradition dominante attend une phrase d'ouverture de paragraphe (phrase-clé) qui énonce directement l'idée principale, suivie des éléments qui la développent.
+- **Rapport au temps** : les revues internationales attendent une réactivité rapide aux sollicitations.
+- **Rapport à la citation littérale** : dans les revues internationales, la quasi-totalité du texte doit être dans les mots propres de l'auteur.
+
+## Stratégies concrètes
+- Observer la structure de paragraphe des textes déjà publiés dans la revue cible.
+- Répondre rapidement aux demandes de clarification.
+- Ne jamais supposer qu'un correcteur a nécessairement raison : l'auteur reste responsable de l'exactitude finale.
+
+## Pour l'application
+- Signaler d'abord les problèmes de structure et de clarté, puis les points de langue — jamais l'inverse.
+- Repérer les paragraphes qui « tournent autour » du point principal sans l'énoncer en phrase d'ouverture.`,
+}
+
 // ─────────────────────────────────────────────
 // All fiches index
 // ─────────────────────────────────────────────
@@ -634,6 +848,13 @@ export const ALL_FICHES = [
   FICHE_ARTICULATION_DIMENSIONS,
   FICHE_RL_ENVIRONNEMENT_BATI,
   FICHE_MODELES_STRUCTURE_THESE,
+  // Corpus 3 : Rédaction et publication d'articles scientifiques (Gastel & Day)
+  FICHE_ETHIQUE_PUBLICATION,
+  FICHE_CHOIX_REVUE,
+  FICHE_RESULTATS_DISCUSSION,
+  FICHE_TABLEAUX_FIGURES,
+  FICHE_AUTO_EDITION_8C,
+  FICHE_LANGUE_SECONDE,
 ] as const
 
 // ─────────────────────────────────────────────
@@ -642,7 +863,7 @@ export const ALL_FICHES = [
 export interface GuidanceContext {
   chapterTitle?: string
   userMessage?: string
-  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'archi-urba' | 'auto'
+  signal?: 'new-project' | 'writing-block' | 'chapter-structure' | 'institutional' | 'formatting' | 'bibliometrie' | 'recherche-doc' | 'methodologie' | 'revue-litterature' | 'archi-urba' | 'ethique-publication' | 'choix-revue' | 'resultats-discussion' | 'tableaux-figures' | 'auto-edition' | 'langue-seconde' | 'auto'
 }
 
 export interface GuidanceResult {
@@ -664,6 +885,12 @@ const SIGNAL_MAP: Record<string, Array<{ id: string; title: string; content: str
   'methodologie': [FICHE_COMPOSANTES_RECHERCHE, FICHE_GAP_VS_PROBLEM],
   'revue-litterature': [FICHE_REVUE_LITTERATURE],
   'archi-urba': [FICHE_PARADIGMES_COHERENCE],
+  'ethique-publication': [FICHE_ETHIQUE_PUBLICATION],
+  'choix-revue': [FICHE_CHOIX_REVUE],
+  'resultats-discussion': [FICHE_RESULTATS_DISCUSSION],
+  'tableaux-figures': [FICHE_TABLEAUX_FIGURES],
+  'auto-edition': [FICHE_AUTO_EDITION_8C],
+  'langue-seconde': [FICHE_LANGUE_SECONDE],
 }
 
 // ─────────────────────────────────────────────
@@ -696,11 +923,11 @@ const CHAPTER_KEYWORDS: Array<{ patterns: RegExp[]; fiche: { id: string; title: 
   },
   {
     patterns: [/résultat/i, /resultat/i, /résult/i, /result/i],
-    fiche: FICHE_RHETORIQUE,
+    fiche: FICHE_RESULTATS_DISCUSSION,
   },
   {
     patterns: [/discuss/i],
-    fiche: FICHE_RHETORIQUE,
+    fiche: FICHE_RESULTATS_DISCUSSION,
   },
   {
     patterns: [/conclus/i],
@@ -765,6 +992,32 @@ const MSG_HEURISTICS: Array<{ patterns: RegExp[]; fiche: { id: string; title: st
     patterns: [/revue\s+de\s+litt[ée]rature/i, /revue\s+syst[ée]matique/i, /m[ée]ta-analyse/i, /meta-analysis/i, /PRISMA/i, /prisma/i, /PICO/i, /pico/i, /flow\s+diagram/i, /GRADE/i, /hétérog[ée]n[ée]it[ée]/i, /taille\s+d[\x27']effet/i, /funnel\s+plot/i, /for[êe]t\s+plot/i],
     fiche: FICHE_REVUE_LITTERATURE,
     reason: 'Mots-clés de typologie de revue de littérature détectés dans le message',
+  },
+  // Corpus 3 : publication scientifique
+  {
+    patterns: [/plagiat/i, /paraphras/i, /conflit\s+d['’']intér[iê]t/i, /comité\s+d['’]éthique/i, /comite\s+d['’]ethique/i, /autorat/i, /salami/i, /dry.lab/i, /fabri/i, /données.*fabriqu/i, /donnee.*fabriqu/i],
+    fiche: FICHE_ETHIQUE_PUBLICATION,
+    reason: 'Mots-clés d\'éthique de publication détectés dans le message',
+  },
+  {
+    patterns: [/choisir\s+une\s+revue/i, /revue.*cible/i, /revue.*prédat/i, /predatory/i, /facteur\s+d['’]impact/i, /impact\s+factor/i, /soumettr/i, /soumission/i, /publication.*internationale/i],
+    fiche: FICHE_CHOIX_REVUE,
+    reason: 'Mots-clés de choix de revue / publication détectés dans le message',
+  },
+  {
+    patterns: [/tableau/i, /figure/i, /graphique/i],
+    fiche: FICHE_TABLEAUX_FIGURES,
+    reason: 'Mots-clés de tableaux/figures détectés dans le message',
+  },
+  {
+    patterns: [/relecture/i, /correction/i, /révision/i, /revision/i, /auto.édition/i, /auto-edition/i, /relire/i, /vérifier.*avant.*soumiss/i, /revue.*article/i, /soumission.*article/i],
+    fiche: FICHE_AUTO_EDITION_8C,
+    reason: 'Mots-clés de relecture / auto-édition détectés dans le message',
+  },
+  {
+    patterns: [/langue\s+seconde/i, /non.*francophone/i, /anglais.*rédaction/i, /publication.*internationale/i, /lectorat.*international/i, /international.*audience/i, /native.*speaker/i, /correcteur/i],
+    fiche: FICHE_LANGUE_SECONDE,
+    reason: 'Mots-clés de rédaction en langue seconde / international détectés',
   },
 ]
 

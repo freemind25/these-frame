@@ -6,7 +6,7 @@ import {
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
-  KeyRound, ShieldAlert, FolderTree,
+  KeyRound, ShieldAlert, FolderTree, ListChecks,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -27,6 +27,7 @@ const TOOLS = [
   { icon: PenLine, label: 'Diagrammes', key: 'excalidraw' },
   { icon: SpellCheck, label: 'Grammaire (LT)', key: 'grammar' },
   { icon: ShieldCheck, label: 'Harper (style)', key: 'harper' },
+  { icon: ListChecks, label: 'Auto-édition 8C', key: 'autoEdition' },
   { icon: PenTool, label: 'Recherche thèse', key: 'search' },
   { icon: FileSpreadsheet, label: 'Export Word/PPT', key: 'office' },
   { icon: Zap, label: 'Automatisation', key: 'automation' },
@@ -56,6 +57,7 @@ interface ToolsSidebarProps {
   onOpenExcalidraw: () => void
   onOpenGrammar: () => void
   onOpenHarper: () => void
+  onOpenAutoEdition: () => void
   onOpenSearch: () => void
   onOpenCadrage: () => void
   onOpenOffice: () => void
@@ -77,7 +79,7 @@ export default function ToolsSidebar({
   thesis, totalWords, sidebarOpen, onCloseSidebar, isMobile, editorMode,
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
-  onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenSearch,
+  onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
   onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
@@ -95,6 +97,7 @@ export default function ToolsSidebar({
     excalidraw: onOpenExcalidraw,
     grammar: onOpenGrammar,
     harper: onOpenHarper,
+    autoEdition: onOpenAutoEdition,
     search: onOpenSearch,
     cadrage: onOpenCadrage,
     office: onOpenOffice,

@@ -88,6 +88,7 @@ export default function Home() {
   const [excalidrawOpen, setExcalidrawOpen] = useState(false)
   const [grammarOpen, setGrammarOpen] = useState(false)
   const [harperOpen, setHarperOpen] = useState(false)
+  const [autoEditionOpen, setAutoEditionOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [assistantOpen, setAssistantOpen] = useState(false)
   const [directeurOpen, setDirecteurOpen] = useState(false)
@@ -712,6 +713,7 @@ export default function Home() {
           onOpenExcalidraw={() => setExcalidrawOpen(true)}
           onOpenGrammar={() => setGrammarOpen(true)}
           onOpenHarper={() => setHarperOpen(true)}
+          onOpenAutoEdition={() => setAutoEditionOpen(true)}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenCadrage={() => setCadrageOpen(true)}
           onOpenOffice={() => setOfficeOpen(true)}
@@ -829,6 +831,8 @@ export default function Home() {
         setGrammarOpen={setGrammarOpen}
         harperOpen={harperOpen}
         setHarperOpen={setHarperOpen}
+        autoEditionOpen={autoEditionOpen}
+        setAutoEditionOpen={setAutoEditionOpen}
         searchOpen={searchOpen}
         setSearchOpen={setSearchOpen}
         officeOpen={officeOpen}
