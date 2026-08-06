@@ -6,7 +6,7 @@ import {
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
-  KeyRound, ShieldAlert, FolderTree, ListChecks, ClipboardList, BarChart3,
+  KeyRound, ShieldAlert, FolderTree, ListChecks, ClipboardList, BarChart3, Box,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -40,6 +40,7 @@ const TOOLS = [
   { icon: BarChart3, label: 'APA Results Composer', key: 'apaComposer' },
   { icon: ListChecks, label: 'Outils SLR', key: 'slrProtocol' },
   { icon: BookOpen, label: 'Boîte doctorale', key: 'doctoralToolkit' },
+  { icon: Box, label: 'Box Cloud', key: 'boxDrive' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -75,6 +76,7 @@ interface ToolsSidebarProps {
   onOpenApaComposer: () => void
   onOpenSlrProtocol: () => void
   onOpenDoctoralToolkit: () => void
+  onOpenBoxDrive: () => void
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
   onToggleEditorMode: () => void
@@ -88,7 +90,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -119,6 +121,7 @@ export default function ToolsSidebar({
     apaComposer: onOpenApaComposer,
     slrProtocol: onOpenSlrProtocol,
     doctoralToolkit: onOpenDoctoralToolkit,
+    boxDrive: onOpenBoxDrive,
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
   }

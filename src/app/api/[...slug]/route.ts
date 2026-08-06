@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 // Routes excluded from rate limiting
-const RATE_LIMIT_EXEMPT = new Set(['ping', 'setup', 'debug-env', 'debug-zai', 'admin', 'mendeley/callback', 'cloud-drive/callback'])
+const RATE_LIMIT_EXEMPT = new Set(['ping', 'setup', 'debug-env', 'debug-zai', 'admin', 'mendeley/callback', 'cloud-drive/callback', 'box-drive/callback'])
 
 import * as h_academy_db_annas_archive from '@/app/api/academy-db/annas-archive/handler'
 import * as h_academy_db_libgen_im from '@/app/api/academy-db/libgen-im/handler'
@@ -40,6 +40,11 @@ import * as h_cadrage_generate from '@/app/api/cadrage/generate/handler'
 import * as h_cadrage_reformulate from '@/app/api/cadrage/reformulate/handler'
 import * as h_cadrage_validate from '@/app/api/cadrage/validate/handler'
 import * as h_cadrage_verify from '@/app/api/cadrage/verify/handler'
+import * as h_box_drive_callback from '@/app/api/box-drive/callback/handler'
+import * as h_box_drive_connect from '@/app/api/box-drive/connect/handler'
+import * as h_box_drive_disconnect from '@/app/api/box-drive/disconnect/handler'
+import * as h_box_drive_files from '@/app/api/box-drive/files/handler'
+import * as h_box_drive_status from '@/app/api/box-drive/status/handler'
 import * as h_cloud_drive_callback from '@/app/api/cloud-drive/callback/handler'
 import * as h_cloud_drive_connect from '@/app/api/cloud-drive/connect/handler'
 import * as h_cloud_drive_disconnect from '@/app/api/cloud-drive/disconnect/handler'
@@ -144,6 +149,11 @@ const ROUTES: Array<{
   { segs: ['cadrage', 'validate'], h: { POST: h_cadrage_validate.POST } },
   { segs: ['cadrage', 'verify'], h: { POST: h_cadrage_verify.POST } },
   { segs: ['dictation', 'post-process'], h: { POST: h_dictation_post_process.POST } },
+  { segs: ['box-drive', 'callback'], h: { GET: h_box_drive_callback.GET } },
+  { segs: ['box-drive', 'connect'], h: { GET: h_box_drive_connect.GET } },
+  { segs: ['box-drive', 'disconnect'], h: { POST: h_box_drive_disconnect.POST } },
+  { segs: ['box-drive', 'files'], h: { GET: h_box_drive_files.GET, POST: h_box_drive_files.POST, PUT: h_box_drive_files.PUT, DELETE: h_box_drive_files.DELETE } },
+  { segs: ['box-drive', 'status'], h: { GET: h_box_drive_status.GET } },
   { segs: ['cloud-drive', 'callback'], h: { GET: h_cloud_drive_callback.GET } },
   { segs: ['cloud-drive', 'connect'], h: { GET: h_cloud_drive_connect.GET } },
   { segs: ['cloud-drive', 'disconnect'], h: { POST: h_cloud_drive_disconnect.POST } },
