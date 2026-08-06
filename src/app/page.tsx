@@ -28,6 +28,7 @@ import ApaResultsComposer from '@/components/thesis/apa-results-composer'
 import SlrProtocolPanel from '@/components/thesis/slr-protocol-panel'
 import DoctoralToolkitPanel from '@/components/thesis/doctoral-toolkit-panel'
 import BoxDrivePanel from '@/components/thesis/box-drive-panel'
+import UsageGuidePanel from '@/components/thesis/usage-guide-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
@@ -110,6 +111,7 @@ export default function Home() {
   const [slrProtocolOpen, setSlrProtocolOpen] = useState(false)
   const [doctoralToolkitOpen, setDoctoralToolkitOpen] = useState(false)
   const [boxDriveOpen, setBoxDriveOpen] = useState(false)
+  const [usageGuideOpen, setUsageGuideOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
@@ -738,6 +740,7 @@ export default function Home() {
           onOpenSlrProtocol={() => setSlrProtocolOpen(true)}
           onOpenDoctoralToolkit={() => setDoctoralToolkitOpen(true)}
           onOpenBoxDrive={() => setBoxDriveOpen(true)}
+          onOpenUsageGuide={() => setUsageGuideOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
@@ -965,6 +968,11 @@ export default function Home() {
       <BoxDrivePanel
         open={boxDriveOpen}
         onOpenChange={setBoxDriveOpen}
+      />
+
+      <UsageGuidePanel
+        open={usageGuideOpen}
+        onOpenChange={setUsageGuideOpen}
       />
 
       {/* ═══ LICENSE ADMIN DIALOG ═══ */}

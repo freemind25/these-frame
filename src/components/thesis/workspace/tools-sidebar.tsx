@@ -7,12 +7,14 @@ import {
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
   KeyRound, ShieldAlert, FolderTree, ListChecks, ClipboardList, BarChart3, Box,
+  CircleHelp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import type { ThesisData } from '@/types/thesis'
 
 const TOOLS = [
+  { icon: CircleHelp, label: 'Notice d\'utilisation', key: 'usageGuide' },
   { icon: Compass, label: 'Cadrage projet', key: 'cadrage' },
   { icon: MessageSquare, label: 'Assistant IA', key: 'assistant' },
   { icon: GraduationCap, label: 'Directeur IA', key: 'directeur' },
@@ -77,6 +79,7 @@ interface ToolsSidebarProps {
   onOpenSlrProtocol: () => void
   onOpenDoctoralToolkit: () => void
   onOpenBoxDrive: () => void
+  onOpenUsageGuide: () => void
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
   onToggleEditorMode: () => void
@@ -90,7 +93,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenUsageGuide, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -122,6 +125,7 @@ export default function ToolsSidebar({
     slrProtocol: onOpenSlrProtocol,
     doctoralToolkit: onOpenDoctoralToolkit,
     boxDrive: onOpenBoxDrive,
+    usageGuide: onOpenUsageGuide,
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
   }
