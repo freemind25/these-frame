@@ -462,6 +462,7 @@ Synthèse finale :
 - **Verdict** : Prêt à soumettre / Révision mineure nécessaire / Révision majeure nécessaire
 
 Réponds en français. Sois rigoureux mais constructif.`,
+  'inline-transform': `Tu es un assistant. Exécute la transformation demandée. Réponds UNIQUEMENT avec le texte transformé.`,
 }
 
 const VALID_MODES = Object.keys(SYSTEM_PROMPTS)
@@ -522,7 +523,23 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
-    const { message, mode, sessionId, clearHistory, provider, apiKey, baseUrl, model, temperature, maxTokens, thinking } = validation.data
+    const { message, mode, sessionId, clearHistory, provider, apiKey, baseUrl, model, temperature, maxTokens, thinking, prompt, text } = validation.data
+
+    // ── Inline transform: direct prompt, no conversation store ──
+    if (mode === 'inline-transform' && prompt) {
+      const systemPrompt = SYSTEM_PROMPTS['inline-transform']!
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'assistant', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        thinking: { type: 'disabled' },
+        temperature: 0.3,
+      })
+      const result = completion.choices[0]?.message?.content || ''
+      return NextResponse.json({ success: true, result, text: result })
+    }
 
     if (!mode || !VALID_MODES.includes(mode)) {
       return NextResponse.json(

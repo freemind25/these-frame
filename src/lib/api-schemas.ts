@@ -6,6 +6,9 @@ export const aiWritingSchema = z.object({
   mode: z.string().optional(),
   sessionId: z.string().optional(),
   clearHistory: z.boolean().optional(),
+  // Inline AI fields
+  prompt: z.string().optional(),
+  text: z.string().optional(),
   // External provider fields
   provider: z.string().optional(),
   apiKey: z.string().optional(),
@@ -21,6 +24,9 @@ export const thesisAssistantSchema = z.object({
   mode: z.enum(['general', 'redaction', 'correction', 'critique', 'methode', 'bibliographie', 'suivi']).optional(),
   sessionId: z.string().optional(),
   clearHistory: z.boolean().optional(),
+  // Inline AI fields
+  prompt: z.string().optional(),
+  text: z.string().optional(),
   chapterTitle: z.string().optional(),
   chapterNumber: z.string().optional(),
   chapterContent: z.string().max(50000).optional(),
@@ -33,6 +39,9 @@ export const directeurChatSchema = z.object({
   message: z.string().min(1, 'Le message est requis.').max(50000),
   sessionId: z.string().optional(),
   clearHistory: z.boolean().optional(),
+  // Inline AI fields
+  prompt: z.string().optional(),
+  text: z.string().optional(),
   mode: z.enum(['stress-test', 'remediation', 'gap-finding', 'lr-audit', 'cartographie', 'writing-coach', 'source-synthesis']).optional(),
   chapterTitle: z.string().optional(),
   chapterNumber: z.string().optional(),

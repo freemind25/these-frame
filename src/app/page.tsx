@@ -22,6 +22,7 @@ import IthyResearchPanel from '@/components/thesis/ithy-research'
 import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
 import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
+import ResearchResourcesPanel from '@/components/thesis/research-resources-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
@@ -97,6 +98,7 @@ export default function Home() {
   const [agileRoadmapOpen, setAgileRoadmapOpen] = useState(false)
   const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
   const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
+  const [researchResourcesOpen, setResearchResourcesOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
@@ -718,6 +720,7 @@ export default function Home() {
           onOpenAgileRoadmap={() => setAgileRoadmapOpen(true)}
           onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
           onOpenBookSkills={() => setBookSkillsOpen(true)}
+          onOpenResearchResources={() => setResearchResourcesOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
@@ -762,6 +765,7 @@ export default function Home() {
                 onChange={handleContentChange}
                 chapterNumber={chapterMeta?.number || activeChapter?.number || ''}
                 chapterTitle={chapterMeta?.title || activeChapter?.title || ''}
+                aiProvider={aiProvider}
               />
             ) : (
               <textarea
@@ -912,6 +916,11 @@ export default function Home() {
         chapterNumber={chapterMeta?.number}
         activeBookIds={activeBookIds}
         onToggleBook={toggleActiveBook}
+      />
+
+      <ResearchResourcesPanel
+        open={researchResourcesOpen}
+        onOpenChange={setResearchResourcesOpen}
       />
 
       {/* ═══ LICENSE ADMIN DIALOG ═══ */}

@@ -11,7 +11,7 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
 import Typography from '@tiptap/extension-typography'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
@@ -20,14 +20,16 @@ import { cn } from '@/lib/utils'
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code as CodeIcon, Quote,
   Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Highlighter, Link as LinkIcon, Undo2, Redo2, Minus, Type,
+  Highlighter, Link as LinkIcon, Undo2, Redo2, Minus, Type, Sparkles,
 } from 'lucide-react'
+import InlineAIMenu from '@/components/thesis/inline-ai-menu'
 
 interface TiptapEditorProps {
   content: string
   onChange: (content: string) => void
   chapterNumber: string
   chapterTitle: string
+  aiProvider?: string
 }
 
 function ToolbarBtn({ active, onClick, title, children }: { active: boolean; onClick: () => void; title: string; children: React.ReactNode }) {
@@ -44,8 +46,9 @@ function ToolbarBtn({ active, onClick, title, children }: { active: boolean; onC
   )
 }
 
-export default function TiptapEditor({ content, onChange, chapterNumber, chapterTitle }: TiptapEditorProps) {
+export default function TiptapEditor({ content, onChange, chapterNumber, chapterTitle, aiProvider = 'z-ai' }: TiptapEditorProps) {
   const isSettingContent = useRef(false)
+  const [inlineAIMenu, setInlineAIMenu] = useState<{ visible: boolean; position: { top: number; left: number }; text: string }>({ visible: false, position: { top: 0, left: 0 }, text: '' })
 
   const editor = useEditor({
     extensions: [
@@ -89,6 +92,46 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
     if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
   }, [editor])
 
+  // ─── Inline AI: show floating menu on text selection ───
+  const selectionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (!editor) return
+    const updateMenu = () => {
+      const { from, to, empty } = editor.state.selection
+      if (empty || from === to) {
+        if (selectionTimer.current) clearTimeout(selectionTimer.current)
+        setInlineAIMenu(prev => prev.visible ? { visible: false, position: prev.position, text: prev.text } : prev)
+        return
+      }
+      // Debounce: only show after 300ms of stable selection
+      if (selectionTimer.current) clearTimeout(selectionTimer.current)
+      selectionTimer.current = setTimeout(() => {
+        const text = editor.state.doc.textBetween(from, to, ' ')
+        if (text.trim().length < 10) return // Don't show for very short selections
+        // Get position from selection DOM
+        const dom = window.getSelection()
+        if (!dom || dom.rangeCount === 0) return
+        const range = dom.getRangeAt(0)
+        const rect = range.getBoundingClientRect()
+        setInlineAIMenu({ visible: true, position: { top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX + rect.width / 2 - 128 }, text: text.trim() })
+      }, 500)
+    }
+    editor.on('selectionUpdate', updateMenu)
+    return () => {
+      editor.off('selectionUpdate', updateMenu)
+      if (selectionTimer.current) clearTimeout(selectionTimer.current)
+    }
+  }, [editor])
+
+  const handleInlineAIApply = useCallback((_actionId: string, resultText: string) => {
+    if (!editor) return
+    const { from, to } = editor.state.selection
+    if (from === to) return
+    // Replace the selected text with the AI result
+    editor.chain().focus().deleteRange({ from, to }).insertContent(resultText).run()
+  }, [editor])
+
   const characters = editor?.storage.characterCount?.characters() || 0
   const words = editor?.storage.characterCount?.words() || 0
 
@@ -100,8 +143,10 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
     )
   }
 
+  const hasSelection = !editor.state.selection.empty
+
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-white">
+    <div className="flex-1 flex flex-col min-w-0 bg-white relative">
       <div className="shrink-0 border-b bg-white px-2 py-1 flex items-center gap-0.5 flex-wrap overflow-x-auto">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -161,12 +206,52 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
         <ToolbarBtn active={editor.isActive('link')} onClick={addLink} title="Lien"><LinkIcon className="h-3.5 w-3.5" /></ToolbarBtn>
         <ToolbarBtn active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Surligner"><Highlighter className="h-3.5 w-3.5" /></ToolbarBtn>
 
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
+        {/* Inline AI button — shows menu on click when text is selected */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn('h-7 w-7', hasSelection ? 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700' : 'text-slate-300 pointer-events-none')}
+              disabled={!hasSelection}
+              onClick={() => {
+                const { from, to } = editor.state.selection
+                const text = editor.state.doc.textBetween(from, to, ' ')
+                if (text.trim().length >= 10) {
+                  const dom = window.getSelection()
+                  if (dom && dom.rangeCount > 0) {
+                    const range = dom.getRangeAt(0)
+                    const rect = range.getBoundingClientRect()
+                    setInlineAIMenu({ visible: true, position: { top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX + rect.width / 2 - 128 }, text: text.trim() })
+                  }
+                }
+              }}
+              title="IA contextuelle (sélectionnez du texte)"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>IA contextuelle (Ctrl+Shift+A)</TooltipContent>
+        </Tooltip>
+
         <div className="flex-1" />
         <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">{words} mots</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto relative">
         <EditorContent editor={editor} />
+        {/* Inline AI floating menu */}
+        {inlineAIMenu.visible && inlineAIMenu.text && (
+          <InlineAIMenu
+            position={inlineAIMenu.position}
+            selectedText={inlineAIMenu.text}
+            onApply={handleInlineAIApply}
+            onClose={() => setInlineAIMenu(prev => ({ ...prev, visible: false }))}
+            aiProvider={aiProvider}
+          />
+        )}
       </div>
 
       <div className="shrink-0 border-t bg-slate-50 px-4 py-1 flex items-center justify-between text-[10px] text-slate-400">
@@ -174,7 +259,10 @@ export default function TiptapEditor({ content, onChange, chapterNumber, chapter
           <span>{characters} caracteres</span>
           <span>{words} mots</span>
         </div>
-        <span>Editeur enrichi TipTap</span>
+        <span className="flex items-center gap-1.5">
+          <Sparkles className="h-3 w-3 text-emerald-400" />
+          Inline IA actif
+        </span>
       </div>
     </div>
   )
