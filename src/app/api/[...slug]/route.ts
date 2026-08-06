@@ -50,6 +50,7 @@ import * as h_consensus_config from '@/app/api/consensus/config/handler'
 import * as h_consensus_mistral_config from '@/app/api/consensus/mistral-config/handler'
 import * as h_debug_env from '@/app/api/debug-env/handler'
 import * as h_debug_zai from '@/app/api/debug-zai/handler'
+import * as h_dictation_post_process from '@/app/api/dictation/post-process/handler'
 import * as h_directeur from '@/app/api/directeur/handler'
 import * as h_directeur_chat from '@/app/api/directeur-chat/handler'
 import * as h_download from '@/app/api/download/handler'
@@ -142,6 +143,7 @@ const ROUTES: Array<{
   { segs: ['cadrage', 'reformulate'], h: { POST: h_cadrage_reformulate.POST } },
   { segs: ['cadrage', 'validate'], h: { POST: h_cadrage_validate.POST } },
   { segs: ['cadrage', 'verify'], h: { POST: h_cadrage_verify.POST } },
+  { segs: ['dictation', 'post-process'], h: { POST: h_dictation_post_process.POST } },
   { segs: ['cloud-drive', 'callback'], h: { GET: h_cloud_drive_callback.GET } },
   { segs: ['cloud-drive', 'connect'], h: { GET: h_cloud_drive_connect.GET } },
   { segs: ['cloud-drive', 'disconnect'], h: { POST: h_cloud_drive_disconnect.POST } },

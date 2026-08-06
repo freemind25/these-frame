@@ -18,6 +18,8 @@ export interface RetryOptions {
   baseDelay?: number
   /** Délai maximum en ms (défaut : 20000) */
   maxDelay?: number
+  /** Timeout global en ms pour toute la chaîne de tentatives (défaut : 60000) */
+  timeoutMs?: number
   /** Codes d'erreur qui déclenchent un retry */
   retryableCodes?: string[]
   /** Codes HTTP qui déclenchent un retry */
@@ -26,12 +28,27 @@ export interface RetryOptions {
   onRetry?: (attempt: number, error: unknown, delay: number) => void
 }
 
+// ─── Pre-configured timeout presets (FreeFlow-inspired) ─────────────
+// Per-operation timeout configs to avoid one-size-fits-all.
+
+export const TIMEOUT_PRESETS = {
+  /** Fast operations: transcription, simple API calls */
+  transcription: { timeoutMs: 20_000, maxRetries: 2, baseDelay: 2000 },
+  /** Medium operations: LLM post-processing, text cleanup */
+  postProcessing: { timeoutMs: 30_000, maxRetries: 3, baseDelay: 1000 },
+  /** Heavy operations: full AI generation, consensus */
+  aiGeneration: { timeoutMs: 60_000, maxRetries: 3, baseDelay: 2000 },
+  /** Long operations: export, pipeline */
+  export: { timeoutMs: 120_000, maxRetries: 2, baseDelay: 5000 },
+} as const
+
 // ─── Default options ─────────────────────────────────────────────
 
 const DEFAULTS: Required<Omit<RetryOptions, 'onRetry'>> = {
   maxRetries: 5,
   baseDelay: 1000,
   maxDelay: 20000,
+  timeoutMs: 60_000,
   retryableCodes: [
     'ResourceExhausted',
     'TooManyRequests',
@@ -84,7 +101,13 @@ export async function withRetry<T>(
   const opts = { ...DEFAULTS, ...options }
   let lastError: unknown
 
+  const deadline = opts.timeoutMs ? Date.now() + opts.timeoutMs : Infinity
+
   for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
+    // Check global timeout before each attempt
+    if (Date.now() >= deadline) {
+      throw new Error(`Retry chain timed out after ${opts.timeoutMs}ms (${attempt} attempts)`)
+    }
     try {
       return await fn()
     } catch (error) {

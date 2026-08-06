@@ -5,7 +5,7 @@ import {
   FileText, BookOpen, FlaskConical, BarChart3, MessageSquare, GraduationCap,
   Menu, Loader2, Check, PanelRightOpen, PanelRightClose, Sparkles,
 } from 'lucide-react'
-import DictationButton from './dictation-button'
+import DictationButton, { type DictationContext } from './dictation-button'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChapterData, PartData } from '@/types/thesis'
@@ -41,10 +41,17 @@ interface ChapterHeaderProps {
   helpOpen: boolean
   onToggleHelp: () => void
   onDictated?: (text: string) => void
+  /** Currently selected text in the editor (for voice edit mode) */
+ selectedText?: string
+  /** Full chapter content (for surrounding context extraction) */
+ chapterContent?: string
+  /** Callback to replace selected text with transformed text */
+ onReplaceSelection?: (original: string, transformed: string) => void
 }
 
 export default function ChapterHeader({
   isMobile, onOpenSidebar, chapterMeta, colors, activeChapter, activePart, saveStatus, helpOpen, onToggleHelp, onDictated,
+  selectedText, chapterContent, onReplaceSelection,
 }: ChapterHeaderProps) {
   const isPartsMode = !!activePart
   const isCustom = !chapterMeta
@@ -128,7 +135,20 @@ export default function ChapterHeader({
       {/* Dictation button */}
       <div className="flex items-center gap-1.5 shrink-0">
         <span className="text-[10px] text-slate-400 hidden md:inline">Dictée</span>
-        <DictationButton onTranscribed={onDictated || (() => {})} />
+        <DictationButton
+          onTranscribed={onDictated || (() => {})}
+          onEditText={onReplaceSelection
+            ? (sel, _instr, result) => onReplaceSelection(sel, result)
+            : undefined
+          }
+          selectedText={selectedText}
+          chapterContext={{
+            chapterTitle: chapterMeta?.title || activeChapter?.title,
+            chapterNumber: chapterMeta?.number || activeChapter?.number,
+            surroundingText: chapterContent,
+            language: 'fr',
+          }}
+        />
       </div>
 
       {/* Help panel toggle */}
