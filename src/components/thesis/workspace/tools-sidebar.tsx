@@ -6,7 +6,7 @@ import {
   Scale, Cloud, Newspaper, Layers, LayoutTemplate,
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
-  KeyRound, ShieldAlert, FolderTree, ListChecks,
+  KeyRound, ShieldAlert, FolderTree, ListChecks, ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -36,6 +36,7 @@ const TOOLS = [
   { icon: PencilRuler, label: 'Déblocage écriture', key: 'writingUnblock' },
   { icon: BookCheck, label: 'Livres-compétences', key: 'bookSkills' },
   { icon: FolderTree, label: 'Ressources recherche', key: 'researchResources' },
+  { icon: ClipboardList, label: 'Analyse champ rech.', key: 'fieldAnalysis' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -67,6 +68,7 @@ interface ToolsSidebarProps {
   onOpenWritingUnblock: () => void
   onOpenBookSkills: () => void
   onOpenResearchResources: () => void
+  onOpenFieldAnalysis: () => void
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
   onToggleEditorMode: () => void
@@ -80,7 +82,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -107,6 +109,7 @@ export default function ToolsSidebar({
     writingUnblock: onOpenWritingUnblock,
     bookSkills: onOpenBookSkills,
     researchResources: onOpenResearchResources,
+    fieldAnalysis: onOpenFieldAnalysis,
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
   }

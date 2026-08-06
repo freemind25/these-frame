@@ -23,6 +23,7 @@ import AgileRoadmapPanel from '@/components/thesis/agile-roadmap'
 import WritingUnblockPanel from '@/components/thesis/writing-unblock-panel'
 import ResourcesPanel from '@/components/thesis/resources-panel'
 import ResearchResourcesPanel from '@/components/thesis/research-resources-panel'
+import ResearchFieldAnalysisPanel from '@/components/thesis/research-field-analysis-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
@@ -100,6 +101,7 @@ export default function Home() {
   const [writingUnblockOpen, setWritingUnblockOpen] = useState(false)
   const [bookSkillsOpen, setBookSkillsOpen] = useState(false)
   const [researchResourcesOpen, setResearchResourcesOpen] = useState(false)
+  const [fieldAnalysisOpen, setFieldAnalysisOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
@@ -723,6 +725,7 @@ export default function Home() {
           onOpenWritingUnblock={() => setWritingUnblockOpen(true)}
           onOpenBookSkills={() => setBookSkillsOpen(true)}
           onOpenResearchResources={() => setResearchResourcesOpen(true)}
+          onOpenFieldAnalysis={() => setFieldAnalysisOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
@@ -925,6 +928,11 @@ export default function Home() {
       <ResearchResourcesPanel
         open={researchResourcesOpen}
         onOpenChange={setResearchResourcesOpen}
+      />
+
+      <ResearchFieldAnalysisPanel
+        open={fieldAnalysisOpen}
+        onOpenChange={setFieldAnalysisOpen}
       />
 
       {/* ═══ LICENSE ADMIN DIALOG ═══ */}
