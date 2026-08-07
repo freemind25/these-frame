@@ -679,12 +679,23 @@ export const USAGE_GUIDE_SECTIONS: GuideSection[] = [
         title: 'Explorer les compétences des livres',
         steps: [
           'Dans les « Outils », cliquez sur « Livres-compétences ». Cet outil vous donne accès à des extraits de connaissances tirés de livres de référence.',
-          'Parcourez la liste des livres disponibles. Sélectionnez jusqu\'à 3 livres simultanément en les cochant.',
-          'Pour chaque livre sélectionné, naviguez dans les chapitres pour découvrir les compétences et connaissances extraites : conseils de rédaction, méthodologies, stratégies de publication.',
-          'Cliquez sur un chapitre pour voir le résumé des compétences clés. Utilisez le bouton « Copier » pour récupérer les passages utiles.',
-          'Intégrez ces connaissances dans votre pratique de rédaction ou citez les livres dans votre bibliographie.',
+          'Parcourez la liste des livres disponibles. Utilisez les onglets de filtre (Tous, Rédaction, Méthodologie, etc.) pour trouver les livres pertinents.',
+          'Pour chaque livre, développez la fiche pour voir les cadres, principes, techniques et pièges extraits. Cliquez sur l\'icône livre pour l\'activer (max. 3 livres simultanés).',
+          'Les livres activés injectent automatiquement leurs connaissances dans le Directeur IA — il pourra référencer les cadres par nom dans ses retours.',
+          'Les livres avec un badge « Pertinent chap. X » sont particulièrement utiles pour le chapitre en cours d\'édition.',
         ],
         tip: 'Les livres-compétences couvrent des ouvrages reconnus en rédaction académique et en méthodologie de recherche. C\'est une ressource précieuse pour les doctorants en formation.',
+      },
+      {
+        title: 'Importer votre propre livre (nouveau)',
+        steps: [
+          'Dans le panneau « Livres-compétences », repérez la zone « Importer un livre » en haut (avec le badge « Nouveau » et l\'icône ✨).',
+          'Cliquez sur « Choisir un PDF ou EPUB » ou glissez-déposez directement votre fichier (PDF ou EPUB, max. 50 Mo).',
+          'ThesisFrame extrait le texte du document, puis l\'IA analyse la structure pour identifier les cadres, principes, techniques et pièges. Cette étape prend 30 à 90 secondes.',
+          'Une barre de progression indique l\'avancement. Quand l\'analyse est terminée, le livre apparaît dans l\'onglet « Importés » avec un badge violet.',
+          'Activez-le comme un livre intégré : il injecte ses connaissances dans le Directeur IA. Vous pouvez le supprimer à tout moment.',
+        ],
+        tip: 'L\'import est inspiré du projet « book-to-skill » — le même principe d\'extraction de structure (pas de résumé) est appliqué pour transformer votre livre en compétence exploitable par l\'IA.',
       },
       {
         title: 'Planifier avec la Route Agile',

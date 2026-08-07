@@ -825,15 +825,73 @@ export function getBookSkillsForChapter(chapterType: string): BookSkill[] {
 /**
  * Returns a formatted markdown string for injection into an AI system prompt.
  * Produces ~400-500 tokens per book, targeting 500-800 tokens total for 2-3 books.
+ * Includes both built-in and custom (user-imported) book skills.
  */
 export function getBookSkillSummary(bookIds: string[]): string {
   const skills = bookIds
     .map((id) => BOOK_SKILLS[id])
     .filter(Boolean)
 
+  return formatSkillsToMarkdown(skills)
+}
+
+/**
+ * Async version that also fetches custom book skills from the database.
+ * Custom skills have IDs starting with 'c_' (cuid format).
+ */
+export async function getBookSkillSummaryAsync(bookIds: string[]): Promise<string> {
+  const builtInSkills = bookIds
+    .map((id) => BOOK_SKILLS[id])
+    .filter(Boolean)
+
+  const customIds = bookIds.filter(id => !BOOK_SKILLS[id])
+  let customSkills: BookSkill[] = []
+
+  if (customIds.length > 0) {
+    try {
+      const { db } = await import('@/lib/db')
+      const records = await db.customBookSkill.findMany({
+        where: { id: { in: customIds }, status: 'ready' },
+      })
+      customSkills = records.map(r => {
+        let frameworks: BookSkill['frameworks'] = []
+        let principles: string[] = []
+        let techniques: string[] = []
+        let antiPatterns: string[] = []
+        let relevance: BookSkill['relevance'] = []
+        try { frameworks = JSON.parse(r.frameworks) } catch { /* empty */ }
+        try { principles = JSON.parse(r.principles) } catch { /* empty */ }
+        try { techniques = JSON.parse(r.techniques) } catch { /* empty */ }
+        try { antiPatterns = JSON.parse(r.antiPatterns) } catch { /* empty */ }
+        try { relevance = JSON.parse(r.relevance) } catch { /* empty */ }
+        return {
+          id: r.id,
+          title: r.title,
+          author: r.author,
+          coreConcept: r.coreConcept,
+          frameworks,
+          principles,
+          techniques,
+          antiPatterns,
+          relevance,
+          quickReference: r.quickReference,
+        }
+      })
+    } catch (err) {
+      console.error('[getBookSkillSummaryAsync] DB error:', err)
+    }
+  }
+
+  const allSkills = [...builtInSkills, ...customSkills]
+  if (allSkills.length === 0) return ''
+
+  return formatSkillsToMarkdown(allSkills)
+}
+
+function formatSkillsToMarkdown(skills: BookSkill[]): string {
   if (skills.length === 0) return ''
 
-  const lines: string[] = [`## Références actives (${skills.length} ouvrages)\n`]
+  const lines: string[] = [`## Références actives (${skills.length} ouvrage${skills.length > 1 ? 's' : ''})\n`]
 
   for (const s of skills) {
     lines.push(`### ${s.title} (${s.author})`)

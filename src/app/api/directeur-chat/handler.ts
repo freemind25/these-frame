@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
 import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
-import { getBookSkillSummary } from '@/data/book-skills'
+import { getBookSkillSummaryAsync } from '@/data/book-skills'
 import { LR_DIMENSIONS, LR_TYPE_PROFILE } from '@/data/lr-typology'
 import { createConversationStore } from '@/lib/conversation-store'
 import { directeurChatSchema, validateBody } from '@/lib/api-schemas'
@@ -155,7 +155,7 @@ interface ChapterProgress {
  * Unlike the one-shot /api/directeur, this prompt is designed for multi-turn dialogue:
  * the directeur asks follow-up questions, pushes the student, remembers context.
  */
-function buildDirecteurChatSystemPrompt(ctx: {
+async function buildDirecteurChatSystemPrompt(ctx: {
   thesisTitle?: string
   thesisField?: string
   chapterTitle?: string
@@ -167,7 +167,7 @@ function buildDirecteurChatSystemPrompt(ctx: {
   hypothese?: string
   userMessage?: string
   activeBookIds?: string[]
-}): string {
+}): Promise<string> {
   const parts: string[] = []
 
   // Core identity
@@ -252,9 +252,9 @@ Format en conversation :
     parts.push(`\n## BASE DE CONNAISSANCE CONTEXTUELLE\n\n${ficheTexts}\n\nUtilise cette base de connaissance pour fonder tes critiques et tes conseils. Ces critères sont explicites et vérifiables — s'appuyer dessus rend ton évaluation plus précise et plus justifiable.`)
   }
 
-  // ── Active book skills injection ──
+  // ── Active book skills injection (includes custom skills from DB) ──
   if (ctx.activeBookIds && ctx.activeBookIds.length > 0) {
-    const bookSummary = getBookSkillSummary(ctx.activeBookIds)
+    const bookSummary = await getBookSkillSummaryAsync(ctx.activeBookIds)
     if (bookSummary) {
       parts.push(`\n${bookSummary}\n\nTu peux référencer ces cadres, principes et techniques dans tes retours au doctorant. Nomme-les explicitement quand ils sont pertinents.`)
     }
@@ -284,7 +284,7 @@ export async function POST(request: NextRequest) {
 
     // Build the system prompt with all available context
     const modeInstruction = mode && MODE_INSTRUCTIONS[mode] ? MODE_INSTRUCTIONS[mode] : ''
-    const systemPrompt = buildDirecteurChatSystemPrompt({
+    const systemPrompt = (await buildDirecteurChatSystemPrompt({
       thesisTitle,
       thesisField,
       chapterTitle,
@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
       hypothese,
       userMessage: trimmedMessage,
       activeBookIds,
-    }) + modeInstruction
+    })) + modeInstruction
 
     let history = store.createOrReset(sid, systemPrompt)
 

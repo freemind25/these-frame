@@ -264,6 +264,28 @@ model WarrantPolicy {
   @@unique([policyType, policyKey])
 }
 
+// ─── Custom Book Skills (user-imported books) ────────────
+
+model CustomBookSkill {
+  id            String   @id @default(cuid())
+  title         String
+  author        String   @default("")
+  coreConcept   String   @default("")
+  frameworks    String   @default("[]") // JSON: Array<{name, description, when}>
+  principles    String   @default("[]") // JSON: string[]
+  techniques    String   @default("[]") // JSON: string[]
+  antiPatterns  String   @default("[]") // JSON: string[]
+  relevance     String   @default("[]") // JSON: Array<{chapterType, reason}>
+  quickReference String  @default("")
+  glossary      String   @default("") // JSON: Array<{term, definition}>
+  fileName      String
+  fileSize      Int      @default(0)
+  status        String   @default("processing") // processing | ready | error
+  errorMessage  String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 // ─── Agile Roadmap (Sprints & Stories) ────────────────────────
 
 model AgileSprint {
