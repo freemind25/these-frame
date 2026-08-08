@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +37,9 @@ interface RoutesMeModel {
   owned_by: string
 }
 
+const LS_KEY = 'routesme_api_key'
+const LS_PLAN = 'routesme_plan'
+
 // ─── Model type badge helpers ────────────────────────────────────
 
 function getModelType(modelId: string): { label: string; icon: React.ReactNode; variant: 'default' | 'secondary' | 'outline' } {
@@ -58,6 +61,11 @@ function isFreeModel(modelId: string): boolean {
   return id.includes('glm5.2r') || id.includes('kimi-k3')
 }
 
+/** Send API key as header so the backend works on serverless (Vercel) */
+function authHeaders(apiKey: string): Record<string, string> {
+  return { 'X-RoutesMe-Key': apiKey }
+}
+
 // ─── Component ──────────────────────────────────────────────────
 
 export default function RoutesMePanel() {
@@ -72,22 +80,29 @@ export default function RoutesMePanel() {
   const [chatResponse, setChatResponse] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const [isConfigured, setIsConfigured] = useState(false)
+  const initialized = useRef(false)
 
-  // Check initial status
+  // Restore from localStorage on mount
   useEffect(() => {
-    fetch('/api/routesme/test')
-      .then(r => r.json())
-      .then(d => {
-        setIsConfigured(d.configured)
-        if (d.plan) setPlan(d.plan)
-      })
-      .catch(() => {})
-  }, [])
+    if (initialized.current) return
+    initialized.current = true
+    const savedKey = localStorage.getItem(LS_KEY)
+    const savedPlan = localStorage.getItem(LS_PLAN) as 'free' | 'vip' | null
+    if (savedKey) {
+      setApiKey(savedKey)
+      setPlan(savedPlan || 'free')
+      setIsConfigured(true)
+      // Auto-load models if key exists
+      loadModels(savedKey)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadModels = useCallback(async () => {
+  const loadModels = useCallback(async (key: string) => {
     setLoadingModels(true)
     try {
-      const res = await fetch('/api/routesme/models')
+      const res = await fetch('/api/routesme/models', {
+        headers: { ...authHeaders(key) },
+      })
       const data = await res.json()
       if (data.models) {
         setModels(data.models)
@@ -116,7 +131,10 @@ export default function RoutesMePanel() {
         setStatus('connected')
         setStatusMsg(`${data.modelCount} modèles disponibles (plan ${data.plan})`)
         setIsConfigured(true)
-        loadModels()
+        // Persist in localStorage
+        localStorage.setItem(LS_KEY, apiKey)
+        localStorage.setItem(LS_PLAN, plan)
+        loadModels(apiKey)
       } else {
         setStatus('error')
         setStatusMsg(data.error || 'Connexion échouée')
@@ -128,15 +146,16 @@ export default function RoutesMePanel() {
   }, [apiKey, plan, loadModels])
 
   const sendChat = useCallback(async () => {
-    if (!chatInput.trim()) return
+    if (!chatInput.trim() || !apiKey) return
     setChatLoading(true)
     setChatResponse('⏳ Génération en cours (le modèle peut être lent au premier appel)...')
     try {
       const res = await fetch('/api/routesme/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders(apiKey) },
         body: JSON.stringify({
           model: selectedModel,
+          plan,
           messages: [
             { role: 'system', content: 'Tu es un assistant académique expert en rédaction de thèse. Réponds en français.' },
             { role: 'user', content: chatInput },
@@ -155,7 +174,7 @@ export default function RoutesMePanel() {
       setChatResponse('❌ Erreur réseau ou timeout. Vérifiez votre connexion et réessayez.')
     }
     setChatLoading(false)
-  }, [chatInput, selectedModel])
+  }, [chatInput, selectedModel, apiKey, plan])
 
   return (
     <div className="space-y-4 max-h-[80vh] overflow-y-auto pr-1">

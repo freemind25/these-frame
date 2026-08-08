@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { RoutesMeClient, isRoutesMeConfigured, saveRoutesMeConfig, getRoutesMeConfig } from '@/lib/routesme'
 
-/** GET: check current config status (called on panel mount) */
+/** GET: check current config status */
 export async function GET() {
   try {
     const configured = isRoutesMeConfigured()
@@ -15,7 +15,7 @@ export async function GET() {
   }
 }
 
-/** POST: save key + test connection (called when clicking "Tester") */
+/** POST: save key + test connection */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -28,11 +28,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save config first
-    saveRoutesMeConfig(apiKey.trim(), plan || 'free')
+    const trimmedKey = apiKey.trim()
+    const resolvedPlan = plan || 'free'
 
-    // Then test the connection
-    const client = new RoutesMeClient({ apiKey: apiKey.trim(), plan: plan || 'free' })
+    // Save config for local dev (won't persist on Vercel but doesn't hurt)
+    saveRoutesMeConfig(trimmedKey, resolvedPlan)
+
+    // Test connection
+    const client = new RoutesMeClient({ apiKey: trimmedKey, plan: resolvedPlan })
     const result = await client.testConnection()
 
     if (result.success) {
@@ -42,7 +45,6 @@ export async function POST(request: NextRequest) {
         modelCount: result.modelCount,
       })
     } else {
-      // If test failed, still keep config saved so user can retry
       return NextResponse.json({
         success: false,
         error: result.error || 'Connexion échouée.',
