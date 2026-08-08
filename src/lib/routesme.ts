@@ -128,37 +128,73 @@ export class RoutesMeClient {
     }
   }
 
-  /** Chat completion (OpenAI-compatible) */
+  /** Chat completion (OpenAI-compatible) with retry on 504/502/500 */
   async chat(params: RoutesMeChatParams): Promise<RoutesMeChatResponse> {
-    const res = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: params.model,
-        messages: params.messages,
-        temperature: params.temperature,
-        max_tokens: params.max_tokens,
-        stream: params.stream || false,
-      }),
-    })
+    const maxRetries = 3
+    let lastError: Error | null = null
 
-    const rawText = await res.text()
-    let data: any
-    try {
-      data = JSON.parse(rawText)
-    } catch {
-      throw new Error(`RoutesMe: réponse JSON invalide – ${rawText.slice(0, 200)}`)
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 120_000)
+
+        const res = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: params.model,
+            messages: params.messages,
+            temperature: params.temperature,
+            max_tokens: params.max_tokens,
+            stream: false,
+          }),
+        })
+        clearTimeout(timeout)
+
+        const rawText = await res.text()
+        let data: any
+        try {
+          data = JSON.parse(rawText)
+        } catch {
+          // 504/502 from nginx returns HTML — retry
+          const isGatewayError = res.status === 504 || res.status === 502 || res.status === 500
+          if (isGatewayError && attempt < maxRetries) {
+            const delay = attempt * 3000
+            console.log(`[RoutesMe] Gateway ${res.status}, retry ${attempt + 1}/${maxRetries} in ${delay}ms...`)
+            await new Promise(r => setTimeout(r, delay))
+            continue
+          }
+          throw new Error(`RoutesMe: réponse invalide du serveur (HTTP ${res.status}). Réessayez.`)
+        }
+
+        if (!res.ok) {
+          const errMsg = data?.error?.message || rawText.slice(0, 200)
+          // Retry on gateway errors
+          const isRetryable = res.status === 504 || res.status === 502 || res.status === 500 || res.status === 429
+          if (isRetryable && attempt < maxRetries) {
+            const delay = res.status === 429 ? 5000 : attempt * 3000
+            console.log(`[RoutesMe] ${res.status} (${errMsg.slice(0, 50)}), retry ${attempt + 1}/${maxRetries} in ${delay}ms...`)
+            await new Promise(r => setTimeout(r, delay))
+            continue
+          }
+          throw new Error(`RoutesMe ${res.status}: ${errMsg}`)
+        }
+
+        return data as RoutesMeChatResponse
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error(String(e))
+        if (lastError.name === 'AbortError' && attempt < maxRetries) {
+          console.log(`[RoutesMe] Timeout, retry ${attempt + 1}/${maxRetries}...`)
+          continue
+        }
+        throw lastError
+      }
     }
-
-    if (!res.ok) {
-      const errMsg = data?.error?.message || rawText.slice(0, 200)
-      throw new Error(`RoutesMe ${res.status}: ${errMsg}`)
-    }
-
-    return data as RoutesMeChatResponse
+    throw lastError || new Error('RoutesMe: échec après retries')
   }
 
   /** Simple one-shot chat */

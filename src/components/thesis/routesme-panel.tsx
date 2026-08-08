@@ -130,7 +130,7 @@ export default function RoutesMePanel() {
   const sendChat = useCallback(async () => {
     if (!chatInput.trim()) return
     setChatLoading(true)
-    setChatResponse('')
+    setChatResponse('⏳ Génération en cours (le modèle peut être lent au premier appel)...')
     try {
       const res = await fetch('/api/routesme/chat', {
         method: 'POST',
@@ -152,7 +152,7 @@ export default function RoutesMePanel() {
         setChatResponse(data.content)
       }
     } catch {
-      setChatResponse('Erreur réseau')
+      setChatResponse('❌ Erreur réseau ou timeout. Vérifiez votre connexion et réessayez.')
     }
     setChatLoading(false)
   }, [chatInput, selectedModel])
