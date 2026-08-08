@@ -1,8 +1,7 @@
 // Server-side text extraction from PDF and EPUB files.
 // Inspired by book-to-skill's extraction approach but implemented in TypeScript.
 
-// Import the actual parser directly, not the wrapper that runs test code at import time
-import pdf from 'pdf-parse/lib/pdf-parse.js'
+import pdf from 'pdf-parse'
 import JSZip from 'jszip'
 
 export interface ExtractResult {
