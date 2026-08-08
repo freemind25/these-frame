@@ -43,6 +43,7 @@ const TOOLS = [
   { icon: ListChecks, label: 'Outils SLR', key: 'slrProtocol' },
   { icon: BookOpen, label: 'Boîte doctorale', key: 'doctoralToolkit' },
   { icon: Box, label: 'Box Cloud', key: 'boxDrive' },
+  { icon: Zap, label: 'RoutesMe API', key: 'routesMe' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -82,6 +83,7 @@ interface ToolsSidebarProps {
   onOpenUsageGuide: () => void
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
+  onOpenRoutesMe: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -93,7 +95,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenUsageGuide, onOpenLicenseAdmin, onOpenAuthProviders, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenUsageGuide, onOpenLicenseAdmin, onOpenAuthProviders, onOpenRoutesMe, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -128,6 +130,7 @@ export default function ToolsSidebar({
     usageGuide: onOpenUsageGuide,
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
+    routesMe: onOpenRoutesMe,
   }
 
   const handleToolClick = (key: string) => {

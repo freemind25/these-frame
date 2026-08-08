@@ -32,8 +32,9 @@ import UsageGuidePanel from '@/components/thesis/usage-guide-panel'
 import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
+import RoutesMePanel from '@/components/thesis/routesme-panel'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { KeyRound, Shield } from 'lucide-react'
+import { KeyRound, Shield, Zap } from 'lucide-react'
 
 // ─── Shared constants ───
 const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']
@@ -114,6 +115,7 @@ export default function Home() {
   const [usageGuideOpen, setUsageGuideOpen] = useState(false)
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
+  const [routesMeOpen, setRoutesMeOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tf_activeBookIds')
@@ -743,6 +745,7 @@ export default function Home() {
           onOpenUsageGuide={() => setUsageGuideOpen(true)}
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
+          onOpenRoutesMe={() => setRoutesMeOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -1001,6 +1004,21 @@ export default function Home() {
             </DialogDescription>
           </DialogHeader>
           <AuthProviderPanel />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={routesMeOpen} onOpenChange={setRoutesMeOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-emerald-500" />
+              RoutesMe — API Multi-Modèles
+            </DialogTitle>
+            <DialogDescription>
+              Accédez à 15+ modèles IA via une seule clé API OpenAI-compatible
+            </DialogDescription>
+          </DialogHeader>
+          <RoutesMePanel />
         </DialogContent>
       </Dialog>
 
