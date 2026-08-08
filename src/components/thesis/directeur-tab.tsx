@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { withProviderConfig } from '@/hooks/use-provider-config'
 
 // ─── DirecteurTab ────────────────────────────────────────────
 export default function DirecteurTab() {
@@ -58,14 +59,14 @@ export default function DirecteurTab() {
       const res = await fetch('/api/directeur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify(withProviderConfig({
           chapitreTitre: chapitreTitre.trim(),
           chapitreContenu: chapitreContenu.trim(),
           probleme: { quoi: quoi.trim(), comment: comment.trim(), pourquoi: pourquoi.trim() },
           hypothese: { texte: hypotheseTexte.trim(), observation: hypObs, verifiable: hypVerif, coherente: hypCoher },
           sousDomaineLabel: sousDomaine || 'Non précisé',
           contraintesMethodologiques: contraintes.trim(),
-        }),
+        })),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erreur serveur')

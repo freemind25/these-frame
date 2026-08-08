@@ -28,6 +28,7 @@ import {
   type CadrageFieldKey, CADRAGE_FIELDS, CADRAGE_FIELD_KEYS,
   REQUIRED_FIELDS,
 } from '@/types/cadrage'
+import { withProviderConfig } from '@/hooks/use-provider-config'
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -126,7 +127,7 @@ export default function CadragePanel({ open, onOpenChange, thesisId }: CadragePa
       const res = await fetch('/api/cadrage/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thesisId, pitch }),
+        body: JSON.stringify(withProviderConfig({ thesisId, pitch })),
       })
       if (!res.ok) throw new Error('Erreur serveur')
       const data = await res.json()
@@ -172,7 +173,7 @@ export default function CadragePanel({ open, onOpenChange, thesisId }: CadragePa
       const res = await fetch('/api/cadrage/reformulate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thesisId, fieldKey: key, currentValue: currentField.value, otherFields }),
+        body: JSON.stringify(withProviderConfig({ thesisId, fieldKey: key, currentValue: currentField.value, otherFields })),
       })
       if (!res.ok) throw new Error('Erreur serveur')
       const data = await res.json()
@@ -198,7 +199,7 @@ export default function CadragePanel({ open, onOpenChange, thesisId }: CadragePa
       const res = await fetch('/api/cadrage/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thesisId, fields: fieldsMap }),
+        body: JSON.stringify(withProviderConfig({ thesisId, fields: fieldsMap })),
       })
       if (!res.ok) throw new Error('Erreur serveur')
       const data = await res.json()

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 
 /**
  * POST /api/references/claim-check
@@ -49,6 +50,7 @@ L'explication doit être concise (1-2 phrases) et en français.`
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    const extProvider = getProviderConfig(body)
     const claims: ClaimInput[] = body.claims
 
     if (!claims || !Array.isArray(claims) || claims.length === 0) {
@@ -72,16 +74,25 @@ export async function POST(request: NextRequest) {
 
     const userMessage = `Vérifie les claims suivantes :\n\n${claimEntries}`
 
-    const zai = await getZAI()
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'assistant', content: CLAIM_CHECK_SYSTEM },
-        { role: 'user', content: userMessage },
-      ],
-      thinking: { type: 'disabled' },
-    })
-
-    const raw = completion.choices[0]?.message?.content || '[]'
+    let raw: string
+    if (extProvider) {
+      raw = await callAI({
+        provider: extProvider.provider, apiKey: extProvider.apiKey, baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: [ { role: 'system', content: CLAIM_CHECK_SYSTEM }, { role: 'user', content: userMessage } ],
+        temperature: 0.1, maxTokens: 4000,
+      })
+    } else {
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'assistant', content: CLAIM_CHECK_SYSTEM },
+          { role: 'user', content: userMessage },
+        ],
+        thinking: { type: 'disabled' },
+      })
+      raw = completion.choices[0]?.message?.content || '[]'
+    }
 
     // Parse JSON from response (handle possible markdown wrapping)
     let parsed: ClaimResult[]

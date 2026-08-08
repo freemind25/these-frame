@@ -22,6 +22,7 @@ import {
   PenLine,
   Layers,
 } from 'lucide-react'
+import { withProviderConfig } from '@/hooks/use-provider-config'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
 import type { ChapterData } from '@/types/thesis'
@@ -226,7 +227,7 @@ export default function DirecteurChat({
       const res = await fetch('/api/directeur-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reqBody),
+        body: JSON.stringify(withProviderConfig(reqBody)),
       })
 
       const data = await res.json()

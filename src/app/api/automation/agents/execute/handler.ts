@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
-import type { ZAIClient } from '@/lib/zai'
 import type { OrchestrationTask, OrchestrationRun, AgentRole, AgentStatus, ClassifiedError, ChapterNudge, ReviewPhase } from '@/types/agent-orchestration'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { THESIS_AGENTS } from '@/types/agent-orchestration'
 
 // ═══════════════════════════════════════════════════════════
@@ -165,7 +165,9 @@ function buildNudges(tasks: OrchestrationTask[], thesisChapters: any[]): Chapter
 
 export async function POST(request: NextRequest) {
   try {
-    const { thesis, workflow, runToken } = await request.json()
+    const body = await request.json() as Record<string, unknown>
+    const { thesis, workflow, runToken } = body as any
+    const extProvider = getProviderConfig(body)
 
     if (!thesis?.chapters?.length) {
       return NextResponse.json({ error: 'Données de thèse requises' }, { status: 400 })
@@ -179,7 +181,6 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const zai = await getZAI()
       const runId = `run-${Date.now()}`
       const tasks: OrchestrationTask[] = []
       const agents: { role: AgentRole; status: AgentStatus; tasksCompleted: number }[] = THESIS_AGENTS.map(a => ({ role: a.role as AgentRole, status: 'idle' as AgentStatus, tasksCompleted: 0 }))
@@ -204,7 +205,7 @@ export async function POST(request: NextRequest) {
           tasks.push(task)
 
           try {
-            const draft = await callAgentWithRetry(zai, 'redacteur', buildWritePrompt(thesis, chapter))
+            const draft = await callAgentWithRetry('redacteur', buildWritePrompt(thesis, chapter), extProvider)
             task.status = 'in_review'
             task.completedAt = new Date().toISOString()
             task.output = draft
@@ -251,7 +252,7 @@ export async function POST(request: NextRequest) {
           tasks.push(task)
 
           try {
-            const review = await callAgentWithRetry(zai, 'directeur', buildReviewPrompt(thesis, chapter))
+            const review = await callAgentWithRetry('directeur', buildReviewPrompt(thesis, chapter), extProvider)
             const parsed = parseReview(review)
             task.score = parsed.score
             task.remarks = parsed.remarks
@@ -290,7 +291,7 @@ export async function POST(request: NextRequest) {
           tasks.push(task)
 
           try {
-            const enrichment = await callAgentWithRetry(zai, 'chercheur', buildEnrichPrompt(thesis, chapter))
+            const enrichment = await callAgentWithRetry('chercheur', buildEnrichPrompt(thesis, chapter), extProvider)
             task.status = 'completed'
             task.completedAt = new Date().toISOString()
             task.output = enrichment
@@ -342,20 +343,37 @@ export async function POST(request: NextRequest) {
 // LLM CALLS WITH RETRY (inspired by agent-teams-ai exponential backoff + stable jitter)
 // ═══════════════════════════════════════════════════════════
 
-async function callAgentWithRetry(zai: ZAIClient, role: AgentRole, prompt: string, maxRetries = 2): Promise<string> {
- let lastError: unknown
+async function callAgentWithRetry(role: AgentRole, prompt: string, extProvider?: { provider: string; apiKey: string; baseUrl: string; model: string } | null, maxRetries = 2): Promise<string> {
+  let lastError: unknown
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const agentDef = THESIS_AGENTS.find(a => a.role === role)
-      const response = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: agentDef?.systemPrompt || '' },
-          { role: 'user', content: prompt },
-        ],
-        temperature: role === 'redacteur' ? 0.7 : 0.4,
-        max_tokens: 4000,
-      })
-      const content = response.choices[0]?.message?.content || ''
+      let content: string
+      if (extProvider) {
+        content = await callAI({
+          provider: extProvider.provider,
+          apiKey: extProvider.apiKey,
+          baseUrl: extProvider.baseUrl,
+          model: extProvider.model || 'GLM5.2R',
+          messages: [
+            { role: 'system', content: agentDef?.systemPrompt || '' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: role === 'redacteur' ? 0.7 : 0.4,
+          maxTokens: 4000,
+        })
+      } else {
+        const zai = await getZAI()
+        const response = await zai.chat.completions.create({
+          messages: [
+            { role: 'system', content: agentDef?.systemPrompt || '' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: role === 'redacteur' ? 0.7 : 0.4,
+          max_tokens: 4000,
+        })
+        content = response.choices[0]?.message?.content || ''
+      }
       if (!content) throw new Error('Réponse vide du modèle')
       return content
     } catch (err: unknown) {

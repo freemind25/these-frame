@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI } from '@/lib/ai-router'
 
 // POST /api/automation/pipeline
 // Body: { action: 'generate-drafts' | 'review-all', thesis: { title, field, chapters[] }, provider, apiKey, baseUrl, model }
@@ -230,9 +231,22 @@ function parseReviewResponse(raw: string): { score: number; remarks: { type: str
   }
 }
 
-async function callLLM(prompt: string, _provider?: string, _apiKey?: string, _baseUrl?: string, model?: string): Promise<string> {
+async function callLLM(prompt: string, provider?: string, apiKey?: string, baseUrl?: string, model?: string): Promise<string> {
+  if (provider && provider !== 'z-ai' && apiKey && baseUrl) {
+    return callAI({
+      provider,
+      apiKey,
+      baseUrl,
+      model: model || 'GLM5.2R',
+      messages: [
+        { role: 'system', content: 'Tu es un assistant académique expert en rédaction de thèses de doctorat. Réponds en français.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+      maxTokens: 4000,
+    })
+  }
   const zai = await getZAI()
-
   const response = await zai.chat.completions.create({
     messages: [
       { role: 'system', content: 'Tu es un assistant académique expert en rédaction de thèses de doctorat. Réponds en français.' },
@@ -241,6 +255,5 @@ async function callLLM(prompt: string, _provider?: string, _apiKey?: string, _ba
     temperature: 0.7,
     max_tokens: 4000,
   })
-
   return response.choices?.[0]?.message?.content || ''
 }

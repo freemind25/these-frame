@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { DIRECTEUR_SYSTEM_PROMPT, buildDirecteurPrompt, type DirecteurParams } from '@/data/directeur-prompt'
 import { getCadrageForDirecteur } from '@/lib/cadrage-bridge'
 
@@ -65,18 +66,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const zai = await getZAI()
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'assistant', content: DIRECTEUR_SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt + cadrageContext },
-      ],
-      thinking: { type: 'disabled' },
-    })
+    const messages = [
+      { role: 'assistant', content: DIRECTEUR_SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt + cadrageContext },
+    ]
 
-    const aiResponse =
-      completion.choices[0]?.message?.content ||
-      'Désolé, une erreur est survenue lors de l\'évaluation.'
+    const extProvider = getProviderConfig(body)
+    let aiResponse: string
+    if (extProvider) {
+      aiResponse = await callAI({
+        provider: extProvider.provider,
+        apiKey: extProvider.apiKey,
+        baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.3,
+        maxTokens: 4096,
+      })
+    } else {
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages,
+        thinking: { type: 'disabled' },
+      })
+      aiResponse = completion.choices[0]?.message?.content || 'Désolé, une erreur est survenue lors de l\'évaluation.'
+    }
 
     return NextResponse.json({ success: true, response: aiResponse })
   } catch (error) {

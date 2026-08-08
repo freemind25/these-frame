@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { buildReformulatePrompt } from '@/lib/cadrage-prompt'
 import { db } from '@/lib/db'
 import { CADRAGE_FIELDS } from '@/types/cadrage'
@@ -8,7 +9,8 @@ import type { CadrageFieldKey } from '@/types/cadrage'
 // POST /api/cadrage/reformulate — Reformuler un champ isolé
 export async function POST(request: NextRequest) {
   try {
-    const { thesisId, fieldKey, currentValue, otherFields } = await request.json()
+    const body = await request.json() as Record<string, unknown>
+    const { thesisId, fieldKey, currentValue, otherFields } = body
 
     if (!thesisId || !fieldKey || !currentValue) {
       return NextResponse.json(
@@ -25,26 +27,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call LLM
-    const zai = await getZAI()
-    const userPrompt = buildReformulatePrompt(
-      fieldKey,
-      fieldDef.label,
-      currentValue,
-      otherFields || {},
-    )
-
-    const response = await zai.chat.completions.create({
-      model: 'glm-4-flash',
-      messages: [
-        { role: 'system', content: 'Tu es l\'assistant de cadrage de ThesisFrame. Reformule le champ demandé au conditionnel. Réponds UNIQUEMENT en JSON valide : { "value": "...", "meta": null | {...} }. Pas de markdown.' },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 1500,
-    })
-
-    let rawContent = response.choices[0]?.message?.content || ''
+    const extProvider = getProviderConfig(body)
+    let rawContent: string
+    if (extProvider) {
+      const userPrompt = buildReformulatePrompt(
+        fieldKey,
+        fieldDef.label,
+        currentValue,
+        otherFields || {},
+      )
+      rawContent = await callAI({
+        provider: extProvider.provider, apiKey: extProvider.apiKey, baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: [
+          { role: 'system', content: 'Tu es l\'assistant de cadrage de ThesisFrame. Reformule le champ demandé au conditionnel. Réponds UNIQUEMENT en JSON valide : { "value": "...", "meta": null | {...} }. Pas de markdown.' },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7, maxTokens: 1500,
+      })
+    } else {
+      const zai = await getZAI()
+      const userPrompt = buildReformulatePrompt(
+        fieldKey,
+        fieldDef.label,
+        currentValue,
+        otherFields || {},
+      )
+      const response = await zai.chat.completions.create({
+        model: 'glm-4-flash',
+        messages: [
+          { role: 'system', content: 'Tu es l\'assistant de cadrage de ThesisFrame. Reformule le champ demandé au conditionnel. Réponds UNIQUEMENT en JSON valide : { "value": "...", "meta": null | {...} }. Pas de markdown.' },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 1500,
+      })
+      rawContent = response.choices[0]?.message?.content || ''
+    }
     rawContent = rawContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
 
     let parsed: any = {}

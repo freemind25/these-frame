@@ -44,6 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { withProviderConfig } from '@/hooks/use-provider-config'
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -152,11 +153,11 @@ export default function DictationButton({
       const res = await fetch('/api/dictation/post-process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify(withProviderConfig({
           mode: 'cleanup',
           transcript: rawText,
           context: ctx,
-        }),
+        })),
       })
 
       const data = await res.json()
@@ -190,12 +191,12 @@ export default function DictationButton({
       const res = await fetch('/api/dictation/post-process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify(withProviderConfig({
           mode: 'edit',
           selectedText: selText,
           instruction,
           context: ctx,
-        }),
+        })),
       })
 
       const data = await res.json()

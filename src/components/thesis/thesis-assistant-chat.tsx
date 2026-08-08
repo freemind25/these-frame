@@ -24,6 +24,7 @@ import {
   BookOpen,
   FileSearch,
 } from 'lucide-react'
+import { withProviderConfig } from '@/hooks/use-provider-config'
 import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
 import type { ChapterData } from '@/types/thesis'
@@ -249,7 +250,7 @@ export default function ThesisAssistantChat({
       const res = await fetch('/api/thesis-assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reqBody),
+        body: JSON.stringify(withProviderConfig(reqBody)),
       })
 
       const data = await res.json()

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { LR_DIMENSIONS, PRISMA_CHECKLIST, PICO_FRAMEWORK, LR_TYPE_PROFILE } from '@/data/lr-typology'
 import { createConversationStore } from '@/lib/conversation-store'
 import { aiWritingSchema, validateBody } from '@/lib/api-schemas'
@@ -469,52 +470,9 @@ const VALID_MODES = Object.keys(SYSTEM_PROMPTS)
 
 // ── In-memory conversation store (via shared ConversationStore) ──
 
-// ── OpenAI-compatible fetch for external providers ──
-async function callOpenAICompatible({
-  baseUrl,
-  apiKey,
-  model,
-  messages,
-  temperature,
-  maxTokens,
-}: {
-  baseUrl: string
-  apiKey: string
-  model: string
-  messages: { role: string; content: string }[]
-  temperature?: number
-  maxTokens?: number
-}) {
-  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
-  const body: Record<string, unknown> = {
-    model,
-    messages,
-    ...(temperature !== undefined && { temperature }),
-    ...(maxTokens && { max_tokens: maxTokens }),
-  }
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  })
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '')
-    let msg = `Erreur ${res.status} du fournisseur IA.`
-    try {
-      const parsed = JSON.parse(errBody)
-      msg = parsed?.error?.message || parsed?.error || msg
-    } catch { /* use default */ }
-    throw new Error(msg)
-  }
-
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content || 'Aucune réponse générée.'
-}
+// ── OpenAI-compatible fetch for external providers (delegated to ai-router) ──
+// The shared callOpenAICompatible in ai-router.ts is now used instead.
+// This local version is kept as a thin wrapper for backward compat.
 
 export async function POST(request: NextRequest) {
   try {
@@ -528,16 +486,27 @@ export async function POST(request: NextRequest) {
     // ── Inline transform: direct prompt, no conversation store ──
     if (mode === 'inline-transform' && prompt) {
       const systemPrompt = SYSTEM_PROMPTS['inline-transform']!
-      const zai = await getZAI()
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'assistant', content: systemPrompt },
-          { role: 'user', content: prompt },
-        ],
-        thinking: { type: 'disabled' },
-        temperature: 0.3,
-      })
-      const result = completion.choices[0]?.message?.content || ''
+      const extProvider = getProviderConfig(body as Record<string, unknown>)
+      let result: string
+      if (extProvider) {
+        result = await callAI({
+          provider: extProvider.provider, apiKey: extProvider.apiKey, baseUrl: extProvider.baseUrl,
+          model: extProvider.model || 'GLM5.2R',
+          messages: [ { role: 'system', content: systemPrompt }, { role: 'user', content: prompt } ],
+          temperature: 0.3, maxTokens: 4000,
+        })
+      } else {
+        const zai = await getZAI()
+        const completion = await zai.chat.completions.create({
+          messages: [
+            { role: 'assistant', content: systemPrompt },
+            { role: 'user', content: prompt },
+          ],
+          thinking: { type: 'disabled' },
+          temperature: 0.3,
+        })
+        result = completion.choices[0]?.message?.content || ''
+      }
       return NextResponse.json({ success: true, result, text: result })
     }
 
@@ -573,11 +542,12 @@ export async function POST(request: NextRequest) {
     let aiResponse: string
 
     if (provider && provider !== 'z-ai') {
-      // External provider (Mistral, OpenAI, custom)
+      // External provider (RoutesMe, Mistral, OpenAI, etc.) — use shared callAI from ai-router
       const apiMessages = history.map(m => ({ role: m.role, content: m.content }))
-      aiResponse = await callOpenAICompatible({
-        baseUrl: baseUrl!,
+      aiResponse = await callAI({
+        provider,
         apiKey: apiKey!,
+        baseUrl: baseUrl!,
         model: model!,
         messages: apiMessages,
         temperature,

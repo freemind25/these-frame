@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 
 const SYSTEM_PROMPT = `Tu es un assistant de recherche académique. Réponds à la question de l'étudiant en te basant EXCLUSIVEMENT sur les sources fournies. Cite les sources utilisées. Si les sources ne contiennent pas assez d'information, indique-le clairement.`
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { question, sourceIds } = body as {
+    const bodyRaw = await request.json()
+    const { question, sourceIds } = bodyRaw as {
       question?: string
       sourceIds?: string[]
     }
@@ -41,16 +42,29 @@ export async function POST(request: NextRequest) {
     const fullSystemPrompt = `${SYSTEM_PROMPT}\n\nSources disponibles :\n\n${sourcesText}`
 
     // 3. Use z-ai-web-dev-sdk LLM to answer
-    const zai = await getZAI()
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: fullSystemPrompt },
-        { role: 'user', content: question.trim() },
-      ],
-      thinking: { type: 'disabled' },
-    })
-
-    const answer = completion.choices?.[0]?.message?.content || 'Désolé, une erreur est survenue lors de la génération.'
+    const extProvider = getProviderConfig(bodyRaw)
+    let answer: string
+    if (extProvider) {
+      answer = await callAI({
+        provider: extProvider.provider, apiKey: extProvider.apiKey, baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: [
+          { role: 'system', content: fullSystemPrompt },
+          { role: 'user', content: question.trim() },
+        ],
+        temperature: 0.3, maxTokens: 4000,
+      })
+    } else {
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'system', content: fullSystemPrompt },
+          { role: 'user', content: question.trim() },
+        ],
+        thinking: { type: 'disabled' },
+      })
+      answer = completion.choices?.[0]?.message?.content || 'Désolé, une erreur est survenue lors de la génération.'
+    }
 
     // 4. Save Q&A to NotebookEntry
     const usedSourceIds = sources.map((s) => s.id)

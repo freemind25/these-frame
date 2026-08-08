@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { buildGeneratePrompt } from '@/lib/cadrage-prompt'
 import { db } from '@/lib/db'
 import { CADRAGE_FIELD_KEYS, type CadrageFieldKey } from '@/types/cadrage'
@@ -7,7 +8,8 @@ import { CADRAGE_FIELD_KEYS, type CadrageFieldKey } from '@/types/cadrage'
 // POST /api/cadrage/generate — Générer un premier jet à partir du pitch
 export async function POST(request: NextRequest) {
   try {
-    const { thesisId, pitch } = await request.json()
+    const body = await request.json() as Record<string, unknown>
+    const { thesisId, pitch } = body
 
     if (!thesisId || !pitch || typeof pitch !== 'string' || pitch.trim().length < 10) {
       return NextResponse.json(
@@ -16,21 +18,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call LLM
-    const zai = await getZAI()
-    const userPrompt = buildGeneratePrompt(pitch.trim())
-
-    const response = await zai.chat.completions.create({
-      model: 'glm-4-flash',
-      messages: [
-        { role: 'system', content: `Tu es l'assistant de cadrage de ThesisFrame. Tu génères des PROPOSITIONS DE BROUILLON pour un cadrage provisoire. Chaque suggestion doit être formulée comme hypothèse de travail modifiable. Ne jamais inventer de noms d'auteurs ou de références précises. Réponds UNIQUEMENT en JSON valide, sans markdown, sans préambule.` },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 4000,
-    })
-
-    let rawContent = response.choices[0]?.message?.content || ''
+    const extProvider = getProviderConfig(body)
+    let rawContent: string
+    if (extProvider) {
+      const userPrompt = buildGeneratePrompt(pitch.trim())
+      rawContent = await callAI({
+        provider: extProvider.provider, apiKey: extProvider.apiKey, baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: [
+          { role: 'system', content: `Tu es l'assistant de cadrage de ThesisFrame. Tu génères des PROPOSITIONS DE BROUILLON pour un cadrage provisoire. Chaque suggestion doit être formulée comme hypothèse de travail modifiable. Ne jamais inventer de noms d'auteurs ou de références précises. Réponds UNIQUEMENT en JSON valide, sans markdown, sans préambule.` },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7, maxTokens: 4000,
+      })
+    } else {
+      const zai = await getZAI()
+      const userPrompt = buildGeneratePrompt(pitch.trim())
+      const response = await zai.chat.completions.create({
+        model: 'glm-4-flash',
+        messages: [
+          { role: 'system', content: `Tu es l'assistant de cadrage de ThesisFrame. Tu génères des PROPOSITIONS DE BROUILLON pour un cadrage provisoire. Chaque suggestion doit être formulée comme hypothèse de travail modifiable. Ne jamais inventer de noms d'auteurs ou de références précises. Réponds UNIQUEMENT en JSON valide, sans markdown, sans préambule.` },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 4000,
+      })
+      rawContent = response.choices[0]?.message?.content || ''
+    }
     // Strip markdown code blocks if present
     rawContent = rawContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
 

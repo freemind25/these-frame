@@ -5,6 +5,7 @@ import {
   detectHallucination,
   type DictationContext,
 } from '@/lib/dictation-prompts'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 
 // POST /api/dictation/post-process
 //
@@ -46,7 +47,7 @@ async function handleCleanup(body: Record<string, unknown>) {
 
   const ctx = context as DictationContext | undefined
   const systemPrompt = buildCleanupPrompt(ctx)
-  const cleaned = await callLLM(systemPrompt, transcript)
+  const cleaned = await callLLM(systemPrompt, transcript, body)
 
   // Anti-hallucination check
   const { safe, reason } = detectHallucination(transcript, cleaned)
@@ -83,16 +84,15 @@ async function handleEdit(body: Record<string, unknown>) {
     context: ctx,
   })
 
-  const transformed = await callLLM(prompt, '')
+  const transformed = await callLLM(prompt, '', body)
 
   return NextResponse.json({ text: transformed, mode: 'edit' })
 }
 
 // ─── LLM call ─────────────────────────────────────────────────────
 
-async function callLLM(systemPrompt: string, userMessage: string): Promise<string> {
-  const { getZAI } = await import('@/lib/zai')
-  const zai = await getZAI()
+async function callLLM(systemPrompt: string, userMessage: string, body?: Record<string, unknown>): Promise<string> {
+  const extProvider = body ? getProviderConfig(body) : null
 
   const messages: Array<{ role: string; content: string }> = [
     { role: 'system', content: systemPrompt },
@@ -101,6 +101,24 @@ async function callLLM(systemPrompt: string, userMessage: string): Promise<strin
   if (userMessage.trim()) {
     messages.push({ role: 'user', content: userMessage })
   }
+
+  if (extProvider) {
+    const text = await callAI({
+      provider: extProvider.provider,
+      apiKey: extProvider.apiKey,
+      baseUrl: extProvider.baseUrl,
+      model: extProvider.model || 'GLM5.2R',
+      messages,
+      temperature: 0.1,
+      maxTokens: 2000,
+    })
+    const trimmed = text.trim()
+    if (trimmed === 'EMPTY') return ''
+    return trimmed
+  }
+
+  const { getZAI } = await import('@/lib/zai')
+  const zai = await getZAI()
 
   const result = await zai.chat.completions.create({
     messages,

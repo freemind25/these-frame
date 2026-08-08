@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 
 const HUMANIZER_SYSTEM = `Tu es un éditeur spécialisé qui identifie et supprime les signes d'écriture générée par IA pour rendre le texte plus naturel et humain. Ce guide est basé sur le travail de WikiProject AI Cleanup de Wikipedia.
 
@@ -78,7 +79,8 @@ IMPORTANT : Retourne UNIQUEMENT le texte humanisé. Pas de préambule, pas d'exp
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, voiceSample } = await request.json()
+    const body = await request.json() as Record<string, unknown>
+    const { text, voiceSample } = body
 
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return NextResponse.json({ error: 'Le texte est requis.' }, { status: 400 })
@@ -87,8 +89,6 @@ export async function POST(request: NextRequest) {
     if (text.length > 15000) {
       return NextResponse.json({ error: 'Le texte ne doit pas dépasser 15 000 caractères.' }, { status: 400 })
     }
-
-    const zai = await getZAI()
 
     let systemPrompt = HUMANIZER_SYSTEM
 
@@ -110,15 +110,32 @@ Adapter la réécriture pour correspondre à CE style d'écriture, pas à un sty
 ${voiceSample.trim()}`
     }
 
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'assistant', content: systemPrompt },
-        { role: 'user', content: text.trim() }
-      ],
-      thinking: { type: 'disabled' }
-    })
-
-    const humanized = completion.choices[0]?.message?.content || text
+    const extProvider = getProviderConfig(body)
+    let humanized: string
+    if (extProvider) {
+      humanized = await callAI({
+        provider: extProvider.provider,
+        apiKey: extProvider.apiKey,
+        baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: text.trim() },
+        ],
+        temperature: 0.3,
+        maxTokens: 8000,
+      })
+    } else {
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: 'assistant', content: systemPrompt },
+          { role: 'user', content: text.trim() }
+        ],
+        thinking: { type: 'disabled' }
+      })
+      humanized = completion.choices[0]?.message?.content || text
+    }
 
     return NextResponse.json({ success: true, humanized })
   } catch (error) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 import { DIRECTEUR_SYSTEM_PROMPT } from '@/data/directeur-prompt'
 import { getGuidanceForContext } from '@/data/guidance-fiches'
 import { getBookSkillSummaryAsync } from '@/lib/book-skills-server'
@@ -302,22 +303,37 @@ export async function POST(request: NextRequest) {
 
     history = store.addAndTrim(sid, 'user', trimmedMessage, 24)
 
-    const zai = await getZAI()
     const apiMessages = history
       .filter((m) => m.role !== 'system')
       .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
 
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'assistant', content: systemPrompt },
-        ...apiMessages,
-      ],
-      thinking: { type: 'disabled' },
-    })
+    const fullMessages = [
+      { role: 'assistant', content: systemPrompt },
+      ...apiMessages,
+    ]
 
-    const aiResponse =
-      completion.choices[0]?.message?.content ||
-      'Désolé, une erreur est survenue lors de la génération.'
+    // Use external provider (RoutesMe, Mistral, etc.) if configured
+    const extProvider = getProviderConfig(body)
+    let aiResponse: string
+    if (extProvider) {
+      aiResponse = await callAI({
+        provider: extProvider.provider,
+        apiKey: extProvider.apiKey,
+        baseUrl: extProvider.baseUrl,
+        model: extProvider.model || 'GLM5.2R',
+        messages: fullMessages.map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.7,
+        maxTokens: 4096,
+      })
+    } else {
+      const zai = await getZAI()
+      const completion = await zai.chat.completions.create({
+        messages: fullMessages,
+        thinking: { type: 'disabled' },
+      })
+      aiResponse = completion.choices[0]?.message?.content ||
+        'Désolé, une erreur est survenue lors de la génération.'
+    }
 
     history = store.addAndTrim(sid, 'assistant', aiResponse, 24)
 

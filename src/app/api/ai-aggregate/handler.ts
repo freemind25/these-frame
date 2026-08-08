@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getZAI } from '@/lib/zai'
+import { callAI, getProviderConfig } from '@/lib/ai-router'
 
 // ─── Types ──────────────────────────────────────────────
 interface ResearcherResponse {
@@ -185,6 +186,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
+    const extProvider = getProviderConfig(body as Record<string, unknown>)
     const {
       question,
       mode = 'fast',
@@ -203,7 +205,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'La question est requise.' }, { status: 400 })
     }
 
-    const zai = await getZAI()
     const trimmedQuestion = question.trim()
 
     // Select researchers based on mode
@@ -228,15 +229,31 @@ export async function POST(request: NextRequest) {
         try {
           const systemPrompt = `${contextHeader}\n\n${researcher.systemSuffix}`
 
-          const completion = await zai.chat.completions.create({
-            messages: [
-              { role: 'assistant', content: systemPrompt },
-              { role: 'user', content: trimmedQuestion },
-            ],
-            thinking: { type: 'disabled' },
-          })
-
-          const responseText = completion.choices[0]?.message?.content || ''
+          let responseText: string
+          if (extProvider) {
+            responseText = await callAI({
+              provider: extProvider.provider,
+              apiKey: extProvider.apiKey,
+              baseUrl: extProvider.baseUrl,
+              model: extProvider.model || 'GLM5.2R',
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: trimmedQuestion },
+              ],
+              temperature: researcher.temperature,
+              maxTokens: 2000,
+            })
+          } else {
+            const zai = await getZAI()
+            const completion = await zai.chat.completions.create({
+              messages: [
+                { role: 'assistant', content: systemPrompt },
+                { role: 'user', content: trimmedQuestion },
+              ],
+              thinking: { type: 'disabled' },
+            })
+            responseText = completion.choices[0]?.message?.content || ''
+          }
           const keyPoints = extractKeyPoints(responseText)
           const duration = Date.now() - researcherStart
 
@@ -283,13 +300,28 @@ export async function POST(request: NextRequest) {
 
     let aggregatedResponse: string
     try {
-      const aggregation = await zai.chat.completions.create({
-        messages: [
-          { role: 'user', content: aggregationPrompt },
-        ],
-        thinking: { type: 'disabled' },
-      })
-      aggregatedResponse = aggregation.choices[0]?.message?.content || "Erreur lors de l'agrégation finale."
+      if (extProvider) {
+        aggregatedResponse = await callAI({
+          provider: extProvider.provider,
+          apiKey: extProvider.apiKey,
+          baseUrl: extProvider.baseUrl,
+          model: extProvider.model || 'GLM5.2R',
+          messages: [
+            { role: 'user', content: aggregationPrompt },
+          ],
+          temperature: 0.5,
+          maxTokens: 3000,
+        })
+      } else {
+        const zai = await getZAI()
+        const aggregation = await zai.chat.completions.create({
+          messages: [
+            { role: 'user', content: aggregationPrompt },
+          ],
+          thinking: { type: 'disabled' },
+        })
+        aggregatedResponse = aggregation.choices[0]?.message?.content || "Erreur lors de l'agrégation finale."
+      }
     } catch {
       aggregatedResponse = researcherResults[0]?.response || 'Aucune réponse disponible.'
     }
