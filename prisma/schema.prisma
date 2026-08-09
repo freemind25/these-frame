@@ -286,6 +286,111 @@ model CustomBookSkill {
   updatedAt     DateTime @updatedAt
 }
 
+// ─── Vérification méthodologique (Module A + B) ────────────
+
+model ElementAnalyse {
+  id            String    @id @default(cuid())
+  nom           String
+  typeElement   String
+  natureElement String
+  sousAnalyse   String?
+  source        String
+  dateSource    DateTime?
+  geojson       String?
+  styleConfig   String?
+  chapitreId    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([typeElement])
+  @@index([natureElement])
+}
+
+model TypeAnalyseMethodologique {
+  id                 String   @id @default(cuid())
+  discipline         String
+  nom                String
+  elementsAttendus   String
+  promptQuestionneur String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now())
+
+  @@unique([discipline, nom])
+}
+
+model SessionVerification {
+  id               String   @id @default(cuid())
+  siteEtudeId      String
+  typeAnalyseId    String
+  elementsManquants String
+  questionsPosees  String
+  reponses         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+}
+
+// ─── Onglet Recherche (bibliothèque + fiches + veille) ─────
+
+model SourceBibliographique {
+  id            String   @id @default(cuid())
+  titre         String
+  auteurs       String   // JSON: [{nom, prenom}]
+  annee         Int?
+  doi           String?
+  type          String   @default("article") // "article" | "ouvrage" | "these" | "rapport" | "chapitre"
+  abstract      String?  // résumé original de la source, jamais généré par ThesisFrame
+  journal       String?
+  volume        String?
+  pages         String?
+  url           String?
+  tags          String?  // JSON: string[]
+  mendeleyId    String?
+  zoteroId      String?
+  chapitres     SourceChapitre[]
+  fichesLecture FicheLecture[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type])
+  @@index([annee])
+}
+
+model SourceChapitre {
+  sourceId   String
+  source     SourceBibliographique @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  chapitreId String
+  createdAt  DateTime @default(now())
+
+  @@id([sourceId, chapitreId])
+}
+
+model FicheLecture {
+  id             String   @id @default(cuid())
+  sourceId       String
+  source         SourceBibliographique @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  chapitreId     String?
+  problematique  String?  // rédigé par le chercheur — jamais pré-rempli par l'IA
+  methode        String?
+  resultatsCles  String?
+  limites        String?
+  positionnement String?  // en quoi cette source se rattache (ou s'oppose) à la thèse du chercheur
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([sourceId])
+  @@index([chapitreId])
+}
+
+model RechercheSauvegardee {
+  id               String    @id @default(cuid())
+  requete          String
+  filtres          String?   // JSON: { discipline, periode, langue, type }
+  alerteActive     Boolean   @default(false)
+  derniereExecution DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
 // ─── Agile Roadmap (Sprints & Stories) ────────────────────────
 
 model AgileSprint {

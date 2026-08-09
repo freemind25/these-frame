@@ -33,6 +33,8 @@ import BookSkillsPanel from '@/components/thesis/book-skills-panel'
 import LicenseAdminPanel from '@/components/thesis/license-admin-panel'
 import AuthProviderPanel from '@/components/thesis/auth-provider-panel'
 import RoutesMePanel from '@/components/thesis/routesme-panel'
+import VerificationPanel from '@/components/thesis/verification-panel'
+import RecherchePanel from '@/components/thesis/recherche-panel'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { KeyRound, Shield, Zap } from 'lucide-react'
 
@@ -116,6 +118,8 @@ export default function Home() {
   const [licenseAdminOpen, setLicenseAdminOpen] = useState(false)
   const [authProvidersOpen, setAuthProvidersOpen] = useState(false)
   const [routesMeOpen, setRoutesMeOpen] = useState(false)
+  const [verificationOpen, setVerificationOpen] = useState(false)
+  const [rechercheOpen, setRechercheOpen] = useState(false)
   const [activeBookIds, setActiveBookIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tf_activeBookIds')
@@ -746,6 +750,8 @@ export default function Home() {
           onOpenLicenseAdmin={() => setLicenseAdminOpen(true)}
           onOpenAuthProviders={() => setAuthProvidersOpen(true)}
           onOpenRoutesMe={() => setRoutesMeOpen(true)}
+          onOpenVerification={() => setVerificationOpen(true)}
+          onOpenRecherche={() => setRechercheOpen(true)}
           onToggleEditorMode={() => setEditorMode(m => m === 'rich' ? 'plain' : 'rich')}
           onSwitchMode={handleSwitchMode}
           onOpenTemplates={() => setTemplateOpen(true)}
@@ -971,6 +977,18 @@ export default function Home() {
       <BoxDrivePanel
         open={boxDriveOpen}
         onOpenChange={setBoxDriveOpen}
+      />
+
+      <VerificationPanel
+        open={verificationOpen}
+        onOpenChange={setVerificationOpen}
+      />
+
+      <RecherchePanel
+        open={rechercheOpen}
+        onOpenChange={setRechercheOpen}
+        chapitreId={activeChapterId}
+        chapitreTitle={chapterMeta?.title || activeChapter?.title}
       />
 
       <UsageGuidePanel

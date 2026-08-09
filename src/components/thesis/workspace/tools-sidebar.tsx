@@ -7,7 +7,7 @@ import {
   PenLine, SpellCheck, ShieldCheck, PenTool, ToggleLeft,
   GraduationCap, Compass, FileSpreadsheet, Zap, Brain, Map, PencilRuler, BookCheck,
   KeyRound, ShieldAlert, FolderTree, ListChecks, ClipboardList, BarChart3, Box,
-  CircleHelp,
+  CircleHelp, ClipboardCheck, BookMarked,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -44,6 +44,8 @@ const TOOLS = [
   { icon: BookOpen, label: 'Boîte doctorale', key: 'doctoralToolkit' },
   { icon: Box, label: 'Box Cloud', key: 'boxDrive' },
   { icon: Zap, label: 'RoutesMe API', key: 'routesMe' },
+  { icon: ClipboardCheck, label: 'Vérif. méthodol.', key: 'verification' },
+  { icon: BookMarked, label: 'Onglet Recherche', key: 'recherche' },
 ] as const
 
 interface ToolsSidebarProps {
@@ -84,6 +86,8 @@ interface ToolsSidebarProps {
   onOpenLicenseAdmin: () => void
   onOpenAuthProviders: () => void
   onOpenRoutesMe: () => void
+  onOpenVerification: () => void
+  onOpenRecherche: () => void
   onToggleEditorMode: () => void
   // Structure
   onSwitchMode: (mode: 'chapters' | 'parts') => void
@@ -95,7 +99,7 @@ export default function ToolsSidebar({
   onOpenAssistant, onOpenDirecteur, onOpenRefs, onOpenResources, onOpenExport, onOpenLiterature,
   onOpenBalance, onOpenCloudDrive, onOpenJournalFinder,
   onOpenExcalidraw, onOpenGrammar, onOpenHarper, onOpenAutoEdition, onOpenSearch,
-  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenUsageGuide, onOpenLicenseAdmin, onOpenAuthProviders, onOpenRoutesMe, onToggleEditorMode, onSwitchMode, onOpenTemplates,
+  onOpenCadrage, onOpenOffice, onOpenAutomation, onOpenIthyResearch, onOpenAgileRoadmap, onOpenWritingUnblock, onOpenBookSkills, onOpenResearchResources, onOpenFieldAnalysis, onOpenApaComposer, onOpenSlrProtocol, onOpenDoctoralToolkit, onOpenBoxDrive, onOpenUsageGuide, onOpenLicenseAdmin, onOpenAuthProviders, onOpenRoutesMe, onOpenVerification, onOpenRecherche, onToggleEditorMode, onSwitchMode, onOpenTemplates,
 }: ToolsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -131,6 +135,8 @@ export default function ToolsSidebar({
     licenseAdmin: onOpenLicenseAdmin,
     authProviders: onOpenAuthProviders,
     routesMe: onOpenRoutesMe,
+    verification: onOpenVerification,
+    recherche: onOpenRecherche,
   }
 
   const handleToolClick = (key: string) => {
