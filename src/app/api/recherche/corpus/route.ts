@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FICHE_ETAPES, FICHE_REVUE_LITTERATURE, FICHE_METHODOLOGIE, FICHE_POSITIONNEMENT, FICHE_REDACTION, FICHE_PLAN, FICHE_OUTILS_QUALITE, FICHE_SOUTENANCE, FICHE_RYTHME } from '@/data/guidance-fiches'
-import { researchCycle, researchTypes, problematiqueItems, operationalisationExamples, collectTools } from '@/data/methodology-guide'
+import { researchCycle, researchTypes, problematiqueGuide, operationalisationExample, collectTools } from '@/data/methodology-guide'
 import { writingPhases, commonPitfalls, structureTips } from '@/data/thesis-writing-guide'
 
 interface CorpusEntry {
@@ -54,7 +54,7 @@ function buildCorpusIndex(): CorpusEntry[] {
       motsCles: ['recherche', 'type'],
     })
   }
-  for (const p of problematiqueItems) {
+  for (const p of problematiqueGuide) {
     entries.push({
       corpus: 'methodologie_disciplinaire',
       titre: p.question,
@@ -70,7 +70,8 @@ function buildCorpusIndex(): CorpusEntry[] {
       motsCles: ['collecte', 'outil', ...tool.conseils],
     })
   }
-  for (const ex of operationalisationExamples) {
+  {
+    const ex = operationalisationExample
     entries.push({
       corpus: 'methodologie_disciplinaire',
       titre: `Opérationnalisation : ${ex.concept}`,

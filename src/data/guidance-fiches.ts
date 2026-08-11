@@ -897,6 +897,62 @@ import {
   FICHE_MODELES_STRUCTURE_THESE,
 } from './fiches-archi-urba'
 
+// ─────────────────────────────────────────────
+// FICHE: Rythme de rédaction
+// ─────────────────────────────────────────────
+export const FICHE_RYTHME = {
+  id: 'fiche-rythme',
+  title: 'Rythme de rédaction',
+  content: `# Rythme de rédaction
+
+La régularité bat l'intensité : écrire 20-30 minutes par jour produit un manuscrit plus vite et avec moins de souffrance qu'écrire 8 heures le dimanche.
+
+## Micro-sessions quotidiennes
+Bloquer un créneau court (méthode Pomodoro, 25 minutes) et définir avant la session ce qui sera écrit précisément — une section, un paragraphe — jamais « travailler sur la thèse » en général. Fermer les distractions pendant la session. Noter en une phrase où l'on s'arrête, pour repartir sans effort la fois suivante.
+
+## Fragmentation en tâches courtes
+Découper un chapitre en micro-tâches réalisables en 15 à 45 minutes (« rédiger l'intro de la section 3.2 », « décrire le tableau 5 »). Commencer par la plus simple pour créer l'élan. Cocher chaque tâche accomplie : la progression visible est un moteur puissant contre la procrastination.
+
+## Combattre le perfectionnisme paralysant
+Le perfectionnisme en rédaction est souvent une procrastination déguisée. Séparer explicitement l'écriture du premier jet et la relecture/correction — ne jamais faire les deux en même temps. Un texte imparfait qu'on peut réviser vaut mieux qu'une page blanche parfaite.
+
+## Suivi de la progression
+Enregistrer le nombre de mots écrits par session, calculer une moyenne hebdomadaire (l'objectif est la régularité, pas un chiffre élevé), et prévoir une courte revue hebdomadaire pour ajuster la stratégie si la progression stagne plusieurs semaines de suite.
+
+## Comment utiliser avec un étudiant
+1. Identifier si le blocage vient du volume perçu (trop gros pour démarrer) ou du perfectionnisme (n'ose pas écrire imparfait).
+2. Proposer une micro-tâche unique et réalisable dans la session en cours, jamais un chapitre entier.
+3. Rappeler que le premier jet n'a pas vocation à être le texte final.`,
+}
+
+// ─────────────────────────────────────────────
+// FICHE: Soutenance orale
+// ─────────────────────────────────────────────
+export const FICHE_SOUTENANCE = {
+  id: 'fiche-soutenance',
+  title: 'Soutenance',
+  content: `# Soutenance orale
+
+La soutenance n'est pas un résumé de la thèse mais une démonstration de maîtrise : le jury évalue la capacité du candidat à défendre ses choix, pas seulement à les rappeler.
+
+## Structure de la présentation
+Construire un arc narratif court plutôt qu'un sommaire parlé : le problème et pourquoi il compte, la démarche adoptée et pourquoi celle-là plutôt qu'une autre, les résultats principaux, leur portée et leurs limites assumées. Réserver l'essentiel du temps aux choix méthodologiques et à la discussion, pas à la description exhaustive des résultats déjà dans le manuscrit.
+
+## Supports visuels
+Un support de présentation soutient l'oral, il ne le remplace pas : peu de texte par diapositive, une idée par diapositive, des visuels lisibles à distance. Éviter de lire ses diapositives — le jury lit plus vite qu'on ne parle, la redondance lasse.
+
+## Préparation aux questions du jury
+Anticiper les objections les plus probables sur la méthode et les limites, et préparer des réponses courtes et directes plutôt que défensives. Le rôle du jury est d'évaluer la rigueur du travail, pas de piéger le candidat — une objection est une occasion de montrer sa maîtrise du sujet, pas une attaque à repousser.
+
+## Préparation psychologique
+Répéter à voix haute plusieurs fois, idéalement devant un public test, pour caler le minutage et désamorcer le trac lié à la première prise de parole. Prévoir une réponse simple à la question la plus redoutée à l'avance plutôt que de découvrir sa réaction le jour même.
+
+## Comment utiliser avec un étudiant
+1. Demander d'abord le plan de la présentation avant tout travail sur les diapositives — la structure prime sur la forme.
+2. Faire identifier par l'étudiant lui-même les trois objections les plus probables sur son travail.
+3. Ne jamais rédiger les réponses aux questions du jury à sa place — proposer une méthode pour les préparer, pas un script.`,
+}
+
 export const ALL_FICHES = [
   FICHE_ETAPES,
   FICHE_ECRITURE,
@@ -923,6 +979,8 @@ export const ALL_FICHES = [
   FICHE_AUTO_EDITION_8C,
   FICHE_LANGUE_SECONDE,
   FICHE_APA_RESULTATS,
+  FICHE_RYTHME,
+  FICHE_SOUTENANCE,
 ] as const
 
 // ─────────────────────────────────────────────
